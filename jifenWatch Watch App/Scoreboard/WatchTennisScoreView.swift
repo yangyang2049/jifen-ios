@@ -1,203 +1,8 @@
 import LinkCore
-import Observation
 import RecordCore
 import ScoreCore
 import SessionCore
 import SwiftUI
-
-@MainActor
-@Observable
-private final class WatchTennisSessionStore {
-    typealias ResumeBundle = ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>
-
-    private let core: ScoreSessionCore<TennisMatchReducer>
-    private(set) var state: TennisMatchState
-    private(set) var actionLog: WatchScoreActionLog
-    private var lastAppliedRemoteGeneration: UInt64?
-    private var lastAppliedRemoteRevision: UInt64?
-    var onStateChanged: ((TennisMatchState, [TennisMatchEvent]) -> Void)?
-
-    init(
-        gameType: GameType,
-        rules: TennisRuleSet,
-        initialState: TennisMatchState? = nil,
-        resumeBundle: ResumeBundle? = nil,
-        resumedActionLog: WatchScoreActionLog? = nil,
-        startedAt: Date = Date()
-    ) {
-        let defaults = WatchDefaultTeamNames.resolve(for: gameType)
-        // Priority: a resumeBundle only ever arrives from the explicit resume
-        // flow (every fresh-launch path clears activeResumeSession first), so
-        // it wins. Otherwise initialState (fresh phone Setup snapshot or local
-        // setup) must be used as-is — never fall back to any historical state,
-        // mirroring HarmonyOS, which discards the persisted session on every
-        // non-resume scoreboard launch. Engine core and displayed state must
-        // always come from the same source.
-        let initial: TennisMatchState
-        if let resumeBundle {
-            core = ScoreSessionCore(
-                resumeBundle: resumeBundle,
-                reducer: TennisMatchReducer(),
-                shouldFinish: { _, state in state.finished }
-            )
-            initial = resumeBundle.currentSession.state
-        } else if let initialState {
-            let session = ScoreSession<TennisMatchState, TennisMatchEvent>(
-                gameType: gameType,
-                ruleFamily: .s1,
-                reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
-                state: initialState,
-                participants: [
-                    .init(id: TeamID.team0.rawValue, name: initialState.leftName, role: "team"),
-                    .init(id: TeamID.team1.rawValue, name: initialState.rightName, role: "team")
-                ]
-            )
-            core = ScoreSessionCore(
-                seedSession: session,
-                reducer: TennisMatchReducer(),
-                shouldFinish: { _, state in state.finished }
-            )
-            initial = initialState
-        } else {
-            let fallback = TennisMatchState(
-                leftName: defaults.left,
-                rightName: defaults.right,
-                rules: rules
-            )
-            let session = ScoreSession<TennisMatchState, TennisMatchEvent>(
-                gameType: gameType,
-                ruleFamily: .s1,
-                reducerType: ScoreboardKernelRegistry.descriptor(for: gameType).reducerType,
-                state: fallback,
-                participants: [
-                    .init(id: TeamID.team0.rawValue, name: fallback.leftName, role: "team"),
-                    .init(id: TeamID.team1.rawValue, name: fallback.rightName, role: "team")
-                ]
-            )
-            core = ScoreSessionCore(
-                seedSession: session,
-                reducer: TennisMatchReducer(),
-                shouldFinish: { _, state in state.finished }
-            )
-            initial = fallback
-        }
-        state = initial
-        actionLog = resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt)
-        if initial.rules.setScoringMode == .tiebreakOnly {
-            actionLog.omitSecondaryScores()
-        }
-    }
-
-    func score(_ side: MatchSide) {
-        send(.pointWon(side))
-    }
-
-    func send(_ intent: TennisMatchIntent) {
-        Task { [weak self, core] in
-            let now = Int64(Date().timeIntervalSince1970 * 1_000)
-            guard let self else { return }
-            if case .setOfficialBreakState = intent {
-                guard case .accepted(let session, let events) = await core.dispatchNonUndoable(
-                    actorId: "watch",
-                    intent: intent,
-                    at: now
-                ) else { return }
-                self.state = session.state
-                self.onStateChanged?(session.state, events)
-                return
-            }
-            self.actionLog.beginUndoableMutation()
-            guard case .accepted(let session, let events) = await core.dispatch(actorId: "watch", intent: intent, at: now) else {
-                self.actionLog.rejectUndoableMutation()
-                return
-            }
-            self.state = session.state
-            if case .reset = intent {
-                self.actionLog.reset(at: Date(timeIntervalSince1970: TimeInterval(now) / 1_000))
-                if session.state.rules.setScoringMode == .tiebreakOnly {
-                    self.actionLog.omitSecondaryScores()
-                }
-            } else {
-                self.actionLog.append(contentsOf: ScoreActionProjector.tennis(
-                    intent: intent,
-                    events: events,
-                    state: session.state,
-                    timestamp: Date(timeIntervalSince1970: TimeInterval(now) / 1_000)
-                ))
-            }
-            self.onStateChanged?(session.state, events)
-        }
-    }
-
-    func undo(onSuccess: @escaping () -> Void = {}) {
-        Task { [weak self, core] in
-            guard await core.undo(actorId: "watch"), let self else { return }
-            let session = await core.snapshot()
-            self.state = session.state
-            self.actionLog.undo(
-                at: Date(),
-                team1Score: session.state.leftPoints,
-                team2Score: session.state.rightPoints,
-                team1SetScore: session.state.rules.setScoringMode == .tiebreakOnly
-                    ? nil
-                    : session.state.leftSets,
-                team2SetScore: session.state.rules.setScoringMode == .tiebreakOnly
-                    ? nil
-                    : session.state.rightSets
-            )
-            self.onStateChanged?(session.state, [])
-            onSuccess()
-        }
-    }
-
-    @discardableResult
-    func applyAuthoritativeState(
-        _ state: TennisMatchState,
-        revision: UInt64,
-        matchGeneration: UInt64? = nil
-    ) async -> Bool {
-        if let matchGeneration, lastAppliedRemoteGeneration != matchGeneration {
-            if let lastAppliedRemoteGeneration, matchGeneration < lastAppliedRemoteGeneration {
-                return false
-            }
-            lastAppliedRemoteGeneration = matchGeneration
-            lastAppliedRemoteRevision = nil
-        }
-        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
-            return false
-        }
-        lastAppliedRemoteRevision = revision
-        let session = await core.rebase(
-            to: state,
-            status: state.finished ? .finished : .live
-        )
-        guard lastAppliedRemoteRevision == revision,
-              matchGeneration == nil || lastAppliedRemoteGeneration == matchGeneration else { return false }
-        self.state = session.state
-        actionLog.clearUndoHistory()
-        if session.state.rules.setScoringMode == .tiebreakOnly {
-            actionLog.omitSecondaryScores()
-        }
-        return true
-    }
-
-    func beginRemoteMatch(at timestamp: Date) {
-        actionLog.reset(at: timestamp)
-    }
-
-    @discardableResult
-    func mergeRemoteActions(_ actions: [DetailedScoreAction], removing removedIDs: Set<UUID> = []) -> Bool {
-        let changed = actionLog.merge(detailedActions: actions, removing: removedIDs)
-        if changed, state.rules.setScoringMode == .tiebreakOnly {
-            actionLog.omitSecondaryScores()
-        }
-        return changed
-    }
-
-    func resumeBundle() async -> ResumeBundle {
-        await core.resumeBundle()
-    }
-}
 
 struct WatchTennisScoreView: View {
     @Environment(\.dismiss) private var dismiss
@@ -208,10 +13,10 @@ struct WatchTennisScoreView: View {
     let linkedSessionId: UUID?
     let isDoubles: Bool
     @State private var showRecordSaveFailure = false
-    @State private var store: WatchTennisSessionStore
+    @State private var store: WatchReducerSessionStore<TennisMatchReducer>
     @State private var showMenu = false
     @State private var matchStartTime = Date()
-    @State private var didTransferFinishedRecord = false
+    @State private var localRecordID = "w_\(UUID().uuidString)"
     @State private var scoreboardLayout: String = "horizontal"
     @State private var restState: WatchRestState?
     @State private var showSideExchangeToast = false
@@ -243,19 +48,58 @@ struct WatchTennisScoreView: View {
         self.maxSets = maxSets
         self.linkedSessionId = linkedSessionId
         self.isDoubles = isDoubles
-        let rules = TennisRuleSet(maxSets: maxSets)
         let gameType: GameType = isDoubles ? .tennisDoubles : .tennis
+        let defaults = WatchDefaultTeamNames.resolve(for: gameType)
+        let seed = resumeBundle?.currentSession.state ?? initialState ?? TennisMatchState(
+            leftName: defaults.left,
+            rightName: defaults.right,
+            rules: TennisRuleSet(maxSets: maxSets)
+        )
         let startedAt = resumedStartTime ?? Date()
-        _store = State(initialValue: WatchTennisSessionStore(
-            gameType: gameType,
-            rules: initialState?.rules ?? rules,
-            initialState: initialState,
-            resumeBundle: resumeBundle,
-            resumedActionLog: resumedActionLog,
-            startedAt: startedAt
+        _store = State(initialValue: Self.makeStore(
+            gameType: gameType, isDoubles: isDoubles, state: seed, resumeBundle: resumeBundle,
+            resumedActionLog: resumedActionLog, startedAt: startedAt
         ))
         _matchStartTime = State(initialValue: startedAt)
         _restState = State(initialValue: resumedRestState)
+    }
+
+    private var gameType: GameType { isDoubles ? .tennisDoubles : .tennis }
+
+    private static func makeStore(
+        gameType: GameType,
+        isDoubles: Bool,
+        state: TennisMatchState,
+        resumeBundle: ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>? = nil,
+        resumedActionLog: WatchScoreActionLog? = nil,
+        startedAt: Date
+    ) -> WatchReducerSessionStore<TennisMatchReducer> {
+        let binding = WatchBoardBindings.tennis(gameType: gameType, isDoubles: isDoubles)
+        var actionLog = resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt)
+        if state.rules.setScoringMode == .tiebreakOnly {
+            actionLog.omitSecondaryScores()
+        }
+        if let resumeBundle {
+            return WatchReducerSessionStore(
+                resumeBundle: resumeBundle, reducer: TennisMatchReducer(),
+                binding: binding, actionLog: actionLog, startedAt: startedAt
+            )
+        }
+        let descriptor = ScoreboardKernelRegistry.descriptor(for: gameType)
+        let session = ScoreSession<TennisMatchState, TennisMatchEvent>(
+            gameType: gameType,
+            ruleFamily: descriptor.ruleFamily,
+            reducerType: descriptor.reducerType,
+            state: state,
+            participants: [
+                .init(id: TeamID.team0.rawValue, name: state.leftName, role: "team"),
+                .init(id: TeamID.team1.rawValue, name: state.rightName, role: "team")
+            ]
+        )
+        return WatchReducerSessionStore(
+            seedSession: session, reducer: TennisMatchReducer(), binding: binding,
+            actionLog: actionLog, startedAt: startedAt
+        )
     }
 
     private var scoringLocked: Bool {
@@ -370,14 +214,7 @@ struct WatchTennisScoreView: View {
             if !isDoubles {
                 scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
             }
-            store.onStateChanged = { [linkService] state, events in
-                if linkedSessionId != nil {
-                    guard linkService.canEditLinkedMatch else { return }
-                    linkService.publishSnapshot(.tennis(state), detailedActions: store.actionLog.detailedActions)
-                }
-                handle(events: events, state: state)
-                Task { await persistResumeSession() }
-            }
+            bindStateChanges()
             if store.state.finished {
                 beginProvisionalFinish()
             } else if restState == nil, let remoteBreak = store.state.officialBreakState {
@@ -393,38 +230,45 @@ struct WatchTennisScoreView: View {
                   update.matchGeneration == linkService.activeHandle?.matchGeneration,
                   let state = update.snapshot.tennisState else { return }
             let acceptsScore = linkService.incomingSnapshot != nil
-            if acceptsScore, update.beginsMatch(after: previous) {
+            let beganNewMatch = acceptsScore && update.beginsMatch(after: previous)
+            if beganNewMatch {
                 matchStartTime = Date()
                 store.beginRemoteMatch(at: matchStartTime)
+                didFinalizeFinish = false
+                manualFinishRequested = false
+                restTriggers.reset()
             }
             let historyChanged = store.mergeRemoteActions(update.detailedActions, removing: update.removedActionIDs)
-            guard acceptsScore else {
-                if historyChanged { Task { await persistResumeSession() } }
+            if historyChanged, store.state.rules.setScoringMode == .tiebreakOnly {
+                store.actionLog.omitSecondaryScores()
+            }
+            guard acceptsScore, beganNewMatch || state != store.state else {
+                if historyChanged { persistResumeSession() }
                 return
             }
-            Task {
-                guard update.matchGeneration == linkService.activeHandle?.matchGeneration else { return }
-                let scoreApplied = await store.applyAuthoritativeState(
-                    state, revision: update.revision, matchGeneration: update.matchGeneration
-                )
-                guard scoreApplied else {
-                    if historyChanged { await persistResumeSession() }
-                    return
-                }
-                if state.finished {
-                    restState = nil
-                    beginAutomaticFinishPresentation()
-                } else {
-                    completedScoreTask?.cancel()
-                    completedScoreTask = nil
-                    completedSetPresentation = nil
-                    finishTask?.cancel()
-                    showFinishedOverlay = false
-                    finishUndoAvailable = false
-                    didFinalizeFinish = false
-                    restState = WatchRestState.fromOfficialBreak(state.officialBreakState)
-                }
+            guard store.applyAuthoritativeState(
+                state, revision: update.revision, matchGeneration: update.matchGeneration
+            ) else {
+                if historyChanged { persistResumeSession() }
+                return
             }
+            if state.rules.setScoringMode == .tiebreakOnly {
+                store.actionLog.omitSecondaryScores()
+            }
+            if state.finished {
+                restState = nil
+                beginAutomaticFinishPresentation()
+            } else {
+                completedScoreTask?.cancel()
+                completedScoreTask = nil
+                completedSetPresentation = nil
+                finishTask?.cancel()
+                showFinishedOverlay = false
+                finishUndoAvailable = false
+                didFinalizeFinish = false
+                restState = WatchRestState.fromOfficialBreak(state.officialBreakState)
+            }
+            persistResumeSession()
         }
         .onDisappear {
             finishTask?.cancel()
@@ -432,7 +276,8 @@ struct WatchTennisScoreView: View {
             completedScoreTask?.cancel()
             scoreEventToastTask?.cancel()
             if store.state.finished { finalizeFinish() }
-            Task { await persistResumeSession() }
+            persistResumeSession()
+            store.onStateChanged = nil
         }
     }
 
@@ -537,7 +382,7 @@ struct WatchTennisScoreView: View {
             servingPosition: servingPosition,
             onTap: {
                 guard interactionsEnabled, !suppressTapAfterLongPress else { return }
-                store.score(logicalSide)
+                store.dispatch(.pointWon(logicalSide))
             }
         )
     }
@@ -640,11 +485,11 @@ struct WatchTennisScoreView: View {
         .accessibilityAddTraits(.isButton)
         .accessibilityAction {
             guard interactionsEnabled, !suppressTapAfterLongPress else { return }
-            store.score(logical)
+            store.dispatch(.pointWon(logical))
         }
         .onTapGesture {
             guard interactionsEnabled, !suppressTapAfterLongPress else { return }
-            store.score(logical)
+            store.dispatch(.pointWon(logical))
         }
     }
 
@@ -724,13 +569,6 @@ struct WatchTennisScoreView: View {
             && !showFinishedOverlay
             && confirmation == nil
             && !showMenu
-    }
-
-    private var scoreLine: String {
-        if store.state.rules.setScoringMode == .tiebreakOnly {
-            return "\(store.state.leftPoints) : \(store.state.rightPoints)"
-        }
-        return "\(store.state.leftSets) - \(store.state.rightSets)"
     }
 
     private func tennisDoublesServerSlot(state: TennisMatchState) -> Int {
@@ -990,7 +828,7 @@ struct WatchTennisScoreView: View {
         scoreEventToast = nil
         scoreEventToastTask = nil
         showFinishedOverlay = true
-        finishUndoAvailable = !scoringLocked
+        finishUndoAvailable = !scoringLocked && store.canUndo
         didFinalizeFinish = false
         finishTask?.cancel()
         guard !scoringLocked else { return }
@@ -1007,7 +845,8 @@ struct WatchTennisScoreView: View {
         guard store.state.finished, !didFinalizeFinish, !scoringLocked else { return true }
         finishUndoAvailable = false
         let saved: Bool
-        if linkedSessionId != nil {
+        if let linkedSessionId {
+            guard let handle = linkService.activeHandle, handle.sessionId == linkedSessionId else { return false }
             let left = store.state.rules.setScoringMode == .tiebreakOnly
                 ? store.state.leftPoints
                 : store.state.leftSets
@@ -1017,7 +856,7 @@ struct WatchTennisScoreView: View {
             let winner: MatchSide? = left == right ? nil : (left > right ? .left : .right)
             saved = linkService.publishMatchFinished(
                 snapshot: .tennis(store.state),
-                recordId: "w_\(UUID().uuidString)",
+                recordId: "w_\(handle.matchId.uuidString)",
                 winnerSide: winner,
                 manualEnd: manualFinishRequested,
                 startTime: matchStartTime,
@@ -1026,7 +865,9 @@ struct WatchTennisScoreView: View {
                 detailedActions: store.actionLog.detailedActions
             )
         } else {
-            saved = transferLocalFinishedRecordIfNeeded(store.state)
+            saved = store.saveFinishedRecord(
+                into: resumeStore, gameType: gameType, recordID: localRecordID, endTime: Date()
+            )
         }
         guard saved else {
             showRecordSaveFailure = true
@@ -1038,7 +879,7 @@ struct WatchTennisScoreView: View {
     }
 
     private func undoFinish() {
-        guard finishUndoAvailable, !scoringLocked else { return }
+        guard finishUndoAvailable, !scoringLocked, store.undo() else { return }
         completedScoreTask?.cancel()
         completedScoreTask = nil
         completedSetPresentation = nil
@@ -1046,13 +887,12 @@ struct WatchTennisScoreView: View {
         showFinishedOverlay = false
         finishUndoAvailable = false
         didFinalizeFinish = false
-        undoScoreboard()
+        undoToastToken = UUID()
     }
 
     private func undoScoreboard() {
-        store.undo {
-            undoToastToken = UUID()
-        }
+        guard store.undo() else { return }
+        undoToastToken = UUID()
     }
 
     private func playAgain() {
@@ -1061,7 +901,6 @@ struct WatchTennisScoreView: View {
         finishTask?.cancel()
         showFinishedOverlay = false
         finishUndoAvailable = false
-        didTransferFinishedRecord = false
         didFinalizeFinish = false
         manualFinishRequested = false
         restTriggers.reset()
@@ -1089,13 +928,14 @@ struct WatchTennisScoreView: View {
         switch value {
         case .finish:
             manualFinishRequested = true
-            store.send(.finish)
+            if case .rejected = store.dispatch(.finish) {
+                manualFinishRequested = false
+            }
         case .reset:
             resumeStore.clear()
             finishTask?.cancel()
             showFinishedOverlay = false
             restState = nil
-            didTransferFinishedRecord = false
             didFinalizeFinish = false
             manualFinishRequested = false
             restTriggers.reset()
@@ -1118,25 +958,13 @@ struct WatchTennisScoreView: View {
             at: Int64(timestamp.timeIntervalSince1970 * 1_000)
         )
         guard result.accepted else { return }
-        let freshStore = WatchTennisSessionStore(
-            gameType: isDoubles ? .tennisDoubles : .tennis,
-            rules: store.state.rules,
-            initialState: result.state,
-            startedAt: timestamp
+        store.onStateChanged = nil
+        store = Self.makeStore(
+            gameType: gameType, isDoubles: isDoubles, state: result.state, startedAt: timestamp
         )
-        freshStore.onStateChanged = { [linkService] state, events in
-            if linkedSessionId != nil {
-                guard linkService.canEditLinkedMatch else { return }
-                linkService.publishSnapshot(
-                    .tennis(state),
-                    detailedActions: freshStore.actionLog.detailedActions
-                )
-            }
-            handle(events: events, state: state)
-            Task { await persistResumeSession() }
-        }
-        store = freshStore
+        bindStateChanges()
         matchStartTime = timestamp
+        localRecordID = "w_\(UUID().uuidString)"
         if linkedSessionId != nil {
             linkService.startNextMatch(
                 snapshot: .tennis(result.state),
@@ -1146,12 +974,29 @@ struct WatchTennisScoreView: View {
         }
     }
 
+    private func bindStateChanges() {
+        let current = store
+        current.onStateChanged = { [weak current, linkService] state, events in
+            guard let current else { return }
+            if let linkedSessionId, linkService.activeSessionId == linkedSessionId, linkService.canEditLinkedMatch {
+                linkService.publishSnapshot(
+                    .tennis(state),
+                    detailedActions: current.actionLog.detailedActions,
+                    participantNames: state.doublesPlayerNames ?? [state.leftName, state.rightName]
+                )
+            }
+            handle(events: events, state: state)
+            persistResumeSession()
+        }
+    }
+
     private func syncOfficialBreakState(_ rest: WatchRestState?) {
-        guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
-        let gameType: GameType = isDoubles ? .tennisDoubles : .tennis
         let mapped = rest?.officialBreakState(for: gameType)
-        guard store.state.officialBreakState != mapped else { return }
-        store.send(.setOfficialBreakState(mapped))
+        if linkedSessionId != nil, linkService.canEditLinkedMatch, store.state.officialBreakState != mapped {
+            store.dispatchNonUndoable(.setOfficialBreakState(mapped))
+        } else {
+            persistResumeSession()
+        }
     }
 
     private func exitBoard() {
@@ -1159,9 +1004,13 @@ struct WatchTennisScoreView: View {
         dismiss()
     }
 
-    private func persistResumeSession() async {
-        if let linkedSessionId, linkService.activeSessionId != linkedSessionId {
-            return
+    private func persistResumeSession() {
+        let linkHandle: LinkedMatchHandle?
+        if let linkedSessionId {
+            guard let handle = linkService.resumeContext?.handle, handle.sessionId == linkedSessionId else { return }
+            linkHandle = handle
+        } else {
+            linkHandle = nil
         }
         let state = store.state
         if state.finished {
@@ -1174,32 +1023,13 @@ struct WatchTennisScoreView: View {
             resumeStore.clear()
             return
         }
-        let bundle = await store.resumeBundle()
-        guard !store.state.finished else { return }
         resumeStore.save(WatchResumeSession(
             startedAt: matchStartTime,
-            scoreLine: scoreLine,
-            emoji: "🎾",
-            payload: .tennis(
-                isDoubles: isDoubles,
-                bundle: bundle,
-                restState: restState
-            ),
+            scoreLine: store.scoreLine,
+            emoji: store.binding.emoji,
+            payload: .tennis(isDoubles: isDoubles, bundle: store.resumeBundle(), restState: restState),
             actionLog: store.actionLog,
-            linkHandle: linkService.resumeContext?.handle
+            linkHandle: linkHandle
         ))
-    }
-
-    private func transferLocalFinishedRecordIfNeeded(_ state: TennisMatchState) -> Bool {
-        guard !didTransferFinishedRecord else { return true }
-        let end = Date()
-        guard let record = WatchScoreboardRecord(
-            localSnapshot: .tennis(state), gameType: isDoubles ? .tennisDoubles : .tennis,
-            id: "w_\(UUID().uuidString)", startTime: matchStartTime, endTime: end,
-            detailedActions: store.actionLog.detailedActions, totalScoreChanges: store.actionLog.scoreChangeCount
-        ) else { return false }
-        guard resumeStore.saveFinishedRecord(record) else { return false }
-        didTransferFinishedRecord = true
-        return true
     }
 }

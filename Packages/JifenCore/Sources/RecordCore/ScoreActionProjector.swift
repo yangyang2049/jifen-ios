@@ -497,6 +497,132 @@ public enum ScoreActionProjector {
         }
     }
 
+    /// 足球：进球/减球的动作带上半场与比赛时钟，供记录详情呈现 `53′` 与 `45+2′`。
+    public static func football(
+        intent: FootballMatchIntent,
+        events: [FootballMatchEvent],
+        state: FootballMatchState,
+        timestamp: Date
+    ) -> [DetailedScoreAction] {
+        let scores = (state.leftScore, state.rightScore)
+        let period = state.timer.stage
+        var projected: [DetailedScoreAction] = events.compactMap { event in
+            switch event {
+            case .goalScored(let side, let left, let right, let period, let elapsed):
+                return action(
+                    .scoreChanged, code: "goal", side: side,
+                    scores: (left, right), delta: 1,
+                    footballPeriod: period, footballElapsedSeconds: elapsed,
+                    timestamp: timestamp
+                )
+            case .goalSubtracted(let side, let left, let right, let period, let elapsed):
+                return action(
+                    .scoreChanged, code: "goal_subtracted", side: side,
+                    scores: (left, right), delta: -1,
+                    footballPeriod: period, footballElapsedSeconds: elapsed,
+                    timestamp: timestamp
+                )
+            case .kickedOff:
+                return action(.stateChanged, code: "football_kick_off", scores: scores,
+                              footballPeriod: period, timestamp: timestamp)
+            case .clockToggled(let isRunning, let period):
+                return action(
+                    .stateChanged,
+                    code: isRunning ? "football_clock_start" : "football_clock_pause",
+                    scores: scores, footballPeriod: period, timestamp: timestamp
+                )
+            case .stoppageAdded(let seconds, let period):
+                return action(.stateChanged, code: "football_stoppage_add", scores: scores,
+                              delta: seconds, footballPeriod: period, timestamp: timestamp)
+            case .stoppageUndone(let seconds, let period):
+                return action(.stateChanged, code: "football_stoppage_undo", scores: scores,
+                              delta: -seconds, footballPeriod: period, timestamp: timestamp)
+            case .stageAdvanced(let newStage):
+                return action(.stateChanged, code: "football_stage_advanced", scores: scores,
+                              footballPeriod: newStage, timestamp: timestamp)
+            case .namesChanged:
+                return action(.stateChanged, code: "edit_name", scores: scores, timestamp: timestamp)
+            case .sidesExchanged:
+                return action(.sideChanged, code: "exchange_sides", scores: scores, timestamp: timestamp)
+            case .matchFinished(let winner):
+                return action(.matchFinished, code: "game_end", scores: scores, winner: winner,
+                              timestamp: timestamp)
+            case .matchReset:
+                return nil
+            }
+        }
+        if projected.isEmpty {
+            switch intent {
+            case .setNames:
+                projected.append(action(.stateChanged, code: "edit_name", scores: scores, timestamp: timestamp))
+            case .exchangeSides:
+                projected.append(action(.sideChanged, code: "exchange_sides", scores: scores, timestamp: timestamp))
+            case .reset:
+                break
+            case .startClock, .pauseClock, .toggleClock, .kickOff, .advanceStage,
+                 .addStoppage, .undoLastStoppage, .goal, .subtractGoal, .finish:
+                break
+            }
+        }
+        return projected
+    }
+
+    /// 投篮训练：每次出手一条动作，命中带投入分数，完赛补一条结束动作。
+    public static func shotTraining(
+        intent: ShotTrainingIntent,
+        events: [ShotTrainingEvent],
+        state: ShotTrainingState,
+        timestamp: Date
+    ) -> [DetailedScoreAction] {
+        let counts = state.counts
+        let scores = (counts.missed, counts.made)
+        var projected: [DetailedScoreAction] = events.compactMap { event in
+            switch event {
+            case .shotRecorded(let points, let made, let counts):
+                let code = "training_\(points)pt_\(made ? "made" : "miss")"
+                return action(
+                    made ? .scoreChanged : .stateChanged, code: code,
+                    side: made ? .right : .left,
+                    scores: (counts.missed, counts.made),
+                    delta: made ? points : 0,
+                    timestamp: timestamp
+                )
+            case .shotUndone(let counts):
+                return action(
+                    .stateChanged, code: "training_undo",
+                    scores: (counts.missed, counts.made), timestamp: timestamp
+                )
+            case .finished(let counts):
+                let attempts = max(1, counts.attempts)
+                let percentage = Int((Double(counts.made) / Double(attempts) * 100).rounded())
+                // 与手机/手表既有训练记录一致：完赛动作保留命中率摘要。
+                return DetailedScoreAction(
+                    type: .matchFinished,
+                    epochMilliseconds: Int64((timestamp.timeIntervalSince1970 * 1_000).rounded()),
+                    scores: [counts.missed, counts.made],
+                    operationCode: "training_finished",
+                    summary: "training_rate_\(percentage)"
+                )
+            case .reset:
+                return nil
+            }
+        }
+        if projected.isEmpty {
+            switch intent {
+            case .reset, .finish, .undoLastShot:
+                break
+            case .recordShot(let points, let made):
+                let code = "training_\(points)pt_\(made ? "made" : "miss")"
+                projected.append(action(
+                    made ? .scoreChanged : .stateChanged, code: code,
+                    side: made ? .right : .left, scores: scores,
+                    delta: made ? points : 0, timestamp: timestamp
+                ))
+            }
+        }
+        return projected
+    }
+
     /// 详细动作构造（共享字段映射口径）。
     public static func action(
         _ type: DetailedScoreActionType,

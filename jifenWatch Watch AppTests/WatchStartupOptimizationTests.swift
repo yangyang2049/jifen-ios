@@ -43,7 +43,7 @@ final class WatchStartupOptimizationTests: XCTestCase {
             startedAt: startedAt,
             scoreLine: "3 : 1",
             emoji: "🏸",
-            payload: .basketballTraining(mode: .free, history: [])
+            payload: trainingResumeFixture(mode: .free, startedAt: startedAt)
         ))
         first.flushPendingWrite()
 

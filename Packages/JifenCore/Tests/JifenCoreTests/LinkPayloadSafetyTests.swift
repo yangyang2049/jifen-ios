@@ -168,11 +168,12 @@ struct LinkPayloadSafetyTests {
 
     @Test func applicationContextEncodingStripsDetailedActionsWhileKeepingSnapshot() throws {
         let actions = (0..<20).map { _ in makeAction(id: UUID(), padding: 200) }
-        let football = LinkedFootballState(
+        let football = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
             leftScore: 2,
             rightScore: 1,
+            timer: FootballTimerStateV2(savedWallClockMilliseconds: 1_700_000_000_000),
             kickedOff: true,
             finished: false
         )

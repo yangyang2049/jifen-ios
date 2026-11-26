@@ -190,47 +190,21 @@ public enum WatchTransferFileKind: String, Codable, Sendable {
     case matchFinished = "match_finished"
 }
 
-/// Linked football state: both goal counts plus the anchored match clock.
-/// The clock keeps the same `FootballTimerStateV2` shape the phone and watch
-/// boards already use, so a linked session and a local match persist alike.
-public struct LinkedFootballState: Codable, Equatable, Sendable {
-    public var leftName: String
-    public var rightName: String
-    public var leftScore: Int
-    public var rightScore: Int
-    public var timer: FootballTimerStateV2
-    /// 5-a-side keeps a pre-kick-off state where no time is shown.
-    public var kickedOff: Bool
-    public var finished: Bool
-
-    public init(
-        leftName: String,
-        rightName: String,
-        leftScore: Int = 0,
-        rightScore: Int = 0,
-        timer: FootballTimerStateV2 = .init(),
-        kickedOff: Bool = true,
-        finished: Bool = false
-    ) {
-        self.leftName = leftName
-        self.rightName = rightName
-        self.leftScore = max(0, leftScore)
-        self.rightScore = max(0, rightScore)
-        self.timer = timer
-        self.kickedOff = kickedOff
-        self.finished = finished
-    }
-}
-
+/// Linked snapshots carry the reducer state itself. Football therefore travels
+/// as the complete `FootballMatchState`: goal counts, half/stage, the wall-clock
+/// anchor (`timer.savedWallClockMilliseconds`), the carried minute/second
+/// remainder (`elapsedSubsecondMilliseconds`), regulation/extra lengths,
+/// stoppage history, kick-off, side swap and finish flags. Anything less cannot
+/// rebuild the same clock on the other device.
 public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
     case rally(RallyMatchState)
     case tennis(TennisMatchState)
-    case archery(LinkedArcheryState)
+    case archery(ArcheryMatchState)
     case eightBall(EightBallState)
     case nineBall(NineBallChaseState)
     case snooker(SnookerState)
-    case football(LinkedFootballState)
-    case basketballTraining(LinkedShotTrainingState)
+    case football(FootballMatchState)
+    case basketballTraining(ShotTrainingState)
 
     private enum CodingKeys: String, CodingKey {
         case kind
@@ -263,7 +237,7 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         case .tennis:
             self = .tennis(try container.decode(TennisMatchState.self, forKey: .tennis))
         case .archery:
-            self = .archery(try container.decode(LinkedArcheryState.self, forKey: .archery))
+            self = .archery(try container.decode(ArcheryMatchState.self, forKey: .archery))
         case .eightBall:
             self = .eightBall(try container.decode(EightBallState.self, forKey: .eightBall))
         case .nineBall:
@@ -271,9 +245,9 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         case .snooker:
             self = .snooker(try container.decode(SnookerState.self, forKey: .snooker))
         case .football:
-            self = .football(try container.decode(LinkedFootballState.self, forKey: .football))
+            self = .football(try container.decode(FootballMatchState.self, forKey: .football))
         case .basketballTraining:
-            self = .basketballTraining(try container.decode(LinkedShotTrainingState.self, forKey: .basketballTraining))
+            self = .basketballTraining(try container.decode(ShotTrainingState.self, forKey: .basketballTraining))
         }
     }
 
@@ -317,7 +291,7 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         return state
     }
 
-    public var archeryState: LinkedArcheryState? {
+    public var archeryState: ArcheryMatchState? {
         guard case .archery(let state) = self else { return nil }
         return state
     }
@@ -337,12 +311,12 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         return state
     }
 
-    public var footballState: LinkedFootballState? {
+    public var footballState: FootballMatchState? {
         guard case .football(let state) = self else { return nil }
         return state
     }
 
-    public var basketballTrainingState: LinkedShotTrainingState? {
+    public var basketballTrainingState: ShotTrainingState? {
         guard case .basketballTraining(let state) = self else { return nil }
         return state
     }
@@ -369,125 +343,6 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
     }
 }
 
-/// Lightweight archery sync DTO projected from `ArcheryMatchState`.
-public struct LinkedArcheryState: Codable, Equatable, Sendable {
-    public var leftName: String
-    public var rightName: String
-    public var leftSetPoints: Int
-    public var rightSetPoints: Int
-    public var leftArrowSum: Int
-    public var rightArrowSum: Int
-    public var currentShooterIsLeft: Bool
-    public var setNumber: Int
-    public var finished: Bool
-    public var sidesSwapped: Bool
-    public var arrowsLeftThisSet: Int
-    public var arrowsRightThisSet: Int
-    public var arrowsPerSet: Int
-    public var openingShooterIsLeft: Bool
-    public var pendingSetNumber: Int
-    public var pendingSetWinnerIsLeft: Bool?
-    public var pendingLeftSetPoints: Int
-    public var pendingRightSetPoints: Int
-    public var closestToCenterPending: Bool
-    public var rules: ArcheryMatchRules
-
-    public init(
-        leftName: String = "红方",
-        rightName: String = "蓝方",
-        leftSetPoints: Int = 0,
-        rightSetPoints: Int = 0,
-        leftArrowSum: Int = 0,
-        rightArrowSum: Int = 0,
-        currentShooterIsLeft: Bool = true,
-        setNumber: Int = 1,
-        finished: Bool = false,
-        sidesSwapped: Bool = false,
-        arrowsLeftThisSet: Int = 0,
-        arrowsRightThisSet: Int = 0,
-        arrowsPerSet: Int = 3,
-        openingShooterIsLeft: Bool = true,
-        pendingSetNumber: Int = 0,
-        pendingSetWinnerIsLeft: Bool? = nil,
-        pendingLeftSetPoints: Int = 0,
-        pendingRightSetPoints: Int = 0,
-        closestToCenterPending: Bool = false,
-        rules: ArcheryMatchRules = .default
-    ) {
-        self.leftName = leftName
-        self.rightName = rightName
-        self.leftSetPoints = leftSetPoints
-        self.rightSetPoints = rightSetPoints
-        self.leftArrowSum = leftArrowSum
-        self.rightArrowSum = rightArrowSum
-        self.currentShooterIsLeft = currentShooterIsLeft
-        self.setNumber = setNumber
-        self.finished = finished
-        self.sidesSwapped = sidesSwapped
-        self.arrowsLeftThisSet = arrowsLeftThisSet
-        self.arrowsRightThisSet = arrowsRightThisSet
-        self.arrowsPerSet = arrowsPerSet
-        self.openingShooterIsLeft = openingShooterIsLeft
-        self.pendingSetNumber = pendingSetNumber
-        self.pendingSetWinnerIsLeft = pendingSetWinnerIsLeft
-        self.pendingLeftSetPoints = pendingLeftSetPoints
-        self.pendingRightSetPoints = pendingRightSetPoints
-        self.closestToCenterPending = closestToCenterPending
-        self.rules = rules
-    }
-
-    public init(match: ArcheryMatchState) {
-        self.init(
-            leftName: match.leftName,
-            rightName: match.rightName,
-            leftSetPoints: match.leftSetPoints,
-            rightSetPoints: match.rightSetPoints,
-            leftArrowSum: match.leftArrowSum,
-            rightArrowSum: match.rightArrowSum,
-            currentShooterIsLeft: match.currentShooterIsLeft,
-            setNumber: match.currentSet,
-            finished: match.finished,
-            sidesSwapped: match.sidesSwapped,
-            arrowsLeftThisSet: match.arrowsLeftThisSet,
-            arrowsRightThisSet: match.arrowsRightThisSet,
-            arrowsPerSet: match.arrowsPerSet,
-            openingShooterIsLeft: match.openingShooterIsLeft,
-            pendingSetNumber: match.pendingSetNumber,
-            pendingSetWinnerIsLeft: match.pendingSetWinnerIsLeft,
-            pendingLeftSetPoints: match.pendingLeftSetPoints,
-            pendingRightSetPoints: match.pendingRightSetPoints,
-            closestToCenterPending: match.closestToCenterPending,
-            rules: match.rules
-        )
-    }
-
-    public func applying(to match: inout ArcheryMatchState) {
-        match.leftName = leftName
-        match.rightName = rightName
-        match.leftSetPoints = leftSetPoints
-        match.rightSetPoints = rightSetPoints
-        match.leftArrowSum = leftArrowSum
-        match.rightArrowSum = rightArrowSum
-        match.currentShooterIsLeft = currentShooterIsLeft
-        match.currentSet = max(1, setNumber)
-        match.finished = finished
-        match.sidesSwapped = sidesSwapped
-        match.arrowsLeftThisSet = max(0, arrowsLeftThisSet)
-        match.arrowsRightThisSet = max(0, arrowsRightThisSet)
-        match.arrowsPerSet = max(1, arrowsPerSet)
-        match.openingShooterIsLeft = openingShooterIsLeft
-        match.pendingSetNumber = max(0, pendingSetNumber)
-        match.pendingSetWinnerIsLeft = pendingSetWinnerIsLeft
-        match.pendingLeftSetPoints = max(0, pendingLeftSetPoints)
-        match.pendingRightSetPoints = max(0, pendingRightSetPoints)
-        match.closestToCenterPending = closestToCenterPending
-        match.rules = rules
-        if finished {
-            match.pendingSetNumber = 0
-            match.closestToCenterPending = false
-        }
-    }
-}
 
 public struct EmptyLinkPayload: Codable, Equatable, Sendable {
     public init() {}

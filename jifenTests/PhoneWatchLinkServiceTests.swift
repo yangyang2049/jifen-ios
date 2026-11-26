@@ -686,12 +686,12 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
     func testSharedFootballSnapshotFromWatchAppliesWhilePhoneCanEdit() async throws {
         let store = InMemoryLinkDataStore()
         let handle = LinkedMatchHandle(sessionId: UUID(), matchId: UUID())
-        let initialFootball = LinkedFootballState(
+        let initialFootball = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
             leftScore: 1,
             rightScore: 0,
-            timer: FootballTimerStateV2(halfLengthSeconds: 2700),
+            timer: FootballTimerStateV2(halfLengthSeconds: 2700, isRunning: true),
             kickedOff: true,
             finished: false
         )
@@ -721,12 +721,19 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         transport.refreshStatus()
         XCTAssertTrue(service.canEditLinkedMatch, "共享会话下手机本就可计分，无需任何接管")
 
-        let updatedFootball = LinkedFootballState(
+        let updatedFootball = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
             leftScore: 2,
             rightScore: 1,
-            timer: FootballTimerStateV2(halfLengthSeconds: 2700),
+            timer: FootballTimerStateV2(
+                halfLengthSeconds: 2700,
+                elapsedSeconds: 600,
+                isRunning: true,
+                savedWallClockMilliseconds: 1_700_000_000_000,
+                stoppageSeconds: [0, 120, 0, 0]
+            ),
+            stoppageHistory: [120],
             kickedOff: true,
             finished: false
         )
@@ -1255,13 +1262,13 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         tennis.leftGames = 6
         tennis.rightGames = 4
         tennis.finished = true
-        let archery = LinkedArcheryState(
+        let archery = ArcheryMatchState(
             leftName: "红方",
             rightName: "蓝方",
-            leftSetPoints: 6,
-            rightSetPoints: 2,
             leftArrowSum: 29,
             rightArrowSum: 27,
+            leftSetPoints: 6,
+            rightSetPoints: 2,
             finished: true
         )
         var eightBall = EightBallState.initial(targetPoints: 5)
@@ -1277,12 +1284,16 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         snooker.leftFrames = 3
         snooker.rightFrames = 1
         snooker.finished = true
-        let football = LinkedFootballState(
+        let football = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
             leftScore: 2,
             rightScore: 1,
-            timer: FootballTimerStateV2(halfLengthSeconds: 2700),
+            timer: FootballTimerStateV2(
+                halfLengthSeconds: 2700,
+                elapsedSeconds: 2_700,
+                savedWallClockMilliseconds: 1_700_000_000_000
+            ),
             kickedOff: true,
             finished: true
         )

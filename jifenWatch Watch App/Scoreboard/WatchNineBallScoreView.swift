@@ -1,6 +1,7 @@
 import LinkCore
 import RecordCore
 import ScoreCore
+import SessionCore
 import SwiftUI
 
 enum WatchNineBallSecondarySelectionMode: Equatable {
@@ -82,12 +83,12 @@ struct WatchNineBallScoreView: View {
     @State private var lastAppliedRemoteGeneration: UInt64?
 
     @State private var showRecordSaveFailure = false
-    @State private var state: NineBallChaseState
+    /// 通用同步宿主：比分、撤销栈、时间线与动作日志只有这一处真相。
+    @State private var store: WatchReducerSessionStore<NineBallChaseReducer>
     @State private var showMenu = false
     @State private var matchStartTime = Date()
     @State private var didSaveFinishedRecord = false
     @State private var scoreboardLayout: String = "horizontal"
-    @State private var undoStack: [NineBallChaseState] = []
     @State private var eventPickerPlayer: Int?
     @State private var pendingPlayerSelection: WatchNineBallPendingSelection?
     @State private var showBreakerPicker = false
@@ -96,7 +97,6 @@ struct WatchNineBallScoreView: View {
     @State private var finishUndoAvailable = false
     @State private var finishTask: Task<Void, Never>?
     @State private var suppressTapAfterLongPress = false
-    @State private var actionLog: WatchScoreActionLog
     @State private var undoToastToken: UUID?
 
     private static let playerColors: [Color] = [
@@ -109,17 +109,51 @@ struct WatchNineBallScoreView: View {
     init(
         initialState: NineBallChaseState? = nil,
         linkedSessionId: UUID? = nil,
-        resumedUndoStates: [NineBallChaseState] = [],
+        resumeBundle: WatchNineBallResumeBundle? = nil,
         resumedStartTime: Date? = nil,
         resumedActionLog: WatchScoreActionLog? = nil
     ) {
         self.linkedSessionId = linkedSessionId
-        _state = State(initialValue: initialState ?? .initial())
-        _undoStack = State(initialValue: resumedUndoStates)
         let startedAt = resumedStartTime ?? Date()
+        let binding = WatchBoardBindings.nineBall()
+        let actionLog = resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt)
+        if let resumeBundle {
+            // 续玩只走标准 bundle：比分、撤销帧与时间线一并恢复。
+            _store = State(initialValue: WatchReducerSessionStore(
+                resumeBundle: resumeBundle,
+                reducer: NineBallChaseReducer(),
+                binding: binding,
+                actionLog: actionLog,
+                startedAt: startedAt
+            ))
+        } else {
+            let seed = initialState ?? NineBallChaseState.initial()
+            let descriptor = ScoreboardKernelRegistry.descriptor(for: .nineBall)
+            let session = ScoreSession<NineBallChaseState, NineBallChaseEvent>(
+                gameType: .nineBall,
+                ruleFamily: descriptor.ruleFamily,
+                reducerType: descriptor.reducerType,
+                state: seed,
+                participants: (0..<seed.playerCount).map { index in
+                    SessionParticipant(
+                        id: "player_\(index)",
+                        name: seed.resolvedName(at: index, fallback: "P\(index + 1)"),
+                        role: "player"
+                    )
+                }
+            )
+            _store = State(initialValue: WatchReducerSessionStore(
+                seedSession: session,
+                reducer: NineBallChaseReducer(),
+                binding: binding,
+                actionLog: actionLog,
+                startedAt: startedAt
+            ))
+        }
         _matchStartTime = State(initialValue: startedAt)
-        _actionLog = State(initialValue: resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt))
     }
+
+    private var state: NineBallChaseState { store.state }
 
     private var scoringLocked: Bool { linkedSessionId != nil && !linkService.canEditLinkedMatch }
     private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
@@ -199,9 +233,9 @@ struct WatchNineBallScoreView: View {
             let acceptsScore = linkService.incomingSnapshot != nil
             if acceptsScore, update.beginsMatch(after: previous) {
                 matchStartTime = Date()
-                actionLog.reset(at: matchStartTime)
+                store.beginRemoteMatch(at: matchStartTime)
             }
-            let historyChanged = actionLog.merge(detailedActions: update.detailedActions, removing: update.removedActionIDs)
+            let historyChanged = store.mergeRemoteActions(update.detailedActions, removing: update.removedActionIDs)
             let advancesScore = lastAppliedRemoteGeneration != update.matchGeneration
                 || update.revision > (lastAppliedRemoteRevision ?? 0)
             let finishesCurrentScore = update.revision == lastAppliedRemoteRevision
@@ -723,22 +757,8 @@ struct WatchNineBallScoreView: View {
 
     private func apply(_ intent: NineBallChaseIntent) {
         guard !scoringLocked, !state.finished else { return }
-        let timestamp = Date()
-        actionLog.beginUndoableMutation()
-        let result = NineBallChaseReducer().reduce(state: state, intent: intent, at: Int64(timestamp.timeIntervalSince1970 * 1_000))
-        guard result.accepted else {
-            actionLog.rejectUndoableMutation()
-            return
-        }
-        undoStack.append(state)
-        state = result.state
-        if case .resetScores = intent {
-            actionLog.reset(at: timestamp)
-        } else {
-            actionLog.append(contentsOf: ScoreActionProjector.nineBall(
-                events: result.events, state: state, timestamp: timestamp
-            ))
-        }
+        // 比分、撤销帧与动作日志投影（含 resetScores 清空日志）全部由宿主完成。
+        guard case .accepted(_, _) = store.dispatch(intent) else { return }
         publish()
         if state.finished {
             beginNineBallFinish(manualEnd: false)
@@ -750,34 +770,15 @@ struct WatchNineBallScoreView: View {
             beginNineBallFinish(manualEnd: true)
             return
         }
-        undoStack.append(state)
-        actionLog.beginUndoableMutation()
-        state.finished = true
-        let scores = Array(state.playerPoints.prefix(state.playerCount))
-        let maximum = scores.max()
-        let winningIndex = maximum.flatMap { value in
-            scores.filter { $0 == value }.count == 1 ? scores.firstIndex(of: value) : nil
-        }
-        actionLog.appendGameEndIfNeeded(
-            team1Score: playerPoints(at: 0),
-            team2Score: playerPoints(at: 1),
-            winner: winningIndex.flatMap { index in
-                switch index {
-                case 0: .team1
-                case 1: .team2
-                case 2: .team3
-                case 3: .team4
-                default: nil
-                }
-            }
-        )
+        // `.finishMatch` 的完赛动作（含胜者）由 binding 投影进动作日志。
+        guard case .accepted(_, _) = store.dispatch(.finishMatch) else { return }
         publish()
         beginNineBallFinish(manualEnd: true)
     }
 
     private func publish() {
         guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
-        linkService.publishSnapshot(.nineBall(state), detailedActions: actionLog.detailedActions)
+        linkService.publishSnapshot(.nineBall(state), detailedActions: store.actionLog.detailedActions)
     }
 
     private func winnerSide() -> MatchSide? {
@@ -791,14 +792,14 @@ struct WatchNineBallScoreView: View {
     private func saveLocalRecordIfNeeded() -> Bool {
         guard linkedSessionId == nil, !didSaveFinishedRecord else { return true }
         guard hasNineBallProgress else { return true }
-        let end = Date()
-        guard let record = WatchScoreboardRecord(
-            localSnapshot: .nineBall(state), gameType: .nineBall,
-            id: "w_\(UUID().uuidString)", startTime: matchStartTime, endTime: end,
+        return store.saveFinishedRecord(
+            into: resumeStore,
+            gameType: .nineBall,
+            recordID: "w_\(UUID().uuidString)",
+            endTime: Date(),
             participantNames: (0..<state.playerCount).map { displayName(at: $0) },
-            detailedActions: actionLog.detailedActions, totalScoreChanges: actionLog.scoreChangeCount
-        ) else { return false }
-        return resumeStore.saveFinishedRecord(record)
+            totalScoreChanges: store.actionLog.scoreChangeCount
+        )
     }
 
     private func normalizedLayout(_ raw: String) -> String {
@@ -806,9 +807,7 @@ struct WatchNineBallScoreView: View {
     }
 
     private func undo() {
-        guard !scoringLocked, let previous = undoStack.popLast() else { return }
-        state = previous
-        actionLog.undo(team1Score: playerPoints(at: 0), team2Score: playerPoints(at: 1))
+        guard !scoringLocked, store.undo() else { return }
         publish()
         undoToastToken = UUID()
     }
@@ -817,12 +816,12 @@ struct WatchNineBallScoreView: View {
         guard !scoringLocked, finalizeNineBall() else { return }
         resumeStore.clear()
         finishTask?.cancel()
-        let result = NineBallChaseReducer().reduce(state: state, intent: .resetScores, at: nowMs())
-        guard result.accepted else { return }
-        undoStack.removeAll()
-        state = result.state
         let restartedAt = Date()
-        actionLog.reset(at: restartedAt)
+        // `.resetScores` 已由 binding 的 resetsActionLog 清空动作日志与撤销栈。
+        guard case .accepted(_, _) = store.dispatch(.resetScores, at: restartedAt) else { return }
+        store.beginRemoteMatch(at: restartedAt)
+        // 新一局重新允许落库与续玩草稿写入。
+        store.clearSavedRecord()
         didSaveFinishedRecord = false
         matchStartTime = restartedAt
         showFinishedOverlay = false
@@ -833,8 +832,6 @@ struct WatchNineBallScoreView: View {
             publish()
         }
     }
-
-    private func nowMs() -> Int64 { Int64(Date().timeIntervalSince1970 * 1_000) }
 
     private func playerPoints(at index: Int) -> Int {
         guard state.playerPoints.indices.contains(index) else { return 0 }
@@ -854,9 +851,8 @@ struct WatchNineBallScoreView: View {
     }
 
     private func applyAuthoritativeNineBall(_ remote: NineBallChaseState) {
-        actionLog.clearUndoHistory()
-        state = remote
-        undoStack.removeAll()
+        // 对端权威状态是撤销/重放边界：安装后本机不再能撤销到旧历史。
+        store.rebase(to: remote, status: remote.finished ? .finished : .live)
         eventPickerPlayer = nil
         pendingPlayerSelection = nil
         showBreakerPicker = false
@@ -868,10 +864,6 @@ struct WatchNineBallScoreView: View {
             finishUndoAvailable = false
             didSaveFinishedRecord = false
         }
-    }
-
-    private var compactNineBallScore: String {
-        (0..<state.playerCount).map { "\(playerPoints(at: $0))" }.joined(separator: " · ")
     }
 
     private func nineBallEventTitle(_ kind: NineBallChaseKind) -> String {
@@ -926,7 +918,7 @@ struct WatchNineBallScoreView: View {
         eventPickerPlayer = nil
         pendingPlayerSelection = nil
         showBreakerPicker = false
-        finishUndoAvailable = !undoStack.isEmpty
+        finishUndoAvailable = store.canUndo
         showFinishedOverlay = manualEnd
         finishTask = Task { @MainActor in
             if !manualEnd {
@@ -965,8 +957,8 @@ struct WatchNineBallScoreView: View {
                 manualEnd: manualEnd,
                 startTime: matchStartTime,
                 endTime: Date(),
-                totalScoreChanges: actionLog.scoreChangeCount,
-                detailedActions: actionLog.detailedActions,
+                totalScoreChanges: store.actionLog.scoreChangeCount,
+                detailedActions: store.actionLog.detailedActions,
                 participantNames: (0..<state.playerCount).map { displayName(at: $0) }
             )
         } else {
@@ -982,11 +974,10 @@ struct WatchNineBallScoreView: View {
     }
 
     private func undoFinishedNineBall() {
-        guard finishUndoAvailable, let previous = undoStack.popLast() else { return }
+        guard finishUndoAvailable else { return }
         finishTask?.cancel()
-        state = previous
-        state.finished = false
-        actionLog.undo(team1Score: playerPoints(at: 0), team2Score: playerPoints(at: 1))
+        // 完赛撤销窗内同样走宿主撤销：回到完赛前的比分与动作日志。
+        guard store.undo() else { return }
         showFinishedOverlay = false
         finishUndoAvailable = false
         didSaveFinishedRecord = false
@@ -1006,26 +997,21 @@ struct WatchNineBallScoreView: View {
             if didSaveFinishedRecord { resumeStore.clear() }
             return
         }
-        guard scores.contains(where: { $0 != 0 }) || !undoStack.isEmpty else {
+        guard scores.contains(where: { $0 != 0 }) || store.canUndo else {
             resumeStore.clear()
             return
         }
-        resumeStore.save(WatchResumeSession(
+        _ = store.persistResumeSession(
+            into: resumeStore,
+            link: linkService.resumeContext,
             startedAt: matchStartTime,
-            scoreLine: compactNineBallScore,
-            emoji: "🎱",
-            payload: .nineBall(
-                state: state,
-                undoStates: undoStack
-            ),
-            actionLog: actionLog,
-            linkHandle: linkService.resumeContext?.handle
-        ))
+            payload: .nineBall(bundle: store.resumeBundle())
+        )
     }
 
     private var hasNineBallProgress: Bool {
         Array(state.playerPoints.prefix(state.playerCount)).contains(where: { $0 != 0 })
-            || !undoStack.isEmpty || state.finished
+            || store.canUndo || state.finished
     }
 
 }

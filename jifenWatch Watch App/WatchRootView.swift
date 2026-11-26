@@ -321,8 +321,7 @@ struct WatchRootView: View {
                 WatchArcheryScoreView(
                     initialState: archeryInitialState(),
                     linkedSessionId: linkedSessionId,
-                    resumedState: archeryResumeState(),
-                    resumedUndoStates: archeryResumeUndoStates(),
+                    resumeBundle: archeryResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
                     resumedRestState: archeryResumeRestState(),
                     resumedActionLog: activeResumeSession?.actionLog
@@ -331,36 +330,37 @@ struct WatchRootView: View {
                 WatchBasketballTrainingView(
                     mode: mode,
                     linkedSessionId: linkedSessionId,
-                    resumedHistory: trainingResumeHistory(),
+                    resumeBundle: trainingResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedEarlierCounts: trainingResumeEarlierCounts()
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .eightBall:
                 WatchEightBallScoreView(
-                    initialState: eightBallResumeState() ?? eightBallInitialState(),
+                    initialState: eightBallInitialState(),
                     linkedSessionId: linkedSessionId,
                     leftName: eightBallResumeNames()?.left ?? linkedBilliardsNames()?.left,
                     rightName: eightBallResumeNames()?.right ?? linkedBilliardsNames()?.right,
-                    resumedUndoStates: eightBallResumeUndoStates(),
+                    resumeBundle: eightBallResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
                     resumedActionLog: activeResumeSession?.actionLog
                 )
             case .nineBall:
                 WatchNineBallScoreView(
-                    initialState: nineBallResumeState() ?? nineBallInitialState(),
+                    initialState: nineBallInitialState(),
                     linkedSessionId: linkedSessionId,
-                    resumedUndoStates: nineBallResumeUndoStates(),
+                    resumeBundle: nineBallResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
                     resumedActionLog: activeResumeSession?.actionLog
                 )
             case .snooker:
                 WatchSnookerScoreView(
-                    initialState: snookerResumeState() ?? snookerInitialState(),
+                    initialState: snookerInitialState(),
                     linkedSessionId: linkedSessionId,
                     leftName: snookerResumeNames()?.left ?? linkedBilliardsNames()?.left,
                     rightName: snookerResumeNames()?.right ?? linkedBilliardsNames()?.right,
-                    resumedUndoStates: snookerResumeUndoStates(),
-                    resumedStartTime: activeResumeSession?.startedAt
+                    resumeBundle: snookerResumeBundle(),
+                    resumedStartTime: activeResumeSession?.startedAt,
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .football(let halfLengthSeconds):
                 footballDestination(isFiveAside: false, halfLengthSeconds: halfLengthSeconds)
@@ -495,17 +495,19 @@ struct WatchRootView: View {
         WatchFootballScoreView(
             isFiveAside: isFiveAside,
             halfLengthSeconds: halfLengthSeconds,
-            leftName: footballResumeNames()?.left
-                ?? LinkedSetupConfirmCopy.leftName(from: linkedSetup),
-            rightName: footballResumeNames()?.right
-                ?? LinkedSetupConfirmCopy.rightName(from: linkedSetup),
-            resumedState: footballResumeState(),
-            resumedUndoStates: footballResumeUndoStates(),
+            leftName: LinkedSetupConfirmCopy.leftName(from: linkedSetup),
+            rightName: LinkedSetupConfirmCopy.rightName(from: linkedSetup),
+            resumeBundle: footballResumeBundle(),
+            initialState: footballInitialState(),
             resumedStartTime: activeResumeSession?.startedAt,
             resumedActionLog: activeResumeSession?.actionLog,
-            linkedSessionId: linkedSessionId,
-            linkedState: linkedFootballState()
+            linkedSessionId: linkedSessionId
         )
+    }
+
+    /// 联动开局直接复用 Reducer State 快照（时钟锚点与补时历史一并带入）。
+    private func footballInitialState() -> FootballMatchState? {
+        linkedSetup?.initialSnapshot?.footballState
     }
 
     private var localScoreboardRoute: Binding<WatchScoreboardRoute?> {
@@ -583,106 +585,58 @@ struct WatchRootView: View {
         return restState
     }
 
-    private func archeryResumeState() -> ArcheryMatchState? {
+    private func archeryResumeBundle() -> WatchArcheryResumeBundle? {
         guard let activeResumeSession,
-              case .archery(let state, _, _) = activeResumeSession.payload else { return nil }
-        return state
-    }
-
-    private func archeryResumeUndoStates() -> [ArcheryMatchState] {
-        guard let activeResumeSession,
-              case .archery(_, let states, _) = activeResumeSession.payload else { return [] }
-        return states
+              case .archery(let bundle, _) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
     private func archeryResumeRestState() -> WatchRestState? {
         guard let activeResumeSession,
-              case .archery(_, _, let restState) = activeResumeSession.payload else { return nil }
+              case .archery(_, let restState) = activeResumeSession.payload else { return nil }
         return restState
     }
 
-    private func eightBallResumeState() -> EightBallState? {
+    private func eightBallResumeBundle() -> WatchEightBallResumeBundle? {
         guard let activeResumeSession,
-              case .eightBall(let state, _, _, _) = activeResumeSession.payload else { return nil }
-        return state
-    }
-
-    private func eightBallResumeUndoStates() -> [EightBallState] {
-        guard let activeResumeSession,
-              case .eightBall(_, let states, _, _) = activeResumeSession.payload else { return [] }
-        return states
+              case .eightBall(let bundle, _, _) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
     private func eightBallResumeNames() -> (left: String, right: String)? {
         guard let activeResumeSession,
-              case .eightBall(_, _, let left, let right) = activeResumeSession.payload else { return nil }
+              case .eightBall(_, let left, let right) = activeResumeSession.payload else { return nil }
         return (left, right)
     }
 
-    private func nineBallResumeState() -> NineBallChaseState? {
+    private func nineBallResumeBundle() -> WatchNineBallResumeBundle? {
         guard let activeResumeSession,
-              case .nineBall(let state, _) = activeResumeSession.payload else { return nil }
-        return state
+              case .nineBall(let bundle) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
-    private func nineBallResumeUndoStates() -> [NineBallChaseState] {
+    private func snookerResumeBundle() -> WatchSnookerResumeBundle? {
         guard let activeResumeSession,
-              case .nineBall(_, let states) = activeResumeSession.payload else { return [] }
-        return states
-    }
-
-    private func snookerResumeState() -> SnookerState? {
-        guard let activeResumeSession,
-              case .snooker(let state, _, _, _) = activeResumeSession.payload else { return nil }
-        return state
-    }
-
-    private func snookerResumeUndoStates() -> [SnookerState] {
-        guard let activeResumeSession,
-              case .snooker(_, let states, _, _) = activeResumeSession.payload else { return [] }
-        return states
+              case .snooker(let bundle, _, _) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
     private func snookerResumeNames() -> (left: String, right: String)? {
         guard let activeResumeSession,
-              case .snooker(_, _, let left, let right) = activeResumeSession.payload else { return nil }
+              case .snooker(_, let left, let right) = activeResumeSession.payload else { return nil }
         return (left, right)
     }
 
-    private func linkedFootballState() -> LinkedFootballState? {
-        linkedSetup?.initialSnapshot?.footballState
+    private func footballResumeBundle() -> WatchFootballResumeBundle? {
+        guard let activeResumeSession,
+              case .football(_, let bundle) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
-    private func footballResumeState() -> WatchFootballState? {
+    private func trainingResumeBundle() -> WatchShotTrainingResumeBundle? {
         guard let activeResumeSession,
-              case .football(_, let state, _, _, _) = activeResumeSession.payload else { return nil }
-        return state
-    }
-
-    private func footballResumeUndoStates() -> [WatchFootballUndoState] {
-        guard let activeResumeSession,
-              case .football(_, _, let states, _, _) = activeResumeSession.payload else { return [] }
-        return states
-    }
-
-    private func footballResumeNames() -> (left: String, right: String)? {
-        guard let activeResumeSession,
-              case .football(_, _, _, let left, let right) = activeResumeSession.payload else {
-            return nil
-        }
-        return (left, right)
-    }
-
-    private func trainingResumeEarlierCounts() -> ShotTrainingCounts {
-        guard let activeResumeSession,
-              case .basketballTraining(_, _, let totals) = activeResumeSession.payload else { return .init() }
-        return totals ?? .init()
-    }
-
-    private func trainingResumeHistory() -> [ShotTrainingShot] {
-        guard let activeResumeSession,
-              case .basketballTraining(_, let history, _) = activeResumeSession.payload else { return [] }
-        return history
+              case .basketballTraining(let bundle) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
     private func linkedBilliardsNames() -> (left: String, right: String)? {
@@ -784,7 +738,7 @@ struct WatchRootView: View {
         }
     }
 
-    private func archeryInitialState() -> LinkedArcheryState? {
+    private func archeryInitialState() -> ArcheryMatchState? {
         guard let linkedSetup, case .archery(let state)? = linkedSetup.initialSnapshot else { return nil }
         return state
     }

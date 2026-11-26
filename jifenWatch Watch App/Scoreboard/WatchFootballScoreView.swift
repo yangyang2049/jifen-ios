@@ -2,6 +2,7 @@ import Combine
 import LinkCore
 import RecordCore
 import ScoreCore
+import SessionCore
 import SwiftUI
 
 /// Watch-local football board.
@@ -40,12 +41,10 @@ struct WatchFootballScoreView: View {
     @State private var lastAppliedRemoteGeneration: UInt64?
 
     @State private var showRecordSaveFailure = false
-    @State private var leftName: String
-    @State private var rightName: String
-    @State private var leftScore: Int
-    @State private var rightScore: Int
-    @State private var clockSession: FootballMatchClockSession
-    @State private var kickedOff: Bool
+    /// 通用同步宿主：比分、时钟锚点、补时历史、撤销栈与动作日志只有这一处真相。
+    @State private var store: WatchReducerSessionStore<FootballMatchReducer>
+    /// 1 秒只读刷新锚点，仅驱动显示（不改状态、不入撤销栈、不发联动帧）。
+    @State private var clockNowMilliseconds: Int64 = Int64(Date().timeIntervalSince1970 * 1_000)
     @State private var kickOffPulseScale: CGFloat = 1
     @State private var scoreboardLayout = "horizontal"
     @State private var showMenu = false
@@ -55,15 +54,11 @@ struct WatchFootballScoreView: View {
     @State private var showFinishedOverlay = false
     @State private var finishUndoAvailable = false
     @State private var finishTask: Task<Void, Never>?
-    @State private var isFinished = false
     @State private var didSaveRecord = false
     @State private var suppressTapAfterLongPress = false
-    @State private var undoStack: [WatchFootballUndoState]
-    @State private var actionLog: WatchScoreActionLog
     @State private var matchStartTime: Date
     @State private var recordID: String
     @State private var undoToastToken: UUID?
-    @State private var stoppageHistory: [Int] = []
     /// Pending single tap: a second tap on the same side inside the window
     /// subtracts a goal instead (Harmony/phone double-tap semantics).
     @State private var pendingGoal: (side: MatchSide, task: Task<Void, Never>)?
@@ -73,12 +68,11 @@ struct WatchFootballScoreView: View {
         halfLengthSeconds: Int,
         leftName: String? = nil,
         rightName: String? = nil,
-        resumedState: WatchFootballState? = nil,
-        resumedUndoStates: [WatchFootballUndoState] = [],
+        resumeBundle: WatchFootballResumeBundle? = nil,
+        initialState: FootballMatchState? = nil,
         resumedStartTime: Date? = nil,
         resumedActionLog: WatchScoreActionLog? = nil,
-        linkedSessionId: UUID? = nil,
-        linkedState: LinkedFootballState? = nil
+        linkedSessionId: UUID? = nil
     ) {
         let resolvedHalfLength = max(60, halfLengthSeconds)
         let gameType = WatchFootballRules.gameType(isFiveAside: isFiveAside)
@@ -87,57 +81,77 @@ struct WatchFootballScoreView: View {
         self.isFiveAside = isFiveAside
         self.halfLengthSeconds = resolvedHalfLength
         self.linkedSessionId = linkedSessionId
-        _leftName = State(initialValue: leftName ?? defaults.left)
-        _rightName = State(initialValue: rightName ?? defaults.right)
 
-        if let resumedState {
-            var session = FootballMatchClockSession(
-                state: resumedState.clock,
-                gameType: gameType
-            )
-            session.reconcileAfterRestore()
-            _clockSession = State(initialValue: session)
-            _leftScore = State(initialValue: resumedState.leftScore)
-            _rightScore = State(initialValue: resumedState.rightScore)
-            let derived = resumedState.clock.isRunning
-                || resumedState.clock.elapsedSeconds > 0
-                || resumedState.clock.stage > 1
-            _kickedOff = State(initialValue: resumedState.kickedOff ?? derived)
-        } else if let linkedState {
-            var session = FootballMatchClockSession(state: linkedState.timer, gameType: gameType)
-            session.reconcileAfterRestore()
-            _clockSession = State(initialValue: session)
-            _leftScore = State(initialValue: linkedState.leftScore)
-            _rightScore = State(initialValue: linkedState.rightScore)
-            _kickedOff = State(initialValue: linkedState.kickedOff)
-            if !linkedState.leftName.isEmpty {
-                _leftName = State(initialValue: linkedState.leftName)
-            }
-            if !linkedState.rightName.isEmpty {
-                _rightName = State(initialValue: linkedState.rightName)
-            }
-            _isFinished = State(initialValue: linkedState.finished)
-            _showFinishedOverlay = State(initialValue: linkedState.finished)
+        let startedAt = resumedStartTime ?? Date()
+        let binding = WatchBoardBindings.football(isFiveAside: isFiveAside)
+        let actionLog = resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt)
+        let restoredState: FootballMatchState
+
+        if let resumeBundle {
+            // 续玩只走标准 bundle：时钟锚点、分秒余量与补时历史全部随之恢复。
+            restoredState = resumeBundle.currentSession.state
+            _store = State(initialValue: WatchReducerSessionStore(
+                resumeBundle: resumeBundle,
+                reducer: FootballMatchReducer(),
+                binding: binding,
+                actionLog: actionLog,
+                startedAt: startedAt
+            ))
         } else {
-            var session = FootballMatchClockSession(
-                state: FootballTimerStateV2(halfLengthSeconds: resolvedHalfLength),
-                gameType: gameType
+            let seed: FootballMatchState
+            if let initialState {
+                seed = initialState
+            } else {
+                seed = FootballMatchReducer.initial(
+                    leftName: leftName ?? defaults.left,
+                    rightName: rightName ?? defaults.right,
+                    isFiveAside: isFiveAside,
+                    halfLengthSeconds: resolvedHalfLength,
+                    at: Int64((startedAt.timeIntervalSince1970 * 1_000).rounded())
+                )
+            }
+            restoredState = seed
+            let session = ScoreSession<FootballMatchState, FootballMatchEvent>(
+                gameType: gameType,
+                ruleFamily: .s1,
+                reducerType: ScoreboardKernelRegistry.footballReducerType(for: gameType) ?? "football/v1",
+                state: seed,
+                participants: [
+                    .init(id: TeamID.team0.rawValue, name: seed.leftName, role: "team"),
+                    .init(id: TeamID.team1.rawValue, name: seed.rightName, role: "team")
+                ]
             )
-            session.resetForNewGame()
-            _clockSession = State(initialValue: session)
-            _leftScore = State(initialValue: 0)
-            _rightScore = State(initialValue: 0)
-            // 11-a-side walks the clock from the first whistle; 5-a-side waits
-            // for the kick-off button in the middle of the dial.
-            _kickedOff = State(initialValue: !isFiveAside)
+            _store = State(initialValue: WatchReducerSessionStore(
+                seedSession: session,
+                reducer: FootballMatchReducer(),
+                binding: binding,
+                actionLog: actionLog,
+                startedAt: startedAt
+            ))
         }
 
-        _undoStack = State(initialValue: resumedUndoStates)
-        let startedAt = resumedStartTime ?? Date()
+        _showFinishedOverlay = State(initialValue: restoredState.finished)
         _matchStartTime = State(initialValue: startedAt)
-        _actionLog = State(initialValue: resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt))
         _recordID = State(initialValue: "w_\(UUID().uuidString)")
     }
+
+    // MARK: - 由 Reducer State 派生的展示口径
+
+    private var state: FootballMatchState { store.state }
+    private var leftName: String { state.leftName }
+    private var rightName: String { state.rightName }
+    private var leftScore: Int { state.leftScore }
+    private var rightScore: Int { state.rightScore }
+    private var kickedOff: Bool { state.kickedOff }
+    private var isFinished: Bool { state.finished }
+    private var stoppageHistory: [Int] { state.stoppageHistory }
+    private var clockStage: Int { state.timer.stage }
+    private var clockRunning: Bool { state.timer.isRunning }
+    private var elapsedNow: Int { state.displayElapsedSeconds(at: clockNowMilliseconds) }
+    private var mainClockSeconds: Int { state.mainDisplaySeconds(at: clockNowMilliseconds) }
+    private var stoppageElapsedSeconds: Int { state.stoppageElapsedSeconds(at: clockNowMilliseconds) }
+    private var periodCompleted: Bool { state.isPeriodCompleted(at: clockNowMilliseconds) }
+    private var currentStoppageSeconds: Int { state.currentStoppageSeconds }
 
     private var gameType: GameType {
         WatchFootballRules.gameType(isFiveAside: isFiveAside)
@@ -146,7 +160,7 @@ struct WatchFootballScoreView: View {
     private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
 
     private var clockText: String {
-        WatchFootballRules.formattedClock(seconds: clockSession.mainDisplaySeconds)
+        WatchFootballRules.formattedClock(seconds: mainClockSeconds)
     }
 
     var body: some View {
@@ -229,9 +243,9 @@ struct WatchFootballScoreView: View {
             let acceptsScore = linkService.incomingSnapshot != nil
             if acceptsScore, update.beginsMatch(after: previous) {
                 matchStartTime = Date()
-                actionLog.reset(at: matchStartTime)
+                store.beginRemoteMatch(at: matchStartTime)
             }
-            let historyChanged = actionLog.merge(detailedActions: update.detailedActions, removing: update.removedActionIDs)
+            let historyChanged = store.mergeRemoteActions(update.detailedActions, removing: update.removedActionIDs)
             let advancesScore = lastAppliedRemoteGeneration != update.matchGeneration
                 || update.revision > (lastAppliedRemoteRevision ?? 0)
             let finishesCurrentScore = update.revision == lastAppliedRemoteRevision
@@ -346,7 +360,7 @@ struct WatchFootballScoreView: View {
     }
 
     private var halfBadge: some View {
-        Text(WatchFootballRules.stageBadge(clockSession.state.stage))
+        Text(WatchFootballRules.stageBadge(clockStage))
             .font(.system(size: 11, weight: .bold))
             .foregroundStyle(.black)
             .padding(.horizontal, 5)
@@ -355,13 +369,13 @@ struct WatchFootballScoreView: View {
     }
 
     private var clockTextColor: Color {
-        if clockSession.periodCompleted { return Self.amber }
-        if isFiveAside, !clockSession.state.isRunning { return .white.opacity(0.55) }
+        if periodCompleted { return Self.amber }
+        if isFiveAside, !clockRunning { return .white.opacity(0.55) }
         return .white
     }
 
     private var stageAccent: Color {
-        switch clockSession.state.stage {
+        switch clockStage {
         case 1: return Color(hex: 0x22C55E)
         case 2: return Color(hex: 0x38BDF8)
         case 3: return Color(hex: 0xF59E0B)
@@ -377,9 +391,9 @@ struct WatchFootballScoreView: View {
                 .font(.system(size: 16, weight: .bold))
                 .monospacedDigit()
                 .foregroundStyle(clockTextColor)
-            if clockSession.elapsedStoppageSeconds > 0 {
+            if stoppageElapsedSeconds > 0 {
                 Text(WatchFootballRules.formattedStoppage(
-                    seconds: clockSession.elapsedStoppageSeconds
+                    seconds: stoppageElapsedSeconds
                 ))
                 .font(.system(size: 11, weight: .semibold))
                 .monospacedDigit()
@@ -394,9 +408,9 @@ struct WatchFootballScoreView: View {
         .onTapGesture(perform: handleClockTap)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(
-            "\(WatchFootballRules.stageTitle(clockSession.state.stage)) \(clockText)"
+            "\(WatchFootballRules.stageTitle(clockStage)) \(clockText)"
         )
-        .accessibilityAddTraits(clockSession.periodCompleted ? [.isButton] : [])
+        .accessibilityAddTraits(periodCompleted ? [.isButton] : [])
     }
 
     /// 5-a-side after kick-off: the entire capsule toggles the clock.
@@ -418,24 +432,24 @@ struct WatchFootballScoreView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(
-            clockSession.state.isRunning
+            clockRunning
                 ? NSLocalizedString("watch_football_pause", value: "暂停", comment: "")
                 : NSLocalizedString("watch_football_resume", value: "继续", comment: "")
         )
         .accessibilityValue(
-            "\(WatchFootballRules.stageTitle(clockSession.state.stage)) \(clockText)"
+            "\(WatchFootballRules.stageTitle(clockStage)) \(clockText)"
         )
         .padding(.bottom, isHorizontal ? 8 : 0)
     }
 
     @ViewBuilder
     private var fiveV5ClockIcon: some View {
-        let isRunning = clockSession.state.isRunning
+        let isRunning = clockRunning
         let icon = Image(systemName: isRunning ? "pause.fill" : "play.fill")
             .font(.system(size: 20, weight: .semibold))
             .foregroundStyle(isRunning ? .white : WatchTheme.accent)
 
-        if !isRunning, !clockSession.periodCompleted, interactionsEnabled, !reduceMotion {
+        if !isRunning, !periodCompleted, interactionsEnabled, !reduceMotion {
             icon.phaseAnimator([1.0, 1.12]) { content, scale in
                 content.scaleEffect(scale)
             } animation: { _ in
@@ -473,15 +487,15 @@ struct WatchFootballScoreView: View {
     // MARK: - Panels
 
     private var menuAction: MenuAction {
-        if clockSession.periodCompleted,
-           clockSession.state.stage == 1 || clockSession.state.stage == 3 {
+        if periodCompleted,
+           clockStage == 1 || clockStage == 3 {
             return .nextHalf
         }
         if isFiveAside {
             return .pauseClock
         }
-        if clockSession.periodCompleted,
-           clockSession.state.stage == 2,
+        if periodCompleted,
+           clockStage == 2,
            leftScore == rightScore {
             return .extraTime
         }
@@ -502,7 +516,7 @@ struct WatchFootballScoreView: View {
                 )
             ]
         case .pauseClock:
-            let running = clockSession.state.isRunning
+            let running = clockRunning
             let title = running
                 ? NSLocalizedString("watch_football_pause", value: "暂停", comment: "")
                 : (kickedOff
@@ -527,7 +541,7 @@ struct WatchFootballScoreView: View {
                 )
             ]
         case .injury:
-            let stoppage = clockSession.currentStoppageSeconds
+            let stoppage = currentStoppageSeconds
             let title = stoppage > 0
                 ? "\(NSLocalizedString("football_injury_title", value: "伤停补时", comment: "")) "
                     + WatchFootballRules.formattedStoppage(seconds: stoppage)
@@ -555,11 +569,11 @@ struct WatchFootballScoreView: View {
                     onClose: { showStoppagePanel = false }
                 ) {
                     Text(WatchFootballRules.formattedStoppage(
-                        seconds: clockSession.currentStoppageSeconds
+                        seconds: currentStoppageSeconds
                     ))
                     .font(.system(size: compact ? 11 : 14, weight: .bold))
                     .monospacedDigit()
-                    .foregroundStyle(clockSession.currentStoppageSeconds > 0
+                    .foregroundStyle(currentStoppageSeconds > 0
                         ? WatchTheme.accent
                         : .white.opacity(0.45))
                     .lineLimit(1)
@@ -764,29 +778,11 @@ struct WatchFootballScoreView: View {
         addGoal(pendingGoal.side)
     }
 
+    /// 记分动作只走 Reducer：时钟先按锚点结算，进球分钟随事件一起投影。
     private func subtractGoal(_ side: MatchSide) {
         guard interactionsEnabled, !scoringLocked else { return }
-        let current = side == .left ? leftScore : rightScore
-        guard current > 0 else { return }
-        pushUndo()
-        actionLog.beginUndoableMutation()
-        if side == .left {
-            leftScore -= 1
-        } else {
-            rightScore -= 1
-        }
-        actionLog.append(contentsOf: [
-            ScoreActionProjector.action(
-                .scoreChanged,
-                code: "football_goal_undo",
-                side: side,
-                scores: (leftScore, rightScore),
-                delta: -1,
-                periodNumber: clockSession.state.stage,
-                footballPeriod: clockSession.state.stage,
-                footballElapsedSeconds: clockSession.elapsedSecondsNow()
-            )
-        ])
+        guard case .accepted(_, _) = store.dispatch(.subtractGoal(side: side)) else { return }
+        clockNowMilliseconds = Self.nowMilliseconds()
         WatchHaptics.shared.play(.undo)
         persistResumeSession()
         publishLinkedIfNeeded()
@@ -794,28 +790,15 @@ struct WatchFootballScoreView: View {
 
     private func addGoal(_ side: MatchSide) {
         guard interactionsEnabled, !scoringLocked else { return }
-        pushUndo()
-        actionLog.beginUndoableMutation()
-        if side == .left {
-            leftScore += 1
-        } else {
-            rightScore += 1
-        }
-        actionLog.append(contentsOf: [
-            ScoreActionProjector.action(
-                .scoreChanged,
-                code: "football_goal",
-                side: side,
-                scores: (leftScore, rightScore),
-                delta: 1,
-                periodNumber: clockSession.state.stage,
-                footballPeriod: clockSession.state.stage,
-                footballElapsedSeconds: clockSession.elapsedSecondsNow()
-            )
-        ])
+        guard case .accepted(_, _) = store.dispatch(.goal(side: side)) else { return }
+        clockNowMilliseconds = Self.nowMilliseconds()
         WatchHaptics.shared.play(.light)
         persistResumeSession()
         publishLinkedIfNeeded()
+    }
+
+    private static func nowMilliseconds() -> Int64 {
+        Int64(Date().timeIntervalSince1970 * 1_000)
     }
 
     // MARK: - Linked session
@@ -824,78 +807,41 @@ struct WatchFootballScoreView: View {
         linkedSessionId != nil && !linkService.canEditLinkedMatch
     }
 
-    private var linkedSnapshot: LinkedFootballState {
-        LinkedFootballState(
-            leftName: leftName,
-            rightName: rightName,
-            leftScore: leftScore,
-            rightScore: rightScore,
-            timer: clockSession.snapshot(),
-            kickedOff: kickedOff,
-            finished: isFinished
-        )
-    }
+    /// 联动快照就是 Reducer State 本身：时钟锚点、分秒余量、补时与换边
+    /// 一并随帧传输，不再手工拼装 DTO。
+    private var linkedSnapshot: LinkedScoreboardSnapshot { store.snapshot }
 
     private func publishLinkedIfNeeded() {
         guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
         linkService.publishSnapshot(
-            .football(linkedSnapshot),
-            detailedActions: actionLog.detailedActions,
+            .football(state),
+            detailedActions: store.actionLog.detailedActions,
             participantNames: [leftName, rightName]
         )
     }
 
-    private func applyLinkedState(_ remote: LinkedFootballState) {
+    private func applyLinkedState(_ remote: FootballMatchState) {
         pendingGoal?.task.cancel()
         pendingGoal = nil
-        actionLog.clearUndoHistory()
-        if !remote.leftName.isEmpty { leftName = remote.leftName }
-        if !remote.rightName.isEmpty { rightName = remote.rightName }
-        leftScore = remote.leftScore
-        rightScore = remote.rightScore
-        var session = FootballMatchClockSession(state: remote.timer, gameType: gameType)
-        session.reconcileAfterRestore()
-        clockSession = session
-        kickedOff = remote.kickedOff
-        undoStack.removeAll()
-        stoppageHistory.removeAll()
+        store.rebase(to: remote, status: remote.finished ? .finished : .live)
+        clockNowMilliseconds = Self.nowMilliseconds()
         showStoppagePanel = false
         showPostRegulationPanel = false
         confirmation = nil
         if remote.finished {
-            isFinished = true
             showFinishedOverlay = true
             finishUndoAvailable = false
             finishTask?.cancel()
         } else {
-            isFinished = false
             showFinishedOverlay = false
             didSaveRecord = false
         }
     }
 
-    private func pushUndo() {
-        undoStack.append(
-            WatchFootballUndoState(
-                leftScore: leftScore,
-                rightScore: rightScore,
-                clock: clockSession.snapshot()
-            )
-        )
-    }
-
     private func kickOff() {
         guard !isFinished, !kickedOff, !scoringLocked else { return }
-        clockSession.start()
-        kickedOff = true
-        actionLog.append(contentsOf: [
-            ScoreActionProjector.action(
-                .stateChanged,
-                code: "football_clock_start",
-                scores: (leftScore, rightScore),
-                periodNumber: clockSession.state.stage
-            )
-        ])
+        guard case .accepted(_, _) = store.dispatch(.kickOff) else { return }
+        clockNowMilliseconds = Self.nowMilliseconds()
         WatchHaptics.shared.play(.medium)
         persistResumeSession()
         publishLinkedIfNeeded()
@@ -907,25 +853,16 @@ struct WatchFootballScoreView: View {
             kickOff()
             return
         }
-        let wasRunning = clockSession.state.isRunning
-        clockSession.toggleRunning()
-        guard clockSession.state.isRunning != wasRunning else { return }
-        actionLog.append(contentsOf: [
-            ScoreActionProjector.action(
-                .stateChanged,
-                code: clockSession.state.isRunning ? "football_clock_start" : "football_clock_pause",
-                scores: (leftScore, rightScore),
-                periodNumber: clockSession.state.stage
-            )
-        ])
+        guard case .accepted(_, _) = store.dispatch(.toggleClock) else { return }
+        clockNowMilliseconds = Self.nowMilliseconds()
         WatchHaptics.shared.play(.light)
         persistResumeSession()
         publishLinkedIfNeeded()
     }
 
     private func handleClockTap() {
-        guard !isFinished, clockSession.periodCompleted else { return }
-        switch clockSession.state.stage {
+        guard !isFinished, periodCompleted else { return }
+        switch clockStage {
         case 1:
             confirmation = .advanceStage
         case 2:
@@ -942,51 +879,36 @@ struct WatchFootballScoreView: View {
     }
 
     private func advanceStage() {
-        guard !isFinished, !scoringLocked, clockSession.advanceStage() else { return }
-        stoppageHistory.removeAll()
-        actionLog.append(contentsOf: [
-            ScoreActionProjector.action(
-                .periodFinished,
-                code: "football_period_end",
-                scores: (leftScore, rightScore),
-                periodNumber: clockSession.state.stage
-            )
-        ])
+        guard !isFinished, !scoringLocked else { return }
+        guard case .accepted(_, _) = store.dispatch(.advanceStage) else { return }
+        clockNowMilliseconds = Self.nowMilliseconds()
         WatchHaptics.shared.play(.strong)
         persistResumeSession()
         publishLinkedIfNeeded()
     }
 
     private func addStoppage(_ seconds: Int) {
-        guard !isFinished, !scoringLocked, clockSession.addStoppageSeconds(seconds) else { return }
-        stoppageHistory.append(seconds)
-        actionLog.append(contentsOf: [
-            ScoreActionProjector.action(
-                .stateChanged,
-                code: "football_stoppage_add",
-                scores: (leftScore, rightScore),
-                delta: seconds,
-                periodNumber: clockSession.state.stage
-            )
-        ])
+        guard !isFinished, !scoringLocked else { return }
+        guard case .accepted(_, _) = store.dispatch(.addStoppage(seconds: seconds)) else { return }
+        clockNowMilliseconds = Self.nowMilliseconds()
         persistResumeSession()
         publishLinkedIfNeeded()
     }
 
     private func undoLastStoppage() {
-        guard !scoringLocked,
-              let seconds = stoppageHistory.last,
-              clockSession.undoStoppageSeconds(seconds) else { return }
-        stoppageHistory.removeLast()
+        guard !scoringLocked else { return }
+        guard case .accepted(_, _) = store.dispatch(.undoLastStoppage) else { return }
+        clockNowMilliseconds = Self.nowMilliseconds()
         persistResumeSession()
         publishLinkedIfNeeded()
     }
 
+    /// 1 秒只读刷新：只推进显示锚点，不写状态、不入撤销栈、不发联动帧。
     private func tickClock() {
         guard !isFinished else { return }
-        let wasCompleted = clockSession.periodCompleted
-        _ = clockSession.refresh()
-        if !wasCompleted, clockSession.periodCompleted {
+        let wasCompleted = periodCompleted
+        clockNowMilliseconds = Self.nowMilliseconds()
+        if !wasCompleted, periodCompleted {
             WatchHaptics.shared.play(.finish)
             persistResumeSession()
         }
@@ -998,20 +920,10 @@ struct WatchFootballScoreView: View {
         guard !isFinished, !scoringLocked else { return }
         flushPendingGoal()
         finishTask?.cancel()
-        clockSession.pause()
-        isFinished = true
-        let winner: MatchSide? = leftScore == rightScore ? nil : (leftScore > rightScore ? .left : .right)
-        actionLog.append(contentsOf: [
-            ScoreActionProjector.action(
-                .matchFinished,
-                code: "game_end",
-                scores: (leftScore, rightScore),
-                periodNumber: clockSession.state.stage,
-                winner: winner
-            )
-        ])
+        guard case .accepted(_, _) = store.dispatch(.finish) else { return }
+        clockNowMilliseconds = Self.nowMilliseconds()
         publishLinkedIfNeeded()
-        finishUndoAvailable = !undoStack.isEmpty
+        finishUndoAvailable = store.canUndo
         showFinishedOverlay = true
         finishTask = Task { @MainActor in
             try? await Task.sleep(for: .seconds(WatchTiming.finishedUndoCountdown))
@@ -1023,20 +935,20 @@ struct WatchFootballScoreView: View {
 
     @discardableResult
     private func finalizeFinish() -> Bool {
-        guard isFinished, !didSaveRecord, !scoringLocked else { return true }
+        guard isFinished, store.savedRecordID == nil, !didSaveRecord, !scoringLocked else { return true }
         finishUndoAvailable = false
         let saved: Bool
         if linkedSessionId != nil {
             let winner: MatchSide? = leftScore == rightScore ? nil : (leftScore > rightScore ? .left : .right)
             saved = linkService.publishMatchFinished(
-                snapshot: .football(linkedSnapshot),
+                snapshot: .football(state),
                 recordId: recordID,
                 winnerSide: winner,
                 manualEnd: true,
                 startTime: matchStartTime,
                 endTime: Date(),
-                totalScoreChanges: actionLog.scoreChangeCount,
-                detailedActions: actionLog.detailedActions,
+                totalScoreChanges: store.actionLog.scoreChangeCount,
+                detailedActions: store.actionLog.detailedActions,
                 participantNames: [leftName, rightName]
             )
             } else {
@@ -1047,42 +959,41 @@ struct WatchFootballScoreView: View {
             return false
         }
         didSaveRecord = true
+        store.markRecordSaved(recordID)
         resumeStore.clear()
         return true
     }
 
     private func saveRecordIfNeeded() -> Bool {
-        guard !didSaveRecord else { return true }
-        let clock = clockSession.snapshot()
-        guard leftScore + rightScore > 0
-                || clock.elapsedSeconds > 0
-                || clock.stage > 1
-                || !undoStack.isEmpty else {
+        guard store.savedRecordID == nil, !didSaveRecord else { return true }
+        guard state.leftScore + state.rightScore > 0
+                || state.timer.elapsedSeconds > 0
+                || state.timer.stage > 1
+                || store.canUndo else {
             return true
         }
         let end = Date()
         guard let record = WatchScoreboardRecord(
-            localSnapshot: .football(linkedSnapshot), gameType: gameType,
+            localSnapshot: .football(state), gameType: gameType,
             id: recordID, startTime: matchStartTime, endTime: end,
-            detailedActions: actionLog.detailedActions, totalScoreChanges: actionLog.scoreChangeCount
+            detailedActions: store.actionLog.detailedActions, totalScoreChanges: store.actionLog.scoreChangeCount
         ) else { return false }
-        return resumeStore.saveFinishedRecord(record)
+        guard resumeStore.saveFinishedRecord(record) else { return false }
+        store.markRecordSaved(recordID)
+        return true
     }
 
     private func undo() {
         guard !scoringLocked, !isFinished || finishUndoAvailable else { return }
-        guard let previous = undoStack.popLast() else { return }
         finishTask?.cancel()
-        leftScore = previous.leftScore
-        rightScore = previous.rightScore
-        clockSession = FootballMatchClockSession(state: previous.clock, gameType: gameType)
-        actionLog.undo(team1Score: leftScore, team2Score: rightScore)
+        guard store.undo() else { return }
+        clockNowMilliseconds = Self.nowMilliseconds()
         // Reopening a finished match must not leave the finished record behind;
         // re-finishing writes the same id again.
         if didSaveRecord {
             _ = WatchRecordManager.shared.deleteRecord(id: recordID)
         }
-        isFinished = false
+        store.clearSavedRecord()
         didSaveRecord = false
         showFinishedOverlay = false
         finishUndoAvailable = false
@@ -1096,30 +1007,23 @@ struct WatchFootballScoreView: View {
         guard !isFinished || finalizeFinish() else { return }
         finishTask?.cancel()
         resumeStore.clear()
-        undoStack.removeAll()
-        leftScore = 0
-        rightScore = 0
-        var session = FootballMatchClockSession(
-            state: FootballTimerStateV2(halfLengthSeconds: halfLengthSeconds),
-            gameType: gameType
-        )
-        session.resetForNewGame()
-        clockSession = session
-        kickedOff = !isFiveAside
-        kickOffPulseScale = 1
         let restartedAt = Date()
-        actionLog.reset(at: restartedAt)
+        guard case .accepted(_, _) = store.dispatch(.reset(halfLengthSeconds: halfLengthSeconds), at: restartedAt) else {
+            return
+        }
+        store.beginRemoteMatch(at: restartedAt)
+        store.clearSavedRecord()
+        clockNowMilliseconds = Self.nowMilliseconds()
+        kickOffPulseScale = 1
         matchStartTime = restartedAt
         recordID = "w_\(UUID().uuidString)"
         didSaveRecord = false
-        isFinished = false
         showFinishedOverlay = false
         finishUndoAvailable = false
-        stoppageHistory.removeAll()
         persistResumeSession()
         if linkedSessionId != nil {
             linkService.startNextMatch(
-                snapshot: .football(linkedSnapshot),
+                snapshot: .football(state),
                 participantNames: [leftName, rightName]
             )
         }
@@ -1131,39 +1035,26 @@ struct WatchFootballScoreView: View {
         dismiss()
     }
 
+    /// 续玩草稿统一走标准 bundle：状态、撤销帧与时间线一次性持久化。
     private func persistResumeSession() {
         guard !isFinished else {
-            if didSaveRecord { resumeStore.clear() }
+            if store.savedRecordID != nil { resumeStore.clear() }
             return
         }
-        let clock = clockSession.snapshot()
-        let hasProgress = leftScore + rightScore > 0
-            || clock.elapsedSeconds > 0
-            || clock.stage > 1
-            || !undoStack.isEmpty
+        let hasProgress = state.leftScore + state.rightScore > 0
+            || state.timer.elapsedSeconds > 0
+            || state.timer.stage > 1
+            || store.canUndo
         guard hasProgress else {
             resumeStore.clear()
             return
         }
-        resumeStore.save(WatchResumeSession(
+        _ = store.persistResumeSession(
+            into: resumeStore,
+            link: linkService.resumeContext,
             startedAt: matchStartTime,
-            scoreLine: "\(leftScore) - \(rightScore)",
-            emoji: "⚽",
-            payload: .football(
-                isFiveAside: isFiveAside,
-                state: WatchFootballState(
-                    leftScore: leftScore,
-                    rightScore: rightScore,
-                    clock: clock,
-                    kickedOff: kickedOff
-                ),
-                undoStates: undoStack,
-                leftName: leftName,
-                rightName: rightName
-            ),
-            actionLog: actionLog,
-            linkHandle: linkService.resumeContext?.handle
-        ))
+            payload: .football(isFiveAside: isFiveAside, bundle: store.resumeBundle())
+        )
     }
 
     private func normalizedLayout(_ raw: String) -> String {

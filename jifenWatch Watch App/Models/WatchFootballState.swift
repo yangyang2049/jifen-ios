@@ -1,37 +1,6 @@
 import Foundation
 import ScoreCore
 
-/// One undo frame of a watch-local football match: both goal counts plus the
-/// clock snapshot captured before the mutation.
-struct WatchFootballUndoState: Codable, Equatable, Sendable {
-    let leftScore: Int
-    let rightScore: Int
-    let clock: FootballTimerStateV2
-}
-
-/// Full resumable football state. `clock` is the anchored
-/// `FootballTimerStateV2`; live elapsed time is recomputed on restore.
-struct WatchFootballState: Codable, Equatable, Sendable {
-    var leftScore: Int
-    var rightScore: Int
-    var clock: FootballTimerStateV2
-    /// 5-a-side keeps a pre-kick-off state where no time is shown. Optional so
-    /// sessions written before the kick-off button existed still decode.
-    var kickedOff: Bool?
-
-    init(
-        leftScore: Int = 0,
-        rightScore: Int = 0,
-        clock: FootballTimerStateV2 = .init(),
-        kickedOff: Bool? = nil
-    ) {
-        self.leftScore = max(0, leftScore)
-        self.rightScore = max(0, rightScore)
-        self.clock = clock
-        self.kickedOff = kickedOff
-    }
-}
-
 /// Presentation helpers shared by the football board, the resume bar and tests.
 enum WatchFootballRules {
     static func gameType(isFiveAside: Bool) -> GameType {

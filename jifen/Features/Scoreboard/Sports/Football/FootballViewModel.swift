@@ -149,24 +149,30 @@ class FootballViewModel: LineScoreViewModel {
     // MARK: - Linked session
 
     /// Snapshot handed to the watch (or mirrored from it) during a linked match.
-    func linkedState() -> LinkedFootballState {
-        LinkedFootballState(
+    /// M4 起联动快照直接使用 `FootballMatchState`：半场/时钟锚点/分秒余量/
+    /// 补时历史/换边与完赛标记全部随状态传输，不再经过轻量 DTO 翻译。
+    func linkedState() -> FootballMatchState {
+        FootballMatchState(
             leftName: leftTeam.name,
             rightName: rightTeam.name,
             leftScore: leftTeam.score,
             rightScore: rightTeam.score,
             timer: clockSession.snapshot(),
+            stoppageHistory: stoppageAdditionHistory,
+            isFiveAside: gameType == .football5v5,
             kickedOff: gameType != .football5v5
                 || clockSession.state.isRunning
                 || clockSession.state.elapsedSeconds > 0
                 || clockSession.state.stage > 1,
+            sidesSwapped: sidesSwapped,
             finished: gameFinished
         )
     }
 
     /// Applies an authoritative snapshot from the other device without touching
-    /// the local score/clock history.
-    func applyLinkedState(_ state: LinkedFootballState) {
+    /// the local score/clock history. 时钟锚点与补时历史原样恢复，随后按本机
+    /// 时钟重新对齐（`reconcileAfterRestore`）。
+    func applyLinkedState(_ state: FootballMatchState) {
         if !state.leftName.isEmpty { leftTeam.name = state.leftName }
         if !state.rightName.isEmpty { rightTeam.name = state.rightName }
         leftTeam.score = state.leftScore
@@ -174,6 +180,7 @@ class FootballViewModel: LineScoreViewModel {
         var session = FootballMatchClockSession(state: state.timer, gameType: gameType)
         session.reconcileAfterRestore()
         clockSession = session
+        stoppageAdditionHistory = state.stoppageHistory
         clockRevision &+= 1
         gameFinished = state.finished
     }

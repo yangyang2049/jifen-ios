@@ -15,6 +15,25 @@ final class WatchLinkServiceTests: XCTestCase {
         return url
     }
 
+    /// 用一份 Reducer State 构造标准续玩 bundle（测试夹具）。
+    static func resumeBundle(
+        for state: FootballMatchState,
+        gameType: ScoreCore.GameType
+    ) -> WatchFootballResumeBundle {
+        let session = ScoreSession<FootballMatchState, FootballMatchEvent>(
+            gameType: gameType,
+            ruleFamily: .s1,
+            reducerType: ScoreboardKernelRegistry.footballReducerType(for: gameType) ?? "football/v1",
+            state: state
+        )
+        return ScoreSessionResumeBundle(
+            replaySeed: session,
+            currentSession: session,
+            undoFrames: [],
+            timeline: []
+        )
+    }
+
     func testCancelFailedTrainingFinishLetsNextFinishSendUpdatedTraining() async throws {
         let store = WatchLinkTestDataStore()
         let transport = WatchLinkTestTransport()
@@ -435,12 +454,13 @@ final class WatchLinkServiceTests: XCTestCase {
         let foosballSingles = RallyMatchEngine.initial(leftName: "甲", rightName: "乙", rules: .foosball())
         var foosballDoubles = RallyMatchEngine.initial(leftName: "甲/丙", rightName: "乙/丁", rules: .foosball())
         foosballDoubles.doubles = .foosball(playerNames: ["甲", "乙", "丙", "丁"])
-        let football11 = LinkedFootballState(
+        let football11 = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
-            timer: FootballTimerStateV2(halfLengthSeconds: 2700)
+            timer: FootballTimerStateV2(halfLengthSeconds: 2700, isRunning: true),
+            kickedOff: true
         )
-        let football5 = LinkedFootballState(
+        let football5 = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
             timer: FootballTimerStateV2(halfLengthSeconds: 1200),
@@ -499,12 +519,12 @@ final class WatchLinkServiceTests: XCTestCase {
 
         let store = WatchResumeSessionStore(directoryURL: directory)
         let handle = LinkedMatchHandle(sessionId: UUID(), matchId: UUID())
-        let initialFootball = LinkedFootballState(
+        let initialFootball = FootballMatchState(
             leftName: "红队",
             rightName: "蓝队",
             leftScore: 0,
             rightScore: 0,
-            timer: FootballTimerStateV2(halfLengthSeconds: 2700),
+            timer: FootballTimerStateV2(halfLengthSeconds: 2700, isRunning: true),
             kickedOff: true,
             finished: false
         )
@@ -529,25 +549,24 @@ final class WatchLinkServiceTests: XCTestCase {
             emoji: "⚽",
             payload: .football(
                 isFiveAside: false,
-                state: WatchFootballState(
-                    leftScore: 0,
-                    rightScore: 0,
-                    clock: initialFootball.timer,
-                    kickedOff: true
-                ),
-                undoStates: [],
-                leftName: "红队",
-                rightName: "蓝队"
+                bundle: Self.resumeBundle(for: initialFootball, gameType: .football)
             ),
             linkHandle: linkContext.handle
         ))
 
-        let remoteFootball = LinkedFootballState(
+        let remoteFootball = FootballMatchState(
             leftName: "红队",
             rightName: "蓝队",
             leftScore: 2,
             rightScore: 1,
-            timer: FootballTimerStateV2(halfLengthSeconds: 2700),
+            timer: FootballTimerStateV2(
+                halfLengthSeconds: 2700,
+                elapsedSeconds: 420,
+                isRunning: true,
+                savedWallClockMilliseconds: 1_700_000_000_000,
+                stoppageSeconds: [0, 180, 0, 0]
+            ),
+            stoppageHistory: [180],
             kickedOff: true,
             finished: false
         )
@@ -555,12 +574,17 @@ final class WatchLinkServiceTests: XCTestCase {
 
         let updated = try XCTUnwrap(store.session)
         XCTAssertEqual(updated.scoreLine, "2 - 1")
-        if case .football(let isFiveAside, let state, _, let leftName, let rightName) = updated.payload {
+        if case .football(let isFiveAside, let bundle) = updated.payload {
             XCTAssertFalse(isFiveAside)
+            let state = bundle.currentSession.state
             XCTAssertEqual(state.leftScore, 2)
             XCTAssertEqual(state.rightScore, 1)
-            XCTAssertEqual(leftName, "红队")
-            XCTAssertEqual(rightName, "蓝队")
+            XCTAssertEqual(state.leftName, "红队")
+            XCTAssertEqual(state.rightName, "蓝队")
+            // 时钟锚点、分秒余量与补时历史必须随权威快照恢复。
+            XCTAssertEqual(state.timer.savedWallClockMilliseconds, 1_700_000_000_000)
+            XCTAssertEqual(state.timer.stoppageSeconds, [0, 180, 0, 0])
+            XCTAssertEqual(state.stoppageHistory, [180])
         } else {
             XCTFail("Expected .football resume payload")
         }
@@ -744,7 +768,7 @@ final class WatchLinkServiceTests: XCTestCase {
             startedAt: now,
             scoreLine: "0/1 = 0%",
             emoji: "🏀",
-            payload: .basketballTraining(mode: .free, history: []),
+            payload: trainingResumeFixture(mode: .free, startedAt: now),
             linkHandle: context.handle
         ))
 
@@ -753,12 +777,13 @@ final class WatchLinkServiceTests: XCTestCase {
 
         let resumed = try XCTUnwrap(resumeStore.session)
         XCTAssertEqual(resumed.scoreLine, "1/2 = 50%")
-        guard case .basketballTraining(let mode, let shots, let earlierCounts) = resumed.payload else {
+        guard case .basketballTraining(let bundle) = resumed.payload else {
             return XCTFail("Expected a training resume payload")
         }
-        XCTAssertEqual(mode, .free)
-        XCTAssertEqual(shots.first?.points, 3)
-        XCTAssertEqual(earlierCounts?.twoMiss, 1)
+        let training = bundle.currentSession.state
+        XCTAssertEqual(training.mode, .free)
+        XCTAssertEqual(training.shots.first?.points, 3)
+        XCTAssertEqual(training.earlierCounts.twoMiss, 1)
     }
 
     func testWatchLinkedRecordIngestorProjectsAllEighteenLinkedTypesAndRoundTrips() throws {
@@ -796,13 +821,13 @@ final class WatchLinkServiceTests: XCTestCase {
         tennisDoubles.rightGames = 3
         tennisDoubles.finished = true
 
-        let archery = LinkedArcheryState(
+        let archery = ArcheryMatchState(
             leftName: "红方",
             rightName: "蓝方",
-            leftSetPoints: 6,
-            rightSetPoints: 2,
             leftArrowSum: 29,
             rightArrowSum: 25,
+            leftSetPoints: 6,
+            rightSetPoints: 2,
             finished: true
         )
         var eightBall = EightBallState.initial(targetPoints: 5)
@@ -818,7 +843,7 @@ final class WatchLinkServiceTests: XCTestCase {
         snooker.leftFrames = 3
         snooker.rightFrames = 1
         snooker.finished = true
-        let football11 = LinkedFootballState(
+        let football11 = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
             leftScore: 2,
@@ -827,7 +852,7 @@ final class WatchLinkServiceTests: XCTestCase {
             kickedOff: true,
             finished: true
         )
-        let football5 = LinkedFootballState(
+        let football5 = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
             leftScore: 4,
@@ -1450,27 +1475,33 @@ private final class WatchLinkTestTransport: @unchecked Sendable, WatchLinkTransp
     var onClearPendingRequest: (@Sendable ([String]) -> Void)?
     var onPendingRecords: (@Sendable ([Data]) -> Void)?
 
-    private(set) var realtimeMessages: [Data] = []
-    private(set) var publishedSnapshots: [Data] = []
-    private(set) var durableMessages: [Data] = []
+    private let messageLock = NSLock()
+    private var realtime: [Data] = []
+    private var snapshots: [Data] = []
+    private var durable: [Data] = []
+    private var files: [(data: Data, metadata: [String: Any])] = []
+    var realtimeMessages: [Data] { messageLock.withLock { realtime } }
+    var publishedSnapshots: [Data] { messageLock.withLock { snapshots } }
+    var durableMessages: [Data] { messageLock.withLock { durable } }
+    var transferredFiles: [(data: Data, metadata: [String: Any])] { messageLock.withLock { files } }
 
     func activate() {}
     func refreshStatus() { onStatusChange?(status) }
 
     func sendRealtime(_ data: Data) async throws {
-        realtimeMessages.append(data)
+        messageLock.withLock { realtime.append(data) }
     }
 
     func publishLatestSnapshot(_ data: Data) throws {
-        publishedSnapshots.append(data)
+        messageLock.withLock { snapshots.append(data) }
     }
 
     func enqueueDurable(_ data: Data) throws {
-        durableMessages.append(data)
+        messageLock.withLock { durable.append(data) }
     }
 
     func sendInteractive(_ data: Data) throws {
-        realtimeMessages.append(data)
+        messageLock.withLock { realtime.append(data) }
     }
 
     func updateApplicationContext(_ context: [String: Any]) throws {
@@ -1480,10 +1511,9 @@ private final class WatchLinkTestTransport: @unchecked Sendable, WatchLinkTransp
     func transferWatchRecord(_ data: Data) throws {}
     var supportsFileTransfer = true
     var onReceivedFile: (@Sendable (Data, [String: Any]) -> Void)?
-    var transferredFiles: [(data: Data, metadata: [String: Any])] = []
 
     func transferFileData(_ data: Data, metadata: [String: Any]) throws {
-        transferredFiles.append((data, metadata))
+        messageLock.withLock { files.append((data, metadata)) }
     }
 
     func transferCommonNameMutations(_ data: Data) throws {}

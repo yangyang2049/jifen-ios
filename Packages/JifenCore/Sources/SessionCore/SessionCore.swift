@@ -230,6 +230,32 @@ public struct ScoreSessionMachine<Reducer: DomainReducer>: Sendable {
         return currentSession
     }
 
+    /// Replaces the current reducer state without clearing undo history, the
+    /// replay seed or the intent timeline. App layers use this only for
+    /// display-level patches that are not part of the reducer contract (for
+    /// example an archery set-completion prompt); score mutations must still go
+    /// through `dispatch`.
+    @discardableResult
+    public mutating func overrideCurrentState(
+        _ state: State,
+        status: SessionStatus? = nil
+    ) -> ScoreSession<State, Event> {
+        let updated: ScoreSession<State, Event> = ScoreSession(
+            sessionId: currentSession.sessionId,
+            gameType: currentSession.gameType,
+            ruleFamily: currentSession.ruleFamily,
+            reducerType: currentSession.reducerType,
+            version: currentSession.version + 1,
+            state: state,
+            events: currentSession.events,
+            status: status ?? currentSession.status,
+            participants: currentSession.participants,
+            metadata: currentSession.metadata
+        )
+        currentSession = updated
+        return updated
+    }
+
     /// Updates non-scoring session metadata without creating an undo frame.
     /// Replay seed and existing undo frames are rewritten so undoing a score
     /// never resurrects an obsolete title or other local presentation data.
@@ -300,19 +326,25 @@ public struct ScoreSessionMachine<Reducer: DomainReducer>: Sendable {
         dispatch(actorId: actorId, intent: intent, at: epochMilliseconds, recordsUndo: true)
     }
 
+    /// With `recordsInTimeline`, a derived intent replays and undoes with its preceding undoable intent.
     public mutating func dispatchNonUndoable(
         actorId: String,
         intent: Intent,
-        at epochMilliseconds: Int64
+        at epochMilliseconds: Int64,
+        recordsInTimeline: Bool = false
     ) -> DispatchResult<State, Event> {
-        dispatch(actorId: actorId, intent: intent, at: epochMilliseconds, recordsUndo: false)
+        dispatch(
+            actorId: actorId, intent: intent, at: epochMilliseconds,
+            recordsUndo: false, recordsInTimeline: recordsInTimeline
+        )
     }
 
     private mutating func dispatch(
         actorId: String,
         intent: Intent,
         at epochMilliseconds: Int64,
-        recordsUndo: Bool
+        recordsUndo: Bool,
+        recordsInTimeline: Bool = false
     ) -> DispatchResult<State, Event> {
         guard canDispatch(actorId, intent) else {
             return .rejected(session: currentSession, reason: "Permission denied")
@@ -325,6 +357,8 @@ public struct ScoreSessionMachine<Reducer: DomainReducer>: Sendable {
 
         if recordsUndo {
             undoStack.append(UndoFrame(session: currentSession, intentCount: 1))
+        } else if recordsInTimeline, let frame = undoStack.popLast() {
+            undoStack.append(UndoFrame(session: frame.session, intentCount: frame.intentCount + 1))
         }
         // Reducer state is the source of truth for the session lifecycle. A
         // successful reset/admin correction can legitimately move a finished
@@ -342,7 +376,7 @@ public struct ScoreSessionMachine<Reducer: DomainReducer>: Sendable {
             participants: currentSession.participants,
             metadata: currentSession.metadata
         )
-        if recordsUndo {
+        if recordsUndo || recordsInTimeline {
             timeline.append(.init(actorId: actorId, intent: intent, epochMilliseconds: epochMilliseconds))
         }
         return .accepted(session: currentSession, events: result.events)
@@ -462,6 +496,14 @@ public actor ScoreSessionCore<Reducer: DomainReducer> {
     @discardableResult
     public func rebase(to state: State, status: SessionStatus) -> ScoreSession<State, Event> {
         machine.rebase(to: state, status: status)
+    }
+
+    @discardableResult
+    public func overrideCurrentState(
+        _ state: State,
+        status: SessionStatus? = nil
+    ) -> ScoreSession<State, Event> {
+        machine.overrideCurrentState(state, status: status)
     }
 
     public func dispatch(

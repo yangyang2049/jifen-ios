@@ -623,7 +623,7 @@ struct ArcheryScoreboardView: View {
         )
     }
 
-    private func applyRemoteArchery(_ remote: LinkedArcheryState) {
+    private func applyRemoteArchery(_ remote: ArcheryMatchState) {
         viewModel.applyRemote(remote)
         manualFinishRequested = false
         // Reactive to the linked device's finished flag (mirrors HarmonyOS:
@@ -847,16 +847,15 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
         syncTeamsFromMatch()
     }
 
-    func applyRemote(_ remote: LinkedArcheryState) {
-        var next = match
-        remote.applying(to: &next)
-        sessionStore.rebase(to: next)
+    /// 联动快照直接就是 Reducer State（M4 起不再经过轻量 DTO 翻译）。
+    func applyRemote(_ remote: ArcheryMatchState) {
+        sessionStore.rebase(to: remote)
         recordUndoCheckpoints.removeAll()
         syncTeamsFromMatch()
     }
 
-    func linkedSnapshot(finished: Bool = false) -> LinkedArcheryState {
-        var snap = LinkedArcheryState(match: match)
+    func linkedSnapshot(finished: Bool = false) -> ArcheryMatchState {
+        var snap = match
         if finished { snap.finished = true }
         return snap
     }

@@ -6,49 +6,51 @@ import RecordCore
 import ScoreCore
 import SessionCore
 
+typealias WatchRallyResumeBundle = ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>
+typealias WatchTennisResumeBundle = ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>
+typealias WatchArcheryResumeBundle = ScoreSessionResumeBundle<ArcheryMatchState, ArcheryMatchEvent, ArcheryMatchIntent>
+typealias WatchEightBallResumeBundle = ScoreSessionResumeBundle<EightBallState, EightBallEvent, EightBallIntent>
+typealias WatchNineBallResumeBundle = ScoreSessionResumeBundle<NineBallChaseState, NineBallChaseEvent, NineBallChaseIntent>
+typealias WatchSnookerResumeBundle = ScoreSessionResumeBundle<SnookerState, SnookerEvent, SnookerIntent>
+typealias WatchFootballResumeBundle = ScoreSessionResumeBundle<FootballMatchState, FootballMatchEvent, FootballMatchIntent>
+typealias WatchShotTrainingResumeBundle = ScoreSessionResumeBundle<ShotTrainingState, ShotTrainingEvent, ShotTrainingIntent>
+
+/// 续玩统一为标准 `ScoreSessionResumeBundle`：比分、撤销帧与时间线全部由
+/// 引擎值类型承载，不再各运动散装保存 `undoStates` 数组。
 enum WatchResumePayload: Codable, Sendable {
     case rally(
         gameType: GameType,
-        bundle: ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>,
+        bundle: WatchRallyResumeBundle,
         restState: WatchRestState?
     )
     case tennis(
         isDoubles: Bool,
-        bundle: ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>,
+        bundle: WatchTennisResumeBundle,
         restState: WatchRestState?
     )
     case archery(
-        state: ArcheryMatchState,
-        undoStates: [ArcheryMatchState],
+        bundle: WatchArcheryResumeBundle,
         restState: WatchRestState?
     )
     case eightBall(
-        state: EightBallState,
-        undoStates: [EightBallState],
+        bundle: WatchEightBallResumeBundle,
         leftName: String,
         rightName: String
     )
     case nineBall(
-        state: NineBallChaseState,
-        undoStates: [NineBallChaseState]
+        bundle: WatchNineBallResumeBundle
     )
     case snooker(
-        state: SnookerState,
-        undoStates: [SnookerState],
+        bundle: WatchSnookerResumeBundle,
         leftName: String,
         rightName: String
     )
     case football(
         isFiveAside: Bool,
-        state: WatchFootballState,
-        undoStates: [WatchFootballUndoState],
-        leftName: String,
-        rightName: String
+        bundle: WatchFootballResumeBundle
     )
     case basketballTraining(
-        mode: ShotTrainingMode,
-        history: [ShotTrainingShot],
-        earlierCounts: ShotTrainingCounts? = nil
+        bundle: WatchShotTrainingResumeBundle
     )
 
     /// Artwork lookup for the resume bar; nil when no sport artwork applies.
@@ -74,7 +76,7 @@ enum WatchResumePayload: Codable, Sendable {
             return .nineBall
         case .snooker:
             return .snooker
-        case .football(let isFiveAside, _, _, _, _):
+        case .football(let isFiveAside, _):
             return WatchFootballRules.watchGameType(isFiveAside: isFiveAside)
         case .basketballTraining:
             return .basketballTraining
@@ -89,8 +91,8 @@ extension WatchLinkResumeContext {
 struct WatchResumeSession: Codable, Sendable {
     /// 首发格式直接起算：restore 只接受当前 schema 版本，旧版本会话一律视为
     /// 无会话丢弃，不做任何迁移。v4 起联动草稿只保存完整 handle 引用，
-    /// 会话身份、revision 与权威快照全部来自 link/ 联动上下文。
-    static let currentSchemaVersion = 4
+    /// 会话身份、revision 与权威快照全部来自 link/ 联动上下文。v5 统一保存 Reducer bundle。
+    static let currentSchemaVersion = 5
 
     let schemaVersion: Int
     var savedAt: Date
@@ -423,6 +425,7 @@ final class WatchResumeSessionStore {
         guard previous == context.handle || beganNewMatch else { return false }
 
         let updated: (payload: WatchResumePayload, scoreLine: String)?
+        let status: SessionStatus = snapshot.isFinished ? .finished : .live
         let startedAt = snapshot.basketballTrainingState?.startTime ?? (beganNewMatch ? now() : value.startedAt)
         switch (value.payload, snapshot) {
         case (.rally(let gameType, let bundle, _), .rally(let state)):
@@ -432,7 +435,7 @@ final class WatchResumeSessionStore {
             updated = (
                 .rally(
                     gameType: gameType,
-                    bundle: replacingCurrentState(in: bundle, with: state),
+                    bundle: replacingCurrentState(in: bundle, with: state, status: status),
                     restState: WatchRestState.fromOfficialBreak(state.officialBreakState)
                 ),
                 score
@@ -444,56 +447,58 @@ final class WatchResumeSessionStore {
             updated = (
                 .tennis(
                     isDoubles: isDoubles,
-                    bundle: replacingCurrentState(in: bundle, with: state),
+                    bundle: replacingCurrentState(in: bundle, with: state, status: status),
                     restState: WatchRestState.fromOfficialBreak(state.officialBreakState)
                 ),
                 score
             )
-        case (.archery(var state, _, let restState), .archery(let linkedState)):
-            linkedState.applying(to: &state)
+        case (.archery(let bundle, let restState), .archery(let state)):
             let score = state.leftSetPoints + state.rightSetPoints > 0
                 ? "\(state.leftSetPoints) : \(state.rightSetPoints)"
                 : "\(state.leftArrowSum) : \(state.rightArrowSum)"
-            updated = (.archery(state: state, undoStates: [], restState: restState), score)
-        case (.eightBall(_, _, let leftName, let rightName), .eightBall(let state)):
             updated = (
-                .eightBall(state: state, undoStates: [], leftName: leftName, rightName: rightName),
+                .archery(
+                    bundle: replacingCurrentState(in: bundle, with: state, status: status),
+                    restState: restState
+                ),
+                score
+            )
+        case (.eightBall(let bundle, let leftName, let rightName), .eightBall(let state)):
+            updated = (
+                .eightBall(
+                    bundle: replacingCurrentState(in: bundle, with: state, status: status),
+                    leftName: leftName,
+                    rightName: rightName
+                ),
                 "\(state.leftPoints) : \(state.rightPoints)"
             )
-        case (.nineBall, .nineBall(let state)):
+        case (.nineBall(let bundle), .nineBall(let state)):
             updated = (
-                .nineBall(state: state, undoStates: []),
+                .nineBall(bundle: replacingCurrentState(in: bundle, with: state, status: status)),
                 state.playerPoints.prefix(state.playerCount).map(String.init).joined(separator: " · ")
             )
-        case (.snooker(_, _, let leftName, let rightName), .snooker(let state)):
+        case (.snooker(let bundle, let leftName, let rightName), .snooker(let state)):
             updated = (
-                .snooker(state: state, undoStates: [], leftName: leftName, rightName: rightName),
+                .snooker(
+                    bundle: replacingCurrentState(in: bundle, with: state, status: status),
+                    leftName: leftName,
+                    rightName: rightName
+                ),
                 "\(state.leftFrames)-\(state.rightFrames) / \(state.leftScore):\(state.rightScore)"
             )
-        case (.basketballTraining, .basketballTraining(let state)):
+        case (.basketballTraining(let bundle), .basketballTraining(let state)):
             let counts = state.counts
             updated = (
-                .basketballTraining(
-                    mode: state.mode,
-                    history: state.shots,
-                    earlierCounts: state.earlierCounts
-                ),
+                .basketballTraining(bundle: replacingCurrentState(in: bundle, with: state, status: status)),
                 "\(counts.made)/\(counts.attempts) = \(counts.rate)%"
             )
-        case (.football(let isFiveAside, _, _, let leftName, let rightName), .football(let state)):
-            let footballState = WatchFootballState(
-                leftScore: state.leftScore,
-                rightScore: state.rightScore,
-                clock: state.timer,
-                kickedOff: state.kickedOff
-            )
+        case (.football(let isFiveAside, let bundle), .football(let state)):
+            // 足球权威快照直接是 Reducer State：时钟锚点、分秒余量与补时/换边
+            // 全部随状态落地，不做二次变形。
             updated = (
                 .football(
                     isFiveAside: isFiveAside,
-                    state: footballState,
-                    undoStates: [],
-                    leftName: state.leftName.isEmpty ? leftName : state.leftName,
-                    rightName: state.rightName.isEmpty ? rightName : state.rightName
+                    bundle: replacingCurrentState(in: bundle, with: state, status: status)
                 ),
                 "\(state.leftScore) - \(state.rightScore)"
             )
@@ -521,51 +526,52 @@ final class WatchResumeSessionStore {
         return true
     }
 
-    /// 两个草稿负载是否描述同一份 typed 状态（忽略 undo 栈与休息遮罩）。
+    /// A repeated authoritative state keeps both the reducer and action-log undo history.
     private static func sameLinkedState(_ lhs: WatchResumePayload, _ rhs: WatchResumePayload) -> Bool {
+        func same<State: Codable & Sendable & Equatable, Event: Codable & Sendable, Intent: Codable & Sendable>(
+            _ left: ScoreSessionResumeBundle<State, Event, Intent>,
+            _ right: ScoreSessionResumeBundle<State, Event, Intent>
+        ) -> Bool {
+            left.currentSession.state == right.currentSession.state
+                && left.currentSession.status == right.currentSession.status
+        }
+
         switch (lhs, rhs) {
-        case (.rally(let lType, let lBundle, _), .rally(let rType, let rBundle, _)):
-            return lType == rType && lBundle.currentSession.state == rBundle.currentSession.state
-        case (.tennis(let lDouble, let lBundle, _), .tennis(let rDouble, let rBundle, _)):
-            return lDouble == rDouble && lBundle.currentSession.state == rBundle.currentSession.state
-        case (.archery(let lState, _, _), .archery(let rState, _, _)):
-            return lState == rState
-        case (.eightBall(let lState, _, _, _), .eightBall(let rState, _, _, _)):
-            return lState == rState
-        case (.nineBall(let lState, _), .nineBall(let rState, _)):
-            return lState == rState
-        case (.snooker(let lState, _, _, _), .snooker(let rState, _, _, _)):
-            return lState == rState
-        case (.football(let lFive, let lState, _, _, _), .football(let rFive, let rState, _, _, _)):
-            return lFive == rFive && lState == rState
-        case (.basketballTraining(let lMode, let lHistory, let lEarlier), .basketballTraining(let rMode, let rHistory, let rEarlier)):
-            return lMode == rMode && lHistory == rHistory && lEarlier == rEarlier
+        case (.rally(let leftType, let left, _), .rally(let rightType, let right, _)):
+            return leftType == rightType && same(left, right)
+        case (.tennis(let leftDoubles, let left, _), .tennis(let rightDoubles, let right, _)):
+            return leftDoubles == rightDoubles && same(left, right)
+        case (.archery(let left, _), .archery(let right, _)):
+            return same(left, right)
+        case (.eightBall(let left, _, _), .eightBall(let right, _, _)):
+            return same(left, right)
+        case (.nineBall(let left), .nineBall(let right)):
+            return same(left, right)
+        case (.snooker(let left, _, _), .snooker(let right, _, _)):
+            return same(left, right)
+        case (.football(let leftFiveAside, let left), .football(let rightFiveAside, let right)):
+            return leftFiveAside == rightFiveAside && same(left, right)
+        case (.basketballTraining(let left), .basketballTraining(let right)):
+            return same(left, right)
         default:
             return false
         }
     }
 
-    /// 把草稿原有的 undo 栈搬到权威重建后的负载上。
+    /// Keeps the original bundle and applies the refreshed presentation-only rest state.
     private static func carryingUndo(
         from source: WatchResumePayload,
         into target: WatchResumePayload
     ) -> WatchResumePayload {
         switch (source, target) {
-        case (.archery(_, let undo, _), .archery(let state, _, let rest)):
-            return .archery(state: state, undoStates: undo, restState: rest)
-        case (.eightBall(_, let undo, let left, let right), .eightBall(let state, _, _, _)):
-            return .eightBall(state: state, undoStates: undo, leftName: left, rightName: right)
-        case (.nineBall(_, let undo), .nineBall(let state, _)):
-            return .nineBall(state: state, undoStates: undo)
-        case (.snooker(_, let undo, let left, let right), .snooker(let state, _, _, _)):
-            return .snooker(state: state, undoStates: undo, leftName: left, rightName: right)
-        case (.football(let five, _, let undo, let left, let right), .football(_, let state, _, _, _)):
-            return .football(
-                isFiveAside: five, state: state, undoStates: undo,
-                leftName: left, rightName: right
-            )
+        case (.rally(let gameType, let bundle, _), .rally(_, _, let restState)):
+            return .rally(gameType: gameType, bundle: bundle, restState: restState)
+        case (.tennis(let isDoubles, let bundle, _), .tennis(_, _, let restState)):
+            return .tennis(isDoubles: isDoubles, bundle: bundle, restState: restState)
+        case (.archery(let bundle, _), .archery(_, let restState)):
+            return .archery(bundle: bundle, restState: restState)
         default:
-            return target
+            return source
         }
     }
 
@@ -583,8 +589,9 @@ final class WatchResumeSessionStore {
             guard bundle.currentSession.gameType == context.setup.gameType else { return nil }
         case .tennis(let isDoubles, _, _):
             guard context.setup.gameType == (isDoubles ? .tennisDoubles : .tennis) else { return nil }
-        case .football(let isFiveAside, _, _, _, _):
-            guard context.setup.gameType == (isFiveAside ? .football5v5 : .football) else { return nil }
+        case .football(let isFiveAside, let bundle):
+            guard context.setup.gameType == (isFiveAside ? .football5v5 : .football),
+                  bundle.currentSession.gameType == context.setup.gameType else { return nil }
         default:
             break
         }
@@ -616,7 +623,8 @@ final class WatchResumeSessionStore {
         Intent: Codable & Sendable
     >(
         in bundle: ScoreSessionResumeBundle<State, Event, Intent>,
-        with state: State
+        with state: State,
+        status: SessionStatus
     ) -> ScoreSessionResumeBundle<State, Event, Intent> {
         let current = bundle.currentSession
         let rebased = ScoreSession<State, Event>(
@@ -624,10 +632,10 @@ final class WatchResumeSessionStore {
             gameType: current.gameType,
             ruleFamily: current.ruleFamily,
             reducerType: current.reducerType,
-            version: current.version,
+            version: current.version + 1,
             state: state,
-            events: current.events,
-            status: current.status,
+            events: [],
+            status: status,
             participants: current.participants,
             metadata: current.metadata
         )
@@ -635,7 +643,8 @@ final class WatchResumeSessionStore {
             replaySeed: rebased,
             currentSession: rebased,
             undoFrames: [],
-            timeline: []
+            timeline: [],
+            auxiliaryPayload: bundle.auxiliaryPayload
         )
     }
 }

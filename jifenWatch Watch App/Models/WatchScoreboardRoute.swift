@@ -82,13 +82,13 @@ extension WatchScoreboardRoute {
             self = .nineBall
         case .snooker:
             self = .snooker
-        case .football(let isFiveAside, let state, _, _, _):
-            let halfLengthSeconds = max(60, state.clock.halfLengthSeconds)
+        case .football(let isFiveAside, let bundle):
+            let halfLengthSeconds = max(60, bundle.currentSession.state.timer.halfLengthSeconds)
             self = isFiveAside
                 ? .football5v5(halfLengthSeconds: halfLengthSeconds)
                 : .football(halfLengthSeconds: halfLengthSeconds)
-        case .basketballTraining(let mode, _, _):
-            self = .basketballTraining(mode: mode)
+        case .basketballTraining(let bundle):
+            self = .basketballTraining(mode: bundle.currentSession.state.mode)
         }
     }
 

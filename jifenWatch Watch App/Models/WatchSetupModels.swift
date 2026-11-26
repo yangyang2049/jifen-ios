@@ -479,10 +479,10 @@ enum WatchSetupPayloadMapper {
         )
     }
 
-    static func archeryState(for config: WatchScoreboardLaunchConfig) -> LinkedArcheryState? {
+    static func archeryState(for config: WatchScoreboardLaunchConfig) -> ArcheryMatchState? {
         guard config.sport == .archery else { return nil }
         let names = resolvedPlayerNames(config)
-        return LinkedArcheryState(leftName: names[0], rightName: names[1])
+        return ArcheryMatchState(leftName: names[0], rightName: names[1])
     }
 
     static func eightBallState(for config: WatchScoreboardLaunchConfig) -> EightBallState? {

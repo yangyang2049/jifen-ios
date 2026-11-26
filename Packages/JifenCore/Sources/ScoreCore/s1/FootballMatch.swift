@@ -14,7 +14,9 @@ public struct FootballMatchState: Codable, Equatable, Sendable {
 
     // The shared timer stores whole seconds. Carry the remainder in the match
     // so consecutive actions can re-anchor the clock without discarding time.
-    fileprivate var elapsedSubsecondMilliseconds = 0
+    // It is part of the persisted and linked wire state: a peer that only
+    // receives the whole-second anchor would drift by up to 1s per action.
+    public fileprivate(set) var elapsedSubsecondMilliseconds: Int
 
     public init(
         leftName: String,
@@ -26,7 +28,8 @@ public struct FootballMatchState: Codable, Equatable, Sendable {
         isFiveAside: Bool = false,
         kickedOff: Bool? = nil,
         sidesSwapped: Bool = false,
-        finished: Bool = false
+        finished: Bool = false,
+        elapsedSubsecondMilliseconds: Int = 0
     ) {
         let timer = timer ?? FootballTimerStateV2(halfLengthSeconds: Self.defaultHalfLength(isFiveAside: isFiveAside))
         self.leftName = leftName.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -47,6 +50,7 @@ public struct FootballMatchState: Codable, Equatable, Sendable {
         self.kickedOff = kickedOff ?? (!isFiveAside || timer.isRunning || timer.elapsedSeconds > 0 || timer.stage > 1)
         self.sidesSwapped = sidesSwapped
         self.finished = finished
+        self.elapsedSubsecondMilliseconds = min(999, max(0, elapsedSubsecondMilliseconds))
         self.timer.elapsedSeconds = min(self.timer.elapsedSeconds, targetSeconds)
         if self.timer.elapsedSeconds == targetSeconds {
             self.timer.isRunning = false
@@ -71,6 +75,36 @@ public struct FootballMatchState: Codable, Equatable, Sendable {
     fileprivate static func defaultHalfLength(isFiveAside: Bool) -> Int {
         (isFiveAside ? FootballGoalMinute.defaultFiveASideHalfMinutes : FootballGoalMinute.regulationHalfMinutes) * 60
     }
+}
+
+public extension FootballMatchState {
+    /// 只读显示用流逝秒数：与 Reducer 的锚点结算完全同源，但不改状态、
+    /// 不入撤销栈、不产生网络帧（1 秒 UI 刷新专用）。
+    func displayElapsedSeconds(at epochMilliseconds: Int64) -> Int {
+        FootballMatchReducer.displayElapsedSeconds(state: self, at: epochMilliseconds)
+    }
+
+    /// 当前半场常规时间内的显示秒数（封顶到半场长度）。
+    func mainDisplaySeconds(at epochMilliseconds: Int64) -> Int {
+        min(displayElapsedSeconds(at: epochMilliseconds), currentPeriodLengthSeconds)
+    }
+
+    /// 超出常规时间后已进行的补时秒数。
+    func stoppageElapsedSeconds(at epochMilliseconds: Int64) -> Int {
+        max(0, displayElapsedSeconds(at: epochMilliseconds) - currentPeriodLengthSeconds)
+    }
+
+    /// 当前半场（含补时）是否已走完。
+    func isPeriodCompleted(at epochMilliseconds: Int64) -> Bool {
+        displayElapsedSeconds(at: epochMilliseconds) >= targetSeconds
+    }
+
+    /// 5 人制允许手动启停表；11 人制由开球/半场推进控制。
+    var allowsManualClockPause: Bool { isFiveAside }
+
+    /// 11 人制允许补时与加时。
+    var allowsStoppageTime: Bool { !isFiveAside }
+    var allowsExtraTime: Bool { !isFiveAside }
 }
 
 public enum FootballMatchIntent: Codable, Equatable, Sendable {

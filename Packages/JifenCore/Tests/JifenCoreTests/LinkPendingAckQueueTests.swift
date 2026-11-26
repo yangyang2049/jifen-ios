@@ -177,7 +177,7 @@ import Testing
         sidesSwapped: true,
         rules: ArcheryMatchRules(normalArrowsPerSet: 4, setPointsToWin: 7)
     )
-    let archery = LinkedArcheryState(match: archeryMatch)
+    let archery = archeryMatch
     let encodedTennis = try JSONEncoder().encode(LinkedScoreboardSnapshot.tennis(tennis))
     let encodedArchery = try JSONEncoder().encode(LinkedScoreboardSnapshot.archery(archery))
     let decodedTennis = try JSONDecoder().decode(LinkedScoreboardSnapshot.self, from: encodedTennis)
@@ -190,9 +190,8 @@ import Testing
     #expect(decodedArchery.archeryState?.pendingSetNumber == 6)
     #expect(decodedArchery.archeryState?.closestToCenterPending == true)
     let remote = try #require(decodedArchery.archeryState)
-    var restored = ArcheryMatchState(leftName: "Initial left", rightName: "Initial right")
-    remote.applying(to: &restored)
-    #expect(restored == archeryMatch)
+    // M4：射箭联动快照就是 Reducer State，字段必须逐项等价。
+    #expect(remote == archeryMatch)
 }
 
 @Test func formalV1ArcheryStateRequiresCompleteState() throws {
@@ -205,7 +204,7 @@ import Testing
     """
     let data = Data(json.utf8)
     #expect(throws: DecodingError.self) {
-        _ = try JSONDecoder().decode(LinkedArcheryState.self, from: data)
+        _ = try JSONDecoder().decode(ArcheryMatchState.self, from: data)
     }
 }
 

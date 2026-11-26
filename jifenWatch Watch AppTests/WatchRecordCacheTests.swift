@@ -76,7 +76,7 @@ final class WatchRecordCacheTests: XCTestCase {
         let startTime = Date(timeIntervalSince1970: Date().timeIntervalSince1970.rounded(.down) + 0.12535)
         store.save(.init(
             startedAt: startTime, scoreLine: "1/1 = 100%", emoji: "🏀",
-            payload: .basketballTraining(mode: .fixed2, history: [])
+            payload: trainingResumeFixture(mode: .fixed2, startedAt: startTime)
         ))
         let training = makeRecord(id: "training", score: 1, gameType: .basketballTraining, startTime: startTime)
         let match = makeRecord(id: "other-match", score: 11, startTime: startTime)

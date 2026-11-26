@@ -8,14 +8,9 @@
 
 import LinkCore
 import ScoreCore
+import SessionCore
 import SwiftUI
 
-private let arrowsPerSetNormal = 3
-private let arrowsPerSetShootoff = 1
-private let setPointsToWin = 6
-private let setPointsWin = 2
-private let setPointsShootOffWin = 1
-private let setPointsTie = 1
 private let setEndDelay: TimeInterval = 3.5
 
 private let scoreGrid: [[Int?]] = [
@@ -32,27 +27,21 @@ struct WatchArcheryScoreView: View {
 
     let linkedSessionId: UUID?
 
-    @State private var lastAppliedRemoteRevision: UInt64?
-    @State private var lastAppliedRemoteGeneration: UInt64?
-
     @State private var showRecordSaveFailure = false
     @State private var store: WatchArcherySessionStore
     @State private var setEnding: Bool = false
+    @State private var setEndTask: Task<Void, Never>?
     @State private var showScorePanel: Bool = false
     @State private var showClosestToCenter: Bool = false
     @State private var showMenu: Bool = false
-    @State private var isStopped: Bool = false
-    @State private var winner: Bool? = nil
     @State private var isManualFinish: Bool = false
     @State private var undoButtonVisible: Bool = false
     @State private var undoHideTimer: Timer? = nil
-    @State private var recordSaved: Bool = false
     @State private var toastMessage: String? = nil
     @State private var scoreboardLayout: String = "horizontal"
     @State private var restState: WatchRestState?
     @State private var confirmation: WatchScoreboardConfirmation?
     @State private var suppressTapAfterLongPress = false
-    @State private var finishCommitted = false
 
     private var redScore: Int { store.state.leftArrowSum }
     private var blueScore: Int { store.state.rightArrowSum }
@@ -60,22 +49,17 @@ struct WatchArcheryScoreView: View {
     private var blueSets: Int { store.state.rightSetPoints }
     /// `true` = red/left engine slot currently shooting.
     private var currentShooter: Bool { store.state.currentShooterIsLeft }
-    private var openingShooterIsRed: Bool { store.state.openingShooterIsLeft }
     private var arrowsRedThisSet: Int { store.state.arrowsLeftThisSet }
     private var arrowsBlueThisSet: Int { store.state.arrowsRightThisSet }
-    private var arrowsPerSet: Int { store.state.arrowsPerSet }
-    private var setNumber: Int { store.state.currentSet }
     private var pendingSetNumber: Int { store.state.pendingSetNumber }
-    private var pendingSetWinner: Bool? { store.state.pendingSetWinnerIsLeft }
     private var leftName: String { store.state.leftName }
     private var rightName: String { store.state.rightName }
     private var matchStartTime: Date { store.startedAt }
 
     init(
-        initialState: LinkedArcheryState? = nil,
+        initialState: ArcheryMatchState? = nil,
         linkedSessionId: UUID? = nil,
-        resumedState: ArcheryMatchState? = nil,
-        resumedUndoStates: [ArcheryMatchState] = [],
+        resumeBundle: WatchArcherySessionStore.ResumeBundle? = nil,
         resumedStartTime: Date? = nil,
         resumedRestState: WatchRestState? = nil,
         resumedActionLog: WatchScoreActionLog? = nil
@@ -83,39 +67,18 @@ struct WatchArcheryScoreView: View {
         self.linkedSessionId = linkedSessionId
         _store = State(initialValue: WatchArcherySessionStore(
             initialState: initialState,
-            resumedState: resumedState,
-            resumedUndoStates: resumedUndoStates,
+            resumeBundle: resumeBundle,
             resumedStartTime: resumedStartTime,
             resumedActionLog: resumedActionLog
         ))
         _restState = State(initialValue: resumedRestState)
-        let restoredState = resumedState ?? {
-            guard let initialState else { return nil }
-            var state = ArcheryMatchState(
-                leftName: initialState.leftName,
-                rightName: initialState.rightName
-            )
-            initialState.applying(to: &state)
-            return state
-        }()
-        if let restoredState, restoredState.finished {
-            _winner = State(initialValue: restoredState.leftSetPoints == restoredState.rightSetPoints
-                ? nil
-                : (restoredState.leftSetPoints > restoredState.rightSetPoints))
-            _isStopped = State(initialValue: true)
-        }
     }
 
-    private var isMatchFinished: Bool {
-        isStopped
-    }
+    private var isMatchFinished: Bool { matchState.finished }
+    private var winner: MatchSide? { matchState.winnerSide }
 
     private var scoringLocked: Bool {
         linkedSessionId != nil && !linkService.canEditLinkedMatch
-    }
-
-    private var isShootOffSet: Bool {
-        arrowsPerSet == arrowsPerSetShootoff
     }
 
     var body: some View {
@@ -124,11 +87,14 @@ struct WatchArcheryScoreView: View {
             if showScorePanel { scorePanelOverlay }
             if setEnding { setEndOverlay }
             if showClosestToCenter { closestToCenterOverlay }
-            if isStopped { stoppedOverlay }
+            if isMatchFinished { stoppedOverlay }
             if let restState, !scoringLocked {
                 WatchRestOverlay(
                     state: restState,
-                    onContinue: { self.restState = nil },
+                    onContinue: {
+                        self.restState = nil
+                        persistResumeSession()
+                    },
                     onUndo: {
                         self.restState = nil
                         undoScore()
@@ -177,12 +143,20 @@ struct WatchArcheryScoreView: View {
         .onAppear {
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
             if scoreboardLayout != "horizontal" && scoreboardLayout != "vertical" { scoreboardLayout = "horizontal" }
+            if matchState.setCompletionPending, !matchState.finished, restState == nil, !scoringLocked {
+                endSetFromPending()
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
         }
         .onChange(of: scoringLocked) { _, locked in
-            if locked { restState = nil }
+            if locked {
+                restState = nil
+                cancelSetEnd()
+            } else if matchState.setCompletionPending, !matchState.finished {
+                endSetFromPending()
+            }
         }
         .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
             guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
@@ -190,30 +164,25 @@ struct WatchArcheryScoreView: View {
                   let remote = update.snapshot.archeryState else { return }
             let acceptsScore = linkService.incomingSnapshot != nil
             if acceptsScore, update.beginsMatch(after: previous) {
-                var fresh = store.state
-                remote.applying(to: &fresh)
-                store = WatchArcherySessionStore(resumedState: fresh, resumedStartTime: Date())
-                recordSaved = false
-                finishCommitted = false
+                undoHideTimer?.invalidate()
+                undoHideTimer = nil
                 undoButtonVisible = false
+                store = WatchArcherySessionStore(initialState: remote, resumedStartTime: Date())
             }
             let historyChanged = store.mergeRemoteActions(update.detailedActions, removing: update.removedActionIDs)
-            let advancesScore = lastAppliedRemoteGeneration != update.matchGeneration
-                || update.revision > (lastAppliedRemoteRevision ?? 0)
-            let finishesCurrentScore = update.revision == lastAppliedRemoteRevision
-                && update.snapshot.isFinished && previous?.snapshot.isFinished == false
-            guard acceptsScore, advancesScore || finishesCurrentScore else {
+            guard acceptsScore, store.applyAuthoritativeState(
+                remote, revision: update.revision, matchGeneration: update.matchGeneration
+            ) else {
                 if historyChanged { persistResumeSession() }
                 return
             }
-            lastAppliedRemoteGeneration = update.matchGeneration
-            lastAppliedRemoteRevision = update.revision
             applyRemote(remote)
         }
         .onChange(of: store.state) { _, _ in
             persistResumeSession()
         }
         .onDisappear {
+            cancelSetEnd()
             undoHideTimer?.invalidate()
             if isMatchFinished {
                 finalizeArcheryFinish()
@@ -223,7 +192,7 @@ struct WatchArcheryScoreView: View {
         .watchScoreboardGestures(
             suppressTapAfterLongPress: $suppressTapAfterLongPress,
             enabled: !showScorePanel && !setEnding && !showClosestToCenter
-                && !isStopped && !showMenu && restState == nil && confirmation == nil,
+                && !isMatchFinished && !showMenu && restState == nil && confirmation == nil,
             onMenu: { showMenu = true },
             onUndo: undoScore,
             onExit: exitArchery
@@ -308,11 +277,11 @@ struct WatchArcheryScoreView: View {
         }
         .frame(width: size.width, height: size.height)
         .background(isRed ? WatchTheme.teamRed : WatchTheme.teamBlue)
-        .opacity(isStopped && winner != nil && (isRed ? winner != true : winner != false) ? 0.4 : 1)
+        .opacity(isMatchFinished && winner != nil && winner != (isRed ? .left : .right) ? 0.4 : 1)
         .contentShape(Rectangle())
         .onTapGesture {
             let isCurrent = (isRed && currentShooter) || (!isRed && !currentShooter)
-            if !isCurrent || suppressTapAfterLongPress || scoringLocked || isStopped || setEnding
+            if !isCurrent || suppressTapAfterLongPress || scoringLocked || isMatchFinished || setEnding
                 || showClosestToCenter || showMenu || restState != nil { return }
             showScorePanel = true
         }
@@ -496,7 +465,7 @@ struct WatchArcheryScoreView: View {
                 WatchFinishedScoreItem(name: leftName, score: redSets),
                 WatchFinishedScoreItem(name: rightName, score: blueSets)
             ],
-            winner: .side(winner.map { $0 ? .left : .right }),
+            winner: .side(winner),
             undoAvailable: undoButtonVisible,
             canPlayAgain: !scoringLocked,
             onUndo: {
@@ -513,12 +482,13 @@ struct WatchArcheryScoreView: View {
 
     private func addArrow(value: Int?) {
         guard !scoringLocked else { return }
-        let result = store.apply(.recordArrow(side: nil, value: value))
-        guard result.accepted else { return }
-        applyMatch(result.state)
+        guard case .accepted(let session, let events) = store.apply(.recordArrow(side: nil, value: value)) else {
+            return
+        }
+        updateMatchPresentation(session.state)
         WatchHaptics.shared.play(.score)
         publishLinked()
-        for event in result.events {
+        for event in events {
             switch event {
             case .closestToCenterRequired, .setReady:
                 endSetFromPending()
@@ -530,18 +500,23 @@ struct WatchArcheryScoreView: View {
 
     private var matchState: ArcheryMatchState { store.state }
 
-    private func applyMatch(_ state: ArcheryMatchState) {
-        store.replaceDisplayedState(state)
+    private func updateMatchPresentation(_ state: ArcheryMatchState) {
         showClosestToCenter = state.closestToCenterPending
-        if state.finished {
-            winner = state.winnerSide.map { $0 == .left }
-            isStopped = true
-        }
     }
 
     private func endSetFromPending() {
+        cancelSetEnd()
         setEnding = true
-        DispatchQueue.main.asyncAfter(deadline: .now() + setEndDelay) {
+        setEndTask = Task {
+            do {
+                try await Task.sleep(for: .seconds(setEndDelay))
+            } catch {
+                return
+            }
+            guard !scoringLocked, matchState.setCompletionPending else {
+                setEnding = false
+                return
+            }
             if matchState.closestToCenterPending && redScore == 0 && blueScore == 0 {
                 repeatShootOff()
                 return
@@ -550,56 +525,54 @@ struct WatchArcheryScoreView: View {
         }
     }
 
+    private func cancelSetEnd() {
+        setEndTask?.cancel()
+        setEndTask = nil
+        setEnding = false
+    }
+
     private func applySetEnd() {
-        if matchState.closestToCenterPending || (isShootOffSet && pendingSetWinner == nil && pendingSetNumber > 0) {
+        if matchState.closestToCenterPending {
             setEnding = false
             showClosestToCenter = true
             return
         }
-        let result = store.apply(.completeSet(closestToCenterWinner: nil), recordHistory: false)
-        guard result.accepted else {
+        guard case .accepted(let session, _) = store.apply(
+            .completeSet(closestToCenterWinner: nil), recordHistory: false, recordsNonUndoableActions: true
+        ) else {
             setEnding = false
             return
         }
-        applyMatch(result.state)
-        finishAfterReducer(result.state)
+        updateMatchPresentation(session.state)
+        finishAfterReducer(session.state)
     }
 
     private func applyClosestToCenter(redWins: Bool) {
         guard !scoringLocked else { return }
-        showClosestToCenter = false
-        if !store.state.closestToCenterPending {
-            var pending = store.state
-            pending.closestToCenterPending = true
-            pending.pendingSetNumber = max(pending.pendingSetNumber, pending.currentSet)
-            store.replaceDisplayedState(pending)
-        }
-        let result = store.apply(
+        guard case .accepted(let session, _) = store.apply(
             .completeSet(closestToCenterWinner: redWins ? .left : .right),
-            recordHistory: false
-        )
-        guard result.accepted else { return }
-        applyMatch(result.state)
-        finishAfterReducer(result.state)
+            recordHistory: false, recordsNonUndoableActions: true
+        ) else { return }
+        cancelSetEnd()
+        updateMatchPresentation(session.state)
+        finishAfterReducer(session.state)
     }
 
     private func repeatShootOff() {
-        guard !scoringLocked else { return }
-        let result = store.apply(.repeatShootOff, recordHistory: false)
-        guard result.accepted else { return }
-        setEnding = false
-        showClosestToCenter = false
-        applyMatch(result.state)
+        guard !scoringLocked,
+              case .accepted(let session, _) = store.apply(
+                  .repeatShootOff, recordHistory: false, recordsNonUndoableActions: true
+              ) else { return }
+        cancelSetEnd()
+        updateMatchPresentation(session.state)
         publishLinked()
     }
 
     private func finishAfterReducer(_ state: ArcheryMatchState) {
         if state.finished {
             isManualFinish = false
-            winner = state.winnerSide.map { $0 == .left }
-            isStopped = true
             showUndoButton()
-            publishLinked(finished: true)
+            publishLinked()
             WatchHaptics.shared.play(.finish)
             setEnding = false
             return
@@ -619,16 +592,13 @@ struct WatchArcheryScoreView: View {
     private func undoScore() {
         guard !scoringLocked else { return }
         guard store.undo() else { return }
+        undoHideTimer?.invalidate()
+        undoHideTimer = nil
+        undoButtonVisible = false
         showClosestToCenter = store.state.closestToCenterPending
-        setEnding = false
+        cancelSetEnd()
         restState = nil
-        if isStopped { recordSaved = false }
-        finishCommitted = false
         isManualFinish = false
-        if !store.state.finished {
-            isStopped = false
-            winner = nil
-        }
         WatchHaptics.shared.play(.undo)
         showToast(NSLocalizedString("watch_undo_toast", value: "已撤销", comment: "Undo toast"))
         publishLinked()
@@ -648,17 +618,13 @@ struct WatchArcheryScoreView: View {
         guard !scoringLocked, !isMatchFinished else { return }
         showScorePanel = false
         showClosestToCenter = false
-        let result = store.apply(.finish)
-        if result.accepted {
-            applyMatch(result.state)
-        }
-        isStopped = true
-        isManualFinish = true
-        winner = redSets > blueSets ? true : (blueSets > redSets ? false : nil)
+        guard case .accepted(let session, _) = store.apply(.finish) else { return }
+        cancelSetEnd()
+        updateMatchPresentation(session.state)
         showUndoButton()
         isManualFinish = true
         WatchHaptics.shared.play(.finish)
-        publishLinked(finished: true)
+        publishLinked()
     }
 
     private func resetMatch() {
@@ -667,31 +633,22 @@ struct WatchArcheryScoreView: View {
         undoHideTimer?.invalidate()
         undoHideTimer = nil
         let timestamp = Date()
-        let freshState = ArcheryMatchState(
-            leftName: store.state.leftName,
-            rightName: store.state.rightName,
-            currentShooterIsLeft: store.state.openingShooterIsLeft,
-            openingShooterIsLeft: store.state.openingShooterIsLeft
-        )
-        store = WatchArcherySessionStore(
-            resumedState: freshState,
-            resumedStartTime: timestamp
-        )
-        applyMatch(freshState)
-        setEnding = false
+        let freshState = ArcheryMatchReducer().reduce(
+            state: store.state, intent: .reset,
+            at: WatchArcherySessionStore.epochMilliseconds(timestamp)
+        ).state
+        store = WatchArcherySessionStore(initialState: freshState, resumedStartTime: timestamp)
+        updateMatchPresentation(freshState)
+        cancelSetEnd()
         showScorePanel = false
         showClosestToCenter = false
         showMenu = false
         restState = nil
-        isStopped = false
-        winner = nil
         isManualFinish = false
         undoButtonVisible = false
-        recordSaved = false
-        finishCommitted = false
         if linkedSessionId != nil {
             linkService.startNextMatch(
-                snapshot: .archery(LinkedArcheryState(match: freshState)),
+                snapshot: .archery(freshState),
                 participantNames: [freshState.leftName, freshState.rightName]
             )
         }
@@ -717,29 +674,19 @@ struct WatchArcheryScoreView: View {
 
     private func persistResumeSession() {
         if isMatchFinished {
-            if finishCommitted { resumeStore.clear() }
+            if store.savedRecordID != nil { resumeStore.clear() }
             return
         }
-        guard redScore + blueScore + redSets + blueSets > 0
-                || !store.resumeUndoStates().isEmpty else {
+        let context = linkedSessionId == nil ? nil : linkService.resumeContext
+        if let linkedSessionId, context?.handle.sessionId != linkedSessionId { return }
+        guard redScore + blueScore + redSets + blueSets > 0 || store.canUndo else {
             resumeStore.clear()
             return
         }
-        let score = redSets + blueSets > 0
-            ? "\(redSets) : \(blueSets)"
-            : "\(redScore) : \(blueScore)"
-        resumeStore.save(WatchResumeSession(
-            startedAt: matchStartTime,
-            scoreLine: score,
-            emoji: "🏹",
-            payload: .archery(
-                state: store.state,
-                undoStates: store.resumeUndoStates(),
-                restState: restState
-            ),
-            actionLog: store.actionLog,
-            linkHandle: linkService.resumeContext?.handle
-        ))
+        store.persistResumeSession(
+            into: resumeStore, link: context,
+            payload: .archery(bundle: store.resumeBundle(), restState: restState)
+        )
     }
 
     private func showToast(_ text: String) {
@@ -749,22 +696,16 @@ struct WatchArcheryScoreView: View {
         }
     }
 
-    private func linkedSnapshot(finished: Bool = false) -> LinkedArcheryState {
-        var snap = LinkedArcheryState(match: matchState)
-        if finished || isMatchFinished { snap.finished = true }
-        return snap
-    }
-
     @discardableResult
-    private func publishLinked(finished: Bool = false, commitFinish: Bool = false) -> Bool {
+    private func publishLinked(commitFinish: Bool = false) -> Bool {
         guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return false }
-        let snapshot = linkedSnapshot(finished: finished)
-        linkService.publishSnapshot(.archery(snapshot), detailedActions: store.actionLog.detailedActions)
-        if snapshot.finished, commitFinish {
+        let snapshot = store.snapshot
+        linkService.publishSnapshot(snapshot, detailedActions: store.actionLog.detailedActions)
+        if snapshot.isFinished, commitFinish {
             return linkService.publishMatchFinished(
-                snapshot: .archery(snapshot),
-                recordId: "w_archery_\(UUID().uuidString)",
-                winnerSide: redSets == blueSets ? nil : (redSets > blueSets ? .left : .right),
+                snapshot: snapshot,
+                recordId: matchRecordID,
+                winnerSide: winner,
                 manualEnd: isManualFinish,
                 startTime: matchStartTime,
                 endTime: Date(),
@@ -777,53 +718,46 @@ struct WatchArcheryScoreView: View {
 
     @discardableResult
     private func finalizeArcheryFinish() -> Bool {
-        guard isMatchFinished, !finishCommitted, !scoringLocked else { return true }
+        guard isMatchFinished, store.savedRecordID == nil, !scoringLocked else { return true }
         undoButtonVisible = false
         let saved = linkedSessionId != nil
-            ? publishLinked(finished: true, commitFinish: true)
+            ? publishLinked(commitFinish: true)
             : saveMatchRecord()
         guard saved else {
             showRecordSaveFailure = true
             return false
         }
-        finishCommitted = true
+        if linkedSessionId != nil { store.markRecordSaved(matchRecordID) }
         resumeStore.clear()
         return true
     }
 
-    private func applyRemote(_ remote: LinkedArcheryState) {
-        var state = store.state
-        remote.applying(to: &state)
-        store.rebase(to: state)
-        applyMatch(state)
+    private func applyRemote(_ state: ArcheryMatchState) {
+        cancelSetEnd()
+        updateMatchPresentation(state)
         showScorePanel = false
         confirmation = nil
         restState = nil
-        setEnding = state.setCompletionPending && !state.closestToCenterPending
-        showClosestToCenter = state.closestToCenterPending
-        if remote.finished {
-            winner = remote.leftSetPoints == remote.rightSetPoints
-                ? nil
-                : (remote.leftSetPoints > remote.rightSetPoints)
-            isStopped = true
-        } else {
-            winner = nil
-            isStopped = false
+        if !state.finished {
             isManualFinish = false
+            if state.setCompletionPending, !scoringLocked {
+                endSetFromPending()
+            }
         }
     }
 
+    private var matchRecordID: String {
+        let prefix = linkedSessionId == nil ? "w_" : "w_archery_"
+        return prefix + store.machine.currentSession.sessionId.uuidString
+    }
+
     private func saveMatchRecord() -> Bool {
-        guard !recordSaved else { return true }
-        let endTime = Date()
-        guard let record = WatchScoreboardRecord(
-            localSnapshot: .archery(linkedSnapshot(finished: true)), gameType: .archeryDual,
-            id: "w_\(UUID().uuidString)", startTime: matchStartTime, endTime: endTime,
-            winnerSide: winner.map { $0 ? .left : .right },
-            detailedActions: store.actionLog.detailedActions, totalScoreChanges: store.actionLog.scoreChangeCount
-        ) else { return false }
-        guard resumeStore.saveFinishedRecord(record) else { return false }
-        recordSaved = true
-        return true
+        store.saveFinishedRecord(
+            into: resumeStore,
+            gameType: .archeryDual,
+            recordID: matchRecordID,
+            endTime: Date(),
+            winnerSide: winner
+        )
     }
 }

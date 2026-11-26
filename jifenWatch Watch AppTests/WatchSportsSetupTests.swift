@@ -706,7 +706,7 @@ final class WatchSportsSetupTests: XCTestCase {
             startedAt: currentDate.addingTimeInterval(-30),
             scoreLine: "2 / 1",
             emoji: "🏀",
-            payload: .basketballTraining(mode: .free, history: [shot]),
+            payload: trainingResumeFixture(mode: .free, startedAt: currentDate, shots: [shot]),
             linkHandle: link.handle
         ))
         // 落盘是 750ms 防抖的，跨实例持久化断言前先冲掉待写数据。
@@ -745,7 +745,7 @@ final class WatchSportsSetupTests: XCTestCase {
             startedAt: currentDate.addingTimeInterval(-10),
             scoreLine: "3 / 1",
             emoji: "🏀",
-            payload: .basketballTraining(mode: .free, history: [shot])
+            payload: trainingResumeFixture(mode: .free, startedAt: currentDate, shots: [shot])
         ))
         // 不手动 flushPendingWrite()，直接模拟 WatchRootView.resume(_:) 立刻 reload()
         store.reload()
@@ -763,7 +763,7 @@ final class WatchSportsSetupTests: XCTestCase {
             startedAt: now,
             scoreLine: "1 : 0",
             emoji: "🏸",
-            payload: .basketballTraining(mode: .free, history: []),
+            payload: trainingResumeFixture(mode: .free, startedAt: now),
             actionLog: WatchScoreActionLog(startedAt: now),
             linkHandle: handle
         ))
@@ -1637,11 +1637,44 @@ final class WatchSportsSetupTests: XCTestCase {
         XCTAssertFalse(futsal.state.isRunning)
     }
 
+    /// 用一份 Reducer State 构造标准续玩 bundle（含 1 层撤销帧）。
+    private func footballResumeBundle(
+        _ state: FootballMatchState,
+        gameType: ScoreCore.GameType,
+        previous: FootballMatchState? = nil
+    ) -> WatchFootballResumeBundle {
+        let session = ScoreSession<FootballMatchState, FootballMatchEvent>(
+            gameType: gameType,
+            ruleFamily: .s1,
+            reducerType: ScoreboardKernelRegistry.footballReducerType(for: gameType) ?? "football/v1",
+            state: state
+        )
+        let seed = previous.map {
+            ScoreSession<FootballMatchState, FootballMatchEvent>(
+                gameType: gameType,
+                ruleFamily: .s1,
+                reducerType: ScoreboardKernelRegistry.footballReducerType(for: gameType) ?? "football/v1",
+                state: $0
+            )
+        } ?? session
+        let undoFrames = previous == nil ? [] : [ScoreSessionResumeUndoFrame(session: seed)]
+        return ScoreSessionResumeBundle(
+            replaySeed: seed,
+            currentSession: session,
+            undoFrames: undoFrames,
+            timeline: []
+        )
+    }
+
     func testFootballResumeRouteKeepsHalfLengthAndGameType() {
-        let state = WatchFootballState(
+        let state = FootballMatchState(
+            leftName: "甲",
+            rightName: "乙",
             leftScore: 2,
             rightScore: 1,
-            clock: FootballTimerStateV2(halfLengthSeconds: 20 * 60, elapsedSeconds: 120)
+            timer: FootballTimerStateV2(halfLengthSeconds: 20 * 60, elapsedSeconds: 120),
+            isFiveAside: true,
+            kickedOff: true
         )
         let session = WatchResumeSession(
             startedAt: Date(timeIntervalSince1970: 1_000),
@@ -1649,10 +1682,7 @@ final class WatchSportsSetupTests: XCTestCase {
             emoji: "⚽",
             payload: .football(
                 isFiveAside: true,
-                state: state,
-                undoStates: [],
-                leftName: "甲",
-                rightName: "乙"
+                bundle: footballResumeBundle(state, gameType: .football5v5)
             )
         )
         XCTAssertEqual(session.payload.gameType, .football5v5)
@@ -1663,40 +1693,49 @@ final class WatchSportsSetupTests: XCTestCase {
     }
 
     func testFootballResumeSessionRoundTripsThroughCodable() throws {
-        let state = WatchFootballState(
+        let state = FootballMatchState(
+            leftName: "主队",
+            rightName: "客队",
             leftScore: 3,
             rightScore: 3,
-            clock: FootballTimerStateV2(
+            timer: FootballTimerStateV2(
                 stage: 2,
                 halfLengthSeconds: 45 * 60,
                 elapsedSeconds: 90,
+                isRunning: true,
+                savedWallClockMilliseconds: 1_700_000_000_000,
                 stoppageSeconds: [0, 180, 0, 0]
-            )
+            ),
+            stoppageHistory: [180],
+            kickedOff: true,
+            elapsedSubsecondMilliseconds: 420
         )
+        var previous = state
+        previous.leftScore = 2
         let session = WatchResumeSession(
             startedAt: Date(timeIntervalSince1970: 2_000),
             scoreLine: "3 - 3",
             emoji: "⚽",
             payload: .football(
                 isFiveAside: false,
-                state: state,
-                undoStates: [WatchFootballUndoState(leftScore: 2, rightScore: 3, clock: state.clock)],
-                leftName: "主队",
-                rightName: "客队"
+                bundle: footballResumeBundle(state, gameType: .football, previous: previous)
             )
         )
         let decoded = try JSONDecoder().decode(
             WatchResumeSession.self,
             from: try JSONEncoder().encode(session)
         )
-        guard case .football(let isFiveAside, let restored, let undoStates, let left, let right) = decoded.payload else {
+        guard case .football(let isFiveAside, let bundle) = decoded.payload else {
             return XCTFail("Expected football payload")
         }
         XCTAssertFalse(isFiveAside)
+        let restored = bundle.currentSession.state
         XCTAssertEqual(restored, state)
-        XCTAssertEqual(undoStates.count, 1)
-        XCTAssertEqual(left, "主队")
-        XCTAssertEqual(right, "客队")
+        // 时钟锚点、分秒余量与补时历史必须随续玩草稿无损往返。
+        XCTAssertEqual(restored.timer.savedWallClockMilliseconds, 1_700_000_000_000)
+        XCTAssertEqual(restored.elapsedSubsecondMilliseconds, 420)
+        XCTAssertEqual(restored.stoppageHistory, [180])
+        XCTAssertEqual(bundle.undoFrames.count, 1)
         XCTAssertEqual(WatchScoreboardRoute(resumeSession: decoded)?.id, "football-2700")
     }
 
@@ -2027,4 +2066,16 @@ final class WatchSportsSetupTests: XCTestCase {
             XCTAssertEqual(pair.right, NSLocalizedString(rightKey, comment: ""), file: file, line: line)
         }
     }
+}
+
+func trainingResumeFixture(
+    mode: ShotTrainingMode, startedAt: Date, shots: [ShotTrainingShot] = []
+) -> WatchResumePayload {
+    let descriptor = ScoreboardKernelRegistry.descriptor(for: .basketballTraining)
+    let seed = ScoreSession<ShotTrainingState, ShotTrainingEvent>(
+        gameType: .basketballTraining, ruleFamily: descriptor.ruleFamily, reducerType: descriptor.reducerType,
+        state: ShotTrainingState(mode: mode, startTime: startedAt, shots: shots)
+    )
+    let machine = ScoreSessionMachine(seedSession: seed, reducer: ShotTrainingReducer())
+    return .basketballTraining(bundle: machine.resumeBundle())
 }
