@@ -9,3 +9,8 @@
 # Action Button Foregrounds
 
 - Solid green Save and Confirm action buttons must use white text. When a local button bypasses shared action components, set its white foreground explicitly; automatic contrast must not turn it black.
+
+# Multiplayer Score Release Gate
+
+- Run `python3 scripts/verify_multi_score_release.py --simulator <iPhone-simulator-UDID>` for every release candidate before store submission or publication, including candidates without multiplayer changes. Use the release candidate checkout and an iPhone simulator.
+- Record the candidate version, source revision, and passing result in the release checklist. A failure, skipped case, or missing result blocks submission and publication.

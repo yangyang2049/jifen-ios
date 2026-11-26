@@ -477,6 +477,112 @@ final class FullAppScreenshotUITests: XCTestCase {
         }
     }
 
+    func testReleaseMultiScoreFirstTouch() {
+        continueAfterFailure = false
+        openReleaseMultiScoreboard()
+        let score = releaseMultiScore(0)
+        let center = score.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        assertReleaseMultiScore("0", at: 0)
+
+        score.tap()
+        assertReleaseMultiScore("1", at: 0)
+        center.press(forDuration: 0.05, thenDragTo: center.withOffset(CGVector(dx: 0, dy: -85)))
+        assertReleaseMultiScore("2", at: 0)
+        center.press(forDuration: 0.05, thenDragTo: center.withOffset(CGVector(dx: 0, dy: 85)))
+        assertReleaseMultiScore("1", at: 0)
+        assertReleaseMultiScore("0", at: 1)
+
+        XCTAssertTrue(openPriorityScoreboardMenu())
+        let close = app.descendants(matching: .any)["scoreboard_menu_close_button"].firstMatch
+        XCTAssertTrue(close.waitForExistence(timeout: 3) && close.isHittable)
+        close.tap()
+        assertReleaseMultiScore("1", at: 0)
+        score.tap()
+        assertReleaseMultiScore("2", at: 0)
+    }
+
+    func testReleaseMultiScorePaging() {
+        continueAfterFailure = false
+        openReleaseMultiScoreboard(paged: true)
+        let next = app.buttons["multi_score_next_page"].firstMatch
+        let previous = app.buttons["multi_score_previous_page"].firstMatch
+        XCTAssertTrue(next.waitForExistence(timeout: 8) && next.isHittable)
+
+        let firstPage = (0..<50).prefix { releaseMultiScore($0).isHittable }
+        guard let bottomPlayer = firstPage.last, bottomPlayer > 0, bottomPlayer < 49 else {
+            XCTFail("Expected a full first page and at least one subsequent page")
+            return
+        }
+        let nextPlayer = bottomPlayer + 1
+        releaseMultiScore(bottomPlayer).tap()
+        assertReleaseMultiScore("1", at: bottomPlayer)
+        assertReleaseMultiScore("0", at: 0)
+
+        next.tap()
+        assertReleaseMultiScore("0", at: nextPlayer)
+        releaseMultiScore(nextPlayer).tap()
+        assertReleaseMultiScore("1", at: nextPlayer)
+        previous.tap()
+        assertReleaseMultiScore("1", at: bottomPlayer)
+        assertReleaseMultiScore("0", at: 0)
+        next.tap()
+        assertReleaseMultiScore("1", at: nextPlayer)
+    }
+
+    func testReleaseMultiScoreDoubleExit() {
+        continueAfterFailure = false
+        openReleaseMultiScoreboard()
+        let surface = app.windows.firstMatch
+        for (startX, endX) in [(0.004, 0.4), (0.996, 0.6)] {
+            let start = surface.coordinate(withNormalizedOffset: CGVector(dx: startX, dy: 0.52))
+            let end = surface.coordinate(withNormalizedOffset: CGVector(dx: endX, dy: 0.52))
+            start.press(forDuration: 0.05, thenDragTo: end)
+            assertReleaseMultiScore("0", at: 0)
+        }
+
+        let back = app.buttons["scoreboard_back_button"].firstMatch
+        XCTAssertTrue(back.waitForExistence(timeout: 4) && back.isHittable)
+        back.tap()
+        XCTAssertTrue(releaseMultiScore(0).exists, "A single back must keep the scoreboard open")
+        RunLoop.current.run(until: Date().addingTimeInterval(2.25))
+        back.doubleTap()
+        let scoreCatalog = app.descendants(matching: .any)["scoreboard_catalog_multiScoreboard"].firstMatch
+        XCTAssertTrue(scoreCatalog.waitForExistence(timeout: 8), "Confirmation must return to the score catalog")
+        XCTAssertFalse(releaseMultiScore(0).exists)
+        XCTAssertEqual(app.state, .runningForeground)
+    }
+
+    private func openReleaseMultiScoreboard(paged: Bool = false) {
+        XCTAssertTrue(openPriorityScoreboardSetup(
+            id: "multiScoreboard",
+            label: "多人计分",
+            extraArguments: ["-multi_scoreboard_use_landscape_layout", "NO", "-scoreboard_double_tap_subtract", "NO"]
+        ))
+        let four = app.buttons["setup_multi_count_4"].firstMatch
+        XCTAssertTrue(four.waitForExistence(timeout: 5) && four.isHittable)
+        four.tap()
+        if paged {
+            app.buttons["setup_multi_count_custom"].firstMatch.tap()
+            let fifty = app.buttons["setup_multi_quick_count_50"].firstMatch
+            XCTAssertTrue(fifty.waitForExistence(timeout: 4) && fifty.isHittable)
+            fifty.tap()
+        }
+        XCTAssertTrue(tapStart())
+        XCTAssertTrue(releaseMultiScore(0).waitForExistence(timeout: 8))
+    }
+
+    private func releaseMultiScore(_ index: Int) -> XCUIElement {
+        app.staticTexts["multi_score_value_\(index)"].firstMatch
+    }
+
+    private func assertReleaseMultiScore(_ value: String, at index: Int, file: StaticString = #filePath, line: UInt = #line) {
+        let score = releaseMultiScore(index)
+        XCTAssertTrue(score.waitForExistence(timeout: 4), "Missing player \(index + 1)", file: file, line: line)
+        let updated = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label == %@", value), object: score)
+        XCTAssertEqual(XCTWaiter.wait(for: [updated], timeout: 4), .completed,
+                       "Player \(index + 1) should score \(value), got \(score.label)", file: file, line: line)
+    }
+
     /// Start with Device Hub Open; capture real surfaces despite stale AX frames.
     func testDuoMultiScoreFiftyPlayerPortraitScoreVisibility() throws {
         let environment = ProcessInfo.processInfo.environment
