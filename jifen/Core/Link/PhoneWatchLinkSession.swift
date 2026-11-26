@@ -611,19 +611,7 @@ extension PhoneWatchLinkService {
 
 
     static func phoneInteractiveStartSupported(_ gameType: ScoreCore.GameType) -> Bool {
-        switch gameType {
-        case .pingpong, .pingpongDoubles,
-             .badminton, .badmintonDoubles,
-             .tennis, .tennisDoubles,
-             .pickleball, .pickleballDoubles,
-             .shuttlecock, .squash,
-             .foosball, .foosballDoubles,
-             .football, .football5v5, .basketballTraining,
-             .archeryDual, .eightBall, .nineBall, .snooker:
-            return true
-        default:
-            return false
-        }
+        WatchSportRegistry.supportsPhoneWatchLink(gameType)
     }
 
 

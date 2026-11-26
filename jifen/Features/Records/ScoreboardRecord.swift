@@ -25,92 +25,9 @@ enum ScoreboardRecordStatus: String, Codable {
 /// `winner` remains in the payload as a legacy compatibility token. New code
 /// must read this typed identity (or `resolvedWinnerIdentity`) so participant
 /// names, localized labels, and screen placement never become identifiers.
-enum ScoreboardWinnerIdentity: Codable, Equatable {
-    case team(TeamID)
-    case participant(index: Int)
+// ScoreboardWinnerIdentity moved to RecordCore (M2): jifen reuses the shared
+// definition; JSON encoding stays schema-v5 identical.
 
-    private enum Kind: String, Codable {
-        case team
-        case participant
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case kind
-        case teamID
-        case participantIndex
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        switch try container.decode(Kind.self, forKey: .kind) {
-        case .team:
-            self = .team(try container.decode(TeamID.self, forKey: .teamID))
-        case .participant:
-            let index = try container.decode(Int.self, forKey: .participantIndex)
-            guard index >= 0 else {
-                throw DecodingError.dataCorruptedError(
-                    forKey: .participantIndex,
-                    in: container,
-                    debugDescription: "Winner participant index must be non-negative"
-                )
-            }
-            self = .participant(index: index)
-        }
-    }
-
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        switch self {
-        case .team(let teamID):
-            try container.encode(Kind.team, forKey: .kind)
-            try container.encode(teamID, forKey: .teamID)
-        case .participant(let index):
-            try container.encode(Kind.participant, forKey: .kind)
-            try container.encode(index, forKey: .participantIndex)
-        }
-    }
-
-    var teamID: TeamID? {
-        guard case .team(let teamID) = self else { return nil }
-        return teamID
-    }
-
-    /// Canonical compatibility token written beside the typed schema-v5 value.
-    /// Older clients can keep reading `winner` without depending on a localized
-    /// participant name or the current screen placement.
-    var legacyToken: String {
-        switch self {
-        case .team(let teamID): return teamID.rawValue
-        case .participant(let index): return "player_\(index)"
-        }
-    }
-
-    static func fromStableLegacyToken(_ token: String?) -> ScoreboardWinnerIdentity? {
-        guard let raw = token?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
-              !raw.isEmpty else {
-            return nil
-        }
-        if let teamID = TeamID.fromLegacyWinnerToken(raw) {
-            return .team(teamID)
-        }
-        guard raw.hasPrefix("player_"),
-              let index = Int(raw.dropFirst("player_".count)),
-              index >= 0 else {
-            return nil
-        }
-        return .participant(index: index)
-    }
-
-    var recordTeam: RecordTeam? {
-        switch self {
-        case .team(.team0), .participant(index: 0): return .team1
-        case .team(.team1), .participant(index: 1): return .team2
-        case .participant(index: 2): return .team3
-        case .participant(index: 3): return .team4
-        case .participant: return nil
-        }
-    }
-}
 
 // MARK: - Scoreboard Record
 

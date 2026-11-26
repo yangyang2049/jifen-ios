@@ -21,6 +21,9 @@ struct WatchEightBallScoreView: View {
     @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let linkedSessionId: UUID?
+    @State private var lastAppliedRemoteRevision: UInt64?
+    @State private var lastAppliedRemoteGeneration: UInt64?
+
     @State private var showRecordSaveFailure = false
     @State private var leftName: String
     @State private var rightName: String
@@ -136,18 +139,32 @@ struct WatchEightBallScoreView: View {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
         .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
-            guard linkService.incomingSnapshot != nil, let linkedSessionId, let update, update.sessionId == linkedSessionId,
+            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
+                  update.matchGeneration == linkService.activeHandle?.matchGeneration,
                   let remote = update.snapshot.eightBallState else { return }
-            if linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            let acceptsScore = linkService.incomingSnapshot != nil
+            if acceptsScore, linkService.controlRole == .shared, update.beginsMatch(after: previous) {
                 matchStartTime = Date()
                 actionLog.reset(at: matchStartTime)
             }
-            applyAuthoritativeEightBall(remote, detailedActions: update.detailedActions)
+            let historyChanged = actionLog.merge(detailedActions: update.detailedActions, removing: update.removedActionIDs)
+            let advancesScore = lastAppliedRemoteGeneration != update.matchGeneration
+                || update.revision > (lastAppliedRemoteRevision ?? 0)
+            let finishesCurrentScore = update.revision == lastAppliedRemoteRevision
+                && update.snapshot.isFinished && previous?.snapshot.isFinished == false
+            guard acceptsScore, advancesScore || finishesCurrentScore else {
+                if historyChanged { persistResumeSession() }
+                return
+            }
+            lastAppliedRemoteGeneration = update.matchGeneration
+            lastAppliedRemoteRevision = update.revision
+            applyAuthoritativeEightBall(remote)
         }
         .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
             guard let linkedSessionId, let pending, pending.sessionId == linkedSessionId,
                   let remote = pending.snapshot.eightBallState else { return }
-            applyAuthoritativeEightBall(remote, detailedActions: pending.detailedActions)
+            actionLog.merge(detailedActions: pending.detailedActions)
+            applyAuthoritativeEightBall(remote)
             linkService.completeReclaimAcceptance(messageId: pending.messageId)
         }
         .onChange(of: state) { _, _ in
@@ -191,7 +208,7 @@ struct WatchEightBallScoreView: View {
         }
         undoStack.append(state)
         state = result.state
-        actionLog.append(contentsOf: WatchScoreActionProjector.eightBall(
+        actionLog.append(contentsOf: ScoreActionProjector.eightBall(
             events: result.events, state: state, timestamp: timestamp
         ))
         if state.finished {
@@ -229,31 +246,12 @@ struct WatchEightBallScoreView: View {
         guard linkedSessionId == nil, !didSaveFinishedRecord else { return true }
         guard state.finished || state.leftPoints + state.rightPoints > 0 else { return true }
         let end = Date()
-        let winnerName: String? = {
-            if state.leftPoints == state.rightPoints { return nil }
-            return state.leftPoints > state.rightPoints ? leftName : rightName
-        }()
-        let record = WatchScoreboardRecord(
-            id: "w_\(UUID().uuidString)",
-            gameType: .eightBall,
-            startTime: matchStartTime,
-            endTime: end,
-            duration: end.timeIntervalSince(matchStartTime),
-            team1Name: leftName,
-            team2Name: rightName,
-            team1FinalScore: state.leftPoints,
-            team2FinalScore: state.rightPoints,
-            team1SetScore: state.leftPoints,
-            team2SetScore: state.rightPoints,
-            winner: winnerName,
-            actions: actionLog.actions,
-            totalScoreChanges: actionLog.scoreChangeCount,
-            projectConfiguration: [
-                "targetRacks": String(state.targetPoints),
-                "handicapRacks": String(state.handicapRacks),
-                "handicapBeneficiary": state.handicapBeneficiary?.rawValue ?? "none"
-            ]
-        )
+        guard let record = WatchScoreboardRecord(
+            localSnapshot: .eightBall(state), gameType: .eightBall,
+            id: "w_\(UUID().uuidString)", startTime: matchStartTime, endTime: end,
+            participantNames: [leftName, rightName],
+            detailedActions: actionLog.detailedActions, totalScoreChanges: actionLog.scoreChangeCount
+        ) else { return false }
         return resumeStore.saveFinishedRecord(record)
     }
 
@@ -410,11 +408,8 @@ struct WatchEightBallScoreView: View {
         !state.finished && !showMenu && confirmation == nil && !showFinishedOverlay
     }
 
-    private func applyAuthoritativeEightBall(
-        _ remote: EightBallState,
-        detailedActions: [DetailedScoreAction]
-    ) {
-        actionLog.merge(detailedActions: detailedActions)
+    private func applyAuthoritativeEightBall(_ remote: EightBallState) {
+        actionLog.clearUndoHistory()
         if let names = linkService.activeParticipantNames, names.count >= 2 {
             let remoteLeft = names[0].trimmingCharacters(in: .whitespacesAndNewlines)
             let remoteRight = names[1].trimmingCharacters(in: .whitespacesAndNewlines)

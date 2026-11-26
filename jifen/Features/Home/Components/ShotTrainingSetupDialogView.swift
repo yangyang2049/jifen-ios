@@ -1,24 +1,9 @@
+import ScoreCore
 import SwiftUI
 
-nonisolated enum ShotTrainingMode: String, Codable, CaseIterable, Identifiable {
-    case fixed1 = "fixed_1"
-    case fixed2 = "fixed_2"
-    case fixed3 = "fixed_3"
-    case free
-
-    var id: String { rawValue }
-
-    var fixedPoints: Int? {
-        switch self {
-        case .fixed1: return 1
-        case .fixed2: return 2
-        case .fixed3: return 3
-        case .free: return nil
-        }
-    }
-
+extension ShotTrainingMode {
     /// 与鸿蒙端 ShotTrainingLaunchDialog 同一批文案：分区徽标和这里共用 1/2/3 分 + 自由。
-    var title: String {
+    nonisolated var title: String {
         switch self {
         case .fixed1: return NSLocalizedString("shot_training_1pt", value: "1 分", comment: "")
         case .fixed2: return NSLocalizedString("shot_training_2pt", value: "2 分", comment: "")

@@ -1,4 +1,5 @@
 import LinkCore
+import ScoreCore
 import RecordCore
 import SwiftUI
 
@@ -12,28 +13,28 @@ struct WatchBasketballTrainingView: View {
     @Environment(WatchResumeSessionStore.self) private var resumeStore
     @Environment(WatchLinkService.self) private var linkService
 
-    let mode: WatchBasketballTrainingMode
+    let mode: ShotTrainingMode
     let linkedSessionId: UUID?
 
     @State private var showRecordSaveFailure = false
     @State private var pendingFinish: PendingFinish?
     @State private var earlierCounts: ShotTrainingCounts
-    @State private var history: [WatchBasketballTrainingShot] = []
+    @State private var history: [ShotTrainingShot] = []
     @State private var startTime = Date()
     @State private var savedRecordID: String?
     @State private var showMenu = false
     @State private var showEndDialog = false
     @State private var toastMessage: String?
-    @State private var recentShotID: String?
+    @State private var recentShotID: UUID?
     @State private var scoreboardLayout = "horizontal"
     @State private var suppressTapAfterLongPress = false
     @State private var showFreeGuide = false
     @State private var confirmation: WatchScoreboardConfirmation?
 
     init(
-        mode: WatchBasketballTrainingMode,
+        mode: ShotTrainingMode,
         linkedSessionId: UUID? = nil,
-        resumedHistory: [WatchBasketballTrainingShot] = [],
+        resumedHistory: [ShotTrainingShot] = [],
         resumedStartTime: Date? = nil,
         resumedEarlierCounts: ShotTrainingCounts = .init()
     ) {
@@ -150,16 +151,16 @@ struct WatchBasketballTrainingView: View {
 
     private func linkedSnapshot(finished: Bool = false) -> LinkedScoreboardSnapshot {
         .basketballTraining(.init(
-            mode: mode.linkedMode,
+            mode: mode,
             startTime: startTime,
-            shots: history.map(\.linkedShot),
+            shots: history,
             earlierCounts: earlierCounts,
             finished: finished || showEndDialog
         ))
     }
 
-    private func applyLinkedState(_ state: LinkedShotTrainingState) {
-        history = state.shots.map(WatchBasketballTrainingShot.init(linkedShot:))
+    private func applyLinkedState(_ state: ShotTrainingState) {
+        history = state.shots
         earlierCounts = state.earlierCounts
         startTime = state.startTime
         showEndDialog = state.finished
@@ -403,7 +404,7 @@ struct WatchBasketballTrainingView: View {
         verticalTopCell: Bool = false
     ) -> some View {
         let count = shotCount(points: points, made: made)
-        let isRecent = history.last?.id == recentShotID
+        let isRecent = recentShotID != nil && history.last?.id == recentShotID
             && history.last?.points == points
             && history.last?.made == made
         let outcome = made
@@ -544,7 +545,7 @@ struct WatchBasketballTrainingView: View {
 
     private func addShot(points: Int, made: Bool) {
         guard !scoringLocked, pendingFinish == nil, !showEndDialog else { return }
-        let shot = WatchBasketballTrainingShot(points: points, made: made)
+        let shot = ShotTrainingShot(id: UUID(), points: points, made: made, timestamp: Date())
         history.append(shot)
         publishLinkedTraining()
         recentShotID = shot.id
@@ -630,13 +631,12 @@ struct WatchBasketballTrainingView: View {
         var misses = earlierCounts.missed
         var made = earlierCounts.made
         var actions = [
-            WatchScoreAction(
-                actionType: .gameStart,
-                description: "training_start",
-                team1Score: 0,
-                team2Score: 0,
+            DetailedScoreAction(
+                type: .matchStarted,
+                epochMilliseconds: epochMilliseconds(startTime),
+                scores: [0, 0],
                 operationCode: "training_start",
-                timestamp: startTime
+                summary: "training_start"
             )
         ]
         actions.append(contentsOf: history.map { shot in
@@ -645,28 +645,27 @@ struct WatchBasketballTrainingView: View {
             } else {
                 misses += 1
             }
-            return WatchScoreAction(
-                actionType: shot.made ? .scoreAdd : .stateChange,
-                description: trainingActionDescription(for: shot),
+            let code = trainingActionDescription(for: shot)
+            return DetailedScoreAction(
+                type: shot.made ? .scoreChanged : .stateChanged,
+                epochMilliseconds: epochMilliseconds(shot.timestamp),
                 team: shot.made ? .team2 : .team1,
-                team1Score: misses,
-                team2Score: made,
+                scores: [misses, made],
                 scoreChange: shot.made ? shot.points : 0,
-                operationCode: trainingActionDescription(for: shot),
-                timestamp: shot.timestamp
+                operationCode: code,
+                summary: code
             )
         })
         let percentage = totalAttempts == 0
             ? 0
             : Int((Double(made) / Double(totalAttempts) * 100).rounded())
         actions.append(
-            WatchScoreAction(
-                actionType: .gameEnd,
-                description: "training_rate_\(percentage)",
-                team1Score: misses,
-                team2Score: made,
+            DetailedScoreAction(
+                type: .matchFinished,
+                epochMilliseconds: epochMilliseconds(endTime),
+                scores: [misses, made],
                 operationCode: "training_finished",
-                timestamp: endTime
+                summary: "training_rate_\(percentage)"
             )
         )
         let recordID = "watch-basketballTraining-\(UUID().uuidString)"
@@ -674,35 +673,26 @@ struct WatchBasketballTrainingView: View {
             "type": "basketball_training",
             "gameMode": mode.fixedPoints.map { "\($0)pt" } ?? "free",
             "basketballTrainingMode": mode.fixedPoints == nil ? "mixed" : "fixed",
-            "basketballTrainingScoringMode": mode.fixedPoints.map { "fixed_\($0)" } ?? "free",
+            "basketballTrainingScoringMode": mode.rawValue,
             "trainingMode": modeName
         ]
         if let fixedPoints = mode.fixedPoints {
             projectConfiguration["targetScore"] = String(fixedPoints)
         }
-        let record = WatchScoreboardRecord(
-            id: recordID,
+        guard let record = WatchScoreboardRecord(
+            localSnapshot: linkedSnapshot(finished: true),
             gameType: .basketballTraining,
+            id: recordID,
             startTime: startTime,
             endTime: endTime,
-            duration: endTime.timeIntervalSince(startTime),
-            team1Name: NSLocalizedString("watch_training_miss", value: "未中", comment: ""),
-            team2Name: NSLocalizedString("watch_training_made", value: "命中", comment: ""),
-            team1FinalScore: totalAttempts - totalMade,
-            team2FinalScore: totalMade,
-            team1SetScore: 0,
-            team2SetScore: 0,
-            winner: nil,
-            actions: actions,
+            participantNames: [
+                NSLocalizedString("watch_training_miss", value: "未中", comment: ""),
+                NSLocalizedString("watch_training_made", value: "命中", comment: "")
+            ],
+            detailedActions: actions,
             totalScoreChanges: totalAttempts,
-            projectConfiguration: projectConfiguration,
-            basketballTrainingDetails: WatchBasketballTrainingDetails(
-                mode: mode,
-                shots: history,
-                totals: history.reduce(into: earlierCounts) { $0.add($1.linkedShot) }
-            )
-        )
-        guard resumeStore.saveFinishedRecord(record) else {
+            additionalConfiguration: projectConfiguration
+        ), resumeStore.saveFinishedRecord(record) else {
             showRecordSaveFailure = true
             return
         }
@@ -731,7 +721,11 @@ struct WatchBasketballTrainingView: View {
         ))
     }
 
-    private func trainingActionDescription(for shot: WatchBasketballTrainingShot) -> String {
+    private func epochMilliseconds(_ date: Date) -> Int64 {
+        Int64(date.timeIntervalSince1970 * 1_000)
+    }
+
+    private func trainingActionDescription(for shot: ShotTrainingShot) -> String {
         "training_\(shot.points)pt_\(shot.made ? "made" : "miss")"
     }
 

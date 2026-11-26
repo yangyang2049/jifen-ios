@@ -214,7 +214,8 @@ extension WatchLinkService {
             revision: activeRevision,
             matchGeneration: machine.handle.matchGeneration,
             snapshot: snapshot,
-            detailedActions: mergedDetailedActions
+            detailedActions: mergedDetailedActions,
+            removedActionIDs: actionHistory.removedActionIDs
         )
         persistContext()
         sequence += 1
@@ -562,7 +563,8 @@ extension WatchLinkService {
                 revision: context.revision,
                 matchGeneration: context.handle.matchGeneration,
                 snapshot: snapshot,
-                detailedActions: context.detailedActions
+                detailedActions: context.detailedActions,
+                removedActionIDs: actionHistory.removedActionIDs
             )
         } else {
             latestSnapshot = nil
@@ -656,35 +658,6 @@ extension WatchLinkService {
     }
 
     static func isValidLinkedSetup(_ setup: LinkedScoreboardSetup) -> Bool {
-        guard let snapshot = setup.initialSnapshot else { return false }
-        switch (setup.gameType, snapshot) {
-        case (.pingpong, .rally(let state)),
-             (.badminton, .rally(let state)),
-             (.pickleball, .rally(let state)),
-             (.squash, .rally(let state)),
-             (.foosball, .rally(let state)):
-            return state.doubles == nil
-        case (.pingpongDoubles, .rally(let state)),
-             (.badmintonDoubles, .rally(let state)),
-             (.pickleballDoubles, .rally(let state)),
-             (.foosballDoubles, .rally(let state)):
-            return state.doubles?.playerNames.count == 4
-        case (.shuttlecock, .rally(let state)):
-            return state.doubles == nil || state.doubles?.playerNames.count == 4
-        case (.football, .football), (.football5v5, .football), (.basketballTraining, .basketballTraining):
-            return true
-        case (.tennis, .tennis(let state)):
-            return state.doublesPlayerNames == nil
-        case (.tennisDoubles, .tennis(let state)):
-            return state.doublesPlayerNames?.count == 4
-        case (.archeryDual, .archery):
-            return true
-        case (.eightBall, .eightBall), (.snooker, .snooker):
-            return setup.participantNames.count == 2
-        case (.nineBall, .nineBall(let state)):
-            return (2...4).contains(state.playerCount)
-        default:
-            return false
-        }
+        WatchSportRegistry.isValidLinkedSetup(setup)
     }
 }

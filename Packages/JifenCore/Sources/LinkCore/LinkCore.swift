@@ -373,21 +373,7 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
     /// treating any received finished snapshot as authoritative for the finish
     /// dialog regardless of delivery order or revision.
     public func matches(gameType: GameType) -> Bool {
-        switch (gameType, self) {
-        case (.pingpong, .rally), (.pingpongDoubles, .rally),
-             (.badminton, .rally), (.badmintonDoubles, .rally),
-             (.pickleball, .rally), (.pickleballDoubles, .rally),
-             (.foosball, .rally), (.foosballDoubles, .rally),
-             (.squash, .rally), (.shuttlecock, .rally),
-             (.tennis, .tennis), (.tennisDoubles, .tennis),
-             (.archeryDual, .archery), (.eightBall, .eightBall),
-             (.nineBall, .nineBall), (.snooker, .snooker),
-             (.football, .football), (.football5v5, .football),
-             (.basketballTraining, .basketballTraining):
-            return true
-        default:
-            return false
-        }
+        WatchSportRegistry.matchesSnapshot(self, for: gameType)
     }
 
     public var isFinished: Bool {
@@ -425,6 +411,7 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
     public var pendingLeftSetPoints: Int
     public var pendingRightSetPoints: Int
     public var closestToCenterPending: Bool
+    public var rules: ArcheryMatchRules
 
     public init(
         leftName: String = "红方",
@@ -445,7 +432,8 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
         pendingSetWinnerIsLeft: Bool? = nil,
         pendingLeftSetPoints: Int = 0,
         pendingRightSetPoints: Int = 0,
-        closestToCenterPending: Bool = false
+        closestToCenterPending: Bool = false,
+        rules: ArcheryMatchRules = .default
     ) {
         self.leftName = leftName
         self.rightName = rightName
@@ -466,6 +454,7 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
         self.pendingLeftSetPoints = pendingLeftSetPoints
         self.pendingRightSetPoints = pendingRightSetPoints
         self.closestToCenterPending = closestToCenterPending
+        self.rules = rules
     }
 
     public init(match: ArcheryMatchState) {
@@ -488,7 +477,8 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
             pendingSetWinnerIsLeft: match.pendingSetWinnerIsLeft,
             pendingLeftSetPoints: match.pendingLeftSetPoints,
             pendingRightSetPoints: match.pendingRightSetPoints,
-            closestToCenterPending: match.closestToCenterPending
+            closestToCenterPending: match.closestToCenterPending,
+            rules: match.rules
         )
     }
 
@@ -512,6 +502,7 @@ public struct LinkedArcheryState: Codable, Equatable, Sendable {
         match.pendingLeftSetPoints = max(0, pendingLeftSetPoints)
         match.pendingRightSetPoints = max(0, pendingRightSetPoints)
         match.closestToCenterPending = closestToCenterPending
+        match.rules = rules
         if finished {
             match.pendingSetNumber = 0
             match.closestToCenterPending = false

@@ -22,6 +22,7 @@ struct LinkedSnapshotUpdate: Equatable {
     var matchGeneration: UInt64 = 1
     let snapshot: LinkedScoreboardSnapshot
     var detailedActions: [DetailedScoreAction]
+    var removedActionIDs: Set<UUID> = []
 
     func beginsMatch(after previous: Self?) -> Bool {
         guard let previous, previous.sessionId == sessionId else { return false }
@@ -378,7 +379,10 @@ enum WatchLinkedRecordIngestor {
         matchId: UUID,
         syncState: WatchRecordSyncState
     ) -> String? {
-        guard let record = makeRecord(payload: payload, gameType: gameType, matchId: matchId) else {
+        guard let record = makeRecord(
+            payload: payload, gameType: gameType, matchId: matchId,
+            source: syncState == .pending ? .linkedWatch : .linkedPhone
+        ) else {
             return nil
         }
         guard WatchRecordManager.shared.saveRecord(record, transferToPhone: false) else { return nil }
@@ -395,336 +399,48 @@ enum WatchLinkedRecordIngestor {
     static func makeRecord(
         payload: LinkMatchFinishedPayload,
         gameType: ScoreCore.GameType,
-        matchId: UUID
+        matchId: UUID,
+        source: RecordSource = .linkedWatch
     ) -> WatchScoreboardRecord? {
-        guard let watchGameType = WatchGameType(scoreCoreGameType: gameType) else { return nil }
         let recordId = payload.recordId.isEmpty ? "w_\(matchId.uuidString)" : payload.recordId
-        let start = Date(timeIntervalSince1970: Double(payload.startTimeEpochMilliseconds) / 1000)
-        let end = Date(timeIntervalSince1970: Double(payload.endTimeEpochMilliseconds) / 1000)
-        let duration = max(0, payload.durationSeconds)
-        let training = payload.snapshot.basketballTrainingState
-        let details = training?.detailedActions(endingAt: end) ?? payload.detailedActions
-        let actions = details.map(WatchScoreAction.init(detailedAction:))
-        let scoreChanges = training?.counts.attempts ?? max(0, payload.totalScoreChanges)
-        let projected = project(
-            snapshot: payload.snapshot,
+        let snapshot = payload.snapshot
+        let training = snapshot.basketballTrainingState
+        let canonical = MatchRecordProjector.canonicalRecord(
+            id: recordId,
+            kind: .sport(gameType),
+            source: source,
+            snapshot: snapshot,
             gameType: gameType,
             winnerSide: payload.winnerSide,
-            participantNames: payload.participantNames
+            startEpochMilliseconds: payload.startTimeEpochMilliseconds,
+            endEpochMilliseconds: payload.endTimeEpochMilliseconds,
+            durationSeconds: max(0, payload.durationSeconds),
+            participantNames: participantNames(for: snapshot, announcedNames: payload.participantNames),
+            detailedActions: training == nil ? payload.detailedActions : [],
+            totalScoreChanges: training?.counts.attempts ?? max(0, payload.totalScoreChanges)
         )
-        return WatchScoreboardRecord(
-            id: recordId,
-            gameType: watchGameType,
-            startTime: start,
-            endTime: end,
-            duration: duration,
-            team1Name: projected.team1Name,
-            team2Name: projected.team2Name,
-            team1FinalScore: projected.team1FinalScore,
-            team2FinalScore: projected.team2FinalScore,
-            team1SetScore: projected.team1SetScore,
-            team2SetScore: projected.team2SetScore,
-            winner: projected.winner,
-            actions: actions,
-            totalScoreChanges: scoreChanges,
-            participants: projected.participants,
-            projectConfiguration: projected.projectConfiguration,
-            basketballTrainingDetails: projected.basketballTrainingDetails
-        )
+        return WatchScoreboardRecord(canonical: canonical)
     }
 
-    private struct Projection {
-        let team1Name: String
-        let team2Name: String
-        let team1FinalScore: Int
-        let team2FinalScore: Int
-        let team1SetScore: Int
-        let team2SetScore: Int
-        let winner: String?
-        let participants: [WatchRecordParticipant]?
-        let projectConfiguration: [String: String]
-        let basketballTrainingDetails: WatchBasketballTrainingDetails?
-
-        init(
-            team1Name: String,
-            team2Name: String,
-            team1FinalScore: Int,
-            team2FinalScore: Int,
-            team1SetScore: Int,
-            team2SetScore: Int,
-            winner: String?,
-            participants: [WatchRecordParticipant]?,
-            projectConfiguration: [String: String],
-            basketballTrainingDetails: WatchBasketballTrainingDetails? = nil
-        ) {
-            self.team1Name = team1Name
-            self.team2Name = team2Name
-            self.team1FinalScore = team1FinalScore
-            self.team2FinalScore = team2FinalScore
-            self.team1SetScore = team1SetScore
-            self.team2SetScore = team2SetScore
-            self.winner = winner
-            self.participants = participants
-            self.projectConfiguration = projectConfiguration
-            self.basketballTrainingDetails = basketballTrainingDetails
-        }
-    }
-
-    @MainActor
-    private static func project(
-        snapshot: LinkedScoreboardSnapshot,
-        gameType: ScoreCore.GameType,
-        winnerSide: MatchSide?,
-        participantNames: [String]
-    ) -> Projection {
-        func resolvedWinner(leftName: String, rightName: String, fallbackLeft: Int, fallbackRight: Int) -> String? {
-            switch winnerSide {
-            case .left: return leftName
-            case .right: return rightName
-            case nil:
-                if fallbackLeft == fallbackRight { return nil }
-                return fallbackLeft > fallbackRight ? leftName : rightName
-            }
-        }
-
+    private static func participantNames(for snapshot: LinkedScoreboardSnapshot, announcedNames: [String]) -> [String] {
+        let defaults: WatchParticipantNamePair
         switch snapshot {
-        case .rally(let state):
-            return Projection(
-                team1Name: state.leftName,
-                team2Name: state.rightName,
-                team1FinalScore: state.leftPoints,
-                team2FinalScore: state.rightPoints,
-                team1SetScore: state.leftSets,
-                team2SetScore: state.rightSets,
-                winner: resolvedWinner(
-                    leftName: state.leftName,
-                    rightName: state.rightName,
-                    fallbackLeft: state.leftSets,
-                    fallbackRight: state.rightSets
-                ),
-                participants: state.doubles?.playerNames.map {
-                    WatchRecordParticipant(name: $0, score: 0)
-                },
-                projectConfiguration: [
-                    "scoreCoreGameType": gameType.rawValue,
-                    "isSingles": String(state.doubles == nil),
-                    "maxSets": String(state.rules.maxSets),
-                    "pointsPerSet": String(state.rules.pointsToWinSet),
-                    "useRallyScoring": String(state.rules.useRallyScoring),
-                    "rallyScoring": String(state.rules.useRallyScoring),
-                    "isDoubles": String(state.doubles != nil)
-                ]
-            )
-        case .tennis(let state):
-            let isTiebreakOnly = state.rules.setScoringMode == .tiebreakOnly
-            let fallbackLeft = isTiebreakOnly ? state.leftPoints : state.leftSets
-            let fallbackRight = isTiebreakOnly ? state.rightPoints : state.rightSets
-            return Projection(
-                team1Name: state.leftName,
-                team2Name: state.rightName,
-                team1FinalScore: isTiebreakOnly ? state.leftPoints : state.leftGames,
-                team2FinalScore: isTiebreakOnly ? state.rightPoints : state.rightGames,
-                team1SetScore: state.leftSets,
-                team2SetScore: state.rightSets,
-                winner: resolvedWinner(
-                    leftName: state.leftName,
-                    rightName: state.rightName,
-                    fallbackLeft: fallbackLeft,
-                    fallbackRight: fallbackRight
-                ),
-                participants: state.doublesPlayerNames?.map {
-                    WatchRecordParticipant(name: $0, score: 0)
-                },
-                projectConfiguration: [
-                    "scoreCoreGameType": gameType.rawValue,
-                    "isSingles": String(state.doublesPlayerNames == nil),
-                    "maxSets": String(state.rules.maxSets),
-                    "tieBreakPoints": String(state.rules.tieBreakPoints),
-                    "setScoringMode": state.rules.setScoringMode.rawValue,
-                    "usesNoAdScoring": String(state.rules.usesNoAdScoring),
-                    "isDoubles": String(state.doublesPlayerNames != nil)
-                ]
-            )
-        case .archery(let state):
-            return Projection(
-                team1Name: state.leftName,
-                team2Name: state.rightName,
-                team1FinalScore: state.leftArrowSum,
-                team2FinalScore: state.rightArrowSum,
-                team1SetScore: state.leftSetPoints,
-                team2SetScore: state.rightSetPoints,
-                winner: resolvedWinner(
-                    leftName: state.leftName,
-                    rightName: state.rightName,
-                    fallbackLeft: state.leftSetPoints,
-                    fallbackRight: state.rightSetPoints
-                ),
-                participants: [
-                    WatchRecordParticipant(name: state.leftName, score: state.leftSetPoints),
-                    WatchRecordParticipant(name: state.rightName, score: state.rightSetPoints)
-                ],
-                projectConfiguration: [
-                    "scoreCoreGameType": gameType.rawValue
-                ]
-            )
-        case .eightBall(let state):
-            let defaults = WatchDefaultTeamNames.resolve(for: .eightBall)
-            let leftName = resolvedParticipantName(participantNames, index: 0, fallback: defaults.left)
-            let rightName = resolvedParticipantName(participantNames, index: 1, fallback: defaults.right)
-            return Projection(
-                team1Name: leftName,
-                team2Name: rightName,
-                team1FinalScore: state.leftPoints,
-                team2FinalScore: state.rightPoints,
-                team1SetScore: state.leftPoints,
-                team2SetScore: state.rightPoints,
-                winner: resolvedWinner(
-                    leftName: leftName,
-                    rightName: rightName,
-                    fallbackLeft: state.leftPoints,
-                    fallbackRight: state.rightPoints
-                ),
-                participants: nil,
-                projectConfiguration: [
-                    "scoreCoreGameType": gameType.rawValue,
-                    "targetRacks": String(state.targetPoints),
-                    "handicapRacks": String(state.handicapRacks),
-                    "handicapBeneficiary": state.handicapBeneficiary?.rawValue ?? "none"
-                ]
-            )
         case .nineBall(let state):
-            let count = max(2, state.playerCount)
-            let names: [String] = (0..<count).map { index in
-                let fallback = resolvedParticipantName(
-                    participantNames,
-                    index: index,
-                    fallback: String(
-                        format: NSLocalizedString(
-                            "multi_score_player_default_format",
-                            value: "选手 %d",
-                            comment: ""
-                        ),
-                        index + 1
-                    )
-                )
-                return state.resolvedName(at: index, fallback: fallback)
+            let format = NSLocalizedString("multi_score_player_default_format", value: "选手 %d", comment: "")
+            return (0..<state.playerCount).map { index in
+                state.resolvedName(at: index, fallback: String(format: format, index + 1))
             }
-            let points: [Int] = (0..<count).map { index in
-                state.playerPoints.indices.contains(index) ? state.playerPoints[index] : 0
-            }
-            let winner: String? = {
-                if count > 2 {
-                    guard let best = points.max() else { return nil }
-                    let leaders = points.indices.filter { points[$0] == best }
-                    return leaders.count == 1 ? names[leaders[0]] : nil
-                }
-                return resolvedWinner(
-                    leftName: names[0],
-                    rightName: names[1],
-                    fallbackLeft: points[0],
-                    fallbackRight: points[1]
-                )
-            }()
-            return Projection(
-                team1Name: names[0],
-                team2Name: names[1],
-                team1FinalScore: points[0],
-                team2FinalScore: points[1],
-                team1SetScore: points[0],
-                team2SetScore: points[1],
-                winner: winner,
-                participants: (0..<count).map {
-                    WatchRecordParticipant(name: names[$0], score: points[$0])
-                },
-                projectConfiguration: [
-                    "scoreCoreGameType": gameType.rawValue,
-                    "playerCount": String(count)
-                ]
-            )
-        case .snooker(let state):
-            let defaults = WatchDefaultTeamNames.resolve(for: .snooker)
-            let leftName = resolvedParticipantName(participantNames, index: 0, fallback: defaults.left)
-            let rightName = resolvedParticipantName(participantNames, index: 1, fallback: defaults.right)
-            let fallbackLeft = state.leftFrames != state.rightFrames ? state.leftFrames : state.leftScore
-            let fallbackRight = state.leftFrames != state.rightFrames ? state.rightFrames : state.rightScore
-            return Projection(
-                team1Name: leftName,
-                team2Name: rightName,
-                team1FinalScore: state.leftScore,
-                team2FinalScore: state.rightScore,
-                team1SetScore: state.leftFrames,
-                team2SetScore: state.rightFrames,
-                winner: resolvedWinner(
-                    leftName: leftName,
-                    rightName: rightName,
-                    fallbackLeft: fallbackLeft,
-                    fallbackRight: fallbackRight
-                ),
-                participants: nil,
-                projectConfiguration: [
-                    "scoreCoreGameType": gameType.rawValue,
-                    "maxFrames": String(state.maxFrames)
-                ]
-            )
-        case .football(let state):
-            return Projection(
-                team1Name: state.leftName,
-                team2Name: state.rightName,
-                team1FinalScore: state.leftScore,
-                team2FinalScore: state.rightScore,
-                team1SetScore: 0,
-                team2SetScore: 0,
-                winner: resolvedWinner(
-                    leftName: state.leftName,
-                    rightName: state.rightName,
-                    fallbackLeft: state.leftScore,
-                    fallbackRight: state.rightScore
-                ),
-                participants: nil,
-                projectConfiguration: [
-                    "scoreCoreGameType": gameType.rawValue,
-                    "footballHalfLengthSeconds": String(state.timer.halfLengthSeconds),
-                    "showMatchTime": "true"
-                ]
-            )
-        case .basketballTraining(let state):
-            let mode = WatchBasketballTrainingMode(linkedMode: state.mode)
-            let counts = state.counts
-            let shots = state.shots.map {
-                WatchBasketballTrainingShot(points: $0.points, made: $0.made, timestamp: $0.timestamp)
-            }
-            var configuration: [String: String] = [
-                "scoreCoreGameType": gameType.rawValue,
-                "type": "basketball_training",
-                "gameMode": mode.fixedPoints.map { "\($0)pt" } ?? "free",
-                "basketballTrainingMode": mode.fixedPoints == nil ? "mixed" : "fixed",
-                "basketballTrainingScoringMode": mode.fixedPoints.map { "fixed_\($0)" } ?? "free"
-            ]
-            if let fixedPoints = mode.fixedPoints {
-                configuration["targetScore"] = String(fixedPoints)
-            }
-            return Projection(
-                team1Name: NSLocalizedString("watch_training_miss", value: "未中", comment: ""),
-                team2Name: NSLocalizedString("watch_training_made", value: "命中", comment: ""),
-                team1FinalScore: counts.missed,
-                team2FinalScore: counts.made,
-                team1SetScore: 0,
-                team2SetScore: 0,
-                winner: nil,
-                participants: nil,
-                projectConfiguration: configuration,
-                basketballTrainingDetails: WatchBasketballTrainingDetails(mode: mode, shots: shots, totals: counts)
-            )
+        case .eightBall:
+            defaults = WatchDefaultTeamNames.resolve(for: .eightBall)
+        case .snooker:
+            defaults = WatchDefaultTeamNames.resolve(for: .snooker)
+        default:
+            return announcedNames
         }
-    }
-
-    private static func resolvedParticipantName(
-        _ names: [String],
-        index: Int,
-        fallback: String
-    ) -> String {
-        guard names.indices.contains(index) else { return fallback }
-        let trimmed = names[index].trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? fallback : trimmed
+        return [defaults.left, defaults.right].enumerated().map { index, fallback in
+            guard announcedNames.indices.contains(index) else { return fallback }
+            let name = announcedNames[index].trimmingCharacters(in: .whitespacesAndNewlines)
+            return name.isEmpty ? fallback : name
+        }
     }
 }

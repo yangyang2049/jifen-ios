@@ -1136,14 +1136,16 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         let service = PhoneWatchLinkService(transport: transport, contextStore: store, outboxStore: store)
         let start = Date(timeIntervalSince1970: 1_700_000_000)
         let payload = WatchRecordTransferPayload(
-            id: watchID, gameType: "basketballTraining",
-            startTimeEpochMilliseconds: 1_700_000_000_000, endTimeEpochMilliseconds: 1_700_000_001_000,
+            id: watchID, kind: .sport(.basketballTraining), source: .watchLocal,
+            startEpochMilliseconds: 1_700_000_000_000, endEpochMilliseconds: 1_700_000_001_000,
             durationSeconds: 1, team1Name: "Miss", team2Name: "Made",
-            team1FinalScore: 0, team2FinalScore: 1, team1SetScore: 0, team2SetScore: 0,
-            winner: nil, actions: [], totalScoreChanges: 1,
+            team1FinalScore: 2, team2FinalScore: 1,
+            detailedActions: [.init(type: .matchStarted, operationCode: "training_start")],
+            totalScoreChanges: 3,
             basketballTraining: .init(
                 mode: .fixed3, startTime: start,
-                shots: [.init(points: 3, made: true, timestamp: start)], finished: true
+                shots: [.init(points: 3, made: true, timestamp: start)],
+                earlierCounts: .init(threeMiss: 2), finished: true
             )
         )
         let data = try JSONEncoder().encode(payload)
@@ -1152,7 +1154,46 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
         XCTAssertEqual(service.lastSyncedWatchRecordId, phoneID)
         XCTAssertEqual(transport.clearedWatchRecordIDBatches, [[watchID], [watchID]])
-        XCTAssertEqual(ScoreboardRecordManager.shared.getRecordById(phoneID)?.team2FinalScore, 1)
+        let record = try XCTUnwrap(ScoreboardRecordManager.shared.getRecordById(phoneID))
+        XCTAssertEqual(record.team1FinalScore, 2)
+        XCTAssertEqual(record.team2FinalScore, 1)
+        XCTAssertEqual(record.totalScoreChanges, 3)
+        XCTAssertNil(record.team1SetScore)
+        XCTAssertEqual(record.extraData?["threePointMiss"]?.value as? Int, 2)
+        XCTAssertEqual(record.extraData?["gameMode"]?.value as? String, "3pt")
+        XCTAssertEqual(record.detailedActions?.compactMap(\.operationCode), [
+            "training_3pt_made", "training_rate_33"
+        ])
+        let snapshot = try XCTUnwrap(record.stateSnapshot)
+        let resume = try JSONDecoder().decode(ShotTrainingResumeState.self, from: snapshot)
+        XCTAssertEqual(resume.mode.rawValue, "fixed_3")
+        XCTAssertEqual(resume.earlierCounts?.threeMiss, 2)
+        XCTAssertEqual(resume.shots.map(\.points), [3])
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: snapshot) as? [String: Any])
+        let shots = try XCTUnwrap(json["shots"] as? [[String: Any]])
+        XCTAssertNotNil((shots.first?["id"] as? String).flatMap(UUID.init(uuidString:)))
+    }
+
+    func testCanonicalWatchRecordPreservesTypedWinnerWhenNamesMatch() throws {
+        let canonical = CanonicalMatchRecord(
+            id: "same-name",
+            kind: .sport(.badminton),
+            source: .watchLocal,
+            startEpochMilliseconds: 1_700_000_000_000,
+            endEpochMilliseconds: 1_700_000_010_000,
+            durationSeconds: 10,
+            team1Name: "相同队名",
+            team2Name: "相同队名",
+            team1FinalScore: 8,
+            team2FinalScore: 11,
+            winnerIdentity: .team(.team1)
+        )
+        let record = try WatchCanonicalRecordAdapter.toScoreboardRecord(canonical)
+        let encoded = try JSONEncoder().encode(record)
+        let decoded = try JSONDecoder().decode(ScoreboardRecord.self, from: encoded)
+        XCTAssertEqual(decoded.id, "w_same-name")
+        XCTAssertEqual(decoded.winner, "team_1")
+        XCTAssertEqual(decoded.winnerIdentity, .team(.team1))
     }
 
     func testWatchStandaloneRecordIngestorEncodesAndPersistsAllStandaloneWatchSports() throws {
@@ -1163,7 +1204,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             let team2Score: Int
             let team1Sets: Int
             let team2Sets: Int
-            let participants: [WatchRecordParticipantPayload]?
+            let participants: [RecordParticipantScore]?
             let config: [String: String]?
             let expectNilSetScores: Bool
         }
@@ -1207,13 +1248,17 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
                 epochMilliseconds: 1_700_000_005_000,
                 team: .team1,
                 scores: [item.team1Score, item.team2Score],
-                setScores: [item.team1Sets, item.team2Sets]
+                setScores: [item.team1Sets, item.team2Sets],
+                gameTimeSeconds: 17,
+                operationPayload: "action-value"
             )
+            let coreType = try XCTUnwrap(ScoreCore.GameType(rawValue: item.rawGameType == "archery" ? "archery_dual" : item.rawGameType))
             let payload = WatchRecordTransferPayload(
                 id: recordId,
-                gameType: item.rawGameType,
-                startTimeEpochMilliseconds: 1_700_000_000_000,
-                endTimeEpochMilliseconds: 1_700_000_120_000,
+                kind: .sport(coreType),
+                source: .watchLocal,
+                startEpochMilliseconds: 1_700_000_000_000,
+                endEpochMilliseconds: 1_700_000_120_000,
                 durationSeconds: 120,
                 team1Name: "红方",
                 team2Name: "蓝方",
@@ -1221,12 +1266,11 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
                 team2FinalScore: item.team2Score,
                 team1SetScore: item.team1Sets,
                 team2SetScore: item.team2Sets,
-                winner: "红方",
-                actions: ["score_add"],
+                winnerIdentity: .team(.team0),
                 detailedActions: [action],
                 totalScoreChanges: 1,
                 participants: item.participants,
-                projectConfiguration: item.config
+                projectConfiguration: item.config ?? [:]
             )
 
             let record = try WatchStandaloneRecordIngestor.makeRecord(payload)
@@ -1246,6 +1290,10 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             XCTAssertEqual(decoded.id, recordId)
             XCTAssertEqual(decoded.extraData?["syncFrom"]?.value as? String, "watch")
             XCTAssertNotNil(decoded.extraData?["watchSyncTime"]?.value as? Int)
+            XCTAssertEqual(decoded.detailedActions?.first?.id, action.id)
+            XCTAssertEqual(decoded.detailedActions?.first?.gameTimeSeconds, 17)
+            XCTAssertEqual(decoded.detailedActions?.first?.operationPayload, "action-value")
+            XCTAssertEqual(decoded.detailedActions?.first?.setScores, item.expectNilSetScores ? [] : action.setScores)
 
             // Verify end-to-end save into ScoreboardRecordManager on representative cases
             if index == 0 || index == cases.count - 1 {
@@ -1280,8 +1328,8 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         eightBall.leftPoints = 5
         eightBall.rightPoints = 3
         eightBall.finished = true
-        var nineBall = NineBallChaseState.initial(playerCount: 3, playerNames: ["甲", "乙", "丙"])
-        nineBall.playerPoints = [12, 8, 5, 0]
+        var nineBall = NineBallChaseState.initial(playerCount: 3, playerNames: ["甲", "乙", "改名的选手"])
+        nineBall.playerPoints = [5, 8, 12, 0]
         nineBall.finished = true
         var snooker = SnookerState.initial(maxFrames: 5)
         snooker.leftScore = 71
@@ -1315,7 +1363,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             let payload = LinkMatchFinishedPayload(
                 snapshot: snapshot,
                 recordId: "w_linked_\(matchId.uuidString)",
-                winnerSide: .left,
+                winnerSide: gameType == .nineBall ? nil : .left,
                 manualEnd: false,
                 startTimeEpochMilliseconds: 1_700_000_000_000,
                 endTimeEpochMilliseconds: 1_700_000_060_000,
@@ -1324,10 +1372,14 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
                 detailedActions: [
                     DetailedScoreAction(
                         id: UUID(),
-                        type: .scoreChanged,
+                        type: gameType == .football ? .periodFinished : .scoreChanged,
                         epochMilliseconds: 1_700_000_010_000,
                         team: .team1,
-                        scores: [1, 0]
+                        scores: [1, 0],
+                        periodNumber: gameType == .football ? 1 : nil,
+                        operationCode: gameType == .football ? "football_period_end" : nil,
+                        footballPeriod: gameType == .football ? 1 : nil,
+                        footballElapsedSeconds: gameType == .football ? 2_700 : nil
                     )
                 ],
                 participantNames: ["甲", "乙", "丙"]
@@ -1342,6 +1394,25 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
             XCTAssertEqual(decoded.id, payload.recordId)
             XCTAssertEqual(decoded.detailedActions?.count, 1)
             XCTAssertNotNil(decoded.extraData?["watchSyncTime"]?.value as? Int)
+            XCTAssertEqual(decoded.extraData?["linkedSessionId"]?.value as? String, matchId.uuidString)
+            let snapshotData = try XCTUnwrap(decoded.stateSnapshot)
+            XCTAssertEqual(try decoder.decode(LinkedScoreboardSnapshot.self, from: snapshotData), snapshot)
+            if gameType == .football {
+                XCTAssertNil(decoded.team1SetScore)
+                XCTAssertNil(decoded.team2SetScore)
+                XCTAssertEqual(decoded.setResults?.map(\.number), [1])
+                XCTAssertEqual(decoded.setResults?.first?.titleCode, "football_period_end")
+                XCTAssertEqual(decoded.detailedActions?.first?.footballElapsedSeconds, 2_700)
+                XCTAssertEqual(decoded.projectConfiguration?["footballHalfLengthSeconds"]?.value as? Int, 2_700)
+                XCTAssertEqual(decoded.projectConfiguration?["showMatchTime"]?.value as? Bool, true)
+            }
+            if gameType == .nineBall {
+                XCTAssertEqual(decoded.winnerIdentity, .participant(index: 2))
+                XCTAssertEqual(decoded.winner, "player_2")
+                XCTAssertEqual(decoded.displayParticipants.map(\.name), ["甲", "乙", "改名的选手"])
+                XCTAssertEqual(decoded.displayParticipants.map(\.score), [5, 8, 12])
+                XCTAssertNil(decoded.team1SetScore)
+            }
         }
 
         // Phone notifyMatchFinished should enqueue durable AND deliver realtime when reachable.
@@ -2097,12 +2168,12 @@ extension PhoneWatchLinkServiceTests {
             )
         }
         let payload = WatchRecordTransferPayload(
-            id: recordID, gameType: "pingpong",
-            startTimeEpochMilliseconds: 1_700_000_000_000,
-            endTimeEpochMilliseconds: 1_700_000_060_000,
+            id: recordID, kind: .sport(.pingpong), source: .watchLocal,
+            startEpochMilliseconds: 1_700_000_000_000,
+            endEpochMilliseconds: 1_700_000_060_000,
             durationSeconds: 60, team1Name: "L", team2Name: "R",
             team1FinalScore: 11, team2FinalScore: 9, team1SetScore: 2, team2SetScore: 1,
-            winner: "L", actions: [], detailedActions: actions, totalScoreChanges: 900
+            winnerIdentity: .team(.team0), detailedActions: actions, totalScoreChanges: 900
         )
         let data = try JSONEncoder().encode(payload)
         XCTAssertGreaterThan(data.count, 32_000, "构造超预算的独立记录载荷")
@@ -2137,7 +2208,9 @@ final class FakeWatchLinkTransport: @unchecked Sendable, WatchLinkTransport {
     var onPendingRecords: (@Sendable ([Data]) -> Void)?
 
     var automaticallyRespondToStatusQueries = false
-    private(set) var realtimeMessages: [Data] = []
+    private let realtimeLock = NSLock()
+    private var sentRealtimeMessages: [Data] = []
+    var realtimeMessages: [Data] { realtimeLock.withLock { sentRealtimeMessages } }
     private(set) var publishedSnapshots: [Data] = []
     private(set) var durableMessages: [Data] = []
 
@@ -2148,7 +2221,7 @@ final class FakeWatchLinkTransport: @unchecked Sendable, WatchLinkTransport {
     }
 
     func sendRealtime(_ data: Data) async throws {
-        realtimeMessages.append(data)
+        realtimeLock.withLock { sentRealtimeMessages.append(data) }
         guard automaticallyRespondToStatusQueries,
               let query = try? JSONDecoder().decode(
                   LinkEnvelope<EmptyLinkPayload>.self,
@@ -2185,7 +2258,7 @@ final class FakeWatchLinkTransport: @unchecked Sendable, WatchLinkTransport {
     }
 
     func sendInteractive(_ data: Data) throws {
-        realtimeMessages.append(data)
+        realtimeLock.withLock { sentRealtimeMessages.append(data) }
     }
 
     func updateApplicationContext(_ context: [String: Any]) throws {

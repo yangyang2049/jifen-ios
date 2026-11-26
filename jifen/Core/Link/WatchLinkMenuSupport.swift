@@ -104,93 +104,191 @@ enum LinkedMatchRecordIngestor {
         gameType: ScoreCore.GameType,
         sessionId: UUID? = nil
     ) throws -> ScoreboardRecord {
-        if gameType == .basketballTraining, let training = payload.snapshot.basketballTrainingState {
-            let id = payload.recordId.isEmpty
-                ? (sessionId.map { "w_\($0.uuidString)" } ?? "w_\(UUID().uuidString)")
-                : payload.recordId
-            return try makeWatchTrainingRecord(
-                id: id,
-                state: training,
-                endTimeEpochMilliseconds: payload.endTimeEpochMilliseconds,
-                duration: payload.durationSeconds,
-                linkedSessionId: sessionId
-            )
+        let id = payload.recordId.isEmpty
+            ? "w_\((sessionId ?? UUID()).uuidString)"
+            : payload.recordId
+        let snapshot = payload.snapshot
+        let canonical = MatchRecordProjector.canonicalRecord(
+            id: id,
+            kind: .sport(gameType),
+            source: .linkedWatch,
+            snapshot: snapshot,
+            gameType: gameType,
+            winnerSide: payload.winnerSide,
+            startEpochMilliseconds: payload.startTimeEpochMilliseconds,
+            endEpochMilliseconds: payload.endTimeEpochMilliseconds,
+            durationSeconds: payload.durationSeconds,
+            participantNames: WatchCanonicalRecordAdapter.participantNames(
+                for: snapshot, announcedNames: payload.participantNames
+            ),
+            // The packed training state supplies the full shot history and counters.
+            detailedActions: snapshot.basketballTrainingState == nil ? payload.detailedActions : [],
+            totalScoreChanges: payload.totalScoreChanges
+        )
+        return try WatchCanonicalRecordAdapter.toScoreboardRecord(
+            canonical, linkedSessionId: sessionId, linkedSnapshot: snapshot
+        )
+    }
+}
+
+/// Ingests auto-transferred standalone watch records into phone ScoreboardRecord storage.
+enum WatchStandaloneRecordIngestor {
+    @MainActor
+    @discardableResult
+    static func ingest(_ payload: WatchRecordTransferPayload) throws -> String {
+        let record = try makeRecord(payload)
+        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
+        return record.id
+    }
+
+    @MainActor
+    static func makeRecord(_ payload: WatchRecordTransferPayload) throws -> ScoreboardRecord {
+        try WatchCanonicalRecordAdapter.toScoreboardRecord(payload)
+    }
+}
+
+/// Converts Watch records to the released phone schema and preserves phone-only
+/// resume metadata at the ingestion boundary.
+@MainActor
+enum WatchCanonicalRecordAdapter {
+    static func toScoreboardRecord(
+        _ record: CanonicalMatchRecord,
+        linkedSessionId: UUID? = nil,
+        linkedSnapshot: LinkedScoreboardSnapshot? = nil
+    ) throws -> ScoreboardRecord {
+        guard record.schemaVersion == CanonicalMatchRecord.currentSchemaVersion else {
+            throw CocoaError(.coderReadCorrupt)
+        }
+        guard case .sport(let gameType) = record.kind else {
+            throw LinkedRecordIngestError.unsupportedGameType("counter")
         }
         guard let appType = GameType(scoreCoreGameType: gameType) else {
             throw LinkedRecordIngestError.unsupportedGameType(gameType.rawValue)
         }
-        let projected = project(
-            snapshot: payload.snapshot,
-            gameType: appType,
-            winnerSide: payload.winnerSide,
-            participantNames: payload.participantNames
-        )
-        let endMs = payload.endTimeEpochMilliseconds
-        let startMs = payload.startTimeEpochMilliseconds
-        let start = Date(timeIntervalSince1970: Double(startMs) / 1000)
-        let end = Date(timeIntervalSince1970: Double(endMs) / 1000)
-        let duration = payload.durationSeconds
-        let scoreChanges = max(0, payload.totalScoreChanges)
-        let isTennisTiebreakOnly: Bool = {
-            guard case .tennis(let state) = payload.snapshot else { return false }
-            return state.rules.setScoringMode == .tiebreakOnly
-        }()
-        let detailedActions = recordActions(
-            payload.detailedActions,
-            omittingSecondaryScores: isTennisTiebreakOnly
-        ) ?? []
+        let isLinked = linkedSnapshot != nil || linkedSessionId != nil
+            || record.source == .linkedWatch || record.source == .linkedPhone
+        let id = isLinked || record.id.hasPrefix("w_") ? record.id : "w_\(record.id)"
+        let endTime = Date(timeIntervalSince1970: Double(record.endEpochMilliseconds) / 1_000)
+        let training = appType == .basketballTraining ? record.basketballTraining : nil
+        let counts = training?.counts
+        let tiebreakOnly = linkedSnapshot?.tennisState?.rules.setScoringMode == .tiebreakOnly
+            || (appType == .tennis && record.projectConfiguration["setScoringMode"] == "tiebreak_only")
+        let hasNoSetLayer = [.football, .football5v5, .basketballTraining].contains(appType)
+        let omitsSetScores = tiebreakOnly || hasNoSetLayer || (isLinked && [.nineBall, .eightBall].contains(appType))
+
         var extra: [String: AnyCodable] = [
             "syncFrom": AnyCodable("watch"),
-            "watchSyncTime": AnyCodable(Int(Date().timeIntervalSince1970 * 1000))
+            "watchSyncTime": AnyCodable(Int(Date().timeIntervalSince1970 * 1_000))
         ]
-        if let sessionId {
-            extra["linkedSessionId"] = AnyCodable(sessionId.uuidString)
+        if let linkedSessionId {
+            extra["linkedSessionId"] = AnyCodable(linkedSessionId.uuidString)
         }
-        if case .nineBall(let state) = payload.snapshot {
-            extra["players"] = AnyCodable((0..<state.playerCount).map { index in
-                [
-                    "name": state.resolvedName(
-                        at: index,
-                        fallback: String(
-                            format: NSLocalizedString(
-                                "multi_score_player_default_format",
-                                value: "选手 %d",
-                                comment: ""
-                            ),
-                            index + 1
-                        )
-                    ),
-                    "finalScore": state.playerPoints[index]
-                ] as [String: Any]
+        if (!isLinked || appType == .nineBall), let players = record.participants, !players.isEmpty {
+            extra["players"] = AnyCodable(players.map {
+                ["name": $0.name, "finalScore": $0.score] as [String: Any]
             })
         }
-        let recordId = payload.recordId.isEmpty
-            ? (sessionId.map { "w_\($0.uuidString)" } ?? "w_\(UUID().uuidString)")
-            : payload.recordId
-        let projectConfiguration = recordConfiguration(snapshot: payload.snapshot, gameType: gameType)
-        var record = ScoreboardRecord(
-            id: recordId,
+
+        var actions = isLinked ? ["watch_link_finish"] : record.detailedActions.compactMap { $0.summary ?? $0.operationCode }
+        if actions.isEmpty { actions = ["watch_auto_sync"] }
+        var details = recordActions(
+            record.detailedActions, omittingSecondaryScores: tiebreakOnly || (!isLinked && hasNoSetLayer)
+        )
+        var configuration: [String: AnyCodable]
+        let stateSnapshot: Data?
+        if let training, let counts {
+            let mode = training.mode
+            let shots = training.shots.map {
+                ShotTrainingShot(id: UUID(), points: $0.points, made: $0.made, timestamp: $0.timestamp)
+            }
+            // Preserve the phone's training timeline and summary codes from the packed shots.
+            let shotActions = training.detailedActions(endingAt: endTime)
+            details = shotActions
+            actions = shotActions.compactMap { action in
+                guard let time = action.epochMilliseconds, let code = action.operationCode else { return nil }
+                return "\(time)|\(code)"
+            }
+            extra.merge(ShotTrainingRecordMetadata.extraData(mode: mode, counts: counts)) { _, latest in latest }
+            configuration = [
+                ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(gameType.rawValue),
+                "basketballTrainingScoringMode": AnyCodable(mode.rawValue)
+            ]
+            stateSnapshot = try JSONEncoder().encode(ShotTrainingResumeState(
+                mode: mode, shots: shots, finished: true, earlierCounts: training.earlierCounts
+            ))
+        } else if let linkedSnapshot {
+            configuration = recordConfiguration(snapshot: linkedSnapshot, gameType: gameType)
+            stateSnapshot = try JSONEncoder().encode(linkedSnapshot)
+        } else {
+            configuration = record.projectConfiguration.mapValues(AnyCodable.init)
+            configuration[ScoreboardRecordConfiguration.Key.scoreCoreGameType] = AnyCodable(gameType.rawValue)
+            configuration[ScoreboardRecordConfiguration.Key.isSingles] = AnyCodable(!gameType.isDoublesScoreboard)
+            stateSnapshot = nil
+        }
+
+        let winner = appType == .nineBall
+            ? participantWinner(record.winnerIdentity, participants: record.participants)
+            : record.winnerIdentity
+        return ScoreboardRecord(
+            id: id,
             gameType: appType,
-            startTime: start,
-            endTime: end,
-            duration: duration,
-            team1Name: projected.leftName,
-            team2Name: projected.rightName,
-            team1FinalScore: projected.leftScore,
-            team2FinalScore: projected.rightScore,
-            team1SetScore: projected.leftSets,
-            team2SetScore: projected.rightSets,
-            winner: projected.winner,
-            actions: ["watch_link_finish"],
-            detailedActions: detailedActions,
-            setResults: ScoreboardRecordActionAdapter.setResults(from: detailedActions),
-            totalScoreChanges: scoreChanges,
+            startTime: training?.startTime ?? Date(timeIntervalSince1970: Double(record.startEpochMilliseconds) / 1_000),
+            endTime: endTime,
+            duration: training == nil ? record.durationSeconds : max(0, record.durationSeconds),
+            team1Name: training == nil ? record.team1Name : NSLocalizedString("shot_training_miss", value: "未中", comment: ""),
+            team2Name: training == nil ? record.team2Name : NSLocalizedString("shot_training_made", value: "命中", comment: ""),
+            team1FinalScore: counts?.missed ?? record.team1FinalScore,
+            team2FinalScore: counts?.made ?? record.team2FinalScore,
+            team1SetScore: omitsSetScores ? nil : record.team1SetScore,
+            team2SetScore: omitsSetScores ? nil : record.team2SetScore,
+            winnerIdentity: training == nil ? winner : nil,
+            actions: actions,
+            detailedActions: details,
+            setResults: training == nil ? ScoreboardRecordActionAdapter.setResults(from: details) : nil,
+            totalScoreChanges: counts?.attempts ?? max(0, record.totalScoreChanges),
             extraData: extra,
-            projectConfiguration: projectConfiguration,
+            projectConfiguration: configuration,
+            stateSnapshot: stateSnapshot,
             status: .finished
         )
-        record.stateSnapshot = try JSONEncoder().encode(payload.snapshot)
-        return record
+    }
+
+    /// Supplies the same localized names as the phone record path. Nine-ball
+    /// player names are part of the live state and can change after setup.
+    static func participantNames(for snapshot: LinkedScoreboardSnapshot, announcedNames: [String]) -> [String] {
+        switch snapshot {
+        case .nineBall(let state):
+            return (0..<state.playerCount).map { index in
+                let format = NSLocalizedString("multi_score_player_default_format", value: "选手 %d", comment: "")
+                return state.resolvedName(at: index, fallback: String(format: format, index + 1))
+            }
+        case .eightBall, .snooker:
+            let defaults = DefaultParticipantNames.resolve(for: snapshot.eightBallState == nil ? .snooker : .eightBall)
+            return [defaults.left, defaults.right].enumerated().map { index, fallback in
+                guard announcedNames.indices.contains(index) else { return fallback }
+                let name = announcedNames[index].trimmingCharacters(in: .whitespacesAndNewlines)
+                return name.isEmpty ? fallback : name
+            }
+        default:
+            return announcedNames
+        }
+    }
+
+    private static func participantWinner(
+        _ identity: ScoreboardWinnerIdentity?, participants: [RecordParticipantScore]?
+    ) -> ScoreboardWinnerIdentity? {
+        guard let participants, !participants.isEmpty else { return identity }
+        let index: Int?
+        switch identity {
+        case .participant(let participant): index = participant
+        case .team(.team0): index = 0
+        case .team(.team1): index = 1
+        case nil: index = nil
+        }
+        if let index, participants.indices.contains(index) { return .participant(index: index) }
+        guard let topScore = participants.map(\.score).max() else { return nil }
+        let leaders = participants.indices.filter { participants[$0].score == topScore }
+        return leaders.count == 1 ? .participant(index: leaders[0]) : nil
     }
 
     private static func recordConfiguration(
@@ -233,398 +331,14 @@ enum LinkedMatchRecordIngestor {
         return configuration
     }
 
-    private struct Projection {
-        var leftName: String
-        var rightName: String
-        var leftScore: Int
-        var rightScore: Int
-        var leftSets: Int?
-        var rightSets: Int?
-        var winner: String?
-    }
-
-    private static func project(
-        snapshot: LinkedScoreboardSnapshot,
-        gameType: GameType,
-        winnerSide: MatchSide?,
-        participantNames: [String]?
-    ) -> Projection {
-        let winner: String? = {
-            switch winnerSide {
-            case .left: return "left"
-            case .right: return "right"
-            case nil: return nil
-            }
-        }()
-        switch snapshot {
-        case .basketballTraining(let state):
-            let counts = state.counts
-            return .init(
-                leftName: NSLocalizedString("shot_training_miss", value: "未中", comment: ""),
-                rightName: NSLocalizedString("shot_training_made", value: "命中", comment: ""),
-                leftScore: counts.missed,
-                rightScore: counts.made,
-                leftSets: nil,
-                rightSets: nil,
-                winner: nil
-            )
-        case .football(let state):
-            return .init(
-                leftName: state.leftName,
-                rightName: state.rightName,
-                leftScore: state.leftScore,
-                rightScore: state.rightScore,
-                leftSets: nil,
-                rightSets: nil,
-                winner: winner
-            )
-        case .rally(let state):
-            return .init(
-                leftName: state.leftName,
-                rightName: state.rightName,
-                leftScore: state.leftPoints,
-                rightScore: state.rightPoints,
-                leftSets: state.leftSets,
-                rightSets: state.rightSets,
-                winner: winner
-            )
-        case .tennis(let state):
-            let usePointScore = state.rules.setScoringMode == .tiebreakOnly
-            return .init(
-                leftName: state.leftName,
-                rightName: state.rightName,
-                leftScore: usePointScore ? state.leftPoints : state.leftGames,
-                rightScore: usePointScore ? state.rightPoints : state.rightGames,
-                leftSets: usePointScore ? nil : state.leftSets,
-                rightSets: usePointScore ? nil : state.rightSets,
-                winner: winner
-            )
-        case .archery(let state):
-            return .init(
-                leftName: state.leftName,
-                rightName: state.rightName,
-                leftScore: state.leftArrowSum,
-                rightScore: state.rightArrowSum,
-                leftSets: state.leftSetPoints,
-                rightSets: state.rightSetPoints,
-                winner: winner
-            )
-        case .eightBall(let state):
-            let defaults = DefaultParticipantNames.resolve(for: .eightBall)
-            return .init(
-                leftName: resolvedParticipantName(
-                    participantNames,
-                    index: 0,
-                    fallback: defaults.left
-                ),
-                rightName: resolvedParticipantName(
-                    participantNames,
-                    index: 1,
-                    fallback: defaults.right
-                ),
-                leftScore: state.leftPoints,
-                rightScore: state.rightPoints,
-                leftSets: nil,
-                rightSets: nil,
-                winner: winner
-            )
-        case .nineBall(let state):
-            return .init(
-                leftName: state.resolvedName(
-                    at: 0,
-                    fallback: String(
-                        format: NSLocalizedString(
-                            "multi_score_player_default_format",
-                            value: "选手 %d",
-                            comment: ""
-                        ),
-                        1
-                    )
-                ),
-                rightName: state.resolvedName(
-                    at: 1,
-                    fallback: String(
-                        format: NSLocalizedString(
-                            "multi_score_player_default_format",
-                            value: "选手 %d",
-                            comment: ""
-                        ),
-                        2
-                    )
-                ),
-                leftScore: state.leftPoints,
-                rightScore: state.rightPoints,
-                leftSets: nil,
-                rightSets: nil,
-                winner: winner
-            )
-        case .snooker(let state):
-            let defaults = DefaultParticipantNames.resolve(for: .snooker)
-            return .init(
-                leftName: resolvedParticipantName(
-                    participantNames,
-                    index: 0,
-                    fallback: defaults.left
-                ),
-                rightName: resolvedParticipantName(
-                    participantNames,
-                    index: 1,
-                    fallback: defaults.right
-                ),
-                leftScore: state.leftScore,
-                rightScore: state.rightScore,
-                leftSets: state.leftFrames,
-                rightSets: state.rightFrames,
-                winner: winner
-            )
-        }
-    }
-
-    private static func resolvedParticipantName(
-        _ names: [String]?,
-        index: Int,
-        fallback: String
-    ) -> String {
-        guard let names, names.indices.contains(index) else { return fallback }
-        let value = names[index].trimmingCharacters(in: .whitespacesAndNewlines)
-        return value.isEmpty ? fallback : value
-    }
-}
-
-/// Ingests auto-transferred standalone watch records into phone ScoreboardRecord storage.
-enum WatchStandaloneRecordIngestor {
-    @MainActor
-    @discardableResult
-    static func ingest(_ payload: WatchRecordTransferPayload) throws -> String {
-        let record = try makeRecord(payload)
-        try ScoreboardRecordManager.shared.saveScoreboardRecord(record)
-        return record.id
-    }
-
-    @MainActor
-    static func makeRecord(_ payload: WatchRecordTransferPayload) throws -> ScoreboardRecord {
-        guard let gameType = mapGameType(payload.gameType) else {
-            throw LinkedRecordIngestError.unsupportedGameType(payload.gameType)
-        }
-        let rawId = payload.id.hasPrefix("w_") ? payload.id : "w_\(payload.id)"
-        if gameType == .basketballTraining, let training = payload.basketballTraining {
-            return try makeWatchTrainingRecord(
-                id: rawId,
-                state: training,
-                endTimeEpochMilliseconds: payload.endTimeEpochMilliseconds,
-                duration: payload.durationSeconds
-            )
-        }
-        let start = Date(timeIntervalSince1970: Double(payload.startTimeEpochMilliseconds) / 1000)
-        let end = Date(timeIntervalSince1970: Double(payload.endTimeEpochMilliseconds) / 1000)
-        let winnerSide: String? = {
-            guard let winner = payload.winner, !winner.isEmpty else { return nil }
-            if winner == payload.team1Name { return "left" }
-            if winner == payload.team2Name { return "right" }
-            if winner == "left" || winner == "right" { return winner }
-            return nil
-        }()
-        let winnerIdentity: ScoreboardWinnerIdentity? = {
-            if gameType == .doudizhu, let participants = payload.participants, !participants.isEmpty {
-                if let winner = payload.winner {
-                    if winner.hasPrefix("player_"),
-                       let identity = ScoreboardWinnerIdentity.fromStableLegacyToken(winner) {
-                        return identity
-                    }
-                    let matches = participants.indices.filter { participants[$0].name == winner }
-                    if matches.count == 1 { return .participant(index: matches[0]) }
-                }
-                if let best = participants.map(\.score).max() {
-                    let leaders = participants.indices.filter { participants[$0].score == best }
-                    if leaders.count == 1 { return .participant(index: leaders[0]) }
-                }
-                if winnerSide == "left" { return .participant(index: 0) }
-                if winnerSide == "right" { return .participant(index: 1) }
-                return nil
-            }
-            return ScoreboardWinnerIdentity.fromStableLegacyToken(payload.winner)
-                ?? ScoreboardWinnerIdentity.fromStableLegacyToken(winnerSide)
-        }()
-        var extraData: [String: AnyCodable] = [
-            "syncFrom": AnyCodable("watch"),
-            "watchSyncTime": AnyCodable(Int(Date().timeIntervalSince1970 * 1000))
-        ]
-        if let participants = payload.participants, !participants.isEmpty {
-            extraData["players"] = AnyCodable(participants.map {
-                ["name": $0.name, "finalScore": $0.score] as [String: Any]
-            })
-        }
-        var projectConfiguration = payload.projectConfiguration?.mapValues(AnyCodable.init) ?? [:]
-        if let exactType = exactScoreCoreGameType(
-            rawGameType: payload.gameType,
-            appGameType: gameType,
-            projectConfiguration: projectConfiguration
-        ) {
-            projectConfiguration[ScoreboardRecordConfiguration.Key.scoreCoreGameType] = AnyCodable(exactType.rawValue)
-            projectConfiguration[ScoreboardRecordConfiguration.Key.isSingles] = AnyCodable(!exactType.isDoublesScoreboard)
-        }
-        let isTennisTiebreakOnly = gameType == .tennis
-            && (projectConfiguration["setScoringMode"]?.value as? String) == "tiebreak_only"
-        // Football has periods but no set layer. The watch payload always carries
-        // an integer set score, so drop the zeroed 0:0 here — otherwise the
-        // correction sheet offers a meaningless "局分 / 盘分" section.
-        let hasNoSetLayer = gameType == .football || gameType == .football5v5 || gameType == .basketballTraining
-        let dropsSetScore = isTennisTiebreakOnly || hasNoSetLayer
-        let detailedActions = recordActions(
-            payload.detailedActions,
-            omittingSecondaryScores: dropsSetScore
-        )
-        let record = ScoreboardRecord(
-            id: rawId,
-            gameType: gameType,
-            startTime: start,
-            endTime: end,
-            duration: payload.durationSeconds,
-            team1Name: payload.team1Name,
-            team2Name: payload.team2Name,
-            team1FinalScore: payload.team1FinalScore,
-            team2FinalScore: payload.team2FinalScore,
-            team1SetScore: dropsSetScore ? nil : payload.team1SetScore,
-            team2SetScore: dropsSetScore ? nil : payload.team2SetScore,
-            winner: winnerIdentity?.legacyToken ?? winnerSide,
-            winnerIdentity: winnerIdentity,
-            actions: payload.actions.isEmpty ? ["watch_auto_sync"] : payload.actions,
-            detailedActions: detailedActions,
-            setResults: detailedActions.map(ScoreboardRecordActionAdapter.setResults),
-            totalScoreChanges: max(0, payload.totalScoreChanges),
-            extraData: extraData,
-            projectConfiguration: projectConfiguration.isEmpty ? nil : projectConfiguration,
-            status: .finished
-        )
-        return record
-    }
-
-    private static func mapGameType(_ raw: String) -> GameType? {
-        switch raw {
-        case "pingpong": return .pingpong
-        case "pingpong_doubles": return .pingpong
-        case "badminton": return .badminton
-        case "badminton_doubles": return .badminton
-        case "tennis": return .tennis
-        case "tennis_doubles": return .tennis
-        case "pickleball": return .pickleball
-        case "pickleball_doubles": return .pickleball
-        case "foosball_doubles": return .foosball
-        case "archery", "archery_dual": return .archery
-        case "eight_ball", "eightBall": return .eightBall
-        case "nine_ball", "nineBall": return .nineBall
-        case "snooker": return .snooker
-        case "basketballTraining", "basketball_training": return .basketballTraining
-        default:
-            return GameType(rawValue: raw)
-        }
-    }
-
-    private static func exactScoreCoreGameType(
-        rawGameType: String,
-        appGameType: GameType,
-        projectConfiguration: [String: AnyCodable]
-    ) -> ScoreCore.GameType? {
-        if let configuredRaw = projectConfiguration[ScoreboardRecordConfiguration.Key.scoreCoreGameType]?.value as? String,
-           let configured = ScoreCore.GameType(rawValue: configuredRaw) {
-            return configured
-        }
-        if let rawType = ScoreCore.GameType(rawValue: rawGameType) {
-            let hasLegacyDoublesFlag = projectConfiguration["isDoubles"] != nil
-            if !appGameType.supportsSinglesAndDoubles || rawType.isDoublesScoreboard || !hasLegacyDoublesFlag {
-                return rawType
-            }
-        }
-        let legacyDoubles: Bool? = {
-            guard let value = projectConfiguration["isDoubles"]?.value else { return nil }
-            if let bool = value as? Bool { return bool }
-            if let string = value as? String { return (string as NSString).boolValue }
-            return nil
-        }()
-        if let legacyDoubles {
-            return appGameType.scoreCoreGameType(isSingles: !legacyDoubles)
-        }
-        return appGameType.supportsSinglesAndDoubles ? nil : appGameType.scoreCoreGameType
-    }
-}
-
-@MainActor
-private func makeWatchTrainingRecord(
-    id: String,
-    state: LinkedShotTrainingState,
-    endTimeEpochMilliseconds: Int64,
-    duration: TimeInterval,
-    linkedSessionId: UUID? = nil
-) throws -> ScoreboardRecord {
-    let endTime = Date(timeIntervalSince1970: Double(endTimeEpochMilliseconds) / 1_000)
-    let mode = ShotTrainingMode(rawValue: state.mode.rawValue) ?? .fixed1
-    let shots = state.shots.map { ShotTrainingShot(points: $0.points, made: $0.made, timestamp: $0.timestamp) }
-    let counts = state.counts
-    let detailedActions = state.detailedActions(endingAt: endTime)
-    var extraData = ShotTrainingRecordMetadata.extraData(mode: mode, counts: counts)
-    extraData["syncFrom"] = AnyCodable("watch")
-    extraData["watchSyncTime"] = AnyCodable(Int(Date().timeIntervalSince1970 * 1_000))
-    if let linkedSessionId { extraData["linkedSessionId"] = AnyCodable(linkedSessionId.uuidString) }
-    let resumeState = ShotTrainingResumeState(
-        mode: mode,
-        shots: shots,
-        finished: true,
-        earlierCounts: state.earlierCounts
-    )
-    return ScoreboardRecord(
-        id: id,
-        gameType: .basketballTraining,
-        startTime: state.startTime,
-        endTime: endTime,
-        duration: max(0, duration),
-        team1Name: NSLocalizedString("shot_training_miss", value: "未中", comment: ""),
-        team2Name: NSLocalizedString("shot_training_made", value: "命中", comment: ""),
-        team1FinalScore: counts.missed,
-        team2FinalScore: counts.made,
-        actions: detailedActions.compactMap { action in
-            guard let time = action.epochMilliseconds, let code = action.operationCode else { return nil }
-            return "\(time)|\(code)"
-        },
-        detailedActions: detailedActions,
-        totalScoreChanges: counts.attempts,
-        extraData: extraData,
-        projectConfiguration: [
-            ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(ScoreCore.GameType.basketballTraining.rawValue),
-            "basketballTrainingScoringMode": AnyCodable(mode.rawValue)
-        ],
-        stateSnapshot: try JSONEncoder().encode(resumeState),
-        status: .finished
-    )
 }
 
 private func recordActions(
-    _ actions: [DetailedScoreAction]?,
+    _ actions: [DetailedScoreAction],
     omittingSecondaryScores: Bool
-) -> [DetailedScoreAction]? {
+) -> [DetailedScoreAction] {
     guard omittingSecondaryScores else { return actions }
-    return actions?.map { action in
-        DetailedScoreAction(
-            id: action.id,
-            type: action.type,
-            epochMilliseconds: action.epochMilliseconds,
-            team: action.team,
-            scores: action.scores,
-            setScores: [],
-            setNumber: action.setNumber,
-            gameNumber: nil,
-            roundNumber: action.roundNumber,
-            periodNumber: action.periodNumber,
-            scoreChange: action.scoreChange,
-            winner: action.winner,
-            loser: action.loser,
-            landlord: action.landlord,
-            participants: action.participants,
-            operationCode: action.operationCode,
-            summary: action.summary,
-            footballPeriod: action.footballPeriod,
-            footballElapsedSeconds: action.footballElapsedSeconds
-        )
-    }
+    return actions.map(ScoreActionProjector.omittingSecondaryScores(from:))
 }
 
 private enum LinkedRecordIngestError: LocalizedError {

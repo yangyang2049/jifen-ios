@@ -124,12 +124,17 @@ final class WatchDialogConsistencyUITests: XCTestCase {
         XCTAssertTrue(app.buttons["结算本局"].waitForExistence(timeout: 4), "应打开斯诺克选球面板")
         capture("dlg_02_snooker_scoring")
 
-        // 滚到底部点击「结算本局」
-        for _ in 0..<4 {
-            if app.buttons["结算本局"].isHittable { break }
+        // The scroll view can expose an accessibility hit point underneath
+        // the fixed close footer. Scroll the button center into the viewport.
+        let settle = app.buttons["结算本局"]
+        let scoringClose = app.buttons["关闭"].firstMatch
+        XCTAssertTrue(scoringClose.waitForExistence(timeout: 3))
+        for _ in 0..<6 {
+            if settle.isHittable, settle.frame.midY < scoringClose.frame.minY - 8 { break }
             smallDrag(app, dy: -45)
         }
-        app.buttons["结算本局"].tap()
+        XCTAssertTrue(settle.isHittable && settle.frame.midY < scoringClose.frame.minY - 8)
+        settle.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         sleep(1)
         XCTAssertTrue(app.staticTexts["选择本局胜方"].waitForExistence(timeout: 4), "应弹出「选择本局胜方」")
         capture("dlg_03_snooker_settlement")

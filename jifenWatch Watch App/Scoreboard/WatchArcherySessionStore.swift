@@ -92,7 +92,7 @@ final class WatchArcherySessionStore {
         if case .reset = intent {
             actionLog.reset(at: timestamp)
         } else {
-            actionLog.append(contentsOf: WatchScoreActionProjector.archery(
+            actionLog.append(contentsOf: ScoreActionProjector.archery(
                 events: result.events,
                 state: state,
                 timestamp: timestamp
@@ -123,10 +123,12 @@ final class WatchArcherySessionStore {
     func rebase(to state: ArcheryMatchState) {
         self.state = state
         undoStack.removeAll()
+        actionLog.clearUndoHistory()
     }
 
-    func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
-        actionLog.merge(detailedActions: actions)
+    @discardableResult
+    func mergeRemoteActions(_ actions: [DetailedScoreAction], removing removedIDs: Set<UUID> = []) -> Bool {
+        actionLog.merge(detailedActions: actions, removing: removedIDs)
     }
 
     func clearHistory() {

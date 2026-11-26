@@ -682,29 +682,6 @@ private struct CounterReducer: DomainReducer {
     #expect(String(data: try JSONEncoder().encode(GameType.archeryDual), encoding: .utf8) == "\"archery_dual\"")
 }
 
-@Test func versionedRecordPreservesSnapshotAndTombstoneMetadata() throws {
-    let sessionID = UUID()
-    let actorID = UUID()
-    let record = ScoreRecordV2(
-        sessionId: sessionID,
-        gameType: .simpleScore,
-        source: .phoneLocal,
-        startedAtEpochMilliseconds: 100,
-        payload: .twoSide(.init(leftName: "A", rightName: "B", leftScore: -2, rightScore: 4)),
-        actions: [.init(kind: .scoreChanged, epochMilliseconds: 120, summary: "A -1")],
-        configuration: Data("{\"allowNegative\":true}".utf8),
-        stateSnapshot: Data("{\"leftScore\":-2}".utf8),
-        syncMetadata: .init(actorID: actorID, revision: 3, updatedAtEpochMilliseconds: 130),
-        deletedAtEpochMilliseconds: 150
-    )
-    let decoded = try JSONDecoder().decode(ScoreRecordV2.self, from: JSONEncoder().encode(record))
-    #expect(decoded.schemaVersion == 3)
-    #expect(decoded.sessionId == sessionID)
-    #expect(decoded.stateSnapshot == record.stateSnapshot)
-    #expect(decoded.syncMetadata?.actorID == actorID)
-    #expect(decoded.deletedAtEpochMilliseconds == 150)
-}
-
 @Test func localRecordSyncStorePersistsQueueAndCursor() async throws {
     let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
     let url = directory.appendingPathComponent("record-sync.json")

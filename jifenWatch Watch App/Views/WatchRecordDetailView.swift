@@ -1,5 +1,6 @@
 import RecordCore
 import SwiftUI
+import ScoreCore
 
 struct WatchRecordDetailView: View {
     @Environment(\.dismiss) private var dismiss
@@ -25,7 +26,7 @@ struct WatchRecordDetailView: View {
                     if record.doublesTeamNames == nil,
                        let participants = record.participants,
                        participants.count > 2 {
-                        participantsCard(participants)
+                        participantsCard(participants, record: record)
                     }
                     actionsCard(record)
                     if record.gameType != .counter {
@@ -88,7 +89,7 @@ struct WatchRecordDetailView: View {
 
             scoreRow(record)
 
-            if let winner = record.winner {
+            if let winner = record.winnerName {
                 Text(String.localizedStringWithFormat(
                     NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: "Match winner"),
                     winner
@@ -123,7 +124,7 @@ struct WatchRecordDetailView: View {
                     Text("\(leftScore)")
                         .font(WatchScoreTypography.primaryScore(size: 24))
                         .monospacedDigit()
-                        .foregroundColor(record.winner == record.team1Name ? WatchTheme.accent : WatchTheme.primaryText)
+                        .foregroundColor(record.isWinner(at: 0) ? WatchTheme.accent : WatchTheme.primaryText)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 Text("-")
@@ -136,7 +137,7 @@ struct WatchRecordDetailView: View {
                     Text("\(rightScore)")
                         .font(WatchScoreTypography.primaryScore(size: 24))
                         .monospacedDigit()
-                        .foregroundColor(record.winner == record.team2Name ? WatchTheme.accent : WatchTheme.primaryText)
+                        .foregroundColor(record.isWinner(at: 1) ? WatchTheme.accent : WatchTheme.primaryText)
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
             }
@@ -149,19 +150,16 @@ struct WatchRecordDetailView: View {
     }
 
     private func basketballHitRate(_ record: WatchScoreboardRecord) -> String {
-        let details = record.basketballTrainingDetails
-        let made = details.map { details in
-            (1...3).reduce(0) { $0 + details.count(points: $1, made: true) }
-        } ?? record.team2FinalScore
-        let shots = details.map { details in
-            made + (1...3).reduce(0) { $0 + details.count(points: $1, made: false) }
-        } ?? (made + record.team1FinalScore)
+        let counts = record.basketballTrainingDetails?.counts
+        let made = counts?.made ?? record.team2FinalScore
+        let shots = counts?.attempts ?? (made + record.team1FinalScore)
         let pct = shots == 0 ? 0 : Int((Double(made) / Double(shots) * 100).rounded())
         return "\(made)/\(shots) = \(pct)%"
     }
 
-    private func basketballDetailsCard(_ details: WatchBasketballTrainingDetails) -> some View {
-        VStack(spacing: 7) {
+    private func basketballDetailsCard(_ details: ScoreCore.ShotTrainingState) -> some View {
+        let counts = details.counts
+        return VStack(spacing: 7) {
             Text(NSLocalizedString("watch_training_breakdown", value: "投篮明细", comment: ""))
                 .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(WatchTheme.primaryText)
@@ -174,8 +172,8 @@ struct WatchRecordDetailView: View {
                         )
                     )
                     Spacer()
-                    Text("\(NSLocalizedString("watch_training_miss", value: "未中", comment: "")) \(details.count(points: points, made: false))")
-                    Text("\(NSLocalizedString("watch_training_made", value: "命中", comment: "")) \(details.count(points: points, made: true))")
+                    Text("\(NSLocalizedString("watch_training_miss", value: "未中", comment: "")) \(counts.count(points: points, made: false))")
+                    Text("\(NSLocalizedString("watch_training_made", value: "命中", comment: "")) \(counts.count(points: points, made: true))")
                 }
                 .font(.system(size: 11))
                 .foregroundStyle(WatchTheme.secondaryText)
@@ -187,9 +185,9 @@ struct WatchRecordDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
-    private func participantsCard(_ participants: [WatchRecordParticipant]) -> some View {
+    private func participantsCard(_ participants: [WatchRecordParticipant], record: WatchScoreboardRecord) -> some View {
         VStack(spacing: 6) {
-            ForEach(Array(participants.enumerated()), id: \.offset) { _, participant in
+            ForEach(Array(participants.enumerated()), id: \.offset) { index, participant in
                 HStack {
                     Text(participant.name)
                         .font(.system(size: 12))
@@ -199,7 +197,7 @@ struct WatchRecordDetailView: View {
                         .font(WatchScoreTypography.secondaryScore(size: 12))
                         .monospacedDigit()
                 }
-                .foregroundStyle(WatchTheme.primaryText)
+                .foregroundStyle(record.isWinner(at: index) ? WatchTheme.accent : WatchTheme.primaryText)
             }
         }
         .padding(WatchLayout.cardContentPadding)
@@ -258,10 +256,11 @@ struct WatchRecordDetailView: View {
     /// Football goals show the match minute ("53′" / "45+2′") like the phone
     /// and HarmonyOS; every other action keeps the relative timestamp.
     private func actionTimeLabel(
-        _ action: WatchScoreAction,
+        _ action: DetailedScoreAction,
         record: WatchScoreboardRecord
     ) -> String {
-        if action.actionType == .scoreAdd,
+        if action.type == .scoreChanged,
+           action.operationCode == "football_goal",
            record.gameType == .football || record.gameType == .football5v5,
            let label = WatchFootballRules.goalMinuteLabel(
                isFiveAside: record.gameType == .football5v5,
@@ -271,7 +270,9 @@ struct WatchRecordDetailView: View {
            ) {
             return label
         }
-        return formatRelativeTimestamp(actionTime: action.timestamp, startTime: record.startTime)
+        guard let milliseconds = action.epochMilliseconds else { return "–" }
+        let timestamp = Date(timeIntervalSince1970: Double(milliseconds) / 1_000)
+        return formatRelativeTimestamp(actionTime: timestamp, startTime: record.startTime)
     }
 
     private func footballHalfLengthSeconds(_ record: WatchScoreboardRecord) -> Int {
@@ -294,9 +295,9 @@ struct WatchRecordDetailView: View {
         return String(format: "%02d:%02d", minutes, seconds)
     }
 
-    private func isSpecialAction(_ action: WatchScoreAction) -> Bool {
-        switch action.actionType {
-        case .setEnd, .gameEnd: return true
+    private func isSpecialAction(_ action: DetailedScoreAction) -> Bool {
+        switch action.type {
+        case .setFinished, .matchFinished: return true
         default: return false
         }
     }
@@ -397,43 +398,41 @@ struct WatchRecordDetailView: View {
     }
 
     private func actionScoreText(
-        _ action: WatchScoreAction,
+        _ action: DetailedScoreAction,
         record: WatchScoreboardRecord
     ) -> String? {
-        if !record.usesPointScoreForDisplay,
-           let setLeft = action.team1SetScore, let setRight = action.team2SetScore,
-           action.actionType == .setEnd || action.actionType == .gameEnd {
-            return "\(setLeft) - \(setRight)"
+        if !record.usesPointScoreForDisplay, action.setScores.count >= 2,
+           action.type == .setFinished || action.type == .matchFinished {
+            return "\(action.setScores[0]) - \(action.setScores[1])"
         }
-        if let left = action.team1Score, let right = action.team2Score {
-            return "\(left) - \(right)"
-        }
-        return nil
+        guard action.scores.count >= 2 else { return nil }
+        return "\(action.scores[0]) - \(action.scores[1])"
     }
 
     private func displayActionDescription(
-        _ action: WatchScoreAction,
+        _ action: DetailedScoreAction,
         record: WatchScoreboardRecord
     ) -> String {
         if record.gameType != .basketballTraining {
             return structuredActionDescription(action, record: record)
         }
-        if action.description == "training_start" {
+        let code = action.operationCode ?? action.summary ?? action.type.rawValue
+        if code == "training_start" {
             return NSLocalizedString("watch_training_start", value: "训练开始", comment: "")
         }
-        if action.description.hasPrefix("training_rate_"),
-           let rate = Int(action.description.replacingOccurrences(of: "training_rate_", with: "")) {
+        if code.hasPrefix("training_rate_"),
+           let rate = Int(code.replacingOccurrences(of: "training_rate_", with: "")) {
             return String.localizedStringWithFormat(
                 NSLocalizedString("watch_training_rate_format", value: "命中率 %d%%", comment: ""),
                 rate
             )
         }
 
-        let values = action.description.split(separator: "_")
+        let values = code.split(separator: "_")
         guard values.count == 3,
               values[0] == "training",
               let points = Int(values[1].replacingOccurrences(of: "pt", with: "")) else {
-            return action.description
+            return code
         }
         let status = values[2] == "made"
             ? NSLocalizedString("watch_training_made", value: "命中", comment: "")
@@ -449,13 +448,13 @@ struct WatchRecordDetailView: View {
     }
 
     private func structuredActionDescription(
-        _ action: WatchScoreAction,
+        _ action: DetailedScoreAction,
         record: WatchScoreboardRecord
     ) -> String {
         let actor = actionActorName(action, record: record)
         let actorPrefix = actor.map { "\($0) " } ?? ""
         let delta = action.scoreChange ?? 0
-        let code = action.operationCode ?? action.description
+        let code = action.operationCode ?? action.summary ?? action.type.rawValue
         switch code {
         case "game_start":
             return NSLocalizedString("watch_match_start", value: "比赛开始", comment: "")
@@ -592,25 +591,24 @@ struct WatchRecordDetailView: View {
         case "edit_name":
             return NSLocalizedString("watch_action_edit_name", value: "修改名称", comment: "")
         default:
-            return action.description
+            return action.summary ?? code
         }
     }
 
-    private func actionActorName(_ action: WatchScoreAction, record: WatchScoreboardRecord) -> String? {
+    private func actionActorName(_ action: DetailedScoreAction, record: WatchScoreboardRecord) -> String? {
         if let index = action.roundNumber.map({ $0 - 1 }),
            action.operationCode?.hasPrefix("nine_ball_") == true,
-           let participants = action.participants,
-           participants.indices.contains(index) {
-            return participants[index].name
+           action.participants.indices.contains(index) {
+            return action.participants[index].name
         }
         let names = record.doublesTeamNames ?? (record.team1Name, record.team2Name)
         switch action.team {
         case .team1: return names.left
         case .team2: return names.right
         case .team3:
-            return action.participants?.indices.contains(2) == true ? action.participants?[2].name : nil
+            return action.participants.indices.contains(2) ? action.participants[2].name : nil
         case .team4:
-            return action.participants?.indices.contains(3) == true ? action.participants?[3].name : nil
+            return action.participants.indices.contains(3) ? action.participants[3].name : nil
         case nil: return nil
         }
     }

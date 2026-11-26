@@ -1,4 +1,5 @@
 import XCTest
+import RecordCore
 import os
 @testable import jifenWatch_Watch_App
 
@@ -27,22 +28,22 @@ final class WatchRecordCacheTests: XCTestCase {
     private func makeRecord(
         id: String, score: Int, gameType: WatchGameType = .pingpong, startTime: Date = Date()
     ) -> WatchScoreboardRecord {
-        WatchScoreboardRecord(
+        WatchScoreboardRecord(canonical: CanonicalMatchRecord(
             id: id,
-            gameType: gameType,
-            startTime: startTime,
-            endTime: Date(),
-            duration: 60,
+            kind: gameType.scoreCoreGameType.map(RecordGameKind.sport) ?? .counter,
+            source: .watchLocal,
+            startEpochMilliseconds: Int64((startTime.timeIntervalSince1970 * 1_000).rounded()),
+            endEpochMilliseconds: Int64((Date().timeIntervalSince1970 * 1_000).rounded()),
+            durationSeconds: 60,
             team1Name: "A",
             team2Name: "B",
             team1FinalScore: score,
             team2FinalScore: 0,
             team1SetScore: 1,
             team2SetScore: 0,
-            winner: "A",
-            actions: [],
+            winnerIdentity: .team(.team0),
             totalScoreChanges: score
-        )
+        ))!
     }
 
     // MARK: - Pending finished records (file-backed resume store)
@@ -72,10 +73,10 @@ final class WatchRecordCacheTests: XCTestCase {
     func testCancelTrainingFinishKeepsDraftAndDoesNotRetryOldScore() throws {
         let directory = makeTemporaryDirectory()
         let store = WatchResumeSessionStore(directoryURL: directory)
-        let startTime = Date()
+        let startTime = Date(timeIntervalSince1970: Date().timeIntervalSince1970.rounded(.down) + 0.12535)
         store.save(.init(
             startedAt: startTime, scoreLine: "1/1 = 100%", emoji: "🏀",
-            payload: .basketballTraining(mode: .twoPoint, history: [])
+            payload: .basketballTraining(mode: .fixed2, history: [])
         ))
         let training = makeRecord(id: "training", score: 1, gameType: .basketballTraining, startTime: startTime)
         let match = makeRecord(id: "other-match", score: 11, startTime: startTime)
@@ -98,6 +99,7 @@ final class WatchRecordCacheTests: XCTestCase {
             XCTAssertEqual($0.team1FinalScore, 2)
             return true
         })
+        XCTAssertNil(restarted.session)
     }
 
     func testCounterFailedSaveKeepsCountUndoAndStartTimeUntilRetry() {
@@ -127,12 +129,13 @@ final class WatchRecordCacheTests: XCTestCase {
     func testRacketRecordFallsBackToPointsOnlyBeforeASetIsCompleted() {
         for game in [WatchGameType.pingpong, .badminton, .pickleball, .tennis, .shuttlecock, .squash, .foosball] {
             func record(setScore: Int) -> WatchScoreboardRecord {
-                .init(
-                    id: UUID().uuidString, gameType: game, startTime: Date(), endTime: Date(),
-                    duration: 60, team1Name: "A", team2Name: "B", team1FinalScore: 8,
+                WatchScoreboardRecord(canonical: CanonicalMatchRecord(
+                    id: UUID().uuidString, kind: .sport(game.scoreCoreGameType!), source: .watchLocal,
+                    startEpochMilliseconds: 1_700_000_000_000, endEpochMilliseconds: 1_700_000_060_000,
+                    durationSeconds: 60, team1Name: "A", team2Name: "B", team1FinalScore: 8,
                     team2FinalScore: 3, team1SetScore: setScore, team2SetScore: 0,
-                    winner: nil, actions: [], totalScoreChanges: 11
-                )
+                    totalScoreChanges: 11
+                ))!
             }
             let unfinishedSet = record(setScore: 0)
             XCTAssertTrue(unfinishedSet.usesPointScoreForDisplay, game.rawValue)
@@ -141,6 +144,54 @@ final class WatchRecordCacheTests: XCTestCase {
             XCTAssertFalse(completedSet.usesPointScoreForDisplay, game.rawValue)
             XCTAssertEqual(WatchScoreboardRecordSummary(from: completedSet).listDisplayText, "A 2 - 0 B")
         }
+    }
+
+    func testStoredCanonicalRecordIsTheExactTransferBodyAndUsesTypedWinner() throws {
+        let directory = makeTemporaryDirectory()
+        let manager = WatchRecordManager(directoryURL: directory)
+        let point = DetailedScoreAction(
+            type: .scoreChanged, epochMilliseconds: 1_700_000_000_250, team: .team2, scores: [0, 1]
+        )
+        let canonical = CanonicalMatchRecord(
+            id: "typed-winner",
+            kind: .sport(.badminton),
+            source: .watchLocal,
+            startEpochMilliseconds: 1_700_000_000_125,
+            endEpochMilliseconds: 1_700_000_060_125,
+            durationSeconds: 60,
+            team1Name: "同名",
+            team2Name: "同名",
+            team1FinalScore: 0,
+            team2FinalScore: 1,
+            winnerIdentity: .team(.team1),
+            detailedActions: [point]
+        )
+        let record = try XCTUnwrap(WatchScoreboardRecord(canonical: canonical))
+        XCTAssertTrue(manager.saveRecord(record, transferToPhone: false))
+        let file = directory.appendingPathComponent("typed-winner.record.json")
+        let json = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(contentsOf: file)) as? [String: Any])
+        let body = try XCTUnwrap(json["record"] as? [String: Any])
+        XCTAssertNil(body["canonical"])
+        XCTAssertNil(body["gameType"])
+        let bodyData = try JSONSerialization.data(withJSONObject: body)
+        XCTAssertEqual(try JSONDecoder().decode(CanonicalMatchRecord.self, from: bodyData), canonical)
+
+        let restarted = WatchRecordManager(directoryURL: directory)
+        let restored = try XCTUnwrap(restarted.getRecord(id: canonical.id))
+        XCTAssertEqual(restarted.transferPayload(for: restored), canonical)
+        XCTAssertFalse(restored.isWinner(at: 0))
+        XCTAssertTrue(restored.isWinner(at: 1))
+        XCTAssertEqual(restored.winnerName, "同名")
+    }
+
+    func testCounterRecordStaysLocal() throws {
+        let manager = WatchRecordManager(directoryURL: makeTemporaryDirectory())
+        let record = makeRecord(id: "counter-only", score: 3, gameType: .counter)
+        XCTAssertTrue(manager.saveRecord(record, transferToPhone: false))
+        let restored = try XCTUnwrap(manager.getRecord(id: record.id))
+        XCTAssertEqual(restored.canonical.kind, .counter)
+        XCTAssertNil(manager.transferPayload(for: restored))
+        XCTAssertFalse(manager.requestTransfer(recordID: record.id))
     }
 
     // MARK: - Cache behavior

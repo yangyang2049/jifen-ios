@@ -118,7 +118,7 @@ private final class WatchTennisSessionStore {
                     self.actionLog.omitSecondaryScores()
                 }
             } else {
-                self.actionLog.append(contentsOf: WatchScoreActionProjector.tennis(
+                self.actionLog.append(contentsOf: ScoreActionProjector.tennis(
                     intent: intent,
                     events: events,
                     state: session.state,
@@ -153,20 +153,17 @@ private final class WatchTennisSessionStore {
     @discardableResult
     func applyAuthoritativeState(
         _ state: TennisMatchState,
-        detailedActions: [DetailedScoreAction],
         revision: UInt64,
-        matchGeneration: UInt64? = nil,
-        newMatchStartedAt: Date? = nil
+        matchGeneration: UInt64? = nil
     ) async -> Bool {
         if let matchGeneration, lastAppliedRemoteGeneration != matchGeneration {
+            if let lastAppliedRemoteGeneration, matchGeneration < lastAppliedRemoteGeneration {
+                return false
+            }
             lastAppliedRemoteGeneration = matchGeneration
             lastAppliedRemoteRevision = nil
         }
-        if revision == lastAppliedRemoteRevision {
-            mergeRemoteActions(detailedActions)
-            return false
-        }
-        if let lastAppliedRemoteRevision, revision < lastAppliedRemoteRevision {
+        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
             return false
         }
         lastAppliedRemoteRevision = revision
@@ -177,19 +174,24 @@ private final class WatchTennisSessionStore {
         guard lastAppliedRemoteRevision == revision,
               matchGeneration == nil || lastAppliedRemoteGeneration == matchGeneration else { return false }
         self.state = session.state
-        if let newMatchStartedAt { actionLog.reset(at: newMatchStartedAt) }
-        actionLog.merge(detailedActions: detailedActions)
+        actionLog.clearUndoHistory()
         if session.state.rules.setScoringMode == .tiebreakOnly {
             actionLog.omitSecondaryScores()
         }
         return true
     }
 
-    func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
-        actionLog.merge(detailedActions: actions)
-        if state.rules.setScoringMode == .tiebreakOnly {
+    func beginRemoteMatch(at timestamp: Date) {
+        actionLog.reset(at: timestamp)
+    }
+
+    @discardableResult
+    func mergeRemoteActions(_ actions: [DetailedScoreAction], removing removedIDs: Set<UUID> = []) -> Bool {
+        let changed = actionLog.merge(detailedActions: actions, removing: removedIDs)
+        if changed, state.rules.setScoringMode == .tiebreakOnly {
             actionLog.omitSecondaryScores()
         }
+        return changed
     }
 
     func resumeBundle() async -> ResumeBundle {
@@ -391,18 +393,28 @@ struct WatchTennisScoreView: View {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
         .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
-            guard linkService.incomingSnapshot != nil, let linkedSessionId, let update, update.sessionId == linkedSessionId,
+            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
+                  update.matchGeneration == linkService.activeHandle?.matchGeneration,
                   let state = update.snapshot.tennisState else { return }
-            let newMatchStartedAt = update.beginsMatch(after: previous) ? Date() : nil
-            if let newMatchStartedAt { matchStartTime = newMatchStartedAt }
+            let acceptsScore = linkService.incomingSnapshot != nil
+            if acceptsScore, update.beginsMatch(after: previous) {
+                matchStartTime = Date()
+                store.beginRemoteMatch(at: matchStartTime)
+            }
+            let historyChanged = store.mergeRemoteActions(update.detailedActions, removing: update.removedActionIDs)
+            guard acceptsScore else {
+                if historyChanged { Task { await persistResumeSession() } }
+                return
+            }
             Task {
-                guard await store.applyAuthoritativeState(
-                    state,
-                    detailedActions: update.detailedActions,
-                    revision: update.revision,
-                    matchGeneration: update.matchGeneration,
-                    newMatchStartedAt: newMatchStartedAt
-                ) else { return }
+                guard update.matchGeneration == linkService.activeHandle?.matchGeneration else { return }
+                let scoreApplied = await store.applyAuthoritativeState(
+                    state, revision: update.revision, matchGeneration: update.matchGeneration
+                )
+                guard scoreApplied else {
+                    if historyChanged { await persistResumeSession() }
+                    return
+                }
                 if state.finished {
                     restState = nil
                     beginAutomaticFinishPresentation()
@@ -423,12 +435,9 @@ struct WatchTennisScoreView: View {
                   let pending,
                   pending.sessionId == linkedSessionId,
                   let state = pending.snapshot.tennisState else { return }
+            store.mergeRemoteActions(pending.detailedActions)
             Task {
-                guard await store.applyAuthoritativeState(
-                    state,
-                    detailedActions: pending.detailedActions,
-                    revision: pending.revision
-                ) else { return }
+                guard await store.applyAuthoritativeState(state, revision: pending.revision) else { return }
                 restState = WatchRestState.fromOfficialBreak(state.finished ? nil : state.officialBreakState)
                 linkService.completeReclaimAcceptance(messageId: pending.messageId)
             }
@@ -1200,40 +1209,11 @@ struct WatchTennisScoreView: View {
     private func transferLocalFinishedRecordIfNeeded(_ state: TennisMatchState) -> Bool {
         guard !didTransferFinishedRecord else { return true }
         let end = Date()
-        let leftScore = state.rules.setScoringMode == .tiebreakOnly ? state.leftPoints : state.leftSets
-        let rightScore = state.rules.setScoringMode == .tiebreakOnly ? state.rightPoints : state.rightSets
-        let winnerName: String? = {
-            if leftScore == rightScore { return nil }
-            return leftScore > rightScore ? state.leftName : state.rightName
-        }()
-        let record = WatchScoreboardRecord(
-            id: "w_\(UUID().uuidString)",
-            gameType: .tennis,
-            startTime: matchStartTime,
-            endTime: end,
-            duration: end.timeIntervalSince(matchStartTime),
-            team1Name: state.leftName,
-            team2Name: state.rightName,
-            team1FinalScore: state.leftPoints,
-            team2FinalScore: state.rightPoints,
-            team1SetScore: state.leftSets,
-            team2SetScore: state.rightSets,
-            winner: winnerName,
-            actions: store.actionLog.actions,
-            totalScoreChanges: store.actionLog.scoreChangeCount,
-            participants: state.doublesPlayerNames?.map {
-                WatchRecordParticipant(name: $0, score: 0)
-            },
-            projectConfiguration: [
-                "scoreCoreGameType": (isDoubles ? GameType.tennisDoubles : .tennis).rawValue,
-                "isSingles": String(state.doublesPlayerNames == nil),
-                "maxSets": String(state.rules.maxSets),
-                "tieBreakPoints": String(state.rules.tieBreakPoints),
-                "setScoringMode": state.rules.setScoringMode.rawValue,
-                "usesNoAdScoring": String(state.rules.usesNoAdScoring),
-                "isDoubles": String(state.doublesPlayerNames != nil)
-            ]
-        )
+        guard let record = WatchScoreboardRecord(
+            localSnapshot: .tennis(state), gameType: isDoubles ? .tennisDoubles : .tennis,
+            id: "w_\(UUID().uuidString)", startTime: matchStartTime, endTime: end,
+            detailedActions: store.actionLog.detailedActions, totalScoreChanges: store.actionLog.scoreChangeCount
+        ) else { return false }
         guard resumeStore.saveFinishedRecord(record) else { return false }
         didTransferFinishedRecord = true
         return true

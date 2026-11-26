@@ -721,6 +721,12 @@ final class WatchLinkServiceTests: XCTestCase {
         service.receive(data)
         XCTAssertEqual(service.mergedDetailedActions.map(\.id), [action.id])
         XCTAssertEqual(service.latestSnapshot?.snapshot, setup.snapshot)
+        XCTAssertEqual(service.latestSnapshot?.removedActionIDs, [nextAction.id])
+
+        let restored = WatchLinkService(transport: WatchLinkTestTransport(), contextStore: store, outboxStore: store)
+        restored.receive(data)
+        XCTAssertEqual(restored.mergedDetailedActions.map(\.id), [action.id])
+        XCTAssertEqual(restored.latestSnapshot?.removedActionIDs, [nextAction.id])
     }
 
     func testTrainingLinkRoutesAndReturnsTheWatchRecord() throws {
@@ -737,7 +743,7 @@ final class WatchLinkServiceTests: XCTestCase {
         let snapshot = LinkedScoreboardSnapshot.basketballTraining(state)
         let setup = LinkedScoreboardSetup(gameType: .basketballTraining, initialSnapshot: snapshot)
         XCTAssertTrue(WatchLinkService.isValidLinkedSetup(setup))
-        XCTAssertEqual(WatchScoreboardRoute(linkedSetup: setup), .basketballTraining(mode: .twoPoint))
+        XCTAssertEqual(WatchScoreboardRoute(linkedSetup: setup), .basketballTraining(mode: .fixed2))
         XCTAssertFalse(WatchLinkService.isValidLinkedSetup(.init(gameType: .football, initialSnapshot: snapshot)))
         let matchId = UUID()
         let record = try XCTUnwrap(WatchLinkedRecordIngestor.makeRecord(
@@ -750,11 +756,11 @@ final class WatchLinkServiceTests: XCTestCase {
             matchId: matchId
         ))
         XCTAssertEqual(record.totalScoreChanges, 2)
-        XCTAssertEqual(record.basketballTrainingDetails?.count(points: 2, made: true), 1)
-        XCTAssertEqual(record.basketballTrainingDetails?.count(points: 2, made: false), 1)
+        XCTAssertEqual(record.basketballTrainingDetails?.counts.count(points: 2, made: true), 1)
+        XCTAssertEqual(record.basketballTrainingDetails?.counts.count(points: 2, made: false), 1)
         let transfer = try XCTUnwrap(WatchRecordManager.shared.transferPayload(for: record))
         XCTAssertEqual(transfer.basketballTraining, state)
-        XCTAssertTrue(transfer.actions.isEmpty)
+        XCTAssertEqual(transfer.detailedActions, record.actions)
     }
 
     func testSuspendedTrainingFollowsPhoneShotsAndPersistsUpdatedTotals() throws {
@@ -934,7 +940,7 @@ final class WatchLinkServiceTests: XCTestCase {
             XCTAssertEqual(record.id, payload.recordId)
             XCTAssertEqual(record.gameType, expectedWatchType)
             XCTAssertEqual(record.actions.count, 1)
-            XCTAssertEqual(record.actions.first?.id, action.id.uuidString)
+            XCTAssertEqual(record.actions.first?.id, action.id)
             XCTAssertEqual(record.projectConfiguration?["scoreCoreGameType"], scoreCoreType.rawValue)
 
             let roundTripped = try decoder.decode(
@@ -1223,7 +1229,8 @@ final class WatchLinkServiceTests: XCTestCase {
         XCTAssertEqual(stored.gameType, .badminton)
         XCTAssertEqual(stored.team1SetScore, 2)
         XCTAssertEqual(stored.team2SetScore, 0)
-        XCTAssertEqual(stored.winner, "甲")
+        XCTAssertEqual(stored.winnerIdentity, .team(.team0))
+        XCTAssertEqual(stored.winnerName, "甲")
         XCTAssertEqual(WatchRecordManager.shared.syncState(for: recordId), .sent)
     }
 

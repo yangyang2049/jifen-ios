@@ -1,5 +1,7 @@
 import Foundation
 import LinkCore
+import RecordCore
+import ScoreCore
 
 enum WatchRecordSyncState: String, Codable {
     case pending
@@ -149,50 +151,8 @@ final class WatchRecordManager {
     }
 
     func transferPayload(for record: WatchScoreboardRecord) -> WatchRecordTransferPayload? {
-        guard record.gameType != .counter else { return nil }
-        let training = record.basketballTrainingDetails.map { details in
-            LinkedShotTrainingState(
-                mode: details.mode.linkedMode,
-                startTime: record.startTime,
-                shots: details.shots.map(\.linkedShot),
-                earlierCounts: trainingPrefixCounts(for: details),
-                finished: true
-            )
-        }
-        return WatchRecordTransferPayload(
-            id: record.id,
-            gameType: record.gameType.rawValue,
-            startTimeEpochMilliseconds: Int64(record.startTime.timeIntervalSince1970 * 1000),
-            endTimeEpochMilliseconds: Int64(record.endTime.timeIntervalSince1970 * 1000),
-            durationSeconds: record.duration,
-            team1Name: record.team1Name,
-            team2Name: record.team2Name,
-            team1FinalScore: record.team1FinalScore,
-            team2FinalScore: record.team2FinalScore,
-            team1SetScore: record.team1SetScore,
-            team2SetScore: record.team2SetScore,
-            winner: record.winner,
-            actions: training == nil ? record.actions.map(\.description) : [],
-            detailedActions: training == nil ? record.actions.map(\.detailedAction) : nil,
-            totalScoreChanges: record.totalScoreChanges,
-            participants: record.participants?.map {
-                WatchRecordParticipantPayload(name: $0.name, score: $0.score)
-            },
-            projectConfiguration: record.projectConfiguration,
-            basketballTraining: training
-        )
-    }
-
-    private func trainingPrefixCounts(for details: WatchBasketballTrainingDetails) -> ShotTrainingCounts {
-        let shots = details.shots.reduce(into: ShotTrainingCounts()) { $0.add($1.linkedShot) }
-        return ShotTrainingCounts(
-            oneMade: details.count(points: 1, made: true) - shots.oneMade,
-            oneMiss: details.count(points: 1, made: false) - shots.oneMiss,
-            twoMade: details.count(points: 2, made: true) - shots.twoMade,
-            twoMiss: details.count(points: 2, made: false) - shots.twoMiss,
-            threeMade: details.count(points: 3, made: true) - shots.threeMade,
-            threeMiss: details.count(points: 3, made: false) - shots.threeMiss
-        )
+        guard record.canonical.kind != .counter else { return nil }
+        return record.canonical
     }
 
     func loadAllRecords() -> [WatchScoreboardRecord] {
@@ -473,14 +433,10 @@ final class WatchRecordManager {
     }
 
     private static func encoder() -> JSONEncoder {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        return encoder
+        JSONEncoder()
     }
 
     private static func decoder() -> JSONDecoder {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return decoder
+        JSONDecoder()
     }
 }

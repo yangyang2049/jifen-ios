@@ -210,9 +210,9 @@ final class WatchScoreboardFlowTests: XCTestCase {
             scoreLine: "2/3 = 67%",
             emoji: "🏀",
             payload: .basketballTraining(
-                mode: .twoPoint,
+                mode: .fixed2,
                 history: [
-                    WatchBasketballTrainingShot(points: 2, made: true, timestamp: now)
+                    ShotTrainingShot(points: 2, made: true, timestamp: now)
                 ]
             )
         )

@@ -187,7 +187,9 @@ import Testing
         pendingSetNumber: 6,
         pendingLeftSetPoints: 5,
         pendingRightSetPoints: 5,
-        closestToCenterPending: true
+        closestToCenterPending: true,
+        sidesSwapped: true,
+        rules: ArcheryMatchRules(normalArrowsPerSet: 4, setPointsToWin: 7)
     )
     let archery = LinkedArcheryState(match: archeryMatch)
     let encodedTennis = try JSONEncoder().encode(LinkedScoreboardSnapshot.tennis(tennis))
@@ -201,6 +203,10 @@ import Testing
     #expect(decodedArchery.archeryState?.openingShooterIsLeft == false)
     #expect(decodedArchery.archeryState?.pendingSetNumber == 6)
     #expect(decodedArchery.archeryState?.closestToCenterPending == true)
+    let remote = try #require(decodedArchery.archeryState)
+    var restored = ArcheryMatchState(leftName: "Initial left", rightName: "Initial right")
+    remote.applying(to: &restored)
+    #expect(restored == archeryMatch)
 }
 
 @Test func formalV1ArcheryStateRequiresCompleteState() throws {

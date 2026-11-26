@@ -69,26 +69,6 @@ enum WatchSetupSport: String, CaseIterable, Hashable {
     }
 }
 
-enum WatchBasketballTrainingMode: String, CaseIterable, Hashable, Codable {
-    case onePoint = "1"
-    case twoPoint = "2"
-    case threePoint = "3"
-    case free
-
-    var fixedPoints: Int? {
-        Int(rawValue)
-    }
-
-    init(linkedMode: LinkedShotTrainingMode) {
-        self = linkedMode.fixedPoints.flatMap { Self(rawValue: String($0)) } ?? .free
-    }
-
-    var linkedMode: LinkedShotTrainingMode {
-        guard let fixedPoints else { return .free }
-        return LinkedShotTrainingMode(rawValue: "fixed_\(fixedPoints)") ?? .fixed1
-    }
-}
-
 enum WatchEightBallHandicapBeneficiary: String, CaseIterable, Hashable, Codable {
     case none
     case team1

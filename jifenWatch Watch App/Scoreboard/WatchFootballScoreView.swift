@@ -36,6 +36,9 @@ struct WatchFootballScoreView: View {
     /// Non-nil when this board follows a phone-started linked session.
     let linkedSessionId: UUID?
 
+    @State private var lastAppliedRemoteRevision: UInt64?
+    @State private var lastAppliedRemoteGeneration: UInt64?
+
     @State private var showRecordSaveFailure = false
     @State private var leftName: String
     @State private var rightName: String
@@ -224,18 +227,32 @@ struct WatchFootballScoreView: View {
             tickClock()
         }
         .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
-            guard linkService.incomingSnapshot != nil, let linkedSessionId, let update, update.sessionId == linkedSessionId,
+            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
+                  update.matchGeneration == linkService.activeHandle?.matchGeneration,
                   let remote = update.snapshot.footballState else { return }
-            if linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            let acceptsScore = linkService.incomingSnapshot != nil
+            if acceptsScore, linkService.controlRole == .shared, update.beginsMatch(after: previous) {
                 matchStartTime = Date()
                 actionLog.reset(at: matchStartTime)
             }
-            applyLinkedState(remote, detailedActions: update.detailedActions)
+            let historyChanged = actionLog.merge(detailedActions: update.detailedActions, removing: update.removedActionIDs)
+            let advancesScore = lastAppliedRemoteGeneration != update.matchGeneration
+                || update.revision > (lastAppliedRemoteRevision ?? 0)
+            let finishesCurrentScore = update.revision == lastAppliedRemoteRevision
+                && update.snapshot.isFinished && previous?.snapshot.isFinished == false
+            guard acceptsScore, advancesScore || finishesCurrentScore else {
+                if historyChanged { persistResumeSession() }
+                return
+            }
+            lastAppliedRemoteGeneration = update.matchGeneration
+            lastAppliedRemoteRevision = update.revision
+            applyLinkedState(remote)
         }
         .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
             guard let linkedSessionId, let pending, pending.sessionId == linkedSessionId,
                   let remote = pending.snapshot.footballState else { return }
-            applyLinkedState(remote, detailedActions: pending.detailedActions)
+            actionLog.merge(detailedActions: pending.detailedActions)
+            applyLinkedState(remote)
             linkService.completeReclaimAcceptance(messageId: pending.messageId)
         }
         .onDisappear {
@@ -770,8 +787,8 @@ struct WatchFootballScoreView: View {
             rightScore -= 1
         }
         actionLog.append(contentsOf: [
-            WatchScoreActionProjector.action(
-                .scoreSubtract,
+            ScoreActionProjector.action(
+                .scoreChanged,
                 code: "football_goal_undo",
                 side: side,
                 scores: (leftScore, rightScore),
@@ -796,8 +813,8 @@ struct WatchFootballScoreView: View {
             rightScore += 1
         }
         actionLog.append(contentsOf: [
-            WatchScoreActionProjector.action(
-                .scoreAdd,
+            ScoreActionProjector.action(
+                .scoreChanged,
                 code: "football_goal",
                 side: side,
                 scores: (leftScore, rightScore),
@@ -839,13 +856,10 @@ struct WatchFootballScoreView: View {
         )
     }
 
-    private func applyLinkedState(
-        _ remote: LinkedFootballState,
-        detailedActions: [DetailedScoreAction]
-    ) {
+    private func applyLinkedState(_ remote: LinkedFootballState) {
         pendingGoal?.task.cancel()
         pendingGoal = nil
-        actionLog.merge(detailedActions: detailedActions)
+        actionLog.clearUndoHistory()
         if !remote.leftName.isEmpty { leftName = remote.leftName }
         if !remote.rightName.isEmpty { rightName = remote.rightName }
         leftScore = remote.leftScore
@@ -886,8 +900,8 @@ struct WatchFootballScoreView: View {
         clockSession.start()
         kickedOff = true
         actionLog.append(contentsOf: [
-            WatchScoreActionProjector.action(
-                .resume,
+            ScoreActionProjector.action(
+                .stateChanged,
                 code: "football_clock_start",
                 scores: (leftScore, rightScore),
                 periodNumber: clockSession.state.stage
@@ -908,8 +922,8 @@ struct WatchFootballScoreView: View {
         clockSession.toggleRunning()
         guard clockSession.state.isRunning != wasRunning else { return }
         actionLog.append(contentsOf: [
-            WatchScoreActionProjector.action(
-                clockSession.state.isRunning ? .resume : .stop,
+            ScoreActionProjector.action(
+                .stateChanged,
                 code: clockSession.state.isRunning ? "football_clock_start" : "football_clock_pause",
                 scores: (leftScore, rightScore),
                 periodNumber: clockSession.state.stage
@@ -942,8 +956,8 @@ struct WatchFootballScoreView: View {
         guard !isFinished, !scoringLocked, clockSession.advanceStage() else { return }
         stoppageHistory.removeAll()
         actionLog.append(contentsOf: [
-            WatchScoreActionProjector.action(
-                .periodEnd,
+            ScoreActionProjector.action(
+                .periodFinished,
                 code: "football_period_end",
                 scores: (leftScore, rightScore),
                 periodNumber: clockSession.state.stage
@@ -958,8 +972,8 @@ struct WatchFootballScoreView: View {
         guard !isFinished, !scoringLocked, clockSession.addStoppageSeconds(seconds) else { return }
         stoppageHistory.append(seconds)
         actionLog.append(contentsOf: [
-            WatchScoreActionProjector.action(
-                .stateChange,
+            ScoreActionProjector.action(
+                .stateChanged,
                 code: "football_stoppage_add",
                 scores: (leftScore, rightScore),
                 delta: seconds,
@@ -999,8 +1013,8 @@ struct WatchFootballScoreView: View {
         isFinished = true
         let winner: MatchSide? = leftScore == rightScore ? nil : (leftScore > rightScore ? .left : .right)
         actionLog.append(contentsOf: [
-            WatchScoreActionProjector.action(
-                .gameEnd,
+            ScoreActionProjector.action(
+                .matchFinished,
                 code: "game_end",
                 scores: (leftScore, rightScore),
                 periodNumber: clockSession.state.stage,
@@ -1058,30 +1072,11 @@ struct WatchFootballScoreView: View {
             return true
         }
         let end = Date()
-        let winnerName: String? = leftScore == rightScore
-            ? nil
-            : (leftScore > rightScore ? leftName : rightName)
-        let record = WatchScoreboardRecord(
-            id: recordID,
-            gameType: WatchFootballRules.watchGameType(isFiveAside: isFiveAside),
-            startTime: matchStartTime,
-            endTime: end,
-            duration: end.timeIntervalSince(matchStartTime),
-            team1Name: leftName,
-            team2Name: rightName,
-            team1FinalScore: leftScore,
-            team2FinalScore: rightScore,
-            team1SetScore: 0,
-            team2SetScore: 0,
-            winner: winnerName,
-            actions: actionLog.actions,
-            totalScoreChanges: actionLog.scoreChangeCount,
-            projectConfiguration: [
-                "scoreCoreGameType": gameType.rawValue,
-                "footballHalfLengthSeconds": String(halfLengthSeconds),
-                "showMatchTime": "true"
-            ]
-        )
+        guard let record = WatchScoreboardRecord(
+            localSnapshot: .football(linkedSnapshot), gameType: gameType,
+            id: recordID, startTime: matchStartTime, endTime: end,
+            detailedActions: actionLog.detailedActions, totalScoreChanges: actionLog.scoreChangeCount
+        ) else { return false }
         return resumeStore.saveFinishedRecord(record)
     }
 

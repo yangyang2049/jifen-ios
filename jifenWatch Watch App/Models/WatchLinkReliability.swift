@@ -400,15 +400,19 @@ extension WatchLinkService {
         activeGameType = context.setup.gameType
         activeSetup = context.setup
         peerSupportsCompressedFinish = context.peerSupportsCompressedFinish == true
+        negotiatedPeerCapabilities = context.negotiatedPeerCapabilities ?? []
+        actionHistory = context.actionHistory ?? LinkSnapshotHistory()
         phoneTookOver = context.role == .watchFollower
         mergedDetailedActions = context.detailedActions
+        activeSetup?.detailedActions = mergedDetailedActions
         if let snapshot = context.latestAuthoritativeSnapshot {
             latestSnapshot = LinkedSnapshotUpdate(
                 sessionId: context.handle.sessionId,
                 revision: context.revision,
                 matchGeneration: context.handle.matchGeneration,
                 snapshot: snapshot,
-                detailedActions: context.detailedActions
+                detailedActions: context.detailedActions,
+                removedActionIDs: actionHistory.removedActionIDs
             )
         }
         _ = revisionGate.beginMatch(

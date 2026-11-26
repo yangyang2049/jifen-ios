@@ -234,51 +234,117 @@ public struct RecordSyncMetadata: Codable, Equatable, Sendable {
     }
 }
 
-public struct ScoreRecordV2: Codable, Equatable, Identifiable, Sendable {
-    public let schemaVersion: Int?
-    public let id: UUID
-    public let sessionId: UUID
-    public let gameType: GameType
-    public let source: RecordSource
-    public let startedAtEpochMilliseconds: Int64
-    public let finishedAtEpochMilliseconds: Int64?
-    public let payload: RecordPayload
-    public let actions: [ScoreAction]
-    /// JSON-encoded project setup. Kept opaque so new project rules do not require a record migration.
-    public let configuration: Data?
-    /// Full versioned reducer/session snapshot used for exact resume and replay.
-    public let stateSnapshot: Data?
-    public let syncMetadata: RecordSyncMetadata?
-    /// A non-nil value is a deletion tombstone and must win over an older upsert.
-    public let deletedAtEpochMilliseconds: Int64?
+/// 双端统一的胜者身份（M2 从手机 ScoreboardRecord.swift 上移）。
+/// JSON 编码键名与格式与手机 schema v5 完全一致（kind/teamID/participantIndex）。
+public enum ScoreboardWinnerIdentity: Codable, Equatable, Sendable {
+    case team(TeamID)
+    case participant(index: Int)
 
-    public init(
-        id: UUID = UUID(),
-        sessionId: UUID,
-        gameType: GameType,
-        source: RecordSource,
-        startedAtEpochMilliseconds: Int64,
-        finishedAtEpochMilliseconds: Int? = nil,
-        payload: RecordPayload,
-        actions: [ScoreAction],
-        schemaVersion: Int? = 3,
-        configuration: Data? = nil,
-        stateSnapshot: Data? = nil,
-        syncMetadata: RecordSyncMetadata? = nil,
-        deletedAtEpochMilliseconds: Int64? = nil
-    ) {
-        self.schemaVersion = schemaVersion
-        self.id = id
-        self.sessionId = sessionId
-        self.gameType = gameType
-        self.source = source
-        self.startedAtEpochMilliseconds = startedAtEpochMilliseconds
-        self.finishedAtEpochMilliseconds = finishedAtEpochMilliseconds.map(Int64.init)
-        self.payload = payload
-        self.actions = actions
-        self.configuration = configuration
-        self.stateSnapshot = stateSnapshot
-        self.syncMetadata = syncMetadata
-        self.deletedAtEpochMilliseconds = deletedAtEpochMilliseconds
+    private enum Kind: String, Codable {
+        case team
+        case participant
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case kind
+        case teamID
+        case participantIndex
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        switch try container.decode(Kind.self, forKey: .kind) {
+        case .team:
+            self = .team(try container.decode(TeamID.self, forKey: .teamID))
+        case .participant:
+            let index = try container.decode(Int.self, forKey: .participantIndex)
+            guard index >= 0 else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .participantIndex,
+                    in: container,
+                    debugDescription: "Winner participant index must be non-negative"
+                )
+            }
+            self = .participant(index: index)
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .team(let teamID):
+            try container.encode(Kind.team, forKey: .kind)
+            try container.encode(teamID, forKey: .teamID)
+        case .participant(let index):
+            try container.encode(Kind.participant, forKey: .kind)
+            try container.encode(index, forKey: .participantIndex)
+        }
+    }
+
+    public var teamID: TeamID? {
+        guard case .team(let teamID) = self else { return nil }
+        return teamID
+    }
+
+    /// Canonical compatibility token written beside the typed schema-v5 value.
+    /// Older clients can keep reading the winner token without depending on a
+    /// localized participant name or the current screen placement.
+    public var legacyToken: String {
+        switch self {
+        case .team(let teamID): return teamID.rawValue
+        case .participant(let index): return "player_\(index)"
+        }
+    }
+
+    public static func fromStableLegacyToken(_ token: String?) -> ScoreboardWinnerIdentity? {
+        guard let raw = token?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+              !raw.isEmpty else {
+            return nil
+        }
+        if let teamID = TeamID.fromLegacyWinnerToken(raw) {
+            return .team(teamID)
+        }
+        guard raw.hasPrefix("player_"),
+              let index = Int(raw.dropFirst("player_".count)),
+              index >= 0 else {
+            return nil
+        }
+        return .participant(index: index)
+    }
+
+    public var recordTeam: RecordTeam? {
+        switch self {
+        case .team(.team0), .participant(index: 0): return .team1
+        case .team(.team1), .participant(index: 1): return .team2
+        case .participant(index: 2): return .team3
+        case .participant(index: 3): return .team4
+        case .participant: return nil
+        }
+    }
+}
+
+/// 投篮训练动作投影（RecordCore 侧）：DetailedScoreAction 在 RecordCore 定义，
+/// ScoreCore 状态无法反向引用，这里以 extension 承载既有行为。
+public extension ScoreCore.ShotTrainingState {
+    func detailedActions(endingAt endTime: Date) -> [DetailedScoreAction] {
+        var running = earlierCounts
+        var actions = shots.map { shot in
+            running.add(shot)
+            return DetailedScoreAction(
+                type: .scoreChanged,
+                epochMilliseconds: Int64((shot.timestamp.timeIntervalSince1970 * 1_000).rounded()),
+                team: shot.made ? .team2 : .team1,
+                scores: [running.missed, running.made],
+                scoreChange: 1,
+                operationCode: "training_\(shot.points)pt_\(shot.made ? "made" : "miss")"
+            )
+        }
+        actions.append(DetailedScoreAction(
+            type: .matchFinished,
+            epochMilliseconds: Int64((endTime.timeIntervalSince1970 * 1_000).rounded()),
+            scores: [running.missed, running.made],
+            operationCode: "training_rate_\(running.rate)"
+        ))
+        return actions
     }
 }

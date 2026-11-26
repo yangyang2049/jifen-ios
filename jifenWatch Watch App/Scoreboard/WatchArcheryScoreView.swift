@@ -32,6 +32,9 @@ struct WatchArcheryScoreView: View {
 
     let linkedSessionId: UUID?
 
+    @State private var lastAppliedRemoteRevision: UInt64?
+    @State private var lastAppliedRemoteGeneration: UInt64?
+
     @State private var showRecordSaveFailure = false
     @State private var store: WatchArcherySessionStore
     @State private var setEnding: Bool = false
@@ -186,9 +189,11 @@ struct WatchArcheryScoreView: View {
             if locked { restState = nil }
         }
         .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
-            guard linkService.incomingSnapshot != nil, let linkedSessionId, let update, update.sessionId == linkedSessionId,
+            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
+                  update.matchGeneration == linkService.activeHandle?.matchGeneration,
                   let remote = update.snapshot.archeryState else { return }
-            if linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            let acceptsScore = linkService.incomingSnapshot != nil
+            if acceptsScore, linkService.controlRole == .shared, update.beginsMatch(after: previous) {
                 var fresh = store.state
                 remote.applying(to: &fresh)
                 store = WatchArcherySessionStore(resumedState: fresh, resumedStartTime: Date())
@@ -196,7 +201,17 @@ struct WatchArcheryScoreView: View {
                 finishCommitted = false
                 undoButtonVisible = false
             }
-            store.mergeRemoteActions(update.detailedActions)
+            let historyChanged = store.mergeRemoteActions(update.detailedActions, removing: update.removedActionIDs)
+            let advancesScore = lastAppliedRemoteGeneration != update.matchGeneration
+                || update.revision > (lastAppliedRemoteRevision ?? 0)
+            let finishesCurrentScore = update.revision == lastAppliedRemoteRevision
+                && update.snapshot.isFinished && previous?.snapshot.isFinished == false
+            guard acceptsScore, advancesScore || finishesCurrentScore else {
+                if historyChanged { persistResumeSession() }
+                return
+            }
+            lastAppliedRemoteGeneration = update.matchGeneration
+            lastAppliedRemoteRevision = update.revision
             applyRemote(remote)
         }
         .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
@@ -812,30 +827,12 @@ struct WatchArcheryScoreView: View {
     private func saveMatchRecord() -> Bool {
         guard !recordSaved else { return true }
         let endTime = Date()
-        let duration = endTime.timeIntervalSince(matchStartTime)
-        let redName = leftName
-        let blueName = rightName
-        let winnerName = winner == true ? redName : (winner == false ? blueName : nil)
-        let record = WatchScoreboardRecord(
-            id: "watch-archery-\(Int(endTime.timeIntervalSince1970))",
-            gameType: .archery,
-            startTime: matchStartTime,
-            endTime: endTime,
-            duration: duration,
-            team1Name: redName,
-            team2Name: blueName,
-            team1FinalScore: redSets,
-            team2FinalScore: blueSets,
-            team1SetScore: redSets,
-            team2SetScore: blueSets,
-            winner: winnerName,
-            actions: store.actionLog.actions,
-            totalScoreChanges: store.actionLog.scoreChangeCount,
-            participants: [
-                WatchRecordParticipant(name: redName, score: redSets),
-                WatchRecordParticipant(name: blueName, score: blueSets)
-            ]
-        )
+        guard let record = WatchScoreboardRecord(
+            localSnapshot: .archery(linkedSnapshot(finished: true)), gameType: .archeryDual,
+            id: "w_\(UUID().uuidString)", startTime: matchStartTime, endTime: endTime,
+            winnerSide: winner.map { $0 ? .left : .right },
+            detailedActions: store.actionLog.detailedActions, totalScoreChanges: store.actionLog.scoreChangeCount
+        ) else { return false }
         guard resumeStore.saveFinishedRecord(record) else { return false }
         recordSaved = true
         return true

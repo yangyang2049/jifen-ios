@@ -2,133 +2,98 @@ import Foundation
 import LinkCore
 import RecordCore
 import ScoreCore
-import SwiftUI // Required for Color, though not directly used in this file for styling. Keep for consistency if needed elsewhere.
 
-struct WatchRecordParticipant: Codable, Hashable {
-    let name: String
-    let score: Int
-}
+typealias WatchRecordParticipant = RecordParticipantScore
 
-nonisolated struct WatchBasketballTrainingShot: Codable, Hashable, Identifiable {
-    let id: String
-    let points: Int
-    let made: Bool
-    let timestamp: Date
-
-    init(
-        id: String = UUID().uuidString,
-        points: Int,
-        made: Bool,
-        timestamp: Date = Date()
-    ) {
-        self.id = id
-        self.points = points
-        self.made = made
-        self.timestamp = timestamp
-    }
-
-    var linkedShot: LinkedShotTrainingShot {
-        .init(points: points, made: made, timestamp: timestamp)
-    }
-
-    init(linkedShot: LinkedShotTrainingShot) {
-        self.init(points: linkedShot.points, made: linkedShot.made, timestamp: linkedShot.timestamp)
-    }
-}
-
-struct WatchBasketballTrainingDetails: Codable, Hashable {
-    let mode: WatchBasketballTrainingMode
-    let shots: [WatchBasketballTrainingShot]
-    /// Explicit Android-compatible six-category totals. Optional keeps records
-    /// produced by the first Apple Watch implementation decodable.
-    let onePointMade: Int?
-    let onePointMiss: Int?
-    let twoPointMade: Int?
-    let twoPointMiss: Int?
-    let threePointMade: Int?
-    let threePointMiss: Int?
-
-    init(
-        mode: WatchBasketballTrainingMode,
-        shots: [WatchBasketballTrainingShot],
-        totals: ShotTrainingCounts? = nil
-    ) {
-        self.mode = mode
-        self.shots = shots
-        onePointMade = totals?.oneMade ?? Self.count(shots, points: 1, made: true)
-        onePointMiss = totals?.oneMiss ?? Self.count(shots, points: 1, made: false)
-        twoPointMade = totals?.twoMade ?? Self.count(shots, points: 2, made: true)
-        twoPointMiss = totals?.twoMiss ?? Self.count(shots, points: 2, made: false)
-        threePointMade = totals?.threeMade ?? Self.count(shots, points: 3, made: true)
-        threePointMiss = totals?.threeMiss ?? Self.count(shots, points: 3, made: false)
-    }
-
-    func count(points: Int, made: Bool) -> Int {
-        switch (points, made) {
-        case (1, true): return onePointMade ?? Self.count(shots, points: 1, made: true)
-        case (1, false): return onePointMiss ?? Self.count(shots, points: 1, made: false)
-        case (2, true): return twoPointMade ?? Self.count(shots, points: 2, made: true)
-        case (2, false): return twoPointMiss ?? Self.count(shots, points: 2, made: false)
-        case (3, true): return threePointMade ?? Self.count(shots, points: 3, made: true)
-        default: return threePointMiss ?? Self.count(shots, points: 3, made: false)
-        }
-    }
-
-    private static func count(
-        _ shots: [WatchBasketballTrainingShot],
-        points: Int,
-        made: Bool
-    ) -> Int {
-        shots.lazy.filter { $0.points == points && $0.made == made }.count
-    }
-}
-
+/// Watch presentation over the same canonical record stored on disk and sent to iPhone.
 struct WatchScoreboardRecord: Codable, Identifiable {
-    let id: String
+    let canonical: CanonicalMatchRecord
     let gameType: WatchGameType
-    let startTime: Date
-    var endTime: Date
-    var duration: TimeInterval
-    let team1Name: String
-    let team2Name: String
-    var team1FinalScore: Int
-    var team2FinalScore: Int
-    var team1SetScore: Int
-    var team2SetScore: Int
-    var winner: String?
-    var actions: [WatchScoreAction]
-    var totalScoreChanges: Int
-    /// Optional so records created by older watch versions remain decodable.
-    var participants: [WatchRecordParticipant]? = nil
-    var projectConfiguration: [String: String]? = nil
-    var basketballTrainingDetails: WatchBasketballTrainingDetails? = nil
 
-    /// Canonical shared DTO for phone ingest / future RecordCore alignment.
-    func toSharedRecord() -> SharedTwoSideMatchRecord? {
-        guard let coreType = gameType.scoreCoreGameType else { return nil }
-        let winnerTeamID: String?
-        if winner == team1Name || winner == "red" || winner == "left" {
-            winnerTeamID = "team_0"
-        } else if winner == team2Name || winner == "blue" || winner == "right" {
-            winnerTeamID = "team_1"
-        } else {
-            winnerTeamID = nil
+    var id: String { canonical.id }
+    var startTime: Date { Date(timeIntervalSince1970: Double(canonical.startEpochMilliseconds) / 1_000) }
+    var endTime: Date { Date(timeIntervalSince1970: Double(canonical.endEpochMilliseconds) / 1_000) }
+    var duration: TimeInterval { canonical.durationSeconds }
+    var team1Name: String { canonical.team1Name }
+    var team2Name: String { canonical.team2Name }
+    var team1FinalScore: Int { canonical.team1FinalScore }
+    var team2FinalScore: Int { canonical.team2FinalScore }
+    var team1SetScore: Int { canonical.team1SetScore ?? 0 }
+    var team2SetScore: Int { canonical.team2SetScore ?? 0 }
+    var winnerIdentity: ScoreboardWinnerIdentity? { canonical.winnerIdentity }
+    var actions: [DetailedScoreAction] { canonical.detailedActions }
+    var totalScoreChanges: Int { canonical.totalScoreChanges }
+    var participants: [WatchRecordParticipant]? { canonical.participants }
+    var projectConfiguration: [String: String]? { canonical.projectConfiguration.isEmpty ? nil : canonical.projectConfiguration }
+    var basketballTrainingDetails: ScoreCore.ShotTrainingState? { canonical.basketballTraining }
+
+    init?(canonical: CanonicalMatchRecord) {
+        switch canonical.kind {
+        case .counter:
+            gameType = .counter
+        case .sport(let type):
+            guard let mapped = WatchGameType(scoreCoreGameType: type) else { return nil }
+            gameType = mapped
         }
-        return SharedTwoSideMatchRecord(
-            id: id,
-            gameType: coreType,
-            source: .watchLocal,
-            startEpochMilliseconds: Int64(startTime.timeIntervalSince1970 * 1000),
-            endEpochMilliseconds: Int64(endTime.timeIntervalSince1970 * 1000),
-            durationSeconds: duration,
-            team1Name: team1Name,
-            team2Name: team2Name,
-            team1FinalScore: team1FinalScore,
-            team2FinalScore: team2FinalScore,
-            team1SetScore: team1SetScore,
-            team2SetScore: team2SetScore,
-            winnerTeamID: winnerTeamID
-        )
+        self.canonical = canonical
+    }
+
+    init?(
+        localSnapshot: LinkedScoreboardSnapshot,
+        gameType: ScoreCore.GameType,
+        id: String,
+        startTime: Date,
+        endTime: Date,
+        participantNames: [String] = [],
+        winnerSide: MatchSide? = nil,
+        detailedActions: [DetailedScoreAction],
+        totalScoreChanges: Int,
+        additionalConfiguration: [String: String] = [:]
+    ) {
+        self.init(canonical: MatchRecordProjector.canonicalRecord(
+            id: id, kind: .sport(gameType), source: .watchLocal,
+            snapshot: localSnapshot, gameType: gameType, winnerSide: winnerSide,
+            startEpochMilliseconds: Int64((startTime.timeIntervalSince1970 * 1_000).rounded()),
+            endEpochMilliseconds: Int64((endTime.timeIntervalSince1970 * 1_000).rounded()),
+            durationSeconds: endTime.timeIntervalSince(startTime), participantNames: participantNames,
+            detailedActions: detailedActions, totalScoreChanges: totalScoreChanges,
+            additionalConfiguration: additionalConfiguration
+        ))
+    }
+
+    init(from decoder: Decoder) throws {
+        let canonical = try CanonicalMatchRecord(from: decoder)
+        guard canonical.schemaVersion == CanonicalMatchRecord.currentSchemaVersion,
+              let record = Self(canonical: canonical) else {
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: decoder.codingPath, debugDescription: "Unsupported Watch record schema or sport"
+            ))
+        }
+        self = record
+    }
+
+    func encode(to encoder: Encoder) throws {
+        try canonical.encode(to: encoder)
+    }
+
+    var winnerName: String? {
+        switch winnerIdentity {
+        case .team(.team0): return team1Name
+        case .team(.team1): return team2Name
+        case .participant(let index):
+            guard let participants, participants.indices.contains(index) else { return nil }
+            return participants[index].name
+        case nil: return nil
+        }
+    }
+
+    func isWinner(at position: Int) -> Bool {
+        switch winnerIdentity {
+        case .team(.team0): return position == 0
+        case .team(.team1): return position == 1
+        case .participant(let index): return position == index
+        case nil: return false
+        }
     }
 }
 
@@ -145,7 +110,7 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
     let team2FinalScore: Int
     var team1SetScore: Int
     var team2SetScore: Int
-    var winner: String?
+    let winnerIdentity: ScoreboardWinnerIdentity?
     var participants: [WatchRecordParticipant]?
     var projectConfiguration: [String: String]?
 
@@ -166,7 +131,7 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
         self.team2FinalScore = record.team2FinalScore
         self.team1SetScore = record.team1SetScore
         self.team2SetScore = record.team2SetScore
-        self.winner = record.winner
+        self.winnerIdentity = record.winnerIdentity
         self.participants = record.participants
         self.projectConfiguration = record.projectConfiguration
 

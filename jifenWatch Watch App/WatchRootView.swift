@@ -643,7 +643,7 @@ struct WatchRootView: View {
         return totals ?? .init()
     }
 
-    private func trainingResumeHistory() -> [WatchBasketballTrainingShot] {
+    private func trainingResumeHistory() -> [ShotTrainingShot] {
         guard let activeResumeSession,
               case .basketballTraining(_, let history, _) = activeResumeSession.payload else { return [] }
         return history

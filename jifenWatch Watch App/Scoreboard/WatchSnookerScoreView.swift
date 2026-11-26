@@ -39,6 +39,9 @@ struct WatchSnookerScoreView: View {
     @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let linkedSessionId: UUID?
+    @State private var lastAppliedRemoteRevision: UInt64?
+    @State private var lastAppliedRemoteGeneration: UInt64?
+
     @State private var showRecordSaveFailure = false
     @State private var leftName: String
     @State private var rightName: String
@@ -173,18 +176,32 @@ struct WatchSnookerScoreView: View {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
         .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
-            guard linkService.incomingSnapshot != nil, let linkedSessionId, let update, update.sessionId == linkedSessionId,
+            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
+                  update.matchGeneration == linkService.activeHandle?.matchGeneration,
                   let remote = update.snapshot.snookerState else { return }
-            if linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            let acceptsScore = linkService.incomingSnapshot != nil
+            if acceptsScore, linkService.controlRole == .shared, update.beginsMatch(after: previous) {
                 matchStartTime = Date()
                 actionLog.reset(at: matchStartTime)
             }
-            applyAuthoritativeSnooker(remote, detailedActions: update.detailedActions)
+            let historyChanged = actionLog.merge(detailedActions: update.detailedActions, removing: update.removedActionIDs)
+            let advancesScore = lastAppliedRemoteGeneration != update.matchGeneration
+                || update.revision > (lastAppliedRemoteRevision ?? 0)
+            let finishesCurrentScore = update.revision == lastAppliedRemoteRevision
+                && update.snapshot.isFinished && previous?.snapshot.isFinished == false
+            guard acceptsScore, advancesScore || finishesCurrentScore else {
+                if historyChanged { persistResumeSession() }
+                return
+            }
+            lastAppliedRemoteGeneration = update.matchGeneration
+            lastAppliedRemoteRevision = update.revision
+            applyAuthoritativeSnooker(remote)
         }
         .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
             guard let linkedSessionId, let pending, pending.sessionId == linkedSessionId,
                   let remote = pending.snapshot.snookerState else { return }
-            applyAuthoritativeSnooker(remote, detailedActions: pending.detailedActions)
+            actionLog.merge(detailedActions: pending.detailedActions)
+            applyAuthoritativeSnooker(remote)
             linkService.completeReclaimAcceptance(messageId: pending.messageId)
         }
         .onChange(of: state) { _, _ in
@@ -596,7 +613,7 @@ struct WatchSnookerScoreView: View {
         }
         undoStack.append(state)
         state = result.state
-        actionLog.append(contentsOf: WatchScoreActionProjector.snooker(
+        actionLog.append(contentsOf: ScoreActionProjector.snooker(
             intent: intent, events: result.events, state: state, timestamp: timestamp
         ))
         publish()
@@ -619,7 +636,7 @@ struct WatchSnookerScoreView: View {
         }
         undoStack.append(state)
         state = result.state
-        actionLog.append(contentsOf: WatchScoreActionProjector.snooker(
+        actionLog.append(contentsOf: ScoreActionProjector.snooker(
             intent: .finishMatch, events: result.events, state: state, timestamp: timestamp
         ))
         publish()
@@ -641,30 +658,12 @@ struct WatchSnookerScoreView: View {
         guard linkedSessionId == nil, !didSaveFinishedRecord else { return true }
         guard state.finished || state.leftScore + state.rightScore + state.leftFrames + state.rightFrames > 0 else { return true }
         let end = Date()
-        let winnerName: String? = {
-            if state.leftFrames != state.rightFrames {
-                return state.leftFrames > state.rightFrames ? leftName : rightName
-            }
-            if state.leftScore == state.rightScore { return nil }
-            return state.leftScore > state.rightScore ? leftName : rightName
-        }()
-        let record = WatchScoreboardRecord(
-            id: "w_\(UUID().uuidString)",
-            gameType: .snooker,
-            startTime: matchStartTime,
-            endTime: end,
-            duration: end.timeIntervalSince(matchStartTime),
-            team1Name: leftName,
-            team2Name: rightName,
-            team1FinalScore: state.leftScore,
-            team2FinalScore: state.rightScore,
-            team1SetScore: state.leftFrames,
-            team2SetScore: state.rightFrames,
-            winner: winnerName,
-            actions: actionLog.actions,
-            totalScoreChanges: actionLog.scoreChangeCount,
-            projectConfiguration: ["maxFrames": String(state.maxFrames)]
-        )
+        guard let record = WatchScoreboardRecord(
+            localSnapshot: .snooker(state), gameType: .snooker,
+            id: "w_\(UUID().uuidString)", startTime: matchStartTime, endTime: end,
+            participantNames: [leftName, rightName],
+            detailedActions: actionLog.detailedActions, totalScoreChanges: actionLog.scoreChangeCount
+        ) else { return false }
         return resumeStore.saveFinishedRecord(record)
     }
 
@@ -722,11 +721,8 @@ struct WatchSnookerScoreView: View {
             && !state.frameCompletePending && confirmation == nil && !showFinishedOverlay
     }
 
-    private func applyAuthoritativeSnooker(
-        _ remote: SnookerState,
-        detailedActions: [DetailedScoreAction]
-    ) {
-        actionLog.merge(detailedActions: detailedActions)
+    private func applyAuthoritativeSnooker(_ remote: SnookerState) {
+        actionLog.clearUndoHistory()
         if let names = linkService.activeParticipantNames, names.count >= 2 {
             let remoteLeft = names[0].trimmingCharacters(in: .whitespacesAndNewlines)
             let remoteRight = names[1].trimmingCharacters(in: .whitespacesAndNewlines)

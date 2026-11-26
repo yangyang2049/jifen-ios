@@ -78,6 +78,9 @@ struct WatchNineBallScoreView: View {
     @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let linkedSessionId: UUID?
+    @State private var lastAppliedRemoteRevision: UInt64?
+    @State private var lastAppliedRemoteGeneration: UInt64?
+
     @State private var showRecordSaveFailure = false
     @State private var state: NineBallChaseState
     @State private var showMenu = false
@@ -194,18 +197,32 @@ struct WatchNineBallScoreView: View {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
         .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
-            guard linkService.incomingSnapshot != nil, let linkedSessionId, let update, update.sessionId == linkedSessionId,
+            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
+                  update.matchGeneration == linkService.activeHandle?.matchGeneration,
                   let remote = update.snapshot.nineBallState else { return }
-            if linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+            let acceptsScore = linkService.incomingSnapshot != nil
+            if acceptsScore, linkService.controlRole == .shared, update.beginsMatch(after: previous) {
                 matchStartTime = Date()
                 actionLog.reset(at: matchStartTime)
             }
-            applyAuthoritativeNineBall(remote, detailedActions: update.detailedActions)
+            let historyChanged = actionLog.merge(detailedActions: update.detailedActions, removing: update.removedActionIDs)
+            let advancesScore = lastAppliedRemoteGeneration != update.matchGeneration
+                || update.revision > (lastAppliedRemoteRevision ?? 0)
+            let finishesCurrentScore = update.revision == lastAppliedRemoteRevision
+                && update.snapshot.isFinished && previous?.snapshot.isFinished == false
+            guard acceptsScore, advancesScore || finishesCurrentScore else {
+                if historyChanged { persistResumeSession() }
+                return
+            }
+            lastAppliedRemoteGeneration = update.matchGeneration
+            lastAppliedRemoteRevision = update.revision
+            applyAuthoritativeNineBall(remote)
         }
         .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
             guard let linkedSessionId, let pending, pending.sessionId == linkedSessionId,
                   let remote = pending.snapshot.nineBallState else { return }
-            applyAuthoritativeNineBall(remote, detailedActions: pending.detailedActions)
+            actionLog.merge(detailedActions: pending.detailedActions)
+            applyAuthoritativeNineBall(remote)
             linkService.completeReclaimAcceptance(messageId: pending.messageId)
         }
         .onChange(of: state) { _, _ in
@@ -729,7 +746,7 @@ struct WatchNineBallScoreView: View {
         if case .resetScores = intent {
             actionLog.reset(at: timestamp)
         } else {
-            actionLog.append(contentsOf: WatchScoreActionProjector.nineBall(
+            actionLog.append(contentsOf: ScoreActionProjector.nineBall(
                 events: result.events, state: state, timestamp: timestamp
             ))
         }
@@ -786,40 +803,12 @@ struct WatchNineBallScoreView: View {
         guard linkedSessionId == nil, !didSaveFinishedRecord else { return true }
         guard hasNineBallProgress else { return true }
         let end = Date()
-        let leftName = displayName(at: 0)
-        let rightName = state.playerCount > 1
-            ? displayName(at: 1)
-            : WatchDefaultTeamNames.resolve(for: .nineBall).right
-        let leftScore = playerPoints(at: 0)
-        let rightScore = state.playerCount > 1 ? playerPoints(at: 1) : 0
-        let winnerName: String? = {
-            if state.playerCount > 2 {
-                let best = (0..<state.playerCount).max(by: { playerPoints(at: $0) < playerPoints(at: $1) })
-                return best.map { displayName(at: $0) }
-            }
-            if leftScore == rightScore { return nil }
-            return leftScore > rightScore ? leftName : rightName
-        }()
-        let record = WatchScoreboardRecord(
-            id: "w_\(UUID().uuidString)",
-            gameType: .nineBall,
-            startTime: matchStartTime,
-            endTime: end,
-            duration: end.timeIntervalSince(matchStartTime),
-            team1Name: leftName,
-            team2Name: rightName,
-            team1FinalScore: leftScore,
-            team2FinalScore: rightScore,
-            team1SetScore: leftScore,
-            team2SetScore: rightScore,
-            winner: winnerName,
-            actions: actionLog.actions,
-            totalScoreChanges: actionLog.scoreChangeCount,
-            participants: (0..<state.playerCount).map {
-                WatchRecordParticipant(name: displayName(at: $0), score: playerPoints(at: $0))
-            },
-            projectConfiguration: ["playerCount": String(state.playerCount)]
-        )
+        guard let record = WatchScoreboardRecord(
+            localSnapshot: .nineBall(state), gameType: .nineBall,
+            id: "w_\(UUID().uuidString)", startTime: matchStartTime, endTime: end,
+            participantNames: (0..<state.playerCount).map { displayName(at: $0) },
+            detailedActions: actionLog.detailedActions, totalScoreChanges: actionLog.scoreChangeCount
+        ) else { return false }
         return resumeStore.saveFinishedRecord(record)
     }
 
@@ -875,11 +864,8 @@ struct WatchNineBallScoreView: View {
             && confirmation == nil && !showFinishedOverlay
     }
 
-    private func applyAuthoritativeNineBall(
-        _ remote: NineBallChaseState,
-        detailedActions: [DetailedScoreAction]
-    ) {
-        actionLog.merge(detailedActions: detailedActions)
+    private func applyAuthoritativeNineBall(_ remote: NineBallChaseState) {
+        actionLog.clearUndoHistory()
         state = remote
         undoStack.removeAll()
         eventPickerPlayer = nil

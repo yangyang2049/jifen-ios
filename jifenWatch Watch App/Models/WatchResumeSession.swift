@@ -2,6 +2,7 @@ import Foundation
 import LinkCore
 import Observation
 import OSLog
+import RecordCore
 import ScoreCore
 import SessionCore
 
@@ -45,8 +46,8 @@ enum WatchResumePayload: Codable, Sendable {
         rightName: String
     )
     case basketballTraining(
-        mode: WatchBasketballTrainingMode,
-        history: [WatchBasketballTrainingShot],
+        mode: ShotTrainingMode,
+        history: [ShotTrainingShot],
         earlierCounts: ShotTrainingCounts? = nil
     )
 
@@ -90,7 +91,8 @@ extension WatchLinkResumeContext {
         revision: UInt64,
         authorityEpoch: UInt64,
         controlRole: LinkControlRole,
-        setup: LinkedScoreboardSetup
+        setup: LinkedScoreboardSetup,
+        actionHistory: LinkSnapshotHistory? = nil
     ) {
         self.init(
             handle: handle,
@@ -101,7 +103,8 @@ extension WatchLinkResumeContext {
             latestAuthoritativeSnapshot: setup.initialSnapshot,
             detailedActions: setup.detailedActions,
             completedMatchIds: [],
-            pendingTerminalMessageIds: []
+            pendingTerminalMessageIds: [],
+            actionHistory: actionHistory
         )
     }
 
@@ -110,14 +113,16 @@ extension WatchLinkResumeContext {
         revision: UInt64,
         authorityEpoch: UInt64 = 0,
         controlRole: LinkControlRole,
-        setup: LinkedScoreboardSetup
+        setup: LinkedScoreboardSetup,
+        actionHistory: LinkSnapshotHistory? = nil
     ) {
         self.init(
             handle: LinkedMatchHandle(sessionId: sessionId),
             revision: revision,
             authorityEpoch: authorityEpoch,
             controlRole: controlRole,
-            setup: setup
+            setup: setup,
+            actionHistory: actionHistory
         )
     }
 }
@@ -350,7 +355,8 @@ final class WatchResumeSessionStore {
         var pending = pendingFinishedRecords
         let candidate: WatchScoreboardRecord
         if let staged = pending.first(where: {
-            $0.gameType == record.gameType && $0.startTime == record.startTime
+            $0.gameType == record.gameType
+                && $0.canonical.startEpochMilliseconds == record.canonical.startEpochMilliseconds
         }) {
             candidate = staged
         } else {
@@ -362,13 +368,19 @@ final class WatchResumeSessionStore {
             flushPendingWrite()
             return false
         }
-        if session?.startedAt == candidate.startTime, session?.link == nil { clear() }
+        if let session, session.link == nil, hasRecordStart(session.startedAt, record: candidate) {
+            clear()
+        }
         removePendingFinishedRecords { $0.id == candidate.id }
         return true
     }
 
     func cancelPendingTrainingFinish(startedAt: Date) {
-        removePendingFinishedRecords { $0.gameType == .basketballTraining && $0.startTime == startedAt }
+        removePendingFinishedRecords { $0.gameType == .basketballTraining && hasRecordStart(startedAt, record: $0) }
+    }
+
+    private func hasRecordStart(_ date: Date, record: WatchScoreboardRecord) -> Bool {
+        record.canonical.startEpochMilliseconds == Int64((date.timeIntervalSince1970 * 1_000).rounded())
     }
 
     private func removePendingFinishedRecords(where shouldRemove: (WatchScoreboardRecord) -> Bool) {
@@ -420,9 +432,9 @@ final class WatchResumeSessionStore {
     }
 
     func refreshLinkContext(_ context: WatchLinkResumeContext) {
-        guard let value = session, value.link?.sessionId == context.sessionId else { return }
+        guard let value = session, value.link?.handle == context.handle else { return }
         var actionLog = value.actionLog
-        actionLog.merge(detailedActions: context.setup.detailedActions)
+        actionLog.merge(detailedActions: context.detailedActions, removing: context.actionHistory?.removedActionIDs ?? [])
         save(WatchResumeSession(
             startedAt: value.startedAt,
             scoreLine: value.scoreLine,
@@ -440,15 +452,12 @@ final class WatchResumeSessionStore {
         _ snapshot: LinkedScoreboardSnapshot,
         context: WatchLinkResumeContext
     ) {
-        guard let value = session, value.link?.sessionId == context.sessionId else { return }
+        guard let value = session, let previous = value.link, previous.sessionId == context.sessionId else { return }
+        let beganNewMatch = previous.handle.matchGeneration < context.handle.matchGeneration
+        guard previous.handle == context.handle || beganNewMatch else { return }
 
         let updated: (payload: WatchResumePayload, scoreLine: String)?
-        let startedAt: Date
-        if let training = snapshot.basketballTrainingState {
-            startedAt = training.startTime
-        } else {
-            startedAt = value.startedAt
-        }
+        let startedAt = snapshot.basketballTrainingState?.startTime ?? (beganNewMatch ? now() : value.startedAt)
         switch (value.payload, snapshot) {
         case (.rally(let gameType, let bundle, _), .rally(let state)):
             let score = state.leftSets + state.rightSets > 0
@@ -499,8 +508,8 @@ final class WatchResumeSessionStore {
             let counts = state.counts
             updated = (
                 .basketballTraining(
-                    mode: WatchBasketballTrainingMode(linkedMode: state.mode),
-                    history: state.shots.map(WatchBasketballTrainingShot.init(linkedShot:)),
+                    mode: state.mode,
+                    history: state.shots,
                     earlierCounts: state.earlierCounts
                 ),
                 "\(counts.made)/\(counts.attempts) = \(counts.rate)%"
@@ -527,8 +536,9 @@ final class WatchResumeSessionStore {
         }
 
         guard let updated else { return }
-        var actionLog = value.actionLog
-        actionLog.merge(detailedActions: context.setup.detailedActions)
+        var actionLog = beganNewMatch ? WatchScoreActionLog(startedAt: startedAt) : value.actionLog
+        actionLog.merge(detailedActions: context.detailedActions, removing: context.actionHistory?.removedActionIDs ?? [])
+        actionLog.clearUndoHistory()
         save(WatchResumeSession(
             startedAt: startedAt,
             scoreLine: updated.scoreLine,

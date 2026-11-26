@@ -4,34 +4,7 @@ import ScoreCore
 import SwiftUI
 import UIKit
 
-nonisolated struct ShotTrainingShot: Codable, Equatable, Identifiable {
-    let id: UUID
-    let points: Int
-    let made: Bool
-    let timestamp: Date
-
-    init(id: UUID = UUID(), points: Int, made: Bool, timestamp: Date = Date()) {
-        self.id = id
-        self.points = min(3, max(1, points))
-        self.made = made
-        self.timestamp = timestamp
-    }
-}
-
-typealias ShotTrainingCounts = LinkCore.ShotTrainingCounts
-
-extension ShotTrainingCounts {
-    nonisolated static func build(from shots: [ShotTrainingShot], earlier: Self = .init()) -> Self {
-        shots.reduce(into: earlier) { $0.add($1.linkedShot) }
-    }
-}
-
-extension ShotTrainingShot {
-    nonisolated var linkedShot: LinkedShotTrainingShot {
-        .init(points: points, made: made, timestamp: timestamp)
-    }
-}
-
+/// Persisted iPhone draft. Keep the released keys and full shot UUIDs and dates.
 nonisolated struct ShotTrainingResumeState: Codable, Equatable {
     var schemaVersion = 1
     var mode: ShotTrainingMode
@@ -156,9 +129,9 @@ struct ShotTrainingScoreboardView: View {
 
     private var linkedSnapshot: LinkedScoreboardSnapshot {
         .basketballTraining(.init(
-            mode: LinkedShotTrainingMode(rawValue: mode.rawValue) ?? .fixed1,
+            mode: mode,
             startTime: gameStartTime,
-            shots: shots.map(\.linkedShot),
+            shots: shots,
             earlierCounts: earlierCounts,
             finished: gameFinished
         ))
@@ -691,7 +664,7 @@ struct ShotTrainingScoreboardView: View {
     private func record(points: Int, made: Bool) {
         guard !gameFinished, !scoringLocked else { return }
         hideEntrySidePrompt()
-        shots.append(.init(points: points, made: made))
+        shots.append(.init(id: UUID(), points: points, made: made, timestamp: Date()))
         publishLinkedTraining()
         saveRecord(finished: false)
         // 鸿蒙端 vibrate(made)：命中 40ms、未中 90ms，未中比命中更重。
@@ -882,7 +855,7 @@ struct ShotTrainingScoreboardView: View {
         return compact
     }
 
-    private func applyLinkedState(_ state: LinkedShotTrainingState, matchGeneration: UInt64? = nil) {
+    private func applyLinkedState(_ state: ShotTrainingState, matchGeneration: UInt64? = nil) {
         let isNewMatch = matchGeneration.map { $0 != appliedWatchMatchGeneration } ?? (gameStartTime != state.startTime)
         if let matchGeneration { appliedWatchMatchGeneration = matchGeneration }
         if isNewMatch {
@@ -893,9 +866,11 @@ struct ShotTrainingScoreboardView: View {
         if state.finished, let id = watchLinkService.finishedRecordId {
             finalizedRecordID = id
         }
-        mode = ShotTrainingMode(rawValue: state.mode.rawValue) ?? .fixed1
+        mode = state.mode
         gameStartTime = state.startTime
-        shots = state.shots.map { .init(points: $0.points, made: $0.made, timestamp: $0.timestamp) }
+        shots = state.shots.map {
+            .init(id: UUID(), points: $0.points, made: $0.made, timestamp: $0.timestamp)
+        }
         earlierCounts = state.earlierCounts
         gameFinished = state.finished
         showGameOver = state.finished

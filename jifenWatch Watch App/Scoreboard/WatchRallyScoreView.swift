@@ -110,7 +110,7 @@ private final class WatchRallySessionStore {
             if case .reset = intent {
                 self.actionLog.reset(at: timestamp)
             } else {
-                self.actionLog.append(contentsOf: WatchScoreActionProjector.rally(
+                self.actionLog.append(contentsOf: ScoreActionProjector.rally(
                     intent: intent,
                     events: events,
                     state: session.state,
@@ -142,20 +142,17 @@ private final class WatchRallySessionStore {
     @discardableResult
     func applyAuthoritativeState(
         _ state: RallyMatchState,
-        detailedActions: [DetailedScoreAction],
         revision: UInt64,
-        matchGeneration: UInt64? = nil,
-        newMatchStartedAt: Date? = nil
+        matchGeneration: UInt64? = nil
     ) async -> Bool {
         if let matchGeneration, lastAppliedRemoteGeneration != matchGeneration {
+            if let lastAppliedRemoteGeneration, matchGeneration < lastAppliedRemoteGeneration {
+                return false
+            }
             lastAppliedRemoteGeneration = matchGeneration
             lastAppliedRemoteRevision = nil
         }
-        if revision == lastAppliedRemoteRevision {
-            mergeRemoteActions(detailedActions)
-            return false
-        }
-        if let lastAppliedRemoteRevision, revision < lastAppliedRemoteRevision {
+        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
             return false
         }
         lastAppliedRemoteRevision = revision
@@ -166,13 +163,17 @@ private final class WatchRallySessionStore {
         guard lastAppliedRemoteRevision == revision,
               matchGeneration == nil || lastAppliedRemoteGeneration == matchGeneration else { return false }
         self.state = session.state
-        if let newMatchStartedAt { actionLog.reset(at: newMatchStartedAt) }
-        actionLog.merge(detailedActions: detailedActions)
+        actionLog.clearUndoHistory()
         return true
     }
 
-    func mergeRemoteActions(_ actions: [DetailedScoreAction]) {
-        actionLog.merge(detailedActions: actions)
+    func beginRemoteMatch(at timestamp: Date) {
+        actionLog.reset(at: timestamp)
+    }
+
+    @discardableResult
+    func mergeRemoteActions(_ actions: [DetailedScoreAction], removing removedIDs: Set<UUID> = []) -> Bool {
+        actionLog.merge(detailedActions: actions, removing: removedIDs)
     }
 
     func resumeBundle() async -> ResumeBundle {
@@ -359,20 +360,28 @@ struct WatchRallyScoreView: View {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
         .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
-            guard linkService.incomingSnapshot != nil, let linkedSessionId,
-                  let update,
-                  update.sessionId == linkedSessionId else { return }
-            guard let state = update.snapshot.rallyState else { return }
-            let newMatchStartedAt = update.beginsMatch(after: previous) ? Date() : nil
-            if let newMatchStartedAt { matchStartTime = newMatchStartedAt }
+            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
+                  update.matchGeneration == linkService.activeHandle?.matchGeneration,
+                  let state = update.snapshot.rallyState else { return }
+            let acceptsScore = linkService.incomingSnapshot != nil
+            if acceptsScore, update.beginsMatch(after: previous) {
+                matchStartTime = Date()
+                store.beginRemoteMatch(at: matchStartTime)
+            }
+            let historyChanged = store.mergeRemoteActions(update.detailedActions, removing: update.removedActionIDs)
+            guard acceptsScore else {
+                if historyChanged { Task { await persistResumeSession() } }
+                return
+            }
             Task {
-                guard await store.applyAuthoritativeState(
-                    state,
-                    detailedActions: update.detailedActions,
-                    revision: update.revision,
-                    matchGeneration: update.matchGeneration,
-                    newMatchStartedAt: newMatchStartedAt
-                ) else { return }
+                guard update.matchGeneration == linkService.activeHandle?.matchGeneration else { return }
+                let scoreApplied = await store.applyAuthoritativeState(
+                    state, revision: update.revision, matchGeneration: update.matchGeneration
+                )
+                guard scoreApplied else {
+                    if historyChanged { await persistResumeSession() }
+                    return
+                }
                 if state.finished {
                     restState = nil
                     beginRemoteFinishPresentation()
@@ -393,12 +402,9 @@ struct WatchRallyScoreView: View {
                   let pending,
                   pending.sessionId == linkedSessionId,
                   let state = pending.snapshot.rallyState else { return }
+            store.mergeRemoteActions(pending.detailedActions)
             Task {
-                guard await store.applyAuthoritativeState(
-                    state,
-                    detailedActions: pending.detailedActions,
-                    revision: pending.revision
-                ) else { return }
+                guard await store.applyAuthoritativeState(state, revision: pending.revision) else { return }
                 restState = WatchRestState.fromOfficialBreak(state.finished ? nil : state.officialBreakState)
                 linkService.completeReclaimAcceptance(messageId: pending.messageId)
             }
@@ -1179,52 +1185,13 @@ struct WatchRallyScoreView: View {
     private func transferLocalFinishedRecordIfNeeded(_ state: RallyMatchState) -> Bool {
         guard !didTransferFinishedRecord else { return true }
         let end = Date()
-        let winnerName: String? = {
-            if state.leftSets == state.rightSets { return nil }
-            return state.leftSets > state.rightSets ? state.leftName : state.rightName
-        }()
-        let record = WatchScoreboardRecord(
-            id: "w_\(UUID().uuidString)",
-            gameType: watchGameType(for: gameType),
-            startTime: matchStartTime,
-            endTime: end,
-            duration: end.timeIntervalSince(matchStartTime),
-            team1Name: state.leftName,
-            team2Name: state.rightName,
-            team1FinalScore: state.leftPoints,
-            team2FinalScore: state.rightPoints,
-            team1SetScore: state.leftSets,
-            team2SetScore: state.rightSets,
-            winner: winnerName,
-            actions: store.actionLog.actions,
-            totalScoreChanges: store.actionLog.scoreChangeCount,
-            participants: state.doubles?.playerNames.map {
-                WatchRecordParticipant(name: $0, score: 0)
-            },
-            projectConfiguration: [
-                "scoreCoreGameType": gameType.rawValue,
-                "isSingles": String(state.doubles == nil),
-                "maxSets": String(state.rules.maxSets),
-                "pointsPerSet": String(state.rules.pointsToWinSet),
-                "useRallyScoring": String(state.rules.useRallyScoring),
-                "rallyScoring": String(state.rules.useRallyScoring),
-                "isDoubles": String(state.doubles != nil)
-            ]
-        )
+        guard let record = WatchScoreboardRecord(
+            localSnapshot: .rally(state), gameType: gameType,
+            id: "w_\(UUID().uuidString)", startTime: matchStartTime, endTime: end,
+            detailedActions: store.actionLog.detailedActions, totalScoreChanges: store.actionLog.scoreChangeCount
+        ) else { return false }
         guard resumeStore.saveFinishedRecord(record) else { return false }
         didTransferFinishedRecord = true
         return true
-    }
-
-    private func watchGameType(for type: GameType) -> WatchGameType {
-        switch type {
-        case .pingpong, .pingpongDoubles: return .pingpong
-        case .badminton, .badmintonDoubles: return .badminton
-        case .pickleball, .pickleballDoubles: return .pickleball
-        case .shuttlecock: return .shuttlecock
-        case .squash: return .squash
-        case .foosball, .foosballDoubles: return .foosball
-        default: return .badminton
-        }
     }
 }

@@ -279,10 +279,15 @@ extension WatchLinkService {
                 revision: envelope.sessionRevision,
                 matchGeneration: envelope.matchGeneration,
                 snapshot: snapshot,
-                detailedActions: mergedDetailedActions
+                detailedActions: mergedDetailedActions,
+                removedActionIDs: actionHistory.removedActionIDs
             )
             if let context = resumeContext {
-                WatchResumeSessionStore.shared.applyLinkedSnapshot(snapshot, context: context)
+                if validation == .current {
+                    WatchResumeSessionStore.shared.applyLinkedSnapshot(snapshot, context: context)
+                } else {
+                    WatchResumeSessionStore.shared.refreshLinkContext(context)
+                }
             }
             persistContext()
         } else if history {
@@ -292,6 +297,10 @@ extension WatchLinkService {
             mergeDetailedActions(envelope.payload.detailedActions)
             activeSetup?.detailedActions = mergedDetailedActions
             latestSnapshot?.detailedActions = mergedDetailedActions
+            latestSnapshot?.removedActionIDs = actionHistory.removedActionIDs
+            if let context = resumeContext {
+                WatchResumeSessionStore.shared.refreshLinkContext(context)
+            }
             persistContext()
         }
         // ACK valid duplicates too: a retry usually means our prior ACK was lost.
@@ -497,6 +506,8 @@ extension WatchLinkService {
                 if isCurrentMatch || beginsNewMatch {
                     if beginsNewMatch {
                         pendingAck.clear()
+                        actionHistory = LinkSnapshotHistory()
+                        deltaActionTracker.reset()
                         _ = revisionGate.beginMatch(envelope.handle, initialRevision: envelope.sessionRevision)
                     } else {
                         _ = revisionGate.classify(handle: envelope.handle, revision: envelope.sessionRevision)
@@ -507,7 +518,8 @@ extension WatchLinkService {
                         revision: envelope.sessionRevision,
                         matchGeneration: envelope.matchGeneration,
                         snapshot: payload.snapshot,
-                        detailedActions: payload.detailedActions
+                        detailedActions: payload.detailedActions,
+                        removedActionIDs: actionHistory.removedActionIDs
                     )
                     activeSetup = LinkedScoreboardSetup(
                         gameType: session.gameType, maxSets: maxSets(for: payload.snapshot),
