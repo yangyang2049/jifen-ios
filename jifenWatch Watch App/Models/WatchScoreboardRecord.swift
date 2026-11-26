@@ -149,6 +149,12 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
     var participants: [WatchRecordParticipant]?
     var projectConfiguration: [String: String]?
 
+    /// 静态缓存 formatter（DateFormatter 实例化代价高，init 每次新建会拖慢
+    /// 列表首载）。DateFormatter 非线程安全，所有取用都在 NSLock 临界区内
+    /// 完成格式切换与格式化，输出行为与每次新建时一致。
+    private static let formatterLock = NSLock()
+    private static let sharedFormatter = DateFormatter()
+
     init(from record: WatchScoreboardRecord) {
         self.id = record.id
         self.gameType = record.gameType
@@ -164,19 +170,17 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
         self.participants = record.participants
         self.projectConfiguration = record.projectConfiguration
 
-        let dateFormatter = DateFormatter()
         let calendar = Calendar.current
-        
-        if calendar.isDate(record.startTime, equalTo: Date(), toGranularity: .year) {
-            // Same year, format without year
-            dateFormatter.dateFormat = "MM-dd"
-        } else {
-            // Different year, format with year
-            dateFormatter.dateFormat = "yyyy-MM-dd"
-        }
-        self.dateText = dateFormatter.string(from: record.startTime)
-        dateFormatter.dateFormat = "HH:mm"
-        self.timeText = dateFormatter.string(from: record.startTime)
+        let sameYear = calendar.isDate(record.startTime, equalTo: Date(), toGranularity: .year)
+
+        Self.formatterLock.lock()
+        defer { Self.formatterLock.unlock() }
+        let formatter = Self.sharedFormatter
+        // Same year: format without year; different year: format with year.
+        formatter.dateFormat = sameYear ? "MM-dd" : "yyyy-MM-dd"
+        self.dateText = formatter.string(from: record.startTime)
+        formatter.dateFormat = "HH:mm"
+        self.timeText = formatter.string(from: record.startTime)
     }
 
     static func == (lhs: WatchScoreboardRecordSummary, rhs: WatchScoreboardRecordSummary) -> Bool {

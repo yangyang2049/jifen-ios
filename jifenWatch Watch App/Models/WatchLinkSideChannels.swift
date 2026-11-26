@@ -7,21 +7,16 @@ import ScoreCore
 extension WatchLinkService {
     /// 单条记录超 64KB 时按最旧动作减半裁剪：WCSession 超限会直接抛原生异常，
     /// 裁剪后投递优先；记录的 actions 摘要列表保持不变，仅 detailedActions 尾部丢失。
-    func sizedPendingRecordData(_ payload: WatchRecordTransferPayload) -> Data {
-        var candidate = payload
-        guard var data = try? JSONEncoder().encode(candidate) else { return Data() }
-        while data.count > LinkEnvelopeEncoding.defaultByteLimit,
-              let actions = candidate.detailedActions, !actions.isEmpty {
-            var trimmed = actions
-            trimmed.removeFirst(max(1, trimmed.count / 2))
-            candidate.detailedActions = trimmed
-            guard let next = try? JSONEncoder().encode(candidate) else { break }
-            data = next
-        }
-        return data
+    /// Reliable-channel file from the phone: currently only terminal
+    /// matchFinished frames travel phone → watch. The compressed-frame magic
+    /// probe covers frames whose metadata was lost.
+    func handleReceivedFile(_ data: Data, metadata: [String: Any]) {
+        let kind = metadata[WatchConnectivityTransport.transferFileKindKey] as? String
+        guard kind == nil || kind == WatchTransferFileKind.matchFinished.rawValue
+            || LinkFinishedEncoding.isCompressedFrame(data) else { return }
+        receive(data)
     }
 
-    /// Auto-queue a finished local watch record to the phone.
     func transferFinishedRecord(_ payload: WatchRecordTransferPayload) {
         #if DEBUG
         print("[WatchLink] transferFinishedRecord id=\(payload.id) (pending now \(pendingWatchRecords.count))")
@@ -32,7 +27,32 @@ extension WatchLinkService {
             pendingWatchRecords.append(payload)
         }
         persistPendingWatchRecords()
+        deliverStandaloneRecord(payload)
         flushPendingWatchRecords()
+    }
+
+    /// 统一管线（与联动完赛一致）：完整编码 → 按最终字节预算选通道 →
+    /// 以手机 clearPendingWatchRecords 业务 ACK 为唯一出队依据。
+    /// 独立开局可能从未握手：文件能力来自配对传输层（首发协议配对即同版本），
+    /// 不依赖活跃比赛。常规保存、激活重试与手机拉取共用该口径。
+    func deliverStandaloneRecord(_ payload: WatchRecordTransferPayload) {
+        guard let data = try? JSONEncoder().encode(payload), !data.isEmpty else {
+            lastLinkErrorMessage = "standalone record encode failed"
+            return
+        }
+        switch LinkFinishedRouting.chooseDurableChannel(
+            frameByteCount: data.count,
+            peerSupportsFileTransfer: transport.supportsFileTransfer
+        ) {
+        case .userInfo:
+            try? transport.transferWatchRecord(data)
+        case .file:
+            try? transport.transferFileData(data, metadata: [
+                WatchConnectivityTransport.transferFileKindKey: WatchTransferFileKind.watchRecord.rawValue
+            ])
+        case .hold:
+            break // 保留队列；重连后重试会再次选通道
+        }
     }
 
     func flushPendingWatchRecords() {
@@ -51,9 +71,11 @@ extension WatchLinkService {
             #endif
             return
         }
+        // 快路径同样完整编码：只把 ≤60KB 的帧放进消息批，超限帧只走
+        // deliverStandaloneRecord 的可靠通道，不在此处裁剪。
         let datas = pendingWatchRecords
-            .map { sizedPendingRecordData($0) }
-            .filter { !$0.isEmpty }
+            .compactMap { try? JSONEncoder().encode($0) }
+            .filter { !$0.isEmpty && $0.count <= LinkFinishedRouting.realtimeBudgetBytes }
         #if DEBUG
         print("[WatchLink] pushed \(datas.count) pending records to phone (awaiting confirm)")
         #endif
@@ -62,18 +84,20 @@ extension WatchLinkService {
 
     func persistPendingWatchRecords() {
         if pendingWatchRecords.isEmpty {
-            WatchPreferences.shared.remove(forKey: pendingWatchRecordsKey)
+            outboxStore.removeObject(forKey: pendingWatchRecordsKey)
         } else {
             do {
                 let data = try JSONEncoder().encode(pendingWatchRecords)
-                WatchPreferences.shared.setData(data, forKey: pendingWatchRecordsKey)
+                try outboxStore.setOrThrow(data, forKey: pendingWatchRecordsKey)
             } catch {
                 reportPersistenceError(error)
             }
         }
     }
 
-    /// Uses `transferUserInfo`, so usage survives an offline phone/watch interval.
+    /// Player-name usage now flows through the single `CommonNameMutation(.add)`
+    /// channel (offline-capable via `transferUserInfo`), replacing the removed
+    /// dedicated usage-event channel.
     func recordCommonNameUsage(_ names: [String]) {
         let normalized = names
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -86,42 +110,9 @@ extension WatchLinkService {
             addedLocally = true
         }
 
-        pendingCommonNameUsage.append(CommonNameUsagePayload(names: normalized))
-        persistPendingCommonNameUsage()
-        flushPendingCommonNameUsage()
+        flushPendingCommonNameMutations(force: true)
         if addedLocally {
             commonNamesDidChange()
-        }
-    }
-
-    func flushPendingCommonNameUsage() {
-        guard transport.status.isActivated, !pendingCommonNameUsage.isEmpty else { return }
-        var deliveredCount = 0
-        for payload in pendingCommonNameUsage {
-            do {
-                let data = try JSONEncoder().encode(payload)
-                try transport.transferCommonNameUsage(data)
-                deliveredCount += 1
-            } catch {
-                lastLinkErrorMessage = error.localizedDescription
-                break
-            }
-        }
-        guard deliveredCount > 0 else { return }
-        pendingCommonNameUsage.removeFirst(deliveredCount)
-        persistPendingCommonNameUsage()
-    }
-
-    private func persistPendingCommonNameUsage() {
-        if pendingCommonNameUsage.isEmpty {
-            WatchPreferences.shared.remove(forKey: pendingCommonNameUsageKey)
-        } else {
-            do {
-                let data = try JSONEncoder().encode(pendingCommonNameUsage)
-                WatchPreferences.shared.setData(data, forKey: pendingCommonNameUsageKey)
-            } catch {
-                reportPersistenceError(error)
-            }
         }
     }
 

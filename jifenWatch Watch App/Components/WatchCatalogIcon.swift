@@ -24,7 +24,7 @@ enum WatchCatalogIconAssets {
     /// artwork on the phone share it here as well.
     static func gameKey(_ gameType: WatchGameType) -> String {
         switch gameType {
-        case .basketball, .threeBasketball, .basketballTraining:
+        case .basketballTraining:
             return "basketball"
         case .football, .football5v5:
             return "football"

@@ -38,6 +38,7 @@ extension PhoneWatchLinkService {
               connectivityStatus.isPaired,
               connectivityStatus.isWatchAppInstalled else { return }
         let snapshot = CommonNamesManager.shared.currentSyncSnapshot()
+            .budgetConstrainedData()
         let context: [String: Any] = [
             WatchConnectivityTransport.commonNamesContextKey: snapshot.applicationContextValue()
         ]
@@ -45,6 +46,24 @@ extension PhoneWatchLinkService {
             try transport.updateApplicationContext(context)
         } catch {
             lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    /// Reliable-channel file from the watch: route by metadata kind, falling
+    /// back to the compressed-frame magic probe for matchFinished frames.
+    func handleReceivedFile(_ data: Data, metadata: [String: Any]) {
+        let kind = metadata[WatchConnectivityTransport.transferFileKindKey] as? String
+        if kind == WatchTransferFileKind.watchRecord.rawValue {
+            handleWatchRecordTransfer(data)
+            return
+        }
+        if kind == WatchTransferFileKind.matchFinished.rawValue
+            || LinkFinishedEncoding.isCompressedFrame(data) {
+            _ = handleMatchFinishedFromWatch(data)
+            return
+        }
+        if (try? JSONDecoder().decode(WatchRecordTransferPayload.self, from: data)) != nil {
+            handleWatchRecordTransfer(data)
         }
     }
 
@@ -113,16 +132,6 @@ extension PhoneWatchLinkService {
         }
     }
 
-    func handleCommonNameUsage(_ data: Data) {
-        guard let payload = try? JSONDecoder().decode(CommonNameUsagePayload.self, from: data),
-              payload.nameType == "player" else { return }
-        Task { @MainActor [weak self] in
-            for name in payload.names {
-                await CommonNamesManager.shared.saveNameIfNeeded(name, .player)
-            }
-            self?.pushCommonNamesToWatch()
-        }
-    }
 
     func handleCommonNameMutations(_ data: Data) {
         guard let batch = try? JSONDecoder().decode(CommonNameMutationBatch.self, from: data),
@@ -140,9 +149,11 @@ extension PhoneWatchLinkService {
     }
 
     func handleConnectivityStatusChange(_ status: WatchConnectivityStatus) {
+        let becameReachable = !connectivityStatus.isReachable && status.isReachable
         connectivityStatus = status
         pushCommonNamesToWatch()
         guard status.isReachable else { return }
+        if becameReachable { retryLiveSnapshotOnReconnect() }
         flushPendingSessionEnds()
         requestStatusForActiveSession()
         requestPendingWatchRecordsFromWatch()

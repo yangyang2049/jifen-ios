@@ -7,6 +7,14 @@ import SessionCore
 
 @MainActor
 final class WatchLinkServiceTests: XCTestCase {
+    /// WatchResumeSessionStore 的文件存储测试目录（每用例独立临时目录）。
+    private func makeResumeStoreDirectory() -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("WatchLinkServiceTests.\(UUID().uuidString)", isDirectory: true)
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+
     func testCancelFailedTrainingFinishLetsNextFinishSendUpdatedTraining() async throws {
         let store = WatchLinkTestDataStore()
         let transport = WatchLinkTestTransport()
@@ -316,6 +324,57 @@ final class WatchLinkServiceTests: XCTestCase {
         XCTAssertEqual(acks.filter { $0.handle == third }.count, 2)
     }
 
+    func testSetupNegotiatesKnownCapabilitiesAndRejectsUnsupportedProtocol() async throws {
+        let store = WatchLinkTestDataStore()
+        let transport = WatchLinkTestTransport()
+        let service = WatchLinkService(transport: transport, contextStore: store, outboxStore: store)
+        let fixture = makeWatchLinkSetup()
+        let offered = LinkProtocol.requiredCapabilities.union([
+            .deltaActions, LinkCapability(rawValue: "futureCapability")
+        ])
+        func request(version: Int, capabilities: Set<LinkCapability>) -> LinkEnvelope<LinkedScoreboardSetup> {
+            LinkEnvelope(
+                protocolVersion: version, capabilities: capabilities, sessionId: UUID(),
+                kind: .setupRequest, sender: .phone, senderSequence: 1,
+                sessionRevision: 0, sentAtEpochMilliseconds: 1,
+                payload: LinkedScoreboardSetup(
+                    gameType: .badminton, initialSnapshot: fixture.snapshot, capabilities: capabilities
+                )
+            )
+        }
+
+        for invalid in [
+            request(version: LinkProtocol.currentVersion + 1, capabilities: offered),
+            request(version: LinkProtocol.currentVersion, capabilities: offered.subtracting([.correlatedRequests]))
+        ] {
+            service.receive(try JSONEncoder().encode(invalid))
+            await settleWatchLinkService()
+            XCTAssertNil(service.pendingConfirmRequest)
+            let refusal = try JSONDecoder().decode(
+                LinkEnvelope<LinkSetupRejectedPayload>.self,
+                from: try XCTUnwrap(transport.realtimeMessages.last)
+            )
+            XCTAssertEqual(refusal.correlationId, invalid.messageId)
+            XCTAssertEqual(refusal.payload.reason, .incompatibleProtocol)
+        }
+
+        let valid = request(version: LinkProtocol.currentVersion, capabilities: offered)
+        service.receive(try JSONEncoder().encode(valid))
+        let negotiated = LinkProtocol.requiredCapabilities.union([.deltaActions])
+        XCTAssertEqual(service.pendingConfirmRequest?.peerCapabilities, negotiated)
+        service.acceptPendingSetup()
+        await settleWatchLinkService()
+        let response = try JSONDecoder().decode(
+            LinkEnvelope<EmptyLinkPayload>.self,
+            from: try XCTUnwrap(transport.realtimeMessages.last)
+        )
+        XCTAssertEqual(response.kind, .setupAccepted)
+        XCTAssertEqual(response.correlationId, valid.messageId)
+        XCTAssertEqual(response.capabilities, negotiated)
+        XCTAssertTrue(service.peerSupportsDeltaActions)
+        XCTAssertFalse(service.peerSupportsFileTransfer)
+    }
+
     func testTrainingRejectsPhoneWithoutFinishSupport() async throws {
         let store = WatchLinkTestDataStore()
         let transport = WatchLinkTestTransport()
@@ -458,11 +517,12 @@ final class WatchLinkServiceTests: XCTestCase {
     }
 
     func testWatchResumeSessionSupportsNewlyUnlockedSportsAndAppliesLinkedFootballSnapshot() throws {
-        let suiteName = "WatchLinkServiceTests.Resume.\(UUID().uuidString)"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("WatchLinkServiceTests.Resume.\(UUID().uuidString)", isDirectory: true)
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
 
-        let store = WatchResumeSessionStore(defaults: defaults)
+        let store = WatchResumeSessionStore(directoryURL: directory)
         let handle = LinkedMatchHandle(sessionId: UUID(), matchId: UUID())
         let initialFootball = LinkedFootballState(
             leftName: "红队",
@@ -632,6 +692,35 @@ final class WatchLinkServiceTests: XCTestCase {
 
         XCTAssertEqual(service.mergedDetailedActions.map(\.id), [action.id])
         XCTAssertEqual(service.activeSetup?.detailedActions.map(\.id), [action.id])
+
+        // A same-revision realtime frame can supply additional actions after
+        // the checkpoint has already set the score revision.
+        let nextAction = DetailedScoreAction(
+            type: .scoreChanged, epochMilliseconds: 3_500,
+            team: .team2, scores: [1, 1]
+        )
+        var delta = LinkEnvelopeEncoding.checkpointEnvelope(strippedFromPhone)
+        delta.payload.isDeltaActions = true
+        delta.payload.detailedActions = [nextAction]
+        let data = try JSONEncoder().encode(delta)
+        transport.deliver(data)
+        transport.deliver(data)
+        await settleWatchLinkService()
+
+        XCTAssertEqual(service.mergedDetailedActions.map(\.id), [action.id, nextAction.id])
+        let acknowledgements = transport.realtimeMessages.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<LinkAcknowledgementPayload>.self, from: $0)
+        }.filter { $0.kind == .acknowledgement && $0.correlationId == delta.messageId }
+        XCTAssertEqual(acknowledgements.count, 2)
+
+        // The same-revision correction arrives after the score-only checkpoint.
+        var correction = LinkEnvelopeEncoding.checkpointEnvelope(strippedFromPhone)
+        correction.payload.isDeltaActions = false
+        correction.payload.removedActionIDs = [nextAction.id]
+        service.receive(try JSONEncoder().encode(correction))
+        service.receive(data)
+        XCTAssertEqual(service.mergedDetailedActions.map(\.id), [action.id])
+        XCTAssertEqual(service.latestSnapshot?.snapshot, setup.snapshot)
     }
 
     func testTrainingLinkRoutesAndReturnsTheWatchRecord() throws {
@@ -669,11 +758,8 @@ final class WatchLinkServiceTests: XCTestCase {
     }
 
     func testSuspendedTrainingFollowsPhoneShotsAndPersistsUpdatedTotals() throws {
-        let suite = "watch-linked-training-\(UUID().uuidString)"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
         let now = Date()
-        let resumeStore = WatchResumeSessionStore(defaults: defaults, now: { now })
+        let resumeStore = WatchResumeSessionStore(directoryURL: makeResumeStoreDirectory(), now: { now })
         let state = LinkedShotTrainingState(
             mode: .free,
             startTime: now,
@@ -1231,6 +1317,155 @@ private final class WatchLinkTestDataStore: @unchecked Sendable, LinkDataStore {
     func removeObject(forKey key: String) {
         values.removeValue(forKey: key)
     }
+
+    func setOrThrow(_ data: Data, forKey key: String) throws {
+        values[key] = data
+    }
+
+    @discardableResult
+    func removeOrThrow(forKey key: String) throws -> Bool {
+        let existed = values[key] != nil
+        values.removeValue(forKey: key)
+        return existed
+    }
+}
+
+/// R3 真实入口回归（手表侧，一次同步，之后只驱动 ACK / 重连）：
+/// 3000 条动作超预算 → publishSnapshot 的实时帧只带上裁剪后动作；
+extension WatchLinkServiceTests {
+    func testOversizedPublishSnapshotKeepsDebtAcrossAcksRetriesAndReconnect() async throws {
+        let store = WatchLinkTestDataStore()
+        let transport = WatchLinkTestTransport()
+        let service = WatchLinkService(
+            transport: transport, contextStore: store, outboxStore: store
+        )
+        let setup = makeWatchLinkSetup(supportsSharedEditing: true)
+        transport.deliver(try JSONEncoder().encode(setup.envelope))
+        await settleWatchLinkService()
+        service.acceptPendingSetup()
+
+        let allActions = (0..<3000).map { index in
+            DetailedScoreAction(
+                type: .scoreChanged, epochMilliseconds: 1_000 + Int64(index),
+                team: .team1, scores: [index, 0], scoreChange: 1,
+                operationCode: "oversize_watch_op_\(index)"
+            )
+        }
+        // 唯一一次真实同步。
+        service.publishSnapshot(setup.snapshot, detailedActions: allActions)
+        await settleWatchLinkService()
+        typealias SnapshotFrame = LinkEnvelope<LinkedScoreboardSetup>
+        func frames() -> [SnapshotFrame] {
+            transport.realtimeMessages.compactMap {
+                try? JSONDecoder().decode(SnapshotFrame.self, from: $0)
+            }.filter { $0.kind == .stateSnapshot }
+        }
+        let realtime = try XCTUnwrap(frames().last)
+        XCTAssertEqual(frames().count, 1)
+        let onWire = realtime.payload.detailedActions
+        XCTAssertFalse(onWire.isEmpty)
+        XCTAssertLessThan(onWire.count, allActions.count)
+
+        func ack(_ envelope: LinkEnvelope<LinkedScoreboardSetup>, sequence: UInt64) {
+            transport.deliver(try! JSONEncoder().encode(LinkEnvelope(
+                correlationId: envelope.messageId, sessionId: realtime.sessionId,
+                matchId: realtime.matchId, matchGeneration: realtime.matchGeneration,
+                kind: .acknowledgement, sender: .phone, senderSequence: sequence,
+                sessionRevision: envelope.sessionRevision,
+                sentAtEpochMilliseconds: realtime.sentAtEpochMilliseconds + 1,
+                payload: LinkAcknowledgementPayload(
+                    acknowledgedMessageId: envelope.messageId,
+                    acknowledgedRevision: envelope.sessionRevision
+                )
+            )))
+        }
+        func setReachable(_ reachable: Bool) {
+            transport.status = WatchConnectivityStatus(
+                isSupported: true, isActivated: true, isPaired: true,
+                isWatchAppInstalled: true, isReachable: reachable
+            )
+            transport.onStatusChange?(transport.status)
+        }
+
+        // The first batch's ACK arrives after the transport became unreachable.
+        setReachable(false)
+        await settleWatchLinkService()
+        ack(realtime, sequence: 2)
+        await settleWatchLinkService()
+        let remaining = allActions.count - onWire.count
+        XCTAssertEqual(service.deltaActionTracker.pendingDeltaActions(of: allActions).count, remaining)
+        XCTAssertEqual(frames().count, 1)
+
+        // A duplicate ACK cannot retire the queued second batch.
+        let queued = try XCTUnwrap(service.pendingAck.pending)
+        XCTAssertNotEqual(queued.messageId, realtime.messageId)
+        ack(realtime, sequence: 3)
+        await settleWatchLinkService()
+        XCTAssertEqual(service.pendingAck.pending?.messageId, queued.messageId)
+        XCTAssertEqual(service.deltaActionTracker.pendingDeltaActions(of: allActions).count, remaining)
+
+        // Reconnect immediately retries the queued batch. Each subsequent real
+        // frame ACK must produce the next frame without another score update.
+        setReachable(true)
+        var delivered = Set(onWire.map(\.id))
+        for batch in 1...40 {
+            guard delivered.count < allActions.count else { break }
+            for _ in 0..<100 where frames().count <= batch {
+                try await Task.sleep(nanoseconds: 20_000_000)
+            }
+            let sent = frames()
+            guard sent.count > batch else {
+                XCTFail("No history batch after ACK or reconnect")
+                return
+            }
+            let next = sent[batch]
+            if batch == 1 { XCTAssertEqual(next.messageId, queued.messageId) }
+            XCTAssertEqual(next.sessionRevision, realtime.sessionRevision)
+            XCTAssertEqual(next.payload.initialSnapshot, realtime.payload.initialSnapshot)
+            XCTAssertEqual(next.payload.isDeltaActions, true)
+            XCTAssertFalse(next.payload.detailedActions.isEmpty)
+            for action in next.payload.detailedActions {
+                XCTAssertTrue(delivered.insert(action.id).inserted)
+            }
+            ack(next, sequence: UInt64(batch) + 10)
+            await settleWatchLinkService()
+        }
+        XCTAssertEqual(delivered, Set(allActions.map(\.id)))
+        XCTAssertTrue(service.deltaActionTracker.pendingDeltaActions(of: allActions).isEmpty)
+        XCTAssertNil(service.pendingAck.pending)
+
+        // Clearing the action log can exceed the realtime budget even when
+        // there are no additions. All removal IDs still need an ACK.
+        let firstRemovalBatch = frames().count
+        service.publishSnapshot(setup.snapshot, detailedActions: [])
+        let expectedRemovals = Set(allActions.map(\.id))
+        var removals = Set<UUID>()
+        for batch in 0..<10 {
+            guard removals != expectedRemovals else { break }
+            let index = firstRemovalBatch + batch
+            for _ in 0..<100 where frames().count <= index {
+                try await Task.sleep(nanoseconds: 20_000_000)
+            }
+            let sent = frames()
+            guard sent.count > index else {
+                XCTFail("No remaining removal batch after ACK")
+                return
+            }
+            let next = sent[index]
+            XCTAssertEqual(next.payload.isDeltaActions, false)
+            XCTAssertTrue(next.payload.detailedActions.isEmpty)
+            let wireRemovals = try XCTUnwrap(next.payload.removedActionIDs)
+            XCTAssertFalse(wireRemovals.isEmpty)
+            for id in wireRemovals {
+                XCTAssertTrue(removals.insert(id).inserted)
+            }
+            ack(next, sequence: UInt64(batch) + 100)
+            await settleWatchLinkService()
+        }
+        XCTAssertEqual(removals, expectedRemovals)
+        XCTAssertTrue(service.mergedDetailedActions.isEmpty)
+        XCTAssertNil(service.pendingAck.pending)
+    }
 }
 
 private final class WatchLinkTestTransport: @unchecked Sendable, WatchLinkTransport {
@@ -1249,7 +1484,6 @@ private final class WatchLinkTestTransport: @unchecked Sendable, WatchLinkTransp
     var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)?
     var onApplicationContext: (@Sendable ([String: Any]) -> Void)?
     var onWatchRecordData: (@Sendable (Data) -> Void)?
-    var onCommonNameUsageData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationsData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationAckData: (@Sendable (Data) -> Void)?
     var onCatchUpRequest: (@Sendable () -> Void)?
@@ -1284,7 +1518,14 @@ private final class WatchLinkTestTransport: @unchecked Sendable, WatchLinkTransp
     }
 
     func transferWatchRecord(_ data: Data) throws {}
-    func transferCommonNameUsage(_ data: Data) throws {}
+    var supportsFileTransfer = true
+    var onReceivedFile: (@Sendable (Data, [String: Any]) -> Void)?
+    var transferredFiles: [(data: Data, metadata: [String: Any])] = []
+
+    func transferFileData(_ data: Data, metadata: [String: Any]) throws {
+        transferredFiles.append((data, metadata))
+    }
+
     func transferCommonNameMutations(_ data: Data) throws {}
     func transferCommonNameMutationAcknowledgement(_ data: Data) throws {}
     func requestPendingWatchRecords() {}

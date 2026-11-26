@@ -21,7 +21,7 @@ let package = Package(
         .target(name: "SessionCore", dependencies: ["ScoreCore"]),
         .target(name: "RecordCore", dependencies: ["ScoreCore", "SessionCore"]),
         .target(name: "PersistenceCore", dependencies: ["ScoreCore", "SessionCore", "RecordCore"]),
-        .target(name: "LinkCore", dependencies: ["ScoreCore", "SessionCore", "RecordCore"]),
+        .target(name: "LinkCore", dependencies: ["ScoreCore", "SessionCore", "RecordCore", "PersistenceCore"]),
         .target(name: "TimerCore", dependencies: ["ScoreCore"]),
         .testTarget(name: "JifenCoreTests", dependencies: ["ScoreCore", "SessionCore", "RecordCore", "PersistenceCore", "LinkCore", "TimerCore"])
     ]

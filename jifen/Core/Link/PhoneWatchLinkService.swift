@@ -61,7 +61,23 @@ final class PhoneWatchLinkService {
     var pendingAck = LinkControlRetryQueue()
     var terminalOutbox = LinkDurableOutbox()
     var peerSupportsCompressedFinish = false
+    /// Capability intersection agreed during the handshake. Gates the new
+    /// channels (file transfer, delta actions) until both sides declared them.
+    var negotiatedPeerCapabilities: Set<LinkCapability> = []
+    /// Reason reported by the watch when it refused the latest setup request.
+    internal(set) var lastSetupRejectionReason: LinkSetupRejectionReason?
+    var deltaActionTracker = LinkDeltaActionTracker()
+    /// 对端帧送达的动作来源账本：本地权威替换时保留这些并发有效动作。
+    var actionHistory = LinkSnapshotHistory()
     @ObservationIgnored var retiredRecordSessions: LinkRetiredRecordSessions
+
+    var peerSupportsFileTransfer: Bool {
+        negotiatedPeerCapabilities.contains(.fileTransfer)
+    }
+
+    var peerSupportsDeltaActions: Bool {
+        negotiatedPeerCapabilities.contains(.deltaActions)
+    }
 
     var activeRecordSession: LinkRecordSession? {
         guard let session = activeSession, sessionMachine?.lifecycle != .starting else { return nil }
@@ -89,7 +105,6 @@ final class PhoneWatchLinkService {
     let contextKey = "phone_link_context"
     let terminalOutboxKey = "phone_link_terminal_outbox"
     let pendingSessionEndsKey = "phone_link_pending_session_ends"
-    let legacyCleanupMarkerKey = "phone_link_legacy_cleanup_v1"
     var pendingSessionEnds: [LinkPendingSessionEnd] = []
     var pendingSessionEndInFlight: Set<UUID> = []
 
@@ -204,7 +219,7 @@ final class PhoneWatchLinkService {
         /// this is what distinguishes a fresh match from a stale snapshot.
         let matchGeneration: UInt64
         let snapshot: LinkedScoreboardSnapshot
-        let detailedActions: [DetailedScoreAction]
+        var detailedActions: [DetailedScoreAction]
 
         func beginsMatch(after previous: Self?) -> Bool {
             guard let previous, previous.sessionId == sessionId else { return false }
@@ -214,8 +229,8 @@ final class PhoneWatchLinkService {
 
     init(
         transport: any WatchLinkTransport = WatchConnectivityTransport(),
-        contextStore: any LinkDataStore = UserDefaultsLinkDataStore.standard,
-        outboxStore: any LinkDataStore = UserDefaultsLinkDataStore.standard,
+        contextStore: any LinkDataStore = FileLinkDataStore.phoneWatchLinkDefault(),
+        outboxStore: any LinkDataStore = FileLinkDataStore.phoneWatchLinkDefault(),
         recordSink: (any PhoneLinkRecordSink)? = nil,
         clock: any LinkClock = SystemLinkClock()
     ) {
@@ -226,12 +241,6 @@ final class PhoneWatchLinkService {
         self.recordSink = recordSink ?? DefaultPhoneLinkRecordSink()
         self.clock = clock
         connectivityStatus = transport.status
-        if contextStore.data(forKey: legacyCleanupMarkerKey) == nil {
-            contextStore.removeObject(forKey: "phone_link_context_v1")
-            outboxStore.removeObject(forKey: "phone_link_terminal_outbox_v1")
-            outboxStore.removeObject(forKey: "phone_link_pending_ack_v1")
-            contextStore.set(Data([1]), forKey: legacyCleanupMarkerKey)
-        }
         if let data = outboxStore.data(forKey: terminalOutboxKey),
            let outbox = try? JSONDecoder().decode(LinkDurableOutbox.self, from: data) {
             terminalOutbox = outbox
@@ -266,9 +275,9 @@ final class PhoneWatchLinkService {
                 self?.receivePendingWatchRecords(datas)
             }
         }
-        transport.onCommonNameUsageData = { [weak self] data in
+        transport.onReceivedFile = { [weak self] data, metadata in
             DispatchQueue.main.async {
-                self?.handleCommonNameUsage(data)
+                self?.handleReceivedFile(data, metadata: metadata)
             }
         }
         transport.onCommonNameMutationsData = { [weak self] data in
@@ -426,11 +435,8 @@ final class PhoneWatchLinkService {
         lastErrorMessage = nil
 
         contextStore.removeObject(forKey: contextKey)
-        contextStore.removeObject(forKey: "phone_link_context_v1")
         outboxStore.removeObject(forKey: terminalOutboxKey)
         outboxStore.removeObject(forKey: pendingSessionEndsKey)
-        outboxStore.removeObject(forKey: "phone_link_terminal_outbox_v1")
-        outboxStore.removeObject(forKey: "phone_link_pending_ack_v1")
     }
 
     func requestForceTakeoverConfirmation(_ sessionId: UUID) {

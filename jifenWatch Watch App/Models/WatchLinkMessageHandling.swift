@@ -12,34 +12,65 @@ extension WatchLinkService {
         guard let head = try? JSONDecoder().decode(LinkEnvelopeHead.self, from: data),
               head.sender == .phone,
               head.kind == .setupRequest else { return }
+        sendSetupRejection(
+            handle: .init(sessionId: head.sessionId, matchId: head.matchId, matchGeneration: head.matchGeneration),
+            authorityEpoch: head.authorityEpoch, requestId: head.messageId, reason: .malformedSetup
+        )
+    }
+
+    func sendSetupRejection(
+        handle: LinkedMatchHandle,
+        authorityEpoch: UInt64,
+        requestId: UUID,
+        reason: LinkSetupRejectionReason
+    ) {
         sequence += 1
-        let rejection = LinkEnvelope(
-            correlationId: head.messageId,
-            sessionId: head.sessionId,
-            matchId: head.matchId,
-            matchGeneration: head.matchGeneration,
-            authorityEpoch: head.authorityEpoch,
+        let envelope = LinkEnvelope(
+            correlationId: requestId,
+            sessionId: handle.sessionId,
+            matchId: handle.matchId,
+            matchGeneration: handle.matchGeneration,
+            authorityEpoch: authorityEpoch,
             kind: .setupRejected,
             sender: .watch,
             senderSequence: sequence,
             sessionRevision: 0,
             sentAtEpochMilliseconds: nowMs(),
-            payload: EmptyLinkPayload()
+            payload: LinkSetupRejectedPayload(reason: reason)
         )
-        sendReportingError(rejection)
+        sendReportingError(envelope)
     }
 
     func receive(_ data: Data) {
-        let handled = handleConnectivityProbeResponse(data)
-            || handleSetupRequest(data)
-            || handleAck(data)
-            || handleSnapshotFromPhone(data)
-            || handleTakeover(data)
-            || handleReclaimResponse(data)
-            || handleMatchFinishedFromPhone(data)
-            || handleSessionLeft(data)
-            || handleResyncRequest(data)
-            || handleStatusQuery(data)
+        // 压缩完赛帧无法按 JSON 解码，必须最先探测魔数。
+        if LinkFinishedEncoding.isCompressedFrame(data) {
+            _ = handleMatchFinishedFromPhone(data)
+            markCommunication()
+            return
+        }
+        // 单次解码信封头，按 kind 精确派发。
+        let handled: Bool
+        if let head = try? JSONDecoder().decode(LinkEnvelopeHead.self, from: data) {
+            switch head.kind {
+            case .setupRequest: handled = handleSetupRequest(data)
+            case .stateSnapshot: handled = handleSnapshotFromPhone(data)
+            case .acknowledgement, .recordAcknowledgement: handled = handleAck(data)
+            case .matchFinished: handled = handleMatchFinishedFromPhone(data)
+            case .sessionLeft: handled = handleSessionLeft(data)
+            case .resyncRequest: handled = handleResyncRequest(data)
+            case .statusQuery: handled = handleStatusQuery(data)
+            case .connectivityProbeResponse: handled = handleConnectivityProbeResponse(data)
+            case .takeoverByPhone: handled = handleTakeover(data)
+            case .reclaimAccepted, .reclaimDenied: handled = handleReclaimResponse(data)
+            case .setupAccepted, .setupRejected, .matchStarted,
+                 .scoreboardExitedToHome, .watchBackgrounded, .resumeDiscarded,
+                 .commonNamesSyncRequest, .connectivityProbe, .statusResponse,
+                 .reclaimRequest:
+                handled = false // 不由手表端处理
+            }
+        } else {
+            handled = false
+        }
         if handled {
             markCommunication()
         } else {
@@ -69,26 +100,22 @@ extension WatchLinkService {
         guard let envelope = try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: data),
               envelope.sender == .phone,
               envelope.kind == .setupRequest else { return false }
-        guard envelope.protocolVersion == LinkProtocol.currentVersion,
-              envelope.capabilities == LinkProtocol.capabilities,
-              envelope.payload.capabilities == LinkProtocol.capabilities,
-              Self.isValidLinkedSetup(envelope.payload),
-              envelope.payload.gameType != .basketballTraining || envelope.supportsCompressedFinish == true else {
-            sequence += 1
-            let rejection = LinkEnvelope(
-                correlationId: envelope.messageId,
-                sessionId: envelope.sessionId,
-                matchId: envelope.matchId,
-                matchGeneration: envelope.matchGeneration,
-                authorityEpoch: envelope.authorityEpoch,
-                kind: .setupRejected,
-                sender: .watch,
-                senderSequence: sequence,
-                sessionRevision: 0,
-                sentAtEpochMilliseconds: nowMs(),
-                payload: EmptyLinkPayload()
+        let peerCapabilities = envelope.capabilities.intersection(envelope.payload.capabilities)
+        guard (LinkProtocol.minimumSupportedVersion...LinkProtocol.currentVersion).contains(envelope.protocolVersion),
+              let negotiated = LinkProtocol.negotiate(local: LinkProtocol.capabilities, peer: peerCapabilities) else {
+            sendSetupRejection(
+                handle: envelope.handle, authorityEpoch: envelope.authorityEpoch,
+                requestId: envelope.messageId, reason: .incompatibleProtocol
             )
-            sendReportingError(rejection)
+            return true
+        }
+        let supportsCompressedFinish = negotiated.contains(.compressedFinish) && envelope.supportsCompressedFinish == true
+        guard Self.isValidLinkedSetup(envelope.payload),
+              envelope.payload.gameType != .basketballTraining || supportsCompressedFinish else {
+            sendSetupRejection(
+                handle: envelope.handle, authorityEpoch: envelope.authorityEpoch,
+                requestId: envelope.messageId, reason: .unsupportedSport
+            )
             return true
         }
         if let existing = revisionGate.activeSessionId, existing != envelope.sessionId {
@@ -113,7 +140,8 @@ extension WatchLinkService {
             messageId: envelope.messageId,
             authorityEpoch: envelope.authorityEpoch,
             setup: envelope.payload,
-            peerSupportsCompressedFinish: envelope.supportsCompressedFinish == true,
+            peerSupportsCompressedFinish: supportsCompressedFinish,
+            peerCapabilities: negotiated,
             peerSupportsSharedEditing: envelope.supportsSharedEditing == true
         )
         mergeDetailedActions(envelope.payload.detailedActions)
@@ -128,7 +156,14 @@ extension WatchLinkService {
             return false
         }
         let messageId = envelope.payload.acknowledgedMessageId
-        _ = pendingAck.acknowledge(messageId: messageId)
+        let acknowledgedSnapshot = deltaActionTracker.acknowledgedSnapshot(by: envelope, pending: pendingAck.pending)
+        if pendingAck.pending?.messageId == messageId,
+           deltaActionTracker.carriesHistory(messageId: messageId), acknowledgedSnapshot == nil {
+            return false
+        }
+        if pendingAck.acknowledge(messageId: messageId) {
+            deltaActionTracker.noteAcknowledged(messageId: messageId)
+        }
         if var machine = sessionMachine {
             _ = machine.acknowledge(messageId: messageId)
             sessionMachine = machine
@@ -145,12 +180,19 @@ extension WatchLinkService {
             terminalItem = nil
         }
         if let terminalItem {
+            // 先确认 outbox 更新已落盘，再标记同步状态，避免断电窗口内重复回传。
+            guard persistTerminalOutbox() else {
+                rescheduleRetryIfNeeded()
+                return true
+            }
             if let finishedEnvelope = LinkFinishedEncoding.decode(terminalItem.data), !finishedEnvelope.payload.recordId.isEmpty {
                 recordSink.markSynced(recordId: finishedEnvelope.payload.recordId)
             }
-            persistTerminalOutbox()
             persistContext()
             flushPendingSessionEnds()
+        }
+        if let acknowledgedSnapshot {
+            sendRemainingActions(after: acknowledgedSnapshot)
         }
         rescheduleRetryIfNeeded()
         return true
@@ -204,6 +246,13 @@ extension WatchLinkService {
         synchronizeSessionStateFromMachine()
 
         if beganNewMatch {
+            if let pending = pendingAck.pending, deltaActionTracker.carriesHistory(messageId: pending.messageId) {
+                pendingAck.clear()
+                sessionMachine?.acknowledge(messageId: pending.messageId)
+                rescheduleRetryIfNeeded()
+            }
+            actionHistory = LinkSnapshotHistory()
+            deltaActionTracker.reset()
             mergedDetailedActions = []
             latestSnapshot = nil
             phoneTookOver = !shared
@@ -217,9 +266,10 @@ extension WatchLinkService {
                 revision: envelope.sessionRevision
             )
         }
-        let hasCurrentHistory = shared && envelope.sessionRevision == machine.revision
-            && !envelope.payload.detailedActions.isEmpty
+        let history = envelope.payload.carriesHistory && envelope.authorityEpoch == machine.authorityEpoch
+        let hasCurrentHistory = history && envelope.sessionRevision == machine.revision
         if validation == .current || hasCurrentHistory {
+            actionHistory.noteRemoteRemovals(envelope.payload.removedActionIDs ?? [])
             mergeDetailedActions(envelope.payload.detailedActions)
             var updatedSetup = envelope.payload
             updatedSetup.detailedActions = mergedDetailedActions
@@ -234,6 +284,14 @@ extension WatchLinkService {
             if let context = resumeContext {
                 WatchResumeSessionStore.shared.applyLinkedSnapshot(snapshot, context: context)
             }
+            persistContext()
+        } else if history {
+            // A checkpoint or newer edit can arrive first. Incorporate
+            // history without changing the accepted score revision.
+            actionHistory.noteRemoteRemovals(envelope.payload.removedActionIDs ?? [])
+            mergeDetailedActions(envelope.payload.detailedActions)
+            activeSetup?.detailedActions = mergedDetailedActions
+            latestSnapshot?.detailedActions = mergedDetailedActions
             persistContext()
         }
         // ACK valid duplicates too: a retry usually means our prior ACK was lost.
@@ -537,6 +595,8 @@ extension WatchLinkService {
               LinkManualResyncPolicy.watchCanRespond(role: controlRole),
               let setup = activeSetup,
               let snapshot = setup.initialSnapshot else { return false }
+        // 手机端手动同步意味着它要全量动作历史：清空本地增量台账。
+        deltaActionTracker.reset()
         publishSnapshot(
             snapshot,
             detailedActions: mergedDetailedActions,

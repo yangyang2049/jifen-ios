@@ -123,8 +123,8 @@ extension WatchLinkResumeContext {
 }
 
 struct WatchResumeSession: Codable, Sendable {
-    /// Schema 3 adopts stable team identity for archery side exchanges.
-    /// Schema-2 sessions on the current storage key are migrated on restore.
+    /// 首发格式直接起算：restore 只接受当前 schema 版本，旧版本会话一律视为
+    /// 无会话丢弃，不做任何迁移。
     static let currentSchemaVersion = 3
 
     let schemaVersion: Int
@@ -192,43 +192,60 @@ final class WatchResumeSessionStore {
         category: "Startup"
     )
 
-    private let defaults: UserDefaults
+    /// 存储根目录：默认 WatchStorageContainer.shared 的 resume/ 子目录；
+    /// resume/current.json 与 resume/pending-finished.json 均为原子写文件。
+    /// 首发格式直接起算，不迁移/清理任何旧版键或旧目录。
+    private let resumeDirectory: URL
     private let now: () -> Date
-    private let storageKey = "watch_resume_session"
-    private let pendingFinishedRecordsKey = "watch_pending_local_finish_records"
-    private let legacyCleanupMarkerKey = "watch_resume_legacy_cleanup_v1"
-    /// 得分高频触发 persistResumeSession；把落盘合并为 750ms 防抖，
-    /// 内存中的 session 立即更新（resume/clear 语义不受影响），
-    /// 只有 defaults 写入被推迟。切后台时 flushPendingWrite 保证不丢。
-    private var pendingWrite: (data: Data, key: String)?
+    /// 750ms 防抖写盘：主线程只保存内存 session 引用与待写值类型快照，
+    /// 由后台 Task 完成整个 JSONEncoder().encode + 原子写文件，消除每次得分
+    /// 在主线程同步编码全量 undoFrames + actionLog。切后台/退出计分板时
+    /// flushPendingWrite 同步落盘保证不丢。
+    private var pendingWrite: WatchResumeSession?
     private var pendingWriteTask: Task<Void, Never>?
     private static let writeDebounceNanoseconds: UInt64 = 750_000_000
+    /// 生成号 + 锁：清空/冲刷后作废在途后台写，确保旧草稿不会复活；
+    /// 校验生成号与落盘在同一临界区完成，关闭「校验后、写入前被清空」的窗口。
+    /// 计数器自带锁，nonisolated 后台写路径也能安全读写。
+    private final class WriteGenerationCounter: @unchecked Sendable {
+        private let lock = NSLock()
+        private var value = 0
+        func next() -> Int {
+            lock.lock()
+            defer { lock.unlock() }
+            value += 1
+            return value
+        }
+        var current: Int {
+            lock.lock()
+            defer { lock.unlock() }
+            return value
+        }
+
+        func withCurrent(_ body: (Int) -> Void) {
+            lock.lock()
+            defer { lock.unlock() }
+            body(value)
+        }
+    }
+    private let writeGenerationCounter = WriteGenerationCounter()
 
     private(set) var session: WatchResumeSession?
     private(set) var lastErrorMessage: String?
     private(set) var restoreAttemptCount = 0
 
-    init(defaults: UserDefaults = .standard, now: @escaping () -> Date = Date.init) {
-        self.defaults = defaults
+    private var currentFileURL: URL {
+        resumeDirectory.appendingPathComponent("current.json", isDirectory: false)
+    }
+    private var pendingFinishedFileURL: URL {
+        resumeDirectory.appendingPathComponent("pending-finished.json", isDirectory: false)
+    }
+
+    /// - Parameter directoryURL: 存储目录；nil 使用 WatchStorageContainer.shared
+    ///   的 resume/ 子目录（测试传临时目录隔离）。
+    init(directoryURL: URL? = nil, now: @escaping () -> Date = Date.init) {
+        self.resumeDirectory = directoryURL ?? WatchStorageContainer.shared.resumeDirectory
         self.now = now
-        if !defaults.bool(forKey: legacyCleanupMarkerKey) {
-            defaults.removeObject(forKey: "watch_resume_session_v1")
-            if defaults === UserDefaults.standard {
-                let applicationSupport = FileManager.default.urls(
-                    for: .applicationSupportDirectory,
-                    in: .userDomainMask
-                )[0]
-                for oldRoot in [
-                    applicationSupport.appendingPathComponent("jifen-v2", isDirectory: true),
-                    applicationSupport
-                        .appendingPathComponent("jifen", isDirectory: true)
-                        .appendingPathComponent("resume", isDirectory: true)
-                ] {
-                    try? FileManager.default.removeItem(at: oldRoot)
-                }
-            }
-            defaults.set(true, forKey: legacyCleanupMarkerKey)
-        }
         session = nil
         reload()
     }
@@ -246,62 +263,69 @@ final class WatchResumeSessionStore {
                 session == nil ? 0 : 1
             )
         }
-        guard let data = defaults.data(forKey: storageKey),
+        guard let data = try? Data(contentsOf: currentFileURL), !data.isEmpty,
               let decoded = try? JSONDecoder().decode(WatchResumeSession.self, from: data),
-              let restored = restoredSession(from: decoded) else {
-            defaults.removeObject(forKey: storageKey)
+              decoded.schemaVersion == WatchResumeSession.currentSchemaVersion else {
+            // 缺失、损坏或非当前 schema 版本：视为无会话丢弃（首发格式直接起算）。
+            try? FileManager.default.removeItem(at: currentFileURL)
             session = nil
             return
         }
-        if now().timeIntervalSince(restored.savedAt) > Self.sessionTTL {
-            defaults.removeObject(forKey: storageKey)
+        if now().timeIntervalSince(decoded.savedAt) > Self.sessionTTL {
+            try? FileManager.default.removeItem(at: currentFileURL)
             session = nil
             return
         }
-        if decoded.schemaVersion != restored.schemaVersion,
-           let migratedData = try? JSONEncoder().encode(restored) {
-            defaults.set(migratedData, forKey: storageKey)
-        }
-        session = restored
-    }
-
-    private func restoredSession(from decoded: WatchResumeSession) -> WatchResumeSession? {
-        if decoded.schemaVersion == WatchResumeSession.currentSchemaVersion {
-            return decoded
-        }
-        guard decoded.schemaVersion == 2 else { return nil }
-
-        let payload: WatchResumePayload
-        switch decoded.payload {
-        case .archery(let state, let undoStates, let restState):
-            payload = .archery(
-                state: state.normalizedFromLegacyPhysicalSideSwap(),
-                undoStates: undoStates.map { $0.normalizedFromLegacyPhysicalSideSwap() },
-                restState: restState
-            )
-        default:
-            payload = decoded.payload
-        }
-
-        return WatchResumeSession(
-            savedAt: decoded.savedAt,
-            startedAt: decoded.startedAt,
-            scoreLine: decoded.scoreLine,
-            emoji: decoded.emoji,
-            payload: payload,
-            actionLog: decoded.actionLog,
-            link: decoded.link
-        )
+        session = decoded
     }
 
     func save(_ value: WatchResumeSession) {
         var refreshed = value
         refreshed.savedAt = now()
+        // 主线程只保存内存引用与待写值类型快照，编码与写盘全部移出主线程。
+        session = refreshed
+        lastErrorMessage = nil
+        pendingWrite = refreshed
+        pendingWriteTask?.cancel()
+        pendingWriteTask = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: Self.writeDebounceNanoseconds)
+            guard !Task.isCancelled else { return }
+            await self?.performDebouncedWrite()
+        }
+    }
+
+    private func performDebouncedWrite() {
+        guard let pending = pendingWrite else { return }
+        pendingWrite = nil
+        pendingWriteTask = nil
+        scheduleBackgroundWrite(of: pending)
+    }
+
+    /// 生成号作废 + 后台编码写盘。encode 可能失败（极少见）：失败时回主线程
+    /// 报错，不吞掉持久化异常。
+    private func scheduleBackgroundWrite(of value: WatchResumeSession) {
+        let generation = invalidatePendingBackgroundWrites()
+        let url = currentFileURL
+        Task.detached(priority: .utility) { [weak self] in
+            do {
+                let data = try JSONEncoder().encode(value)
+                self?.writeAtomically(data, to: url, generation: generation)
+            } catch {
+                await self?.reportEncodeFailure(error)
+            }
+        }
+    }
+
+    /// 立即落盘待写数据（切后台/退出计分板前调用）。同步编码 + 生成号校验写盘。
+    func flushPendingWrite() {
+        pendingWriteTask?.cancel()
+        pendingWriteTask = nil
+        guard let pending = pendingWrite else { return }
+        pendingWrite = nil
+        let generation = invalidatePendingBackgroundWrites()
         do {
-            let data = try JSONEncoder().encode(refreshed)
-            session = refreshed
-            lastErrorMessage = nil
-            scheduleWrite(data, forKey: storageKey)
+            let data = try JSONEncoder().encode(pending)
+            writeAtomically(data, to: currentFileURL, generation: generation)
         } catch {
             lastErrorMessage = String(
                 format: NSLocalizedString(
@@ -312,6 +336,10 @@ final class WatchResumeSessionStore {
                 error.localizedDescription
             )
         }
+    }
+
+    func clearError() {
+        lastErrorMessage = nil
     }
 
     /// Keep the exact record and ID across a failed write and a watch app restart.
@@ -328,8 +356,7 @@ final class WatchResumeSessionStore {
         } else {
             candidate = record
             pending.append(candidate)
-            guard let data = try? JSONEncoder().encode(pending) else { return false }
-            defaults.set(data, forKey: pendingFinishedRecordsKey)
+            storePendingFinishedRecords(pending)
         }
         guard save(candidate) else {
             flushPendingWrite()
@@ -345,11 +372,14 @@ final class WatchResumeSessionStore {
     }
 
     private func removePendingFinishedRecords(where shouldRemove: (WatchScoreboardRecord) -> Bool) {
-        let pending = pendingFinishedRecords.filter { !shouldRemove($0) }
-        if pending.isEmpty {
-            defaults.removeObject(forKey: pendingFinishedRecordsKey)
-        } else if let data = try? JSONEncoder().encode(pending) {
-            defaults.set(data, forKey: pendingFinishedRecordsKey)
+        storePendingFinishedRecords(pendingFinishedRecords.filter { !shouldRemove($0) })
+    }
+
+    private func storePendingFinishedRecords(_ records: [WatchScoreboardRecord]) {
+        if records.isEmpty {
+            try? FileManager.default.removeItem(at: pendingFinishedFileURL)
+        } else if let data = try? JSONEncoder().encode(records) {
+            try? data.write(to: pendingFinishedFileURL, options: .atomic)
         }
     }
 
@@ -360,31 +390,33 @@ final class WatchResumeSessionStore {
     }
 
     private var pendingFinishedRecords: [WatchScoreboardRecord] {
-        guard let data = defaults.data(forKey: pendingFinishedRecordsKey) else { return [] }
+        guard let data = try? Data(contentsOf: pendingFinishedFileURL), !data.isEmpty else { return [] }
         return (try? JSONDecoder().decode([WatchScoreboardRecord].self, from: data)) ?? []
     }
 
-    private func scheduleWrite(_ data: Data, forKey key: String) {
-        pendingWrite = (data, key)
-        pendingWriteTask?.cancel()
-        pendingWriteTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: Self.writeDebounceNanoseconds)
-            guard !Task.isCancelled else { return }
-            self?.flushPendingWrite()
+    nonisolated private func invalidatePendingBackgroundWrites() -> Int {
+        writeGenerationCounter.next()
+    }
+
+    /// 校验生成号与写入在同一临界区：clear() 先递增生成号再删文件，
+    /// 在途后台写要么在此之前完成（随后被 clear 删除），要么被作废跳过。
+    nonisolated private func writeAtomically(_ data: Data, to url: URL, generation: Int) {
+        writeGenerationCounter.withCurrent { current in
+            guard generation == current else { return }
+            try? data.write(to: url, options: .atomic)
         }
     }
 
-    /// 立即落盘待写数据（切后台/退出计分板前调用）。
-    func flushPendingWrite() {
-        pendingWriteTask?.cancel()
-        pendingWriteTask = nil
-        guard let pending = pendingWrite else { return }
-        pendingWrite = nil
-        defaults.set(pending.data, forKey: pending.key)
-    }
-
-    func clearError() {
-        lastErrorMessage = nil
+    @MainActor
+    private func reportEncodeFailure(_ error: Error) {
+        lastErrorMessage = String(
+            format: NSLocalizedString(
+                "resume_persistence_failed",
+                value: "无法保存续玩数据：%@",
+                comment: ""
+            ),
+            error.localizedDescription
+        )
     }
 
     func refreshLinkContext(_ context: WatchLinkResumeContext) {
@@ -518,7 +550,9 @@ final class WatchResumeSessionStore {
         pendingWriteTask?.cancel()
         pendingWriteTask = nil
         pendingWrite = nil
-        defaults.removeObject(forKey: storageKey)
+        // 先作废在途后台写再删文件：清空后旧草稿不会复活。
+        invalidatePendingBackgroundWrites()
+        try? FileManager.default.removeItem(at: currentFileURL)
         session = nil
     }
 

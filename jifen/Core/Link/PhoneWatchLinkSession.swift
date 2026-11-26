@@ -16,6 +16,7 @@ extension PhoneWatchLinkService {
             return false
         }
         sequence += 1
+        deltaActionTracker.reset()
         let envelope = LinkEnvelope(
             messageId: UUID(),
             correlationId: nil,
@@ -118,6 +119,8 @@ extension PhoneWatchLinkService {
               var machine = sessionMachine else { return }
         let nextHandle = machine.beginNextMatch()
         pendingAck.clear()
+        actionHistory = LinkSnapshotHistory()
+        deltaActionTracker.reset()
         pendingSessionEnds.removeAll { $0.handle.sessionId == sessionId }
         persistPendingSessionEnds()
         sessionMachine = machine
@@ -577,26 +580,30 @@ extension PhoneWatchLinkService {
             snapshot: snapshot,
             detailedActions: mergedDetailedActions
         )
-        let data = LinkFinishedEncoding.encode(envelope, compress: peerSupportsCompressedFinish)
+        // 完整完赛包先持久化（outbox 即权威载荷），再按协商结果选通道；
+        // 裁剪回退路径在选通道前绝不调用。
+        let data = LinkFinishedFrameBuilder.buildFrame(
+            envelope,
+            peerSupportsCompressedFinish: peerSupportsCompressedFinish
+        )
         sessionMachine?.registerPendingAcknowledgement(messageId)
         terminalOutbox.enqueue(.init(
             messageId: messageId,
             handle: session.handle,
             data: data,
-            lastSentAtEpochMilliseconds: nowMs()
+            lastSentAtEpochMilliseconds: nowMs(),
+            peerSupportsFileTransfer: peerSupportsFileTransfer
         ))
-        persistTerminalOutbox()
+        // 落盘确认成功才允许发送；失败时保留内存 outbox 等待重试。
+        guard persistTerminalOutbox() else {
+            lastErrorMessage = NSLocalizedString("save_failed", value: "保存失败", comment: "")
+            rescheduleRetryIfNeeded()
+            return
+        }
         persistContext()
         rescheduleRetryIfNeeded()
         Task {
-            do {
-                try transport.enqueueDurable(data)
-            } catch {
-                lastErrorMessage = error.localizedDescription
-            }
-            if transport.isReachable {
-                try? await transport.sendRealtime(data)
-            }
+            await deliverTerminalFrame(data)
         }
     }
 
@@ -643,6 +650,9 @@ extension PhoneWatchLinkService {
         resumeStatusContinuations(throwing: CancellationError())
         reclaimTimeoutTask?.cancel()
         reclaimTimeoutTask = nil
+        actionHistory = LinkSnapshotHistory()
+        deltaActionTracker.reset()
+        negotiatedPeerCapabilities = []
         pendingAck.clear()
         rescheduleRetryIfNeeded()
         latestRemoteSnapshot = nil
@@ -695,17 +705,17 @@ extension PhoneWatchLinkService {
     }
 
 
-    /// 对齐鸿蒙增量合并语义：按动作 id 求并集去重，保留双端并发的动作，
-    /// 再按时间戳排序。整体替换会丢失另一端离线期间新增的动作。
     func mergeDetailedActions(_ incoming: [DetailedScoreAction]?) {
-        guard let incoming, !incoming.isEmpty else { return }
-        var byID = Dictionary(mergedDetailedActions.map { ($0.id, $0) }, uniquingKeysWith: { _, existing in existing })
-        for action in incoming where byID[action.id] == nil {
-            byID[action.id] = action
-        }
-        mergedDetailedActions = byID.values.sorted {
-            ($0.epochMilliseconds ?? 0, $0.id.uuidString) < ($1.epochMilliseconds ?? 0, $1.id.uuidString)
-        }
+        mergedDetailedActions = actionHistory.merging(incoming ?? [], into: mergedDetailedActions)
+    }
+
+    @discardableResult
+    func applyLocalHistory(_ actions: [DetailedScoreAction]?) -> Bool {
+        guard let actions else { return false }
+        let removedActions = actionHistory.noteLocalPublication(actions)
+        if removedActions { deltaActionTracker.reset() }
+        mergeDetailedActions(actions)
+        return removedActions
     }
 
     func resumeStatusContinuations(returning payload: LinkStatusPayload) {

@@ -27,24 +27,7 @@ class CommonNamesManager {
         type == .team ? 200 : 300
     }
 
-    /// 预制名称（红队/蓝队、选手1/2、主队/客队、红方/蓝方、左队/右队等），不写入常用名称，与鸿蒙一致。
-    private static let presetNameKeys: Set<String> = {
-        let list = [
-            "红队", "蓝队", "红方", "蓝方", "主队", "客队", "左队", "右队", "A队", "B队",
-            "选手A", "选手B", "射手A", "射手B", "选手1", "选手2",
-            "红A", "红B", "蓝A", "蓝B", "红A / 红B", "蓝A / 蓝B", "红A/红B", "蓝A/蓝B",
-            "紅隊", "藍隊", "紅方", "藍方", "主隊", "客隊", "左隊", "右隊", "A隊", "B隊",
-            "選手A", "選手B", "射手A", "射手B", "選手1", "選手2",
-            "紅A", "紅B", "藍A", "藍B", "紅A / 紅B", "藍A / 藍B", "紅A/紅B", "藍A/藍B",
-            "red team", "blue team", "red", "blue", "home", "away", "team a", "team b",
-            "player a", "player b", "archer a", "archer b", "player 1", "player 2",
-            "red a", "red b", "blue a", "blue b",
-            "red a / red b", "blue a / blue b", "red a/red b", "blue a/blue b",
-            "刘备", "关羽", "张飞", "诸葛亮", "劉備", "關羽", "張飛", "諸葛亮",
-            "liu bei", "guan yu", "zhang fei", "zhuge liang", "adam", "bob", "chris", "david"
-        ]
-        return Set(list.map { $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) })
-    }()
+    /// 预制名称统一由 LinkCore.PresetCommonNames 提供（简繁英合并词库）。
 
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
@@ -66,7 +49,7 @@ class CommonNamesManager {
     }
 
     private func isPresetName(_ normalized: String) -> Bool {
-        Self.presetNameKeys.contains(normalized.lowercased())
+        PresetCommonNames.isPreset(normalized)
     }
 
     /// Automatically save a newly entered name without tracking usage or reordering existing names.

@@ -185,14 +185,55 @@ public struct ConnectivityProbePayload: Codable, Equatable, Sendable {
     }
 }
 
-/// Watch→phone usage events are queued so picking/typing a player name works offline.
-public struct CommonNameUsagePayload: Codable, Equatable, Sendable {
-    public var names: [String]
-    public var nameType: String
 
-    public init(names: [String], nameType: String = "player") {
-        self.names = names
-        self.nameType = nameType
+/// Shared default/preset name library. Merged from the previously duplicated
+/// `WatchCommonNamesStore.presetNameKeys` (watch) and
+/// `CommonNamesManager.presetNameKeys` (phone), including simplified,
+/// traditional and English presets. Preset names never enter the synced
+/// common-name lists.
+public enum PresetCommonNames {
+    public static let all: Set<String> = {
+        let list = [
+            "红队", "蓝队", "红方", "蓝方", "主队", "客队", "左队", "右队", "A队", "B队",
+            "选手A", "选手B", "射手A", "射手B", "选手1", "选手2", "玩家1", "玩家2", "玩家3",
+            "红A", "红B", "蓝A", "蓝B", "红A / 红B", "蓝A / 蓝B", "红A/红B", "蓝A/蓝B",
+            "紅隊", "藍隊", "紅方", "藍方", "主隊", "客隊", "左隊", "右隊", "A隊", "B隊",
+            "選手A", "選手B", "射手A", "射手B", "選手1", "選手2",
+            "紅A", "紅B", "藍A", "藍B", "紅A / 紅B", "藍A / 藍B", "紅A/紅B", "藍A/藍B",
+            "red team", "blue team", "red", "blue", "home", "away", "team a", "team b",
+            "player a", "player b", "archer a", "archer b", "player 1", "player 2", "player 3",
+            "red a", "red b", "blue a", "blue b",
+            "red a / red b", "blue a / blue b", "red a/red b", "blue a/blue b",
+            "刘备", "关羽", "张飞", "诸葛亮", "劉備", "關羽", "張飛", "諸葛亮",
+            "liu bei", "guan yu", "zhang fei", "zhuge liang", "adam", "bob", "chris", "david"
+        ]
+        return Set(list.map { $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) })
+    }()
+
+    public static func isPreset(_ name: String) -> Bool {
+        all.contains(name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines))
+    }
+}
+
+public extension CommonNamesSyncSnapshot {
+    /// Trim the snapshot until its JSON encoding fits `maxBytes` (default: the
+    /// 24KB common-names budget inside `applicationContext`). Newest entries
+    /// survive: teams and players are cut from their oldest tail.
+    func budgetConstrainedData(maxBytes: Int = LinkProtocol.commonNamesContextBudgetBytes) -> CommonNamesSyncSnapshot {
+        func encodedSize(_ snapshot: CommonNamesSyncSnapshot) -> Int {
+            (try? JSONEncoder().encode(snapshot))?.count ?? .max
+        }
+        var constrained = self
+        if encodedSize(constrained) <= maxBytes { return constrained }
+        while encodedSize(constrained) > maxBytes,
+              !(constrained.teams.isEmpty && constrained.players.isEmpty) {
+            if constrained.teams.count >= constrained.players.count, !constrained.teams.isEmpty {
+                constrained.teams = Array(constrained.teams.dropLast())
+            } else if !constrained.players.isEmpty {
+                constrained.players = Array(constrained.players.dropLast())
+            }
+        }
+        return constrained
     }
 }
 

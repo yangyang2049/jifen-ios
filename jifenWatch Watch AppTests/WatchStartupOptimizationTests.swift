@@ -5,10 +5,11 @@ import LinkCore
 @MainActor
 final class WatchStartupOptimizationTests: XCTestCase {
     func testDuplicateCommonNamesContextRevisionIsIgnored() throws {
-        let suiteName = "WatchStartupCommonNames.\(UUID().uuidString)"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-        let store = WatchCommonNamesStore(defaults: defaults)
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("WatchStartupCommonNames.\(UUID().uuidString)", isDirectory: true)
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = WatchCommonNamesStore(directoryURL: directory)
 
         XCTAssertTrue(store.apply(.init(
             teams: ["Team A"],
@@ -26,70 +27,30 @@ final class WatchStartupOptimizationTests: XCTestCase {
         XCTAssertEqual(store.revision, 8)
     }
 
-    func testResumeRestoreLoadsOnceAndLegacyCleanupRunsOnce() throws {
-        let suiteName = "WatchStartupResume.\(UUID().uuidString)"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
-        let legacyKey = "watch_resume_session_v1"
-        defaults.set(Data([1]), forKey: legacyKey)
+    /// 干净初始化：restore 每实例只跑一次；文件存储跨实例恢复已保存的续玩会话。
+    func testResumeRestoreRunsOncePerInstanceAndPersistsAcrossRestart() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("WatchStartupResume.\(UUID().uuidString)", isDirectory: true)
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
 
-        let first = WatchResumeSessionStore(defaults: defaults)
+        let first = WatchResumeSessionStore(directoryURL: directory)
         XCTAssertEqual(first.restoreAttemptCount, 1)
-        XCTAssertNil(defaults.data(forKey: legacyKey))
+        XCTAssertNil(first.session)
 
-        defaults.set(Data([2]), forKey: legacyKey)
-        let second = WatchResumeSessionStore(defaults: defaults)
+        let startedAt = Date(timeIntervalSince1970: 5_000)
+        first.save(.init(
+            startedAt: startedAt,
+            scoreLine: "3 : 1",
+            emoji: "🏸",
+            payload: .basketballTraining(mode: .free, history: [])
+        ))
+        first.flushPendingWrite()
+
+        let second = WatchResumeSessionStore(directoryURL: directory)
         XCTAssertEqual(second.restoreAttemptCount, 1)
-        XCTAssertEqual(defaults.data(forKey: legacyKey), Data([2]))
-    }
-
-    func testWatchLinkCleanupAndRetrySchedulingAreWorkDriven() throws {
-        let store = WatchStartupDataStore()
-        let legacyKeys = [
-            "watch_link_context_v1",
-            "watch_link_terminal_outbox_v1",
-            "watch_link_pending_ack_v1"
-        ]
-        legacyKeys.forEach { store.set(Data([1]), forKey: $0) }
-
-        let idleService = WatchLinkService(
-            transport: WatchStartupTransport(),
-            contextStore: store,
-            outboxStore: store
-        )
-        XCTAssertFalse(idleService.hasScheduledRetryForTesting)
-        legacyKeys.forEach { XCTAssertNil(store.data(forKey: $0)) }
-
-        legacyKeys.forEach { store.set(Data([2]), forKey: $0) }
-        _ = WatchLinkService(
-            transport: WatchStartupTransport(),
-            contextStore: store,
-            outboxStore: store
-        )
-        legacyKeys.forEach {
-            XCTAssertEqual(store.data(forKey: $0), Data([2]))
-            XCTAssertEqual(store.removalCounts[$0], 1)
-        }
-
-        let pendingStore = WatchStartupDataStore()
-        let outbox = LinkDurableOutbox(items: [
-            .init(
-                messageId: UUID(),
-                handle: LinkedMatchHandle(sessionId: UUID(), matchId: UUID()),
-                data: Data([3]),
-                lastSentAtEpochMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
-            )
-        ])
-        pendingStore.set(
-            try JSONEncoder().encode(outbox),
-            forKey: "watch_link_terminal_outbox"
-        )
-        let pendingService = WatchLinkService(
-            transport: WatchStartupTransport(),
-            contextStore: pendingStore,
-            outboxStore: pendingStore
-        )
-        XCTAssertTrue(pendingService.hasScheduledRetryForTesting)
+        XCTAssertEqual(second.session?.scoreLine, "3 : 1")
+        XCTAssertEqual(second.session?.startedAt, startedAt)
     }
 }
 
@@ -109,6 +70,18 @@ private final class WatchStartupDataStore: @unchecked Sendable, LinkDataStore {
         removalCounts[key, default: 0] += 1
         values.removeValue(forKey: key)
     }
+
+    func setOrThrow(_ data: Data, forKey key: String) throws {
+        values[key] = data
+    }
+
+    @discardableResult
+    func removeOrThrow(forKey key: String) throws -> Bool {
+        let existed = values[key] != nil
+        removalCounts[key, default: 0] += 1
+        values.removeValue(forKey: key)
+        return existed
+    }
 }
 
 private final class WatchStartupTransport: @unchecked Sendable, WatchLinkTransport {
@@ -127,7 +100,6 @@ private final class WatchStartupTransport: @unchecked Sendable, WatchLinkTranspo
     var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)?
     var onApplicationContext: (@Sendable ([String: Any]) -> Void)?
     var onWatchRecordData: (@Sendable (Data) -> Void)?
-    var onCommonNameUsageData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationsData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationAckData: (@Sendable (Data) -> Void)?
     var onCatchUpRequest: (@Sendable () -> Void)?
@@ -144,7 +116,14 @@ private final class WatchStartupTransport: @unchecked Sendable, WatchLinkTranspo
         receivedApplicationContext.merge(context) { _, latest in latest }
     }
     func transferWatchRecord(_ data: Data) throws {}
-    func transferCommonNameUsage(_ data: Data) throws {}
+    var supportsFileTransfer = true
+    var onReceivedFile: (@Sendable (Data, [String: Any]) -> Void)?
+    var transferredFiles: [(data: Data, metadata: [String: Any])] = []
+
+    func transferFileData(_ data: Data, metadata: [String: Any]) throws {
+        transferredFiles.append((data, metadata))
+    }
+
     func transferCommonNameMutations(_ data: Data) throws {}
     func transferCommonNameMutationAcknowledgement(_ data: Data) throws {}
     func requestPendingWatchRecords() {}

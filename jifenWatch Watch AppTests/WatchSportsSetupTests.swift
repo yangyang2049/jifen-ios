@@ -24,19 +24,25 @@ final class WatchSportsSetupTests: XCTestCase {
         super.tearDown()
     }
 
+    /// WatchResumeSessionStore 的文件存储测试目录（每用例独立临时目录）。
+    private func makeResumeStoreDirectory() -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("WatchSportsSetupTests.\(UUID().uuidString)", isDirectory: true)
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
+    }
+
     func testPickleballUsesTableTennisIcon() {
         XCTAssertEqual(WatchGameType.pickleball.icon, WatchGameType.pingpong.icon)
     }
 
-    func testRegulationBasketballIsHistoricalOnlyAndHasRecordMappings() {
+    func testRegulationBasketballCasesAreRemovedFromWatchCatalog() {
         XCTAssertFalse(WatchHomeItem.allCases.map(\.rawValue).contains("basketball"))
         XCTAssertFalse(WatchHomeItem.allCases.map(\.rawValue).contains("three_basketball"))
         XCTAssertFalse(WatchSetupSport.allCases.map(\.rawValue).contains("basketball"))
         XCTAssertFalse(WatchSetupSport.allCases.map(\.rawValue).contains("three_basketball"))
-        XCTAssertEqual(WatchGameType.basketball.scoreCoreGameType, .basketball)
-        XCTAssertEqual(WatchGameType.threeBasketball.scoreCoreGameType, .threeBasketball)
-        XCTAssertTrue(WatchGameType.basketball.usesPointScoreInList)
-        XCTAssertTrue(WatchGameType.threeBasketball.usesPointScoreInList)
+        XCTAssertFalse(WatchGameType.allCases.map(\.rawValue).contains("basketball"))
+        XCTAssertFalse(WatchGameType.allCases.map(\.rawValue).contains("three_basketball"))
     }
 
     func testGenericTimerRemainsOutsideWatchLocalCatalog() {
@@ -681,7 +687,8 @@ final class WatchSportsSetupTests: XCTestCase {
     @MainActor
     func testResumeSessionPersistsWithinTTLAndExpiresAfter24Hours() {
         var currentDate = Date(timeIntervalSince1970: 10_000)
-        let store = WatchResumeSessionStore(defaults: defaults, now: { currentDate })
+        let directory = makeResumeStoreDirectory()
+        let store = WatchResumeSessionStore(directoryURL: directory, now: { currentDate })
         let sessionID = UUID()
         let link = WatchLinkResumeContext(
             sessionId: sessionID,
@@ -701,7 +708,7 @@ final class WatchSportsSetupTests: XCTestCase {
         store.flushPendingWrite()
 
         // Within TTL: session persists
-        let restored = WatchResumeSessionStore(defaults: defaults, now: { currentDate })
+        let restored = WatchResumeSessionStore(directoryURL: directory, now: { currentDate })
         XCTAssertEqual(restored.session?.scoreLine, "2 / 1")
         XCTAssertEqual(WatchScoreboardRoute(resumeSession: restored.session!)?.id, "basketballTraining-free")
 
@@ -714,7 +721,11 @@ final class WatchSportsSetupTests: XCTestCase {
         currentDate = currentDate.addingTimeInterval(1)
         restored.reload()
         XCTAssertNil(restored.session)
-        XCTAssertNil(defaults.data(forKey: "watch_resume_session"))
+        XCTAssertFalse(
+            FileManager.default.fileExists(
+                atPath: directory.appendingPathComponent("current.json").path
+            )
+        )
     }
 
     /// 750ms 防抖窗口内立即触发 reload()（例如退出计分板后立刻点击续玩条），
@@ -722,7 +733,8 @@ final class WatchSportsSetupTests: XCTestCase {
     @MainActor
     func testResumeSessionReloadFlushesPendingDebouncedWrite() {
         let currentDate = Date(timeIntervalSince1970: 20_000)
-        let store = WatchResumeSessionStore(defaults: defaults, now: { currentDate })
+        let directory = makeResumeStoreDirectory()
+        let store = WatchResumeSessionStore(directoryURL: directory, now: { currentDate })
         let shot = WatchBasketballTrainingShot(points: 3, made: true)
         store.save(WatchResumeSession(
             startedAt: currentDate.addingTimeInterval(-10),
@@ -733,78 +745,15 @@ final class WatchSportsSetupTests: XCTestCase {
         // 不手动 flushPendingWrite()，直接模拟 WatchRootView.resume(_:) 立刻 reload()
         store.reload()
         XCTAssertEqual(store.session?.scoreLine, "3 / 1")
-        let fresh = WatchResumeSessionStore(defaults: defaults, now: { currentDate })
+        let fresh = WatchResumeSessionStore(directoryURL: directory, now: { currentDate })
         XCTAssertEqual(fresh.session?.scoreLine, "3 / 1")
-    }
-
-    @MainActor
-    func testResumeSessionMigratesLegacyArcheryPhysicalSideSwap() throws {
-        let now = Date(timeIntervalSince1970: 15_000)
-        let legacyState = ArcheryMatchState(
-            leftName: "蓝射手",
-            rightName: "红射手",
-            leftArrowSum: 18,
-            rightArrowSum: 19,
-            leftSetPoints: 0,
-            rightSetPoints: 2,
-            currentShooterIsLeft: false,
-            openingShooterIsLeft: false,
-            sidesSwapped: true
-        )
-        let legacyUndoState = ArcheryMatchState(
-            leftName: "蓝射手",
-            rightName: "红射手",
-            leftArrowSum: 8,
-            rightArrowSum: 9,
-            currentShooterIsLeft: false,
-            openingShooterIsLeft: false,
-            sidesSwapped: true
-        )
-        let session = WatchResumeSession(
-            savedAt: now,
-            startedAt: now.addingTimeInterval(-30),
-            scoreLine: "0 : 2",
-            emoji: "🏹",
-            payload: .archery(
-                state: legacyState,
-                undoStates: [legacyUndoState],
-                restState: nil
-            )
-        )
-        let encoded = try JSONEncoder().encode(session)
-        var json = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
-        json["schemaVersion"] = 2
-        defaults.set(try JSONSerialization.data(withJSONObject: json), forKey: "watch_resume_session")
-
-        let restoredStore = WatchResumeSessionStore(defaults: defaults, now: { now })
-        let restoredSession = try XCTUnwrap(restoredStore.session)
-        XCTAssertEqual(restoredSession.schemaVersion, WatchResumeSession.currentSchemaVersion)
-        guard case .archery(let state, let undoStates, _) = restoredSession.payload else {
-            return XCTFail("Expected migrated archery payload")
-        }
-        XCTAssertEqual(state.leftName, "红射手")
-        XCTAssertEqual(state.rightName, "蓝射手")
-        XCTAssertEqual(state.leftArrowSum, 19)
-        XCTAssertEqual(state.rightArrowSum, 18)
-        XCTAssertEqual(state.leftSetPoints, 2)
-        XCTAssertEqual(state.rightSetPoints, 0)
-        XCTAssertTrue(state.currentShooterIsLeft)
-        XCTAssertTrue(state.openingShooterIsLeft)
-        XCTAssertTrue(state.sidesSwapped)
-        XCTAssertEqual(undoStates.first?.leftName, "红射手")
-        XCTAssertEqual(undoStates.first?.leftArrowSum, 9)
-        XCTAssertEqual(undoStates.first?.rightArrowSum, 8)
-
-        let persistedData = try XCTUnwrap(defaults.data(forKey: "watch_resume_session"))
-        let persisted = try JSONDecoder().decode(WatchResumeSession.self, from: persistedData)
-        XCTAssertEqual(persisted.schemaVersion, WatchResumeSession.currentSchemaVersion)
     }
 
     @MainActor
     func testResumeSessionRefreshUsesLatestLinkedActionTimeline() throws {
         let now = Date(timeIntervalSince1970: 20_000)
         let sessionID = UUID()
-        let store = WatchResumeSessionStore(defaults: defaults, now: { now })
+        let store = WatchResumeSessionStore(directoryURL: makeResumeStoreDirectory(), now: { now })
         store.save(WatchResumeSession(
             startedAt: now,
             scoreLine: "1 : 0",
@@ -1827,7 +1776,7 @@ final class WatchSportsSetupTests: XCTestCase {
             .badminton, .pingpong, .tennis, .pickleball, .archery,
             .eightBall, .nineBall, .snooker, .football, .football5v5,
             .shuttlecock, .squash, .foosball,
-            .basketball, .threeBasketball, .basketballTraining
+            .basketballTraining
         ]
         for gameType in gameTypes {
             XCTAssertNotNil(

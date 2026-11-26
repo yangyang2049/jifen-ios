@@ -8,18 +8,30 @@ import UIKit
 
 extension PhoneWatchLinkService {
     func handleIncoming(_ data: Data) {
-        if handleCommonNamesSyncRequest(data) { return }
-        if handleConnectivityProbe(data) { return }
-        if handleSetupResponse(data) { return }
-        if handleAck(data) { return }
-        if handleSnapshotFromWatch(data) { return }
-        if handleTakeoverRelated(data) { return }
-        if handleMatchFinishedFromWatch(data) { return }
-        if handleScoreboardExitedToHome(data) { return }
-        if handleWatchBackgrounded(data) { return }
-        if handleResumeDiscarded(data) { return }
-        if handleSessionLeft(data) { return }
-        _ = handleStatus(data)
+        // 压缩完赛帧无法按 JSON 解码，必须最先探测魔数。
+        if LinkFinishedEncoding.isCompressedFrame(data) {
+            _ = handleMatchFinishedFromWatch(data)
+            return
+        }
+        // 单次解码信封头，按 kind 精确派发；解码失败的帧直接丢弃。
+        guard let head = try? JSONDecoder().decode(LinkEnvelopeHead.self, from: data) else { return }
+        switch head.kind {
+        case .commonNamesSyncRequest: _ = handleCommonNamesSyncRequest(data)
+        case .connectivityProbe: _ = handleConnectivityProbe(data)
+        case .setupAccepted, .setupRejected: _ = handleSetupResponse(data)
+        case .acknowledgement, .recordAcknowledgement: _ = handleAck(data)
+        case .stateSnapshot: _ = handleSnapshotFromWatch(data)
+        case .takeoverByPhone, .reclaimRequest, .reclaimAccepted, .reclaimDenied:
+            _ = handleTakeoverRelated(data)
+        case .matchFinished: _ = handleMatchFinishedFromWatch(data)
+        case .scoreboardExitedToHome: _ = handleScoreboardExitedToHome(data)
+        case .watchBackgrounded: _ = handleWatchBackgrounded(data)
+        case .resumeDiscarded: _ = handleResumeDiscarded(data)
+        case .sessionLeft: _ = handleSessionLeft(data)
+        case .statusQuery, .statusResponse: _ = handleStatus(data)
+        case .setupRequest, .matchStarted, .resyncRequest, .connectivityProbeResponse:
+            break // 不由手机端处理
+        }
     }
 
     private func handleCommonNamesSyncRequest(_ data: Data) -> Bool {
@@ -69,17 +81,18 @@ extension PhoneWatchLinkService {
            accepted.authorityEpoch == activeSession?.authorityEpoch {
             setupTimeoutTask?.cancel()
             setupTimeoutTask = nil
-            if activeSession?.gameType == .basketballTraining, accepted.supportsCompressedFinish != true {
-                let continuation = setupContinuation
-                setupContinuation = nil
-                pendingSetupMessageId = nil
-                leaveSession(accepted.sessionId)
-                clearSession()
-                trackSetupAnalyticsResult(.rejected)
-                continuation?.resume(throwing: InteractiveStartError.setupRejected)
+            guard (LinkProtocol.minimumSupportedVersion...LinkProtocol.currentVersion).contains(accepted.protocolVersion),
+                  let negotiated = LinkProtocol.negotiate(local: LinkProtocol.capabilities, peer: accepted.capabilities) else {
+                failSetupAcceptance(sessionId: accepted.sessionId, reason: .incompatibleProtocol)
                 return true
             }
-            peerSupportsCompressedFinish = accepted.supportsCompressedFinish == true
+            let supportsCompressedFinish = negotiated.contains(.compressedFinish) && accepted.supportsCompressedFinish == true
+            if activeSession?.gameType == .basketballTraining, !supportsCompressedFinish {
+                failSetupAcceptance(sessionId: accepted.sessionId, reason: .unsupportedSport)
+                return true
+            }
+            peerSupportsCompressedFinish = supportsCompressedFinish
+            negotiatedPeerCapabilities = negotiated
             if let correlationId = accepted.correlationId,
                var machine = sessionMachine,
                machine.resolveSetup(
@@ -106,7 +119,7 @@ extension PhoneWatchLinkService {
             setupContinuation = nil
             return true
         }
-        if let rejected = try? JSONDecoder().decode(LinkEnvelope<EmptyLinkPayload>.self, from: data),
+        if let rejected = try? JSONDecoder().decode(LinkEnvelope<LinkSetupRejectedPayload>.self, from: data),
            rejected.kind == .setupRejected,
            rejected.sender == .watch,
            rejected.handle == activeSession?.handle,
@@ -123,12 +136,24 @@ extension PhoneWatchLinkService {
             }
             clearSession()
             pendingSetupMessageId = nil
+            lastSetupRejectionReason = rejected.payload.reason
             trackSetupAnalyticsResult(.rejected)
             setupContinuation?.resume(throwing: InteractiveStartError.setupRejected)
             setupContinuation = nil
             return true
         }
         return false
+    }
+
+    private func failSetupAcceptance(sessionId: UUID, reason: LinkSetupRejectionReason) {
+        let continuation = setupContinuation
+        setupContinuation = nil
+        pendingSetupMessageId = nil
+        leaveSession(sessionId)
+        clearSession()
+        lastSetupRejectionReason = reason
+        trackSetupAnalyticsResult(.rejected)
+        continuation?.resume(throwing: InteractiveStartError.setupRejected)
     }
 
     private func handleAck(_ data: Data) -> Bool {
@@ -139,7 +164,14 @@ extension PhoneWatchLinkService {
             return false
         }
         let acknowledgedMessageId = envelope.payload.acknowledgedMessageId
-        _ = pendingAck.acknowledge(messageId: acknowledgedMessageId)
+        let acknowledgedSnapshot = deltaActionTracker.acknowledgedSnapshot(by: envelope, pending: pendingAck.pending)
+        if pendingAck.pending?.messageId == acknowledgedMessageId,
+           deltaActionTracker.carriesHistory(messageId: acknowledgedMessageId), acknowledgedSnapshot == nil {
+            return false
+        }
+        if pendingAck.acknowledge(messageId: acknowledgedMessageId) {
+            deltaActionTracker.noteAcknowledged(messageId: acknowledgedMessageId)
+        }
         if var machine = sessionMachine {
             _ = machine.acknowledge(messageId: acknowledgedMessageId)
             sessionMachine = machine
@@ -208,6 +240,9 @@ extension PhoneWatchLinkService {
             synchronizeActiveSessionFromStateMachine()
             persistContext()
         }
+        if let acknowledgedSnapshot {
+            sendRemainingActions(after: acknowledgedSnapshot)
+        }
         rescheduleRetryIfNeeded()
         return true
     }
@@ -257,6 +292,13 @@ extension PhoneWatchLinkService {
         synchronizeActiveSessionFromStateMachine()
 
         if beganNewMatch {
+            if let pending = pendingAck.pending, deltaActionTracker.carriesHistory(messageId: pending.messageId) {
+                pendingAck.clear()
+                sessionMachine?.acknowledge(messageId: pending.messageId)
+                rescheduleRetryIfNeeded()
+            }
+            actionHistory = LinkSnapshotHistory()
+            deltaActionTracker.reset()
             if var newSession = activeSession {
                 newSession.setup = envelope.payload
                 activeSession = newSession
@@ -278,9 +320,9 @@ extension PhoneWatchLinkService {
 
         // Application context can arrive ahead of the realtime copy with the
         // same revision. The realtime copy can still supply the action history.
-        let hasCurrentHistory = shared && envelope.sessionRevision == machine.revision
-            && !envelope.payload.detailedActions.isEmpty
-        if (validation == .current || hasCurrentHistory), var session = activeSession {
+        let history = envelope.payload.carriesHistory && envelope.authorityEpoch == machine.authorityEpoch
+        if validation == .current, var session = activeSession {
+            actionHistory.noteRemoteRemovals(envelope.payload.removedActionIDs ?? [])
             mergeDetailedActions(envelope.payload.detailedActions)
             var updatedSetup = envelope.payload
             updatedSetup.detailedActions = mergedDetailedActions
@@ -296,7 +338,19 @@ extension PhoneWatchLinkService {
             // Watch resumed scoring — clear the background-interruption flag.
             watchBackgrounded = false
             persistContext()
-        } else if !shared, validation == .duplicateOrOlder, snapshot.isFinished {
+        } else if history {
+            // A checkpoint or newer edit can arrive first. Incorporate
+            // history without changing the accepted score revision.
+            actionHistory.noteRemoteRemovals(envelope.payload.removedActionIDs ?? [])
+            mergeDetailedActions(envelope.payload.detailedActions)
+            if var session = activeSession {
+                session.setup.detailedActions = mergedDetailedActions
+                activeSession = session
+            }
+            latestRemoteSnapshot?.detailedActions = mergedDetailedActions
+            persistContext()
+        }
+        if !shared, validation == .duplicateOrOlder, snapshot.isFinished {
             // Mirror HarmonyOS: a finished snapshot is authoritative for the
             // finish dialog even when its revision is older than the machine's —
             // the match-finished envelope may have been accepted first, leaving
@@ -376,7 +430,7 @@ extension PhoneWatchLinkService {
         }
     }
 
-    private func handleMatchFinishedFromWatch(_ data: Data) -> Bool {
+    func handleMatchFinishedFromWatch(_ data: Data) -> Bool {
         guard let envelope = LinkFinishedEncoding.decode(data),
               envelope.sender == .watch,
               envelope.kind == .matchFinished,

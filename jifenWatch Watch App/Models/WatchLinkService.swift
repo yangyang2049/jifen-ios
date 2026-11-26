@@ -10,6 +10,8 @@ struct LinkedSetupRequest: Equatable {
     let authorityEpoch: UInt64
     let setup: LinkedScoreboardSetup
     var peerSupportsCompressedFinish = false
+    /// Capability intersection negotiated from the request envelope.
+    var peerCapabilities: Set<LinkCapability> = []
     var peerSupportsSharedEditing = false
 
     var sessionId: UUID { handle.sessionId }
@@ -19,7 +21,7 @@ struct LinkedSnapshotUpdate: Equatable {
     let revision: UInt64
     var matchGeneration: UInt64 = 1
     let snapshot: LinkedScoreboardSnapshot
-    let detailedActions: [DetailedScoreAction]
+    var detailedActions: [DetailedScoreAction]
 
     func beginsMatch(after previous: Self?) -> Bool {
         guard let previous, previous.sessionId == sessionId else { return false }
@@ -122,7 +124,21 @@ final class WatchLinkService {
     var pendingAck = LinkControlRetryQueue()
     var terminalOutbox = LinkDurableOutbox()
     var peerSupportsCompressedFinish = false
+    /// Capability intersection agreed during the setup handshake; gates the
+    /// new channels (file transfer, delta actions) until both sides declared.
+    var negotiatedPeerCapabilities: Set<LinkCapability> = []
+    var deltaActionTracker = LinkDeltaActionTracker()
+    /// 对端帧送达的动作来源账本：本地权威替换时保留这些并发有效动作。
+    var actionHistory = LinkSnapshotHistory()
     @ObservationIgnored var retiredRecordSessions: LinkRetiredRecordSessions
+
+    var peerSupportsFileTransfer: Bool {
+        negotiatedPeerCapabilities.contains(.fileTransfer)
+    }
+
+    var peerSupportsDeltaActions: Bool {
+        negotiatedPeerCapabilities.contains(.deltaActions)
+    }
 
     var activeRecordSession: LinkRecordSession? {
         guard let handle = activeHandle, let gameType = activeGameType,
@@ -146,8 +162,6 @@ final class WatchLinkService {
     var ackRetryTask: Task<Void, Never>?
     let pendingWatchRecordsKey = "watch_pending_record_transfers_v1"
     var pendingWatchRecords: [WatchRecordTransferPayload] = []
-    let pendingCommonNameUsageKey = "watch_pending_common_name_usage_v1"
-    var pendingCommonNameUsage: [CommonNameUsagePayload] = []
     var lastQueuedCommonNameMutationIDs: [UUID] = []
     var probeTracker = WatchPhoneLinkProbeTracker()
     var probeTimeoutTask: Task<Void, Never>?
@@ -155,14 +169,13 @@ final class WatchLinkService {
     let contextKey = "watch_link_context"
     let terminalOutboxKey = "watch_link_terminal_outbox"
     let pendingSessionEndsKey = "watch_link_pending_session_ends"
-    let legacyCleanupMarkerKey = "watch_link_legacy_cleanup_v1"
     var pendingSessionEnds: [LinkPendingSessionEnd] = []
     var pendingSessionEndInFlight: Set<UUID> = []
 
     init(
         transport: any WatchLinkTransport = WatchConnectivityTransport(),
-        contextStore: any LinkDataStore = UserDefaultsLinkDataStore.standard,
-        outboxStore: any LinkDataStore = UserDefaultsLinkDataStore.standard,
+        contextStore: any LinkDataStore = WatchStorageContainer.shared.linkDataStore,
+        outboxStore: any LinkDataStore = WatchStorageContainer.shared.linkDataStore,
         clock: any LinkClock = SystemLinkClock(),
         recordSink: (any WatchLinkRecordSink)? = nil
     ) {
@@ -176,12 +189,6 @@ final class WatchLinkService {
         lastCommunicationAtEpochMilliseconds = Int64(
             WatchPreferences.shared.int(forKey: lastCommunicationAtKey)
         )
-        if contextStore.data(forKey: legacyCleanupMarkerKey) == nil {
-            contextStore.removeObject(forKey: "watch_link_context_v1")
-            outboxStore.removeObject(forKey: "watch_link_terminal_outbox_v1")
-            outboxStore.removeObject(forKey: "watch_link_pending_ack_v1")
-            contextStore.set(Data([1]), forKey: legacyCleanupMarkerKey)
-        }
         if let data = outboxStore.data(forKey: terminalOutboxKey),
            let outbox = try? JSONDecoder().decode(LinkDurableOutbox.self, from: data) {
             terminalOutbox = outbox
@@ -191,14 +198,11 @@ final class WatchLinkService {
             pendingSessionEnds = requests
         }
         restoreContext()
-        if let data = WatchPreferences.shared.data(forKey: pendingWatchRecordsKey),
+        if let data = outboxStore.data(forKey: pendingWatchRecordsKey),
            let payloads = try? JSONDecoder().decode([WatchRecordTransferPayload].self, from: data) {
             pendingWatchRecords = payloads
         }
-        if let data = WatchPreferences.shared.data(forKey: pendingCommonNameUsageKey),
-           let payloads = try? JSONDecoder().decode([CommonNameUsagePayload].self, from: data) {
-            pendingCommonNameUsage = payloads
-        }
+
         transport.onReceive = { [weak self] data in
             DispatchQueue.main.async {
                 self?.receive(data)
@@ -219,15 +223,22 @@ final class WatchLinkService {
                 self?.handleCommonNameMutationAcknowledgement(data)
             }
         }
+        transport.onReceivedFile = { [weak self] data, metadata in
+            DispatchQueue.main.async {
+                self?.handleReceivedFile(data, metadata: metadata)
+            }
+        }
         transport.onStatusChange = { [weak self] status in
             DispatchQueue.main.async {
-                self?.connectivityStatus = status
+                guard let self else { return }
+                let becameReachable = !self.connectivityStatus.isReachable && status.isReachable
+                self.connectivityStatus = status
                 guard status.isActivated else { return }
-                self?.flushPendingWatchRecords()
-                self?.flushPendingCommonNameUsage()
-                self?.flushPendingCommonNameMutations(force: false)
+                self.flushPendingWatchRecords()
+                self.flushPendingCommonNameMutations(force: false)
+                if becameReachable { self.retryLiveSnapshotOnReconnect() }
                 if status.isReachable {
-                    self?.requestCommonNamesSnapshot()
+                    self.requestCommonNamesSnapshot()
                 }
             }
         }
@@ -286,13 +297,19 @@ final class WatchLinkService {
         lastLinkErrorMessage = nil
     }
 
-    /// Watch side of the catch-up handshake: gather queued finished records and push them to the phone.
+    /// Watch side of the catch-up handshake: phone pulls queued records.
+    /// Same pipeline as regular saves: full encode → channel by byte budget →
+    /// ACK dequeue. Oversize frames route through the reliable file channel
+    /// (no trimming); the ≤60KB fast-path batches are only an accelerant.
     func respondToCatchUpRequest() {
+        for payload in pendingWatchRecords {
+            deliverStandaloneRecord(payload)
+        }
         let datas = pendingWatchRecords
-            .map { sizedPendingRecordData($0) }
-            .filter { !$0.isEmpty }
+            .compactMap { try? JSONEncoder().encode($0) }
+            .filter { !$0.isEmpty && $0.count <= LinkFinishedRouting.realtimeBudgetBytes }
         #if DEBUG
-        print("[WatchLink] respondToCatchUpRequest pending=\(pendingWatchRecords.count) encoded=\(datas.count)")
+        print("[WatchLink] respondToCatchUpRequest pending=\(pendingWatchRecords.count) fastPath=\(datas.count)")
         #endif
         guard !datas.isEmpty else { return }
         transport.sendPendingWatchRecords(datas)

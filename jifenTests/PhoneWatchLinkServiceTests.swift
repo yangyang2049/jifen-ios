@@ -18,7 +18,11 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         let start = Task {
             try await service.startInteractiveOnWatch(gameType: .badminton, state: initial)
         }
-        await settleMainQueue()
+        await waitUntil {
+            transport.realtimeMessages.contains {
+                (try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0))?.kind == .setupRequest
+            }
+        }
         let setup = try XCTUnwrap(transport.realtimeMessages.compactMap {
             try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
         }.first { $0.kind == .setupRequest })
@@ -525,36 +529,6 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         XCTAssertTrue(pendingService.hasScheduledRetryForTesting)
     }
 
-    func testLegacyLinkCleanupRunsOnlyOnce() {
-        let store = InMemoryLinkDataStore()
-        let legacyKeys = [
-            "phone_link_context_v1",
-            "phone_link_terminal_outbox_v1",
-            "phone_link_pending_ack_v1"
-        ]
-        legacyKeys.forEach { store.set(Data([1]), forKey: $0) }
-
-        _ = PhoneWatchLinkService(
-            transport: FakeWatchLinkTransport(),
-            contextStore: store,
-            outboxStore: store,
-            recordSink: RecordingPhoneLinkSink()
-        )
-        legacyKeys.forEach { XCTAssertNil(store.data(forKey: $0)) }
-
-        legacyKeys.forEach { store.set(Data([2]), forKey: $0) }
-        _ = PhoneWatchLinkService(
-            transport: FakeWatchLinkTransport(),
-            contextStore: store,
-            outboxStore: store,
-            recordSink: RecordingPhoneLinkSink()
-        )
-        legacyKeys.forEach {
-            XCTAssertEqual(store.data(forKey: $0), Data([2]))
-            XCTAssertEqual(store.removalCounts[$0], 1)
-        }
-    }
-
     func testWatchControllerTwoMatchesCreateExactlyTwoRecords() async throws {
         let store = InMemoryLinkDataStore()
         let fixture = makeContext(revision: 0, authorityEpoch: 2)
@@ -649,12 +623,16 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         // ...so the final snapshot (rev 2, finished) arrives as
         // duplicateOrOlder. Mirroring HarmonyOS it must still be surfaced
         // rather than dropped, so the finish signal can never be lost.
-        transport.deliver(try JSONEncoder().encode(
-            snapshotEnvelope(handle: fixture.handle, authorityEpoch: 2, revision: 2, snapshot: finished)
-        ))
+        var finalSnapshot = snapshotEnvelope(
+            handle: fixture.handle, authorityEpoch: 2, revision: 2, snapshot: finished
+        )
+        let lastPoint = DetailedScoreAction(type: .scoreChanged, epochMilliseconds: 1, team: .team1, scores: [21, 18])
+        finalSnapshot.payload.detailedActions = [lastPoint]
+        transport.deliver(try JSONEncoder().encode(finalSnapshot))
         await settleMainQueue()
 
         let latest = try XCTUnwrap(service.latestRemoteSnapshot)
+        XCTAssertTrue(latest.detailedActions.contains { $0.id == lastPoint.id })
         XCTAssertEqual(latest.revision, 2)
         XCTAssertEqual(latest.snapshot.rallyState?.finished, true)
     }
@@ -1108,6 +1086,26 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
         XCTAssertEqual(followerService.mergedDetailedActions.map(\.id), [action.id])
         XCTAssertEqual(followerService.activeSession?.setup.detailedActions.map(\.id), [action.id])
+
+        // A same-revision realtime frame can supply additional actions after
+        // the checkpoint has already set the score revision.
+        let nextAction = DetailedScoreAction(
+            type: .scoreChanged, epochMilliseconds: 3_500,
+            team: .team2, scores: [1, 1]
+        )
+        var delta = LinkEnvelopeEncoding.checkpointEnvelope(strippedIncoming)
+        delta.payload.isDeltaActions = true
+        delta.payload.detailedActions = [nextAction]
+        let data = try JSONEncoder().encode(delta)
+        followerTransport.deliver(data)
+        followerTransport.deliver(data)
+        await settleMainQueue()
+
+        XCTAssertEqual(followerService.mergedDetailedActions.map(\.id), [action.id, nextAction.id])
+        let acknowledgements = followerTransport.realtimeMessages.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<LinkAcknowledgementPayload>.self, from: $0)
+        }.filter { $0.kind == .acknowledgement && $0.correlationId == delta.messageId }
+        XCTAssertEqual(acknowledgements.count, 2)
     }
 
     func testAnyCodableEncodesFixedWidthIntegersAndRoundTrips() throws {
@@ -1641,6 +1639,19 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
     private func settleMainQueue() async {
         try? await Task.sleep(nanoseconds: 20_000_000)
     }
+
+    /// 负载下 20ms 单次睡眠不足以让 Task 化的发送完成；
+    /// 用有界轮询替代，消除 testDelayedWatchFinish 的既有 flake。
+    private func waitUntil(
+        timeoutMilliseconds: Int = 2_000,
+        _ condition: @escaping () -> Bool
+    ) async {
+        var waited = 0
+        while !condition(), waited < timeoutMilliseconds {
+            try? await Task.sleep(nanoseconds: 20_000_000)
+            waited += 20
+        }
+    }
 }
 
 final class InMemoryLinkDataStore: @unchecked Sendable, LinkDataStore {
@@ -1658,6 +1669,17 @@ final class InMemoryLinkDataStore: @unchecked Sendable, LinkDataStore {
     func removeObject(forKey key: String) {
         removalCounts[key, default: 0] += 1
         values.removeValue(forKey: key)
+    }
+
+    func setOrThrow(_ data: Data, forKey key: String) throws {
+        values[key] = data
+    }
+
+    @discardableResult
+    func removeOrThrow(forKey key: String) throws -> Bool {
+        let existed = values[key] != nil
+        values.removeValue(forKey: key)
+        return existed
     }
 }
 
@@ -1688,6 +1710,410 @@ private final class RecordingPhoneLinkSink: PhoneLinkRecordSink {
     }
 }
 
+/// M1 验收：混合版本拒绝语义、大包按 item 协商快照选通道、文件接收落库后 ACK。
+extension PhoneWatchLinkServiceTests {
+    func testTypedSetupRejectedPayloadSurfacesReasonAndAbortsSetup() async throws {
+        let store = InMemoryLinkDataStore()
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport, contextStore: store, outboxStore: store, recordSink: RecordingPhoneLinkSink()
+        )
+        let initial = RallyMatchEngine.initial(leftName: "Alice", rightName: "Bob", rules: .badminton())
+        let start = Task {
+            try await service.startInteractiveOnWatch(gameType: .badminton, state: initial)
+        }
+        await settleMainQueue()
+        let setup = try XCTUnwrap(transport.realtimeMessages.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
+        }.first { $0.kind == .setupRequest })
+        let rejection = LinkEnvelope(
+            correlationId: setup.messageId,
+            sessionId: setup.sessionId, matchId: setup.matchId,
+            kind: .setupRejected, sender: .watch, senderSequence: 1, sessionRevision: 0,
+            sentAtEpochMilliseconds: setup.sentAtEpochMilliseconds,
+            payload: LinkSetupRejectedPayload(reason: .incompatibleProtocol)
+        )
+        service.handleIncoming(try JSONEncoder().encode(rejection))
+        await settleMainQueue()
+        XCTAssertEqual(service.lastSetupRejectionReason, .incompatibleProtocol)
+        do {
+            _ = try await start.value
+            XCTFail("setup must fail")
+        } catch let error as PhoneWatchLinkService.InteractiveStartError {
+            guard case .setupRejected = error else {
+                XCTFail("expected setupRejected, got \(error)")
+                return
+            }
+        }
+    }
+
+    /// Only one score publication. The production ACK and connectivity handlers drain the remaining history.
+    func testOversizedSyncWatchKeepsDebtAcrossAcksRetriesAndReconnect() async throws {
+        let store = InMemoryLinkDataStore()
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport, contextStore: store, outboxStore: store, recordSink: RecordingPhoneLinkSink()
+        )
+        let initial = RallyMatchEngine.initial(leftName: "Alice", rightName: "Bob", rules: .badminton())
+        let start = Task {
+            try await service.startInteractiveOnWatch(gameType: .badminton, state: initial)
+        }
+        await waitUntil {
+            transport.realtimeMessages.contains {
+                (try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0))?.kind == .setupRequest
+            }
+        }
+        let setup = try XCTUnwrap(transport.realtimeMessages.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
+        }.first { $0.kind == .setupRequest })
+        service.handleIncoming(try JSONEncoder().encode(LinkEnvelope(
+            supportsSharedEditing: true, correlationId: setup.messageId,
+            sessionId: setup.sessionId, matchId: setup.matchId, kind: .setupAccepted,
+            sender: .watch, senderSequence: 1, sessionRevision: 0,
+            sentAtEpochMilliseconds: setup.sentAtEpochMilliseconds, payload: EmptyLinkPayload()
+        )))
+        let sessionId = try await start.value
+
+        let allActions = (0..<3000).map { index in
+            DetailedScoreAction(
+                type: .scoreChanged, epochMilliseconds: service.nowMs() + Int64(index),
+                team: .team1, scores: [index, 0], scoreChange: 1,
+                operationCode: "oversize_op_\(index)"
+            )
+        }
+        var scored = initial
+        scored.leftPoints = 3000
+        // 唯一一次真实计分/同步。
+        service.syncWatch(
+            sessionId: sessionId, gameType: .badminton, state: scored,
+            detailedActions: allActions
+        )
+        await settleMainQueue()
+        typealias SnapshotFrame = LinkEnvelope<LinkedScoreboardSetup>
+        func frames() -> [SnapshotFrame] {
+            transport.realtimeMessages.compactMap {
+                try? JSONDecoder().decode(SnapshotFrame.self, from: $0)
+            }.filter { $0.kind == .stateSnapshot }
+        }
+        let realtime = try XCTUnwrap(frames().last)
+        XCTAssertEqual(frames().count, 1)
+        let onWire = realtime.payload.detailedActions
+        XCTAssertFalse(onWire.isEmpty)
+        XCTAssertLessThan(onWire.count, allActions.count)
+
+        func ack(_ envelope: LinkEnvelope<LinkedScoreboardSetup>, sequence: UInt64) {
+            service.handleIncoming(try! JSONEncoder().encode(LinkEnvelope(
+                correlationId: envelope.messageId, sessionId: sessionId, matchId: setup.matchId,
+                kind: .acknowledgement, sender: .watch, senderSequence: sequence,
+                sessionRevision: envelope.sessionRevision,
+                sentAtEpochMilliseconds: service.nowMs(),
+                payload: LinkAcknowledgementPayload(
+                    acknowledgedMessageId: envelope.messageId,
+                    acknowledgedRevision: envelope.sessionRevision
+                )
+            )))
+        }
+        func setReachable(_ reachable: Bool) {
+            transport.status = WatchConnectivityStatus(
+                isSupported: true, isActivated: true, isPaired: true,
+                isWatchAppInstalled: true, isReachable: reachable
+            )
+            transport.onStatusChange?(transport.status)
+        }
+
+        // The first batch's ACK arrives after the transport became unreachable.
+        setReachable(false)
+        await settleMainQueue()
+        ack(realtime, sequence: 2)
+        await settleMainQueue()
+        let remaining = allActions.count - onWire.count
+        XCTAssertEqual(service.deltaActionTracker.pendingDeltaActions(of: allActions).count, remaining)
+        XCTAssertEqual(frames().count, 1)
+
+        // A duplicate ACK cannot retire the queued second batch.
+        let queued = try XCTUnwrap(service.pendingAck.pending)
+        XCTAssertNotEqual(queued.messageId, realtime.messageId)
+        ack(realtime, sequence: 3)
+        await settleMainQueue()
+        XCTAssertEqual(service.pendingAck.pending?.messageId, queued.messageId)
+        XCTAssertEqual(service.deltaActionTracker.pendingDeltaActions(of: allActions).count, remaining)
+
+        // Reconnect immediately retries the queued batch. Each subsequent real
+        // frame ACK must produce the next frame without another score update.
+        setReachable(true)
+        var delivered = Set(onWire.map(\.id))
+        for batch in 1...40 {
+            guard delivered.count < allActions.count else { break }
+            await waitUntil { frames().count > batch }
+            let sent = frames()
+            guard sent.count > batch else {
+                XCTFail("No history batch after ACK or reconnect")
+                return
+            }
+            let next = sent[batch]
+            if batch == 1 { XCTAssertEqual(next.messageId, queued.messageId) }
+            XCTAssertEqual(next.sessionRevision, realtime.sessionRevision)
+            XCTAssertEqual(next.payload.initialSnapshot, realtime.payload.initialSnapshot)
+            XCTAssertEqual(next.payload.isDeltaActions, true)
+            XCTAssertFalse(next.payload.detailedActions.isEmpty)
+            for action in next.payload.detailedActions {
+                XCTAssertTrue(delivered.insert(action.id).inserted)
+            }
+            ack(next, sequence: UInt64(batch) + 10)
+            await settleMainQueue()
+        }
+        XCTAssertEqual(delivered, Set(allActions.map(\.id)))
+        XCTAssertTrue(service.deltaActionTracker.pendingDeltaActions(of: allActions).isEmpty)
+        XCTAssertNil(service.pendingAck.pending)
+    }
+
+    /// R4 真实入口回归（撤销/重置权威替换）：
+    /// 1) 本地撤销后 publish（替换语义）→ 非增量全量帧携带缩短后的历史；
+    /// 2) 接收端（测试模拟）撤销前动作不出现在新帧里，也不被旧帧加回；
+    /// 3) checkpoint 空帧先到不清历史；同 revision 的替换帧随后到达才替换。
+    func testUndoReplacesAuthoritativeHistoryAndOldFramesDoNotReAdd() async throws {
+        let store = InMemoryLinkDataStore()
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport, contextStore: store, outboxStore: store, recordSink: RecordingPhoneLinkSink()
+        )
+        let initial = RallyMatchEngine.initial(leftName: "Alice", rightName: "Bob", rules: .badminton())
+        let start = Task {
+            try await service.startInteractiveOnWatch(gameType: .badminton, state: initial)
+        }
+        await waitUntil {
+            transport.realtimeMessages.contains {
+                (try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0))?.kind == .setupRequest
+            }
+        }
+        let setup = try XCTUnwrap(transport.realtimeMessages.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
+        }.first { $0.kind == .setupRequest })
+        service.handleIncoming(try JSONEncoder().encode(LinkEnvelope(
+            supportsSharedEditing: true, correlationId: setup.messageId,
+            sessionId: setup.sessionId, matchId: setup.matchId, kind: .setupAccepted,
+            sender: .watch, senderSequence: 1, sessionRevision: 0,
+            sentAtEpochMilliseconds: setup.sentAtEpochMilliseconds, payload: EmptyLinkPayload()
+        )))
+        let sessionId = try await start.value
+
+        // 两次计分（两个动作）。
+        var one = initial
+        one.leftPoints = 1
+        let action1 = DetailedScoreAction(
+            type: .scoreChanged, epochMilliseconds: service.nowMs() + 1,
+            team: .team1, scores: [1, 0], scoreChange: 1, operationCode: "point_1"
+        )
+        service.syncWatch(sessionId: sessionId, gameType: .badminton, state: one, detailedActions: [action1])
+        var two = one
+        two.leftPoints = 2
+        let action2 = DetailedScoreAction(
+            type: .scoreChanged, epochMilliseconds: service.nowMs() + 2,
+            team: .team1, scores: [2, 0], scoreChange: 1, operationCode: "point_2"
+        )
+        service.syncWatch(sessionId: sessionId, gameType: .badminton, state: two, detailedActions: [action1, action2])
+        await settleMainQueue()
+
+        // 撤销 action2：真实入口 = 用缩短后的历史再发一次同步（生产代码
+        // restoreRecordUndoCheckpoint 缩短 actionTimeline 后走同一入口）。
+        service.syncWatch(sessionId: sessionId, gameType: .badminton, state: one, detailedActions: [action1])
+        await settleMainQueue()
+        let replacement = try XCTUnwrap(transport.realtimeMessages.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
+        }.last { $0.kind == .stateSnapshot })
+        // 权威替换帧：非增量 + 不含被撤销动作。
+        XCTAssertNotEqual(replacement.payload.isDeltaActions, true)
+        XCTAssertFalse(replacement.payload.detailedActions.contains { $0.id == action2.id }, "被撤销动作必须离开权威历史")
+        XCTAssertTrue(replacement.payload.detailedActions.contains { $0.id == action1.id })
+
+        XCTAssertEqual(replacement.payload.removedActionIDs, [action2.id])
+
+        let remoteOne = DetailedScoreAction(type: .scoreChanged, epochMilliseconds: 1, team: .team2, scores: [0, 1])
+        let remoteTwo = DetailedScoreAction(type: .scoreChanged, epochMilliseconds: 2, team: .team2, scores: [0, 2])
+        let oldRevision = replacement.sessionRevision + 1
+        let checkpointRevision = oldRevision + 2
+        func watchFrame(
+            revision: UInt64, state: RallyMatchState, actions: [DetailedScoreAction] = [],
+            removals: [UUID]? = nil, isDelta: Bool? = nil
+        ) throws -> Data {
+            try JSONEncoder().encode(LinkEnvelope(
+                sessionId: sessionId, matchId: setup.matchId, kind: .stateSnapshot,
+                sender: .watch, senderSequence: revision, sessionRevision: revision,
+                sentAtEpochMilliseconds: service.nowMs(),
+                payload: LinkedScoreboardSetup(
+                    gameType: .badminton, initialSnapshot: .rally(state),
+                    detailedActions: actions, isDeltaActions: isDelta, removedActionIDs: removals
+                )
+            ))
+        }
+
+        let previous = try watchFrame(revision: oldRevision, state: two, actions: [remoteOne, remoteTwo], isDelta: true)
+        service.handleIncoming(previous)
+        XCTAssertEqual(Set(service.mergedDetailedActions.map(\.id)), [action1.id, remoteOne.id, remoteTwo.id])
+
+        // A local publication provides just the phone's action list.
+        service.syncWatch(sessionId: sessionId, gameType: .badminton, state: one, detailedActions: [action1])
+        XCTAssertEqual(Set(service.mergedDetailedActions.map(\.id)), [action1.id, remoteOne.id, remoteTwo.id])
+
+        service.handleIncoming(try watchFrame(revision: checkpointRevision, state: one))
+        XCTAssertEqual(service.activeSession?.revision, checkpointRevision)
+        XCTAssertEqual(Set(service.mergedDetailedActions.map(\.id)), [action1.id, remoteOne.id, remoteTwo.id])
+
+        service.handleIncoming(try watchFrame(revision: checkpointRevision, state: one, removals: [remoteTwo.id], isDelta: false))
+        XCTAssertEqual(Set(service.mergedDetailedActions.map(\.id)), [action1.id, remoteOne.id])
+
+        service.handleIncoming(previous)
+        XCTAssertEqual(Set(service.mergedDetailedActions.map(\.id)), [action1.id, remoteOne.id])
+        XCTAssertEqual(service.latestRemoteSnapshot?.snapshot, .rally(one))
+        XCTAssertEqual(service.activeSession?.revision, checkpointRevision)
+
+        let restored = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(), contextStore: store, outboxStore: store,
+            recordSink: RecordingPhoneLinkSink()
+        )
+        restored.handleIncoming(previous)
+        XCTAssertEqual(Set(restored.mergedDetailedActions.map(\.id)), [action1.id, remoteOne.id])
+    }
+
+    /// 真实入口回归：syncWatch 发出的 applicationContext checkpoint 用独立
+    /// messageId，其回执不得清空实时帧尚未送达的增量动作。
+    func testApplicationContextCheckpointAckKeepsPendingRealtimeActions() async throws {
+        let store = InMemoryLinkDataStore()
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport, contextStore: store, outboxStore: store, recordSink: RecordingPhoneLinkSink()
+        )
+        let initial = RallyMatchEngine.initial(leftName: "Alice", rightName: "Bob", rules: .badminton())
+        let start = Task {
+            try await service.startInteractiveOnWatch(gameType: .badminton, state: initial)
+        }
+        await waitUntil {
+            transport.realtimeMessages.contains {
+                (try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0))?.kind == .setupRequest
+            }
+        }
+        let setup = try XCTUnwrap(transport.realtimeMessages.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
+        }.first { $0.kind == .setupRequest })
+        service.handleIncoming(try JSONEncoder().encode(LinkEnvelope(
+            supportsSharedEditing: true, correlationId: setup.messageId,
+            sessionId: setup.sessionId, matchId: setup.matchId, kind: .setupAccepted,
+            sender: .watch, senderSequence: 1, sessionRevision: 0,
+            sentAtEpochMilliseconds: setup.sentAtEpochMilliseconds, payload: EmptyLinkPayload()
+        )))
+        let sessionId = try await start.value
+
+        var scored = initial
+        scored.leftPoints = 1
+        let action = DetailedScoreAction(
+            type: .scoreChanged, epochMilliseconds: service.nowMs(),
+            team: .team1, scores: [1, 0], scoreChange: 1, operationCode: "left_point"
+        )
+        service.syncWatch(
+            sessionId: sessionId, gameType: .badminton, state: scored,
+            detailedActions: [action]
+        )
+        await settleMainQueue()
+
+        let realtime = try XCTUnwrap(transport.realtimeMessages.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
+        }.last { $0.kind == .stateSnapshot })
+        let checkpoint = try XCTUnwrap(transport.publishedSnapshots.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
+        }.last)
+        XCTAssertNotEqual(checkpoint.messageId, realtime.messageId, "context 帧必须用独立 messageId")
+        XCTAssertTrue(checkpoint.payload.detailedActions.isEmpty, "context 帧不含动作历史")
+
+        // 对端只回执了 context 帧：实时帧的动作必须仍在重发清单。
+        service.handleIncoming(try JSONEncoder().encode(LinkEnvelope(
+            correlationId: checkpoint.messageId, sessionId: sessionId, matchId: setup.matchId,
+            kind: .acknowledgement, sender: .watch, senderSequence: 2,
+            sessionRevision: checkpoint.sessionRevision,
+            sentAtEpochMilliseconds: service.nowMs(),
+            payload: LinkAcknowledgementPayload(acknowledgedMessageId: checkpoint.messageId, acknowledgedRevision: checkpoint.sessionRevision)
+        )))
+        XCTAssertEqual(service.deltaActionTracker.pendingDeltaActions(of: [action]).count, 1)
+
+        // 实时帧真实回执后才清台账。
+        service.handleIncoming(try JSONEncoder().encode(LinkEnvelope(
+            correlationId: realtime.messageId, sessionId: sessionId, matchId: setup.matchId,
+            kind: .acknowledgement, sender: .watch, senderSequence: 3,
+            sessionRevision: realtime.sessionRevision,
+            sentAtEpochMilliseconds: service.nowMs(),
+            payload: LinkAcknowledgementPayload(acknowledgedMessageId: realtime.messageId, acknowledgedRevision: realtime.sessionRevision)
+        )))
+        XCTAssertTrue(service.deltaActionTracker.pendingDeltaActions(of: [action]).isEmpty)
+    }
+
+    func testOversizeTerminalRetryRoutesByItemNegotiatedSnapshot() async throws {
+        let store = InMemoryLinkDataStore()
+        let transport = FakeWatchLinkTransport()
+        let service = PhoneWatchLinkService(
+            transport: transport, contextStore: store, outboxStore: store, recordSink: RecordingPhoneLinkSink()
+        )
+        let sessionId = UUID()
+        let handle = LinkedMatchHandle(sessionId: sessionId)
+        let bigData = Data(repeating: 0x41, count: 70_000)
+        service.terminalOutbox.enqueue(.init(
+            messageId: UUID(), handle: handle, data: bigData,
+            lastSentAtEpochMilliseconds: 0,
+            peerSupportsFileTransfer: true
+        ))
+        service.performRetryWork()
+        await settleMainQueue()
+        XCTAssertEqual(transport.transferredFiles.count, 1, ">60KB 帧按 item 协商快照走文件通道")
+        XCTAssertEqual(transport.transferredFiles.first?.data, bigData, "重试不得裁剪动作历史")
+
+        // 换场/重启后 item 自己的快照仍然生效：伪造「当前会话无文件能力」不影响旧帧路由。
+        let second = PhoneWatchLinkService(
+            transport: transport, contextStore: store, outboxStore: store, recordSink: RecordingPhoneLinkSink()
+        )
+        XCTAssertEqual(transport.transferredFiles.count, 1)
+        second.terminalOutbox.enqueue(.init(
+            messageId: UUID(), handle: handle, data: Data(repeating: 0x42, count: 70_000),
+            lastSentAtEpochMilliseconds: 0,
+            peerSupportsFileTransfer: false
+        ))
+        second.performRetryWork()
+        await settleMainQueue()
+        XCTAssertTrue(transport.transferredFiles.dropFirst().isEmpty, "无文件能力时大帧保留在 outbox（hold）")
+        XCTAssertTrue(transport.durableMessages.isEmpty, "超预算帧不经 transferUserInfo")
+    }
+
+    func testReceivedFileRecordPersistsThenSendsClearPendingAck() async throws {
+        let store = InMemoryLinkDataStore()
+        let transport = FakeWatchLinkTransport()
+        let sink = RecordingPhoneLinkSink()
+        _ = sink // 独立记录走 WatchStandaloneRecordIngestor，不经过该 sink
+        let service = PhoneWatchLinkService(
+            transport: transport, contextStore: store, outboxStore: store, recordSink: sink
+        )
+        let recordID = "w_\(UUID().uuidString)"
+        let actions = (0..<900).map { index in
+            DetailedScoreAction(
+                type: .scoreChanged, epochMilliseconds: Int64(1_700_000_000_000 + index * 10),
+                team: .team1, scores: [index, 0], scoreChange: 1,
+                operationCode: "watch_record_op_\(index)_\(UUID().uuidString)"
+            )
+        }
+        let payload = WatchRecordTransferPayload(
+            id: recordID, gameType: "pingpong",
+            startTimeEpochMilliseconds: 1_700_000_000_000,
+            endTimeEpochMilliseconds: 1_700_000_060_000,
+            durationSeconds: 60, team1Name: "L", team2Name: "R",
+            team1FinalScore: 11, team2FinalScore: 9, team1SetScore: 2, team2SetScore: 1,
+            winner: "L", actions: [], detailedActions: actions, totalScoreChanges: 900
+        )
+        let data = try JSONEncoder().encode(payload)
+        XCTAssertGreaterThan(data.count, 32_000, "构造超预算的独立记录载荷")
+        service.handleReceivedFile(data, metadata: [
+            WatchConnectivityTransport.transferFileKindKey: WatchTransferFileKind.watchRecord.rawValue
+        ])
+        await settleMainQueue()
+        XCTAssertEqual(transport.clearedWatchRecordIDBatches, [[recordID]], "落库成功后 ACK 清手表队列")
+    }
+}
+
 final class FakeWatchLinkTransport: @unchecked Sendable, WatchLinkTransport {
     var status = WatchConnectivityStatus(
         isSupported: true,
@@ -1704,7 +2130,6 @@ final class FakeWatchLinkTransport: @unchecked Sendable, WatchLinkTransport {
     var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)?
     var onApplicationContext: (@Sendable ([String: Any]) -> Void)?
     var onWatchRecordData: (@Sendable (Data) -> Void)?
-    var onCommonNameUsageData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationsData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationAckData: (@Sendable (Data) -> Void)?
     var onCatchUpRequest: (@Sendable () -> Void)?
@@ -1768,7 +2193,14 @@ final class FakeWatchLinkTransport: @unchecked Sendable, WatchLinkTransport {
     }
 
     func transferWatchRecord(_ data: Data) throws {}
-    func transferCommonNameUsage(_ data: Data) throws {}
+    var supportsFileTransfer = true
+    var onReceivedFile: (@Sendable (Data, [String: Any]) -> Void)?
+    var transferredFiles: [(data: Data, metadata: [String: Any])] = []
+
+    func transferFileData(_ data: Data, metadata: [String: Any]) throws {
+        transferredFiles.append((data, metadata))
+    }
+
     func transferCommonNameMutations(_ data: Data) throws {}
     func transferCommonNameMutationAcknowledgement(_ data: Data) throws {}
     func requestPendingWatchRecords() {}

@@ -8,21 +8,62 @@ import WatchConnectivity
 
 public enum LinkProtocol {
     public static let currentVersion = 1
+    /// Oldest peer protocol version this build accepts in a handshake.
+    public static let minimumSupportedVersion = 1
+
+    /// Capabilities every peer must advertise before a linked session starts.
+    public static let requiredCapabilities: Set<LinkCapability> = [
+        .independentMatches,
+        .authorityEpoch, // M1 still runs the existing authority protocol.
+        .correlatedRequests,
+        .durableTerminalQueue
+    ]
+
+    /// `applicationContext` common-names partition byte budget (see
+    /// `CommonNamesSyncSnapshot.budgetConstrainedData`).
+    public static let commonNamesContextBudgetBytes = 24_000
+
+    /// Everything this build understands. Handshakes intersect both sides so
+    /// older peers keep working and newer additions degrade gracefully.
     public static let capabilities: Set<LinkCapability> = [
         .independentMatches,
         .authorityEpoch,
         .correlatedRequests,
         .durableTerminalQueue,
-        .latestSnapshotContext
+        .latestSnapshotContext,
+        .compressedFinish,
+        .deltaActions,
+        .fileTransfer
     ]
+
+    /// Open-subset handshake check: required capabilities must all be present,
+    /// unknown extra capabilities from a newer peer are tolerated (and simply
+    /// unused by this build). Returns the negotiated intersection.
+    public static func negotiate(
+        local: Set<LinkCapability>,
+        peer: Set<LinkCapability>
+    ) -> Set<LinkCapability>? {
+        guard requiredCapabilities.isSubset(of: peer) else { return nil }
+        return local.intersection(peer)
+    }
 }
 
-public enum LinkCapability: String, Codable, CaseIterable, Hashable, Sendable {
-    case independentMatches
-    case authorityEpoch
-    case correlatedRequests
-    case durableTerminalQueue
-    case latestSnapshotContext
+/// Open capability token. Unlike the previous closed enum, unknown values from
+/// a future peer decode fine and stay inert; capability sets are compared as
+/// string subsets, never by exhaustive equality.
+public struct LinkCapability: RawRepresentable, Codable, Hashable, Sendable {
+    public let rawValue: String
+
+    public init(rawValue: String) { self.rawValue = rawValue }
+
+    public static let independentMatches = Self(rawValue: "independentMatches")
+    public static let authorityEpoch = Self(rawValue: "authorityEpoch")
+    public static let correlatedRequests = Self(rawValue: "correlatedRequests")
+    public static let durableTerminalQueue = Self(rawValue: "durableTerminalQueue")
+    public static let latestSnapshotContext = Self(rawValue: "latestSnapshotContext")
+    public static let compressedFinish = Self(rawValue: "compressedFinish")
+    public static let deltaActions = Self(rawValue: "deltaActions")
+    public static let fileTransfer = Self(rawValue: "fileTransfer")
 }
 
 public struct LinkedMatchHandle: Codable, Equatable, Hashable, Sendable {
@@ -143,6 +184,31 @@ public enum LinkMessageKind: String, Codable, Sendable {
     case commonNamesSyncRequest
     case connectivityProbe
     case connectivityProbeResponse
+}
+
+/// Why a setup request was refused. The phone surfaces the reason so the
+/// start dialog can tell a version mismatch from a user decline.
+public enum LinkSetupRejectionReason: String, Codable, Equatable, Sendable {
+    case userDeclined = "user_declined"
+    case unsupportedSport = "unsupported_sport"
+    case incompatibleProtocol = "incompatible_protocol"
+    case malformedSetup = "malformed_setup"
+}
+
+public struct LinkSetupRejectedPayload: Codable, Equatable, Sendable {
+    public let reason: LinkSetupRejectionReason
+    public let detail: String?
+
+    public init(reason: LinkSetupRejectionReason = .userDeclined, detail: String? = nil) {
+        self.reason = reason
+        self.detail = detail
+    }
+}
+
+/// Metadata for files queued through `transferFile` on the reliable channel.
+public enum WatchTransferFileKind: String, Codable, Sendable {
+    case watchRecord = "watch_record"
+    case matchFinished = "match_finished"
 }
 
 /// Linked football state: both goal counts plus the anchored match clock.
@@ -574,6 +640,10 @@ public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
     public var pendingTerminalMessageIds: Set<UUID>
     public var peerSupportsCompressedFinish: Bool?
     public var finishedRecordId: String?
+    /// Capability intersection agreed at handshake, persisted so restored
+    /// sessions keep routing to the same channels.
+    public var negotiatedPeerCapabilities: Set<LinkCapability>?
+    public var actionHistory: LinkSnapshotHistory?
 
     public init(
         handle: LinkedMatchHandle,
@@ -586,7 +656,9 @@ public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
         completedMatchIds: Set<UUID>,
         pendingTerminalMessageIds: Set<UUID>,
         finishedRecordId: String? = nil,
-        peerSupportsCompressedFinish: Bool? = nil
+        peerSupportsCompressedFinish: Bool? = nil,
+        negotiatedPeerCapabilities: Set<LinkCapability>? = nil,
+        actionHistory: LinkSnapshotHistory? = nil
     ) {
         self.handle = handle
         self.setup = setup
@@ -599,6 +671,8 @@ public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
         self.pendingTerminalMessageIds = pendingTerminalMessageIds
         self.peerSupportsCompressedFinish = peerSupportsCompressedFinish
         self.finishedRecordId = finishedRecordId
+        self.negotiatedPeerCapabilities = negotiatedPeerCapabilities
+        self.actionHistory = actionHistory
     }
 }
 
@@ -613,6 +687,10 @@ public struct WatchLinkResumeContext: Codable, Equatable, Sendable {
     public var completedMatchIds: Set<UUID>
     public var pendingTerminalMessageIds: Set<UUID>
     public var peerSupportsCompressedFinish: Bool?
+    /// Capability intersection agreed at handshake, persisted so restored
+    /// sessions keep routing to the same channels.
+    public var negotiatedPeerCapabilities: Set<LinkCapability>?
+    public var actionHistory: LinkSnapshotHistory?
 
     public init(
         handle: LinkedMatchHandle,
@@ -624,7 +702,9 @@ public struct WatchLinkResumeContext: Codable, Equatable, Sendable {
         detailedActions: [DetailedScoreAction],
         completedMatchIds: Set<UUID>,
         pendingTerminalMessageIds: Set<UUID>,
-        peerSupportsCompressedFinish: Bool? = nil
+        peerSupportsCompressedFinish: Bool? = nil,
+        negotiatedPeerCapabilities: Set<LinkCapability>? = nil,
+        actionHistory: LinkSnapshotHistory? = nil
     ) {
         self.handle = handle
         self.setup = setup
@@ -636,6 +716,8 @@ public struct WatchLinkResumeContext: Codable, Equatable, Sendable {
         self.completedMatchIds = completedMatchIds
         self.pendingTerminalMessageIds = pendingTerminalMessageIds
         self.peerSupportsCompressedFinish = peerSupportsCompressedFinish
+        self.negotiatedPeerCapabilities = negotiatedPeerCapabilities
+        self.actionHistory = actionHistory
     }
 }
 
@@ -702,10 +784,11 @@ public struct LinkControlRetryQueue: Equatable, Sendable {
     /// Returns data to resend when due; nil if nothing pending or still within interval / exhausted.
     public mutating func retryIfDue(
         nowEpochMilliseconds: Int64,
-        retainAfterExhaustion: Bool = false
+        retainAfterExhaustion: Bool = false,
+        sendImmediately: Bool = false
     ) -> Data? {
         guard var item = pending else { return nil }
-        guard nowEpochMilliseconds - item.lastSentAtEpochMilliseconds >= Self.retryIntervalMilliseconds else {
+        guard sendImmediately || nowEpochMilliseconds - item.lastSentAtEpochMilliseconds >= Self.retryIntervalMilliseconds else {
             return nil
         }
         guard item.attempts < Self.maxRetries else {
@@ -746,6 +829,10 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
         public var attempts: Int
         public var lastSentAtEpochMilliseconds: Int64
         public var pendingLocalRecord: LocalRecord?
+        /// Negotiated file-transfer snapshot captured at enqueue time. Retries
+        /// after a next-match transition or app restart route by this value —
+        /// never by whichever session happens to be active now.
+        public var peerSupportsFileTransfer: Bool?
 
         public init(
             messageId: UUID,
@@ -753,7 +840,8 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
             data: Data,
             attempts: Int = 0,
             lastSentAtEpochMilliseconds: Int64,
-            pendingLocalRecord: LocalRecord? = nil
+            pendingLocalRecord: LocalRecord? = nil,
+            peerSupportsFileTransfer: Bool? = nil
         ) {
             self.messageId = messageId
             self.handle = handle
@@ -761,6 +849,7 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
             self.attempts = attempts
             self.lastSentAtEpochMilliseconds = lastSentAtEpochMilliseconds
             self.pendingLocalRecord = pendingLocalRecord
+            self.peerSupportsFileTransfer = peerSupportsFileTransfer
         }
     }
 
@@ -811,6 +900,20 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
             items[index].attempts += 1
             items[index].lastSentAtEpochMilliseconds = nowEpochMilliseconds
             due.append(items[index].data)
+        }
+        return due
+    }
+
+    /// Same retry bookkeeping as `retryDue`, returning the full items so the
+    /// caller can route each frame by its own negotiated-capability snapshot.
+    public mutating func retryDueItems(nowEpochMilliseconds: Int64) -> [Item] {
+        var due: [Item] = []
+        for index in items.indices {
+            guard nowEpochMilliseconds - items[index].lastSentAtEpochMilliseconds
+                    >= Self.retryIntervalMilliseconds else { continue }
+            items[index].attempts += 1
+            items[index].lastSentAtEpochMilliseconds = nowEpochMilliseconds
+            due.append(items[index])
         }
         return due
     }
@@ -942,6 +1045,14 @@ public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {
     public var detailedActions: [DetailedScoreAction]
     public let participantNames: [String]
     public let capabilities: Set<LinkCapability>
+    /// `true` marks append-only actions. `false` marks a history correction.
+    /// Only explicitly removed IDs are deleted, even if history spans several frames.
+    public var isDeltaActions: Bool?
+    public var removedActionIDs: [UUID]?
+
+    public var carriesHistory: Bool {
+        !detailedActions.isEmpty || removedActionIDs?.isEmpty == false
+    }
 
     public init(
         gameType: GameType,
@@ -949,7 +1060,9 @@ public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {
         initialSnapshot: LinkedScoreboardSnapshot? = nil,
         detailedActions: [DetailedScoreAction] = [],
         participantNames: [String] = [],
-        capabilities: Set<LinkCapability> = LinkProtocol.capabilities
+        capabilities: Set<LinkCapability> = LinkProtocol.capabilities,
+        isDeltaActions: Bool? = nil,
+        removedActionIDs: [UUID]? = nil
     ) {
         self.gameType = gameType
         self.maxSets = maxSets
@@ -957,6 +1070,8 @@ public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {
         self.detailedActions = detailedActions
         self.participantNames = participantNames
         self.capabilities = capabilities
+        self.isDeltaActions = isDeltaActions
+        self.removedActionIDs = removedActionIDs
     }
 }
 
@@ -1073,12 +1188,44 @@ public enum LinkEnvelopeEncoding {
     /// `WCSession.applicationContext` 与常用名称表共享 65,536 字节上限：
     /// 兜底快照只保留最新比分/规则状态，剥离 `detailedActions`（完整动作历史由
     /// `sendMessageData` 实时通道和 `matchFinished` 完赛通道传递，接收端按 id 并集合并）。
+    /// applicationContext 分区的轻量快照：剥离动作历史，并**重写 messageId**。
+    /// 轻量帧与实时帧必须使用不同 id：对端对轻量帧的回执不得清空实时帧的
+    /// pendingAck 与增量动作台账（轻量帧不含动作，从未把它们送达对端）。
     public static func applicationContextData(
         _ envelope: LinkEnvelope<LinkedScoreboardSetup>
     ) -> Data {
         var stripped = envelope
         stripped.payload.detailedActions = []
-        return data(stripped)
+        // checkpoint 不是权威替换帧：清除 delta 标记，接收端绝不会把
+        // 空检查点误当替换处理（替换帧随后同 revision 到达时才做替换）。
+        stripped.payload.isDeltaActions = nil
+        stripped.payload.removedActionIDs = nil
+        return data(Self.checkpointEnvelope(stripped))
+    }
+
+    /// 复制信封并分配全新 messageId（其余字段原样，供 context 帧独立回执）。
+    public static func checkpointEnvelope<Payload: Codable & Sendable>(
+        _ envelope: LinkEnvelope<Payload>
+    ) -> LinkEnvelope<Payload> {
+        LinkEnvelope(
+            protocolVersion: envelope.protocolVersion,
+            capabilities: envelope.capabilities,
+            supportsCompressedFinish: envelope.supportsCompressedFinish,
+            supportsSharedEditing: envelope.supportsSharedEditing,
+            baseSnapshotRevision: envelope.baseSnapshotRevision,
+            messageId: UUID(),
+            correlationId: envelope.correlationId,
+            sessionId: envelope.sessionId,
+            matchId: envelope.matchId,
+            matchGeneration: envelope.matchGeneration,
+            authorityEpoch: envelope.authorityEpoch,
+            kind: envelope.kind,
+            sender: envelope.sender,
+            senderSequence: envelope.senderSequence,
+            sessionRevision: envelope.sessionRevision,
+            sentAtEpochMilliseconds: envelope.sentAtEpochMilliseconds,
+            payload: envelope.payload
+        )
     }
 
     public static func applicationContextData<Payload: Codable & Sendable>(
@@ -1089,7 +1236,7 @@ public enum LinkEnvelopeEncoding {
         }
         if var finishedEnvelope = envelope as? LinkEnvelope<LinkMatchFinishedPayload> {
             finishedEnvelope.payload.detailedActions = []
-            return data(finishedEnvelope)
+            return data(Self.checkpointEnvelope(finishedEnvelope))
         }
         if var ackEnvelope = envelope as? LinkEnvelope<LinkAcknowledgementPayload> {
             ackEnvelope.payload.detailedActions = []
@@ -1120,6 +1267,49 @@ public enum LinkEnvelopeEncoding {
         }
         candidate.payload[keyPath: keyPath] = []
         return (try? JSONEncoder().encode(candidate)) ?? full
+    }
+
+    /// 与 `data(_:actionsKeyPath:byteLimit:)` 相同的编码与裁剪，返回最终 Data 与
+    /// **严格从最终 Data 解码得到**的实际上线动作（不按字节长度推断）。被预算
+    /// 裁剪掉的动作不进入发送台账，回执无法误清欠账；后续帧继续补发。
+    public struct SnapshotFrame {
+        public let data: Data
+        public let actions: [DetailedScoreAction]
+        public let removedActionIDs: [UUID]
+
+        public var carriesHistory: Bool { !actions.isEmpty || !removedActionIDs.isEmpty }
+    }
+
+    public static func snapshotFrame(
+        _ envelope: LinkEnvelope<LinkedScoreboardSetup>,
+        byteLimit: Int = defaultByteLimit
+    ) -> SnapshotFrame {
+        var candidate = envelope
+        let encoder = JSONEncoder()
+        var encoded = data(candidate, actionsKeyPath: \.detailedActions, byteLimit: byteLimit)
+        // A correction can contain more removals than will fit even without
+        // additions. The ACK records exactly the removals carried in this batch.
+        if encoded.count > byteLimit {
+            candidate.payload.detailedActions = []
+            while let removals = candidate.payload.removedActionIDs, !removals.isEmpty {
+                let remaining = removals.prefix(removals.count / 2)
+                candidate.payload.removedActionIDs = remaining.isEmpty ? nil : Array(remaining)
+                encoded = (try? encoder.encode(candidate)) ?? Data()
+                if encoded.count <= byteLimit { break }
+            }
+        }
+        guard !encoded.isEmpty, encoded.count <= byteLimit,
+              let wire = try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: encoded)
+        else { return SnapshotFrame(data: Data(), actions: [], removedActionIDs: []) }
+        return SnapshotFrame(data: encoded, actions: wire.payload.detailedActions, removedActionIDs: wire.payload.removedActionIDs ?? [])
+    }
+
+    public static func dataWithSentActions(
+        _ envelope: LinkEnvelope<LinkedScoreboardSetup>,
+        byteLimit: Int = defaultByteLimit
+    ) -> (data: Data, sentActions: [DetailedScoreAction]) {
+        let frame = snapshotFrame(envelope, byteLimit: byteLimit)
+        return (frame.data, frame.actions)
     }
 }
 
@@ -1503,6 +1693,12 @@ public protocol LinkDataStore: Sendable {
     func data(forKey key: String) -> Data?
     func set(_ data: Data, forKey key: String)
     func removeObject(forKey key: String)
+    /// Throwing variants are real requirements (NOT extension defaults): every
+    /// call through `any LinkDataStore` must surface the concrete store's write
+    /// failure, so terminal-queue persistence gates on the real disk result.
+    func setOrThrow(_ data: Data, forKey key: String) throws
+    @discardableResult
+    func removeOrThrow(forKey key: String) throws -> Bool
 }
 
 public final class UserDefaultsLinkDataStore: @unchecked Sendable, LinkDataStore {
@@ -1524,6 +1720,17 @@ public final class UserDefaultsLinkDataStore: @unchecked Sendable, LinkDataStore
 
     public func removeObject(forKey key: String) {
         defaults.removeObject(forKey: key)
+    }
+
+    public func setOrThrow(_ data: Data, forKey key: String) throws {
+        defaults.set(data, forKey: key)
+    }
+
+    @discardableResult
+    public func removeOrThrow(forKey key: String) throws -> Bool {
+        let existed = defaults.data(forKey: key) != nil
+        defaults.removeObject(forKey: key)
+        return existed
     }
 }
 
@@ -1573,16 +1780,25 @@ public protocol WatchLinkTransport: AnyObject, LinkTransport {
     var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)? { get set }
     var onApplicationContext: (@Sendable ([String: Any]) -> Void)? { get set }
     var onWatchRecordData: (@Sendable (Data) -> Void)? { get set }
-    var onCommonNameUsageData: (@Sendable (Data) -> Void)? { get set }
     var onCommonNameMutationsData: (@Sendable (Data) -> Void)? { get set }
     var onCommonNameMutationAckData: (@Sendable (Data) -> Void)? { get set }
+    /// Reliable-channel file arrived. Implementations must read the incoming
+    /// file synchronously inside the delegate callback and hand the bytes over.
+    var onReceivedFile: (@Sendable (Data, [String: Any]) -> Void)? { get set }
+    /// Pairing-level file-transfer capability. The first-release link protocol
+    /// only pairs same-version apps, so the production transport always reports
+    /// true; standalone (never-handshaked) transfers rely on this instead of an
+    /// active session's negotiated capabilities.
+    var supportsFileTransfer: Bool { get }
 
     func activate()
     func refreshStatus()
     func sendInteractive(_ data: Data) throws
     func updateApplicationContext(_ context: [String: Any]) throws
     func transferWatchRecord(_ data: Data) throws
-    func transferCommonNameUsage(_ data: Data) throws
+    /// Reliable large-payload channel: queues a file whose metadata carries
+    /// the `WatchTransferFileKind` discriminator.
+    func transferFileData(_ data: Data, metadata: [String: Any]) throws
     func transferCommonNameMutations(_ data: Data) throws
     func transferCommonNameMutationAcknowledgement(_ data: Data) throws
 
@@ -1618,8 +1834,11 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     }
     public static let commonNamesContextKey = "jifen.common_names.v1"
     public static let watchRecordUserInfoKey = "jifen.watch_record.v1"
-    public static let commonNameUsageUserInfoKey = "jifen.common_name_usage.v1"
     public static let commonNameMutationsUserInfoKey = "jifen.common_name_mutations.v1"
+    /// `transferFile` metadata key holding the `WatchTransferFileKind` raw value.
+    public static let transferFileKindKey = "jifen.transfer_file.kind"
+    /// Context budget for the common-names partition inside `applicationContext`.
+    public static let commonNamesContextBudgetBytes = 24_000
     public static let commonNameMutationAckUserInfoKey = "jifen.common_name_mutation_ack.v1"
     /// Phone → Watch: ask the watch for finished-record transfers it queued but the phone never received.
     public static let catchUpRequestMessageKey = "jifen.link.catch_up_request"
@@ -1636,8 +1855,8 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     public var onApplicationContext: DictionaryHandler?
     /// Queued watch→phone finished-record payloads.
     public var onWatchRecordData: ReceiveHandler?
-    /// Queued watch→phone common-name usage events.
-    public var onCommonNameUsageData: ReceiveHandler?
+    /// Reliable-channel file payloads (records, terminal frames).
+    public var onReceivedFile: (@Sendable (Data, [String: Any]) -> Void)?
     /// Offline-capable watch→phone common-name edit batches.
     public var onCommonNameMutationsData: ReceiveHandler?
     /// Offline-capable phone→watch canonical results for edit batches.
@@ -1648,6 +1867,11 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     public var onClearPendingRequest: (@Sendable ([String]) -> Void)?
     /// Phone side: watch sent back pending record datas.
     public var onPendingRecords: (@Sendable ([Data]) -> Void)?
+
+    /// Same-version pairing is a first-release invariant: the link protocol
+    /// never shipped to users before this build, so any paired peer that can
+    /// receive our messages can also receive our files.
+    public var supportsFileTransfer: Bool { true }
 
     public init(session: WCSession = .default) {
         self.session = session
@@ -1754,6 +1978,8 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     }
 
     /// Push a small always-latest dictionary to the peer (used for common-names auto sync).
+    /// The merged dictionary is serialized to measure the real byte size before
+    /// hitting WCSession, which raises a native exception above 65,536 bytes.
     public func updateApplicationContext(_ context: [String: Any]) throws {
         guard session.activationState == .activated else {
             throw WatchConnectivityTransportError.sessionNotActivated
@@ -1762,7 +1988,20 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
         for (key, value) in context {
             merged[key] = value
         }
+        guard Self.contextDictionaryFits(merged) else {
+            throw WatchConnectivityTransportError.payloadTooLarge(Self.maxPayloadBytes + 1)
+        }
         try session.updateApplicationContext(merged)
+    }
+
+    /// Serializes the merged context dictionary the same way WCSession would,
+    /// and rejects it when the total would exceed the 65,536-byte ceiling.
+    static func contextDictionaryFits(_ context: [String: Any]) -> Bool {
+        guard JSONSerialization.isValidJSONObject(context) else { return false }
+        guard let data = try? JSONSerialization.data(withJSONObject: context, options: [.sortedKeys]) else {
+            return false
+        }
+        return data.count <= maxPayloadBytes
     }
 
     /// Queue a finished watch record for delivery even when the peer is not reachable.
@@ -1774,13 +2013,25 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
         session.transferUserInfo([Self.watchRecordUserInfoKey: data])
     }
 
-    /// Queue a name-usage event even if the phone is currently unreachable.
-    public func transferCommonNameUsage(_ data: Data) throws {
+    /// Queue a large payload as a background file transfer. The bytes land on
+    /// disk first so `WCSession` never sees them as a dictionary payload; the
+    /// sender keeps the full payload until the receiver ACKs ingest.
+    public func transferFileData(_ data: Data, metadata: [String: Any]) throws {
         guard session.activationState == .activated else {
             throw WatchConnectivityTransportError.sessionNotActivated
         }
-        session.transferUserInfo([Self.commonNameUsageUserInfoKey: data])
+        guard !data.isEmpty else {
+            throw WatchConnectivityTransportError.payloadTooLarge(0)
+        }
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("jifen-link-\(UUID().uuidString).jifenlink")
+        try data.write(to: url, options: .atomic)
+        pendingOutgoingFileURLs[url.path] = url
+        session.transferFile(url, metadata: metadata)
     }
+
+    /// Temp files awaiting `didFinish` cleanup, keyed by path.
+    private var pendingOutgoingFileURLs: [String: URL] = [:]
 
     public func transferCommonNameMutations(_ data: Data) throws {
         guard session.activationState == .activated else {
@@ -1937,10 +2188,6 @@ extension WatchConnectivityTransport: WCSessionDelegate {
             onCommonNameMutationAckData?(acknowledgementData)
             return
         }
-        if let usageData = userInfo[Self.commonNameUsageUserInfoKey] as? Data {
-            onCommonNameUsageData?(usageData)
-            return
-        }
         if let recordData = userInfo[Self.watchRecordUserInfoKey] as? Data {
             #if DEBUG
             print("[LinkCore] didReceiveUserInfo: watchRecordUserInfoKey, size=\(recordData.count)")
@@ -1950,6 +2197,32 @@ extension WatchConnectivityTransport: WCSessionDelegate {
         }
         guard let data = userInfo[Self.durableLinkPayloadKey] as? Data else { return }
         onReceive?(data)
+    }
+
+    /// watchOS/iOS delete the incoming temp file as soon as this delegate call
+    /// returns, so the bytes must be captured synchronously right here.
+    public func session(_ session: WCSession, didReceive file: WCSessionFile) {
+        let data = (try? Data(contentsOf: file.fileURL)) ?? Data()
+        if data.isEmpty {
+            #if DEBUG
+            print("[LinkCore] didReceiveFile: empty or unreadable file at", file.fileURL.lastPathComponent)
+            #endif
+            return
+        }
+        onReceivedFile?(data, file.metadata ?? [:])
+    }
+
+    public func session(_ session: WCSession, didFinish fileTransfer: WCSessionFileTransfer, error: Error?) {
+        let url = fileTransfer.file.fileURL
+        pendingOutgoingFileURLs.removeValue(forKey: url.path)
+        if url.path.contains("jifen-link-") {
+            try? FileManager.default.removeItem(at: url)
+        }
+        if let error {
+            #if DEBUG
+            print("[LinkCore] didFinishFileTransfer error:", error.localizedDescription)
+            #endif
+        }
     }
 
     public func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {

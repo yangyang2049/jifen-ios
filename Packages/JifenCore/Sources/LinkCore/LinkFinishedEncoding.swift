@@ -31,11 +31,47 @@ public enum LinkFinishedEncoding {
         return LinkEnvelopeEncoding.encodedData(envelope)
     }
 
+    /// Compressed terminal frame or nil — never falls back to the trimmed
+    /// legacy encoding, so channel selection can measure the full payload.
+    public static func compressedFrameIfPossible(
+        _ envelope: LinkEnvelope<LinkMatchFinishedPayload>
+    ) -> Data? {
+        guard let json = try? JSONEncoder().encode(envelope) else { return nil }
+        guard json.count >= compressionThreshold,
+              json.count <= maximumDecodedSize,
+              let compressed = try? (json as NSData).compressed(using: .lzfse) as Data,
+              headerSize + compressed.count < json.count else { return nil }
+        var frame = Data(marker)
+        var size = UInt32(json.count).bigEndian
+        withUnsafeBytes(of: &size) { frame.append(contentsOf: $0) }
+        frame.append(compressed)
+        return frame
+    }
+
+    /// Untrimmed full JSON encoding of the terminal envelope (no action trim).
+    public static func fullJSONData(
+        _ envelope: LinkEnvelope<LinkMatchFinishedPayload>
+    ) -> Data? {
+        try? JSONEncoder().encode(envelope)
+    }
+
+    /// True when `data` carries the LZFSE terminal-frame prefix. Receive
+    /// routers must probe this before any JSON decoding: a compressed
+    /// `matchFinished` frame cannot be parsed as `LinkEnvelopeHead`.
+    public static func isCompressedFrame(_ data: Data) -> Bool {
+        data.starts(with: marker)
+    }
+
     public static func decode(_ data: Data) -> LinkEnvelope<LinkMatchFinishedPayload>? {
+        // 终态帧也可能经文件通道整包到达（完整动作历史，超 60KB 消息预算），
+        // 解码预算独立且有界：以声明上限（2MB）封顶，其余拒绝。
+        guard data.count > headerSize, data.count <= maximumDecodedSize else {
+            return try? JSONDecoder().decode(LinkEnvelope<LinkMatchFinishedPayload>.self, from: data)
+        }
         guard data.starts(with: marker) else {
             return try? JSONDecoder().decode(LinkEnvelope<LinkMatchFinishedPayload>.self, from: data)
         }
-        guard data.count > headerSize, data.count <= LinkEnvelopeEncoding.defaultByteLimit else { return nil }
+        guard data.count > headerSize else { return nil }
         let size = data.dropFirst(marker.count).prefix(MemoryLayout<UInt32>.size)
             .reduce(0) { ($0 << 8) | Int($1) }
         guard size > 0, size <= maximumDecodedSize else { return nil }

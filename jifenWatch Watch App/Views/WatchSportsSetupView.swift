@@ -204,7 +204,7 @@ struct WatchSportsSetupView: View {
         case .eightBall:
             integerSection(
                 title: NSLocalizedString("watch_setup_race_racks", value: "抢局", comment: ""),
-                values: WatchSportsSetupDraft.eightBallRackValues(including: draft.eightBallTargetRacks),
+                values: WatchSportsSetupDraft.eightBallRackOptions,
                 selection: Binding(
                     get: { draft.eightBallTargetRacks },
                     set: {
