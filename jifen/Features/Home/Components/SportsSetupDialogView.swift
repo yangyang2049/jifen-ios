@@ -187,7 +187,11 @@ struct SportsSetupDialogView: View {
                         )
                         }
 
-                        SportsSetupSettingsSection(gameType: gameType, draft: $draft) {
+                        SportsSetupSettingsSection(
+                            gameType: gameType, draft: $draft,
+                            groupPointPresets: groupSelection?.pointPresets,
+                            pickleballScoringControl: groupSelection == nil ? .toggle : .choices
+                        ) {
                             focusedSetupFieldID = $0
                         }
                     }
@@ -406,7 +410,8 @@ struct SportsSetupDialogView: View {
             initialSetup: initialSetup,
             initialMaxSets: initialMaxSets,
             initialPointsPerSet: initialPointsPerSet,
-            initialTieBreakPoints: initialTieBreakPoints
+            initialTieBreakPoints: initialTieBreakPoints,
+            groupPointPresets: groupSelection?.pointPresets
         )
         setupSendErrorText = ""
     }
@@ -470,6 +475,9 @@ struct SportsSetupDialogView: View {
             finalConfig.team2Player1Name = doubles ? names[2] : nil
             finalConfig.team2Player2Name = doubles ? names[3] : nil
             finalConfig.participantSelections = nil
+            if let base = initialSetup?.groupMatchRules {
+                finalConfig.groupMatchRules = GroupMatchSetupBridge.rules(from: draft, sport: base.sport, base: base)
+            }
             onConfirm?(finalConfig)
             return
         }

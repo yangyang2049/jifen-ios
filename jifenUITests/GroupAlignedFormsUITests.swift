@@ -65,6 +65,8 @@ final class GroupAlignedFormsUITests: XCTestCase {
         let watchStart = app.buttons["sports_setup_watch_start"]
         XCTAssertFalse(start.isEnabled)
         XCTAssertFalse(watchStart.exists)
+        XCTAssertFalse(app.switches["每球得分"].exists)
+        XCTAssertFalse(app.buttons["setup_pickleball_rally_scoring"].exists)
         screenshot("04-start-page-empty-roster", app)
         tap("group_seat_A1", app); tap("group_member_pick_ui-a", app)
         XCTAssertFalse(start.isEnabled)
@@ -78,6 +80,42 @@ final class GroupAlignedFormsUITests: XCTestCase {
         XCTAssertFalse(app.buttons["modal_close_button"].exists)
         XCTAssertFalse(app.buttons["group_match_submit"].isEnabled)
         screenshot("05-result-page", app)
+        openManualRules(app)
+        XCTAssertFalse(app.switches["净胜两分"].exists)
+        XCTAssertFalse(app.switches["每球得分"].exists)
+        XCTAssertFalse(app.buttons["每球得分"].exists)
+        XCTAssertFalse(app.buttons["发球方得分"].exists)
+    }
+
+    func testOnlyPickleballOffersScoringModeInDirectStartAndManualResult() {
+        let app = openGroup(["-UITestMatchSetupSport", "pickleball"])
+        tap("group_overview_start", app)
+        reveal("setup_pickleball_rally_scoring", app)
+        let directRally = app.buttons["setup_pickleball_rally_scoring"]
+        let directServer = app.buttons["setup_pickleball_server_scoring"]
+        XCTAssertTrue(directRally.isSelected)
+        directServer.tap()
+        XCTAssertTrue(directServer.isSelected)
+        XCTAssertFalse(app.switches["净胜两分"].exists)
+        app.buttons["取消"].tap()
+
+        tap("group_overview_addResult", app)
+        openManualRules(app)
+        reveal("发球方得分", app)
+        let manualRally = app.buttons["每球得分"]
+        let manualServer = app.buttons["发球方得分"]
+        XCTAssertTrue(manualRally.exists)
+        XCTAssertTrue(manualRally.isSelected)
+        manualServer.tap()
+        XCTAssertTrue(manualServer.isSelected)
+        XCTAssertFalse(app.switches["每球得分"].exists)
+        XCTAssertFalse(app.switches["净胜两分"].exists)
+    }
+
+    private func openManualRules(_ app: XCUIApplication) {
+        reveal("group_match_rules_summary", app)
+        tap("group_match_rules_summary", app)
+        XCTAssertTrue(app.buttons["项目默认"].waitForExistence(timeout: 5))
     }
 
     func testActivityAndLineupPagesKeepRegistrationSheet() {

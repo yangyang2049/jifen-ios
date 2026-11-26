@@ -22,6 +22,10 @@ final class GroupMatchSetupUITests: XCTestCase {
 
         let mode = app.buttons["match_completion_mode_selector"]
         XCTAssertTrue(mode.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["setup_pickleball_rally_scoring"].exists)
+        XCTAssertFalse(app.buttons["setup_pickleball_server_scoring"].exists)
+        XCTAssertFalse(app.switches["每球得分"].exists)
+        XCTAssertFalse(app.switches["净胜两分"].exists)
         XCTAssertTrue(mode.label.contains("经典"), mode.label)
         XCTAssertTrue(app.buttons["setup_match_sets_3"].exists, "局数预设应与「经典/打满」下拉同一行")
 

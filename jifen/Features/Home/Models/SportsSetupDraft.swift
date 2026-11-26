@@ -81,6 +81,7 @@ extension SportsSetupDraft {
         initialMaxSets: Int?,
         initialPointsPerSet: Int?,
         initialTieBreakPoints: Int?,
+        groupPointPresets: [Int]? = nil,
         preferences: PreferencesManager = .shared
     ) {
         participantSelections = initialSetup?.participantSelections ?? [:]
@@ -125,7 +126,8 @@ extension SportsSetupDraft {
             ?? initialPointsPerSet
             ?? Self.defaultPointsPerSet(for: gameType)
             ?? 0
-        customPointsText = pointPresets(for: gameType).contains(selectedPointsPerSet)
+        let points = groupPointPresets ?? pointPresets(for: gameType)
+        customPointsText = points.contains(selectedPointsPerSet)
             ? ""
             : String(selectedPointsPerSet)
         tennisGamesPerSet = setup?.gamesPerSet == 4 ? 4 : 6

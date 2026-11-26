@@ -103,6 +103,30 @@ final class GroupMatchSetupRulesTests: XCTestCase {
         }
     }
 
+    func testDirectStartAppliesTheSameGroupRulesToTheScoreboard() {
+        var base = defaults(.badminton)
+        base.useRallyScoring = true
+        base.winByTwo = false
+        let seeded = GroupMatchSetupBridge.draft(from: base, format: .singles, pointPresets: [11, 15])
+        XCTAssertEqual(seeded.customPointsText, "21")
+        var draft = seeded
+        draft.selectedPointsPerSet = 15
+        draft.voiceAnnouncement = true
+        draft.servingSide = .right
+        var setup = draft.makeResult(gameType: .badminton, usesDoublesPlayerInputs: false, voiceSupported: true)
+        let rules = GroupMatchSetupBridge.rules(from: draft, sport: .badminton, base: base)
+
+        rules.apply(to: &setup)
+
+        XCTAssertEqual(GroupMatchRules(sport: .badminton, setup: setup), rules)
+        XCTAssertTrue(setup.badmintonRules.useRallyScoring)
+        XCTAssertFalse(setup.badmintonRules.winByTwo)
+        XCTAssertEqual(setup.badmintonRules.pointsToWinSet, 15)
+        XCTAssertEqual(setup.badmintonRules.pointCap, 21)
+        XCTAssertEqual(setup.servingSide, "right")
+        XCTAssertEqual(setup.voiceAnnouncement, true)
+    }
+
     /// 网球常规：盘数、每盘局制、盘末抢分、占先/无占先各自独立。
     func testTennisRegularKeepsSetsGamesTieBreakAndDeuceIndependent() {
         let base = defaults(.tennis)

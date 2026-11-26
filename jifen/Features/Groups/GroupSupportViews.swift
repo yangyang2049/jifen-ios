@@ -7,6 +7,7 @@ struct GroupSetupSelection {
     let busy: Bool
     let error: String?
     var projectRow: AnyView? = nil
+    var pointPresets: [Int]? = nil
 
     func name(at index: Int) -> String {
         members.first { $0.id == ids.wrappedValue[index] }?.displayName ?? ""
@@ -284,10 +285,11 @@ struct GroupRulesFields: View {
                     if capability?.supportsCustomRules == true {
                         GroupRuleNumberStepper(title: groupText("target_points", "Points to win"), value: $rules.pointsToWinSet, range: 1...999)
                     }
-                    ruleToggle(groupText("win_by_two", "Win by two"), selection: $rules.winByTwo)
-                        .disabled(Set(options.winByTwo ?? []).count < 2)
-                    ruleToggle(groupText("rally_scoring", "Rally scoring"), selection: $rules.useRallyScoring)
-                        .disabled(Set(options.useRallyScoring ?? []).count < 2)
+                    if rules.sport == .pickleball, Set(options.useRallyScoring ?? []).count == 2 {
+                        GroupRuleChoices(title: "", values: [false, true], selection: $rules.useRallyScoring) {
+                            $0 ? GroupMatchSetupBridge.rallyScoringText : GroupMatchSetupBridge.serverScoringText
+                        }
+                    }
                     if capability?.supportsCustomRules == true {
                         ruleToggle(groupText("point_cap", "Maximum score"), selection: Binding(get: { rules.pointCap != nil }, set: { rules.pointCap = $0 ? max(rules.pointsToWinSet, rules.pointCap ?? rules.pointsToWinSet) : nil }))
                         if rules.pointCap != nil {

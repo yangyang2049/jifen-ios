@@ -21,12 +21,8 @@ enum GroupMatchSetupBridge {
             initialMaxSets: rules.maxSets,
             initialPointsPerSet: rules.pointsToWinSet,
             initialTieBreakPoints: rules.tieBreakPoints,
-            preferences: .shared
+            groupPointPresets: pointPresets
         )
-        if let pointPresets, rules.sport == .badminton || rules.sport == .tableTennis {
-            draft.customPointsText = pointPresets.contains(draft.selectedPointsPerSet)
-                ? "" : String(draft.selectedPointsPerSet)
-        }
         return draft
     }
 

@@ -46,6 +46,11 @@ struct GroupMatchEditor: View {
         if let serverDefaultRules { return serverDefaultRules }
         return GroupMatchRules(sport: detail.group.sport, setup: setup)
     }
+    private var groupPointPresets: [Int]? {
+        guard detail.group.sport == .badminton || detail.group.sport == .tableTennis else { return nil }
+        let choices = sportCapability?.ruleOptions?.pointsToWinSet ?? []
+        return choices.isEmpty ? [defaultRules.pointsToWinSet] : choices
+    }
     /// 活动排阵后的开赛复用本机 Setup 定稿样式；补记结果、训练和历史记录仍走原有入口。
     private var usesSharedSetup: Bool {
         !manual && GroupSport.racketSports.contains(detail.group.sport) && editableRules
@@ -104,7 +109,10 @@ struct GroupMatchEditor: View {
                     Task { await submit(sharedSetup: value) }
                 },
                 onCancel: { if !busy { dismiss() } },
-                groupSelection: GroupSetupSelection(groupID: detail.group.id, members: choices, ids: $ids, busy: busy, error: error)
+                groupSelection: GroupSetupSelection(
+                    groupID: detail.group.id, members: choices, ids: $ids, busy: busy, error: error,
+                    pointPresets: groupPointPresets
+                )
             )
             .interactiveDismissDisabled(busy)
             .onChange(of: store.identityRevision) { _, _ in dismiss() }
@@ -161,7 +169,7 @@ struct GroupMatchEditor: View {
                     // 赛制区本身不设容器标识：SwiftUI 会把容器标识盖到每个子控件上。
                     GroupMatchSetupSection(
                         rules: currentRules, sport: detail.group.sport, draft: $setupDraft,
-                        pointPresets: sportCapability?.ruleOptions?.pointsToWinSet
+                        pointPresets: groupPointPresets
                     )
                         .padding(Theme.padding).frame(maxWidth: .infinity, alignment: .leading)
                         .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 12))
@@ -221,7 +229,7 @@ struct GroupMatchEditor: View {
                   boundGameID == nil, setup.groupMatchRules == nil else { return }
             setup = current.setup(format: format)
             setupDraft = GroupMatchSetupBridge.draft(
-                from: current, format: format, pointPresets: sportCapability?.ruleOptions?.pointsToWinSet
+                from: current, format: format, pointPresets: groupPointPresets
             )
         }
         .onChange(of: resultDraft.detailsExpanded) { _, value in if value { resultDraft.reconcileDetails(currentRules) } }
@@ -233,7 +241,7 @@ struct GroupMatchEditor: View {
         if let serverDefaultRules { setup = serverDefaultRules.setup(format: format) }
         else { setup.maxSets = detail.group.sport == .tableTennis ? 5 : 3 }
         setupDraft = GroupMatchSetupBridge.draft(
-            from: defaultRules, format: format, pointPresets: sportCapability?.ruleOptions?.pointsToWinSet
+            from: defaultRules, format: format, pointPresets: groupPointPresets
         )
         let fixed = activitySession?.seats ?? trainingSession?.seats
         if let fixed { for seat in fixed where (0..<2).contains(seat.seat) { ids[(seat.side == "A" ? 0 : 2) + seat.seat] = seat.memberId } }
@@ -294,7 +302,9 @@ struct GroupMatchEditor: View {
         busy = true; defer { busy = false }
         guard let accountID = store.accountID, accountID == presentedAccountID else { error = groupText("need_login", "Please sign in to continue."); return }
         let revision = store.identityRevision
-        let config = sharedSetup ?? configuredSetup(), rules = currentRules
+        let rules = currentRules
+        var config = sharedSetup ?? configuredSetup()
+        if sharedSetup != nil { rules.apply(to: &config) }
         do {
             let authRevision = await store.repository.client.authSessionRevision()
             guard store.matchesIdentity(accountID, revision: revision), SessionStore.shared.user?.id == accountID else { return }

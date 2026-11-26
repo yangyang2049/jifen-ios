@@ -299,13 +299,17 @@ nonisolated struct GroupMatchRules: Codable, Hashable, Sendable {
 extension GroupMatchRules {
     @MainActor func setup(format: GroupFormat) -> SportsSetupResult {
         var value = SportsSetupResult(team1Name: "A", team2Name: "B")
+        value.isSingles = format == .singles
+        apply(to: &value)
+        return value
+    }
+    @MainActor func apply(to value: inout SportsSetupResult) {
         value.groupMatchRules = self
         value.maxSets = maxSets; value.matchCompletionMode = matchCompletionMode == "play_all" ? .playAll : .bestOf
-        value.isSingles = format == .singles; value.pointsPerSet = pointsToWinSet
+        value.pointsPerSet = pointsToWinSet
         value.targetScore = pointsToWinSet; value.scoreCap = pointCap; value.winByTwo = winByTwo; value.useRallyScoring = useRallyScoring
         value.gamesPerSet = gamesPerSet; value.tieBreakPoints = tieBreakPoints; value.setScoringMode = setScoringMode
         value.tennisDeuceMode = usesNoAdScoring ? "no_ad" : "advantage"
-        return value
     }
     @MainActor init(sport: GroupSport, setup: SportsSetupResult) {
         if let rules = setup.groupMatchRules, rules.sport == sport { self = rules; return }
