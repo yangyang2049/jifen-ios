@@ -95,3 +95,19 @@ struct WatchCatalogIcon: View {
         .accessibilityHidden(true)
     }
 }
+
+/// Vector court outline icon for empty states, mirroring `EmptyStateCourtIcon` on iPhone.
+struct WatchEmptyStateCourtIcon: View {
+    var size: CGFloat = 44
+    var color: Color = WatchTheme.secondaryText.opacity(0.75)
+
+    var body: some View {
+        Image("EmptyStateCourt")
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .foregroundStyle(color)
+            .accessibilityHidden(true)
+    }
+}

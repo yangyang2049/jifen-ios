@@ -16,10 +16,13 @@ struct WatchFlipCoinView: View {
         ZStack {
             WatchTheme.background.ignoresSafeArea()
 
-            coinView
-                .onTapGesture {
-                    flipCoin()
-                }
+            Button(action: flipCoin) {
+                coinView
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("tool_flip_coin"))
+            .accessibilityValue(currentSide == .heads ? Text("watch_coin_heads") : Text("watch_coin_tails"))
 
             if showHint {
                 VStack {
@@ -102,7 +105,6 @@ struct WatchFlipCoinView: View {
                 )
                 .frame(width: coinInner, height: coinInner)
 
-            // Coin face content (text)
             coinFaceContent
 
             // Subtle rim highlight
@@ -137,7 +139,7 @@ struct WatchFlipCoinView: View {
         let isShowingTails = normalizedAngle > 90 && normalizedAngle < 270
 
         if isShowingTails {
-            // Tails: coin-style laurel and star mark.
+            // Counter the vertical mirroring of the coin's X-axis rotation.
             Image("watch_coin_tails")
                 .renderingMode(.template)
                 .resizable()
@@ -145,7 +147,7 @@ struct WatchFlipCoinView: View {
                 .frame(width: 54, height: 54)
                 .foregroundStyle(Color(hex: 0x8B6914))
                 .shadow(color: Color(hex: 0x6B5210).opacity(0.3), radius: 1, x: 1, y: 1)
-                .rotationEffect(.degrees(180))
+                .scaleEffect(x: 1, y: -1)
         } else {
             // Heads: lucky number — Chinese "666", other languages "8"
             let headsText = NSLocalizedString("watch_coin_heads_text", value: "8", comment: "Coin heads label")

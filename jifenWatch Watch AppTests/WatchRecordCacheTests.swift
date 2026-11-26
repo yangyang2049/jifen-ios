@@ -16,11 +16,13 @@ final class WatchRecordCacheTests: XCTestCase {
         super.tearDown()
     }
 
-    private func makeRecord(id: String, score: Int) -> WatchScoreboardRecord {
+    private func makeRecord(
+        id: String, score: Int, gameType: WatchGameType = .pingpong, startTime: Date = Date()
+    ) -> WatchScoreboardRecord {
         WatchScoreboardRecord(
             id: id,
-            gameType: .pingpong,
-            startTime: Date(),
+            gameType: gameType,
+            startTime: startTime,
             endTime: Date(),
             duration: 60,
             team1Name: "A",
@@ -33,6 +35,106 @@ final class WatchRecordCacheTests: XCTestCase {
             actions: [],
             totalScoreChanges: score
         )
+    }
+
+    @MainActor
+    func testStandaloneFinishRetryAfterRestartKeepsOriginalRecord() throws {
+        let suite = "watch-finished-retry-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let record = makeRecord(id: "standalone-finish", score: 11)
+        let first = WatchResumeSessionStore(defaults: defaults)
+        XCTAssertFalse(first.saveFinishedRecord(record) { _ in false })
+
+        let restarted = WatchResumeSessionStore(defaults: defaults)
+        var savedIDs: [String] = []
+        restarted.retryPendingFinishedRecords { recovered in
+            XCTAssertEqual(recovered.team1FinalScore, 11)
+            savedIDs.append(recovered.id)
+            return true
+        }
+        restarted.retryPendingFinishedRecords { recovered in
+            savedIDs.append(recovered.id)
+            return true
+        }
+        XCTAssertEqual(savedIDs, [record.id])
+    }
+
+    @MainActor
+    func testCancelTrainingFinishKeepsDraftAndDoesNotRetryOldScore() throws {
+        let suite = "watch-cancel-finish-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let store = WatchResumeSessionStore(defaults: defaults)
+        let startTime = Date()
+        store.save(.init(
+            startedAt: startTime, scoreLine: "1/1 = 100%", emoji: "🏀",
+            payload: .basketballTraining(mode: .twoPoint, history: [])
+        ))
+        let training = makeRecord(id: "training", score: 1, gameType: .basketballTraining, startTime: startTime)
+        let match = makeRecord(id: "other-match", score: 11, startTime: startTime)
+        XCTAssertFalse(store.saveFinishedRecord(training) { _ in false })
+        XCTAssertFalse(store.saveFinishedRecord(match) { _ in false })
+
+        store.cancelPendingTrainingFinish(startedAt: startTime)
+
+        let restarted = WatchResumeSessionStore(defaults: defaults)
+        XCTAssertEqual(restarted.session?.startedAt, startTime)
+        var recoveredIDs: [String] = []
+        restarted.retryPendingFinishedRecords {
+            recoveredIDs.append($0.id)
+            return true
+        }
+        XCTAssertEqual(recoveredIDs, [match.id])
+        let revised = makeRecord(id: "training-revised", score: 2, gameType: .basketballTraining, startTime: startTime)
+        XCTAssertTrue(restarted.saveFinishedRecord(revised) {
+            XCTAssertEqual($0.id, revised.id)
+            XCTAssertEqual($0.team1FinalScore, 2)
+            return true
+        })
+    }
+
+    func testCounterFailedSaveKeepsCountUndoAndStartTimeUntilRetry() {
+        var counter = WatchCounterSession()
+        counter.increment()
+        counter.increment()
+        var initialRecord: WatchScoreboardRecord?
+        XCTAssertFalse(counter.finish { record in
+            initialRecord = record
+            return false
+        })
+
+        XCTAssertEqual(counter.count, 2)
+        XCTAssertTrue(counter.canUndo)
+        counter.undo()
+        XCTAssertEqual(counter.count, 1)
+        counter.increment()
+        XCTAssertTrue(counter.finish { record in
+            XCTAssertEqual(record.team1FinalScore, 2)
+            XCTAssertEqual(record.startTime, initialRecord?.startTime)
+            return true
+        })
+        XCTAssertEqual(counter.count, 0)
+        XCTAssertFalse(counter.canUndo)
+    }
+
+    func testRacketRecordFallsBackToPointsOnlyBeforeASetIsCompleted() {
+        for game in [WatchGameType.pingpong, .badminton, .pickleball, .tennis, .shuttlecock, .squash, .foosball] {
+            func record(setScore: Int) -> WatchScoreboardRecord {
+                .init(
+                    id: UUID().uuidString, gameType: game, startTime: Date(), endTime: Date(),
+                    duration: 60, team1Name: "A", team2Name: "B", team1FinalScore: 8,
+                    team2FinalScore: 3, team1SetScore: setScore, team2SetScore: 0,
+                    winner: nil, actions: [], totalScoreChanges: 11
+                )
+            }
+            let unfinishedSet = record(setScore: 0)
+            XCTAssertTrue(unfinishedSet.usesPointScoreForDisplay, game.rawValue)
+            XCTAssertEqual(WatchScoreboardRecordSummary(from: unfinishedSet).listDisplayText, "A 8 - 3 B")
+            let completedSet = record(setScore: 2)
+            XCTAssertFalse(completedSet.usesPointScoreForDisplay, game.rawValue)
+            XCTAssertEqual(WatchScoreboardRecordSummary(from: completedSet).listDisplayText, "A 2 - 0 B")
+        }
     }
 
     func testLoadIsCachedAcrossCalls() {

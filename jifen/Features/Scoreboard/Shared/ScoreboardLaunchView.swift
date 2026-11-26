@@ -164,6 +164,7 @@ private struct IPadForcedLandscapeSurface: ViewModifier {
 }
 
 struct ScoreboardLaunchView: View {
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService: PhoneWatchLinkService?
     let gameType: GameType
     var setupResult: SportsSetupResult?
     var initialResumeSessionId: String? = nil
@@ -174,6 +175,7 @@ struct ScoreboardLaunchView: View {
     var onBack: () -> Void = {}
 
     @State private var analyticsContext: MatchAnalyticsContext
+    @State private var linkedWatchSessionId: UUID?
     @State private var usageHintCoordinator: ScoreboardUsageHintCoordinator?
     @State private var manuallyPresentedUsageHint = false
     @State private var iPadLandscapeHintIsPresented = false
@@ -200,6 +202,7 @@ struct ScoreboardLaunchView: View {
         self.analyticsEntryPoint = analyticsEntryPoint
         self.onSetupConsumed = onSetupConsumed
         self.onBack = onBack
+        _linkedWatchSessionId = State(initialValue: setupResult?.linkedWatchSessionId)
         _analyticsContext = State(initialValue: MatchAnalyticsContext(
             gameType: gameType,
             setup: setupResult,
@@ -429,6 +432,23 @@ struct ScoreboardLaunchView: View {
         .modifier(IPadForcedLandscapeSurface(
             isEnabled: Theme.usesPadLayout && forceIPadLandscape
         ))
+        .overlay {
+            if let watchLinkService, let linkedWatchSessionId,
+               watchLinkService.activeSessionId == linkedWatchSessionId,
+               let notice = watchLinkService.simultaneousEditNotice {
+                ToastView(message: NSLocalizedString(
+                    "linked_score_simultaneous_edit", value: "Both devices made changes. Check the score.", comment: ""
+                ))
+                .accessibilityIdentifier("linked_score_simultaneous_edit")
+                .allowsHitTesting(false)
+                .task(id: notice) {
+                    do { try await Task.sleep(for: .seconds(2)) } catch { return }
+                    if watchLinkService.simultaneousEditNotice == notice {
+                        watchLinkService.simultaneousEditNotice = nil
+                    }
+                }
+            }
+        }
         .appAnalyticsScreen(analyticsContext.screen)
     }
 

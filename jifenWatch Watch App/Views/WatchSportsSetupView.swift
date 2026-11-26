@@ -1,5 +1,13 @@
 import SwiftUI
 
+/// Setup 选项尺寸：与鸿蒙手表（36×36 / r10）、iOS 手机（44×44 / r12）同属「圆角方块」语言，
+/// 数字与文字选项共用同一高度，文字选项按内容加宽。
+private enum SetupChipMetrics {
+    static let side: CGFloat = 36
+    static let minimumHitSide: CGFloat = 44
+    static let cornerRadius: CGFloat = 10
+}
+
 struct WatchSportsSetupView: View {
     @Environment(WatchLinkService.self) private var linkService
 
@@ -64,17 +72,31 @@ struct WatchSportsSetupView: View {
         .navigationBarBackButtonHidden(selectedNameIndex != nil)
     }
 
+    /// 悬浮「开始」：watchOS 26 起用系统 Liquid Glass 主按钮样式（旧系统回退实色胶囊）。
+    @ViewBuilder
     private var startButton: some View {
-        Button(action: start) {
-            Text(NSLocalizedString("watch_setup_start", value: "开始", comment: ""))
-                .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .frame(height: 46)
-                .background(WatchTheme.accent)
-                .clipShape(Capsule())
+        if #available(watchOS 26.0, *) {
+            Button(action: start) {
+                startButtonLabel(.white)
+            }
+            .buttonStyle(.glassProminent)
+            .tint(WatchTheme.accent.opacity(0.7))
+        } else {
+            Button(action: start) {
+                startButtonLabel(.white)
+                    .background(WatchTheme.accent)
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
+    }
+
+    private func startButtonLabel(_ color: Color) -> some View {
+        Text(NSLocalizedString("watch_setup_start", value: "开始", comment: ""))
+            .font(.system(size: 14, weight: .bold))
+            .foregroundStyle(color)
+            .frame(maxWidth: .infinity)
+            .frame(height: 46)
     }
 
     /// Keeps the final form control scrollable above the overlaid start button.
@@ -104,7 +126,7 @@ struct WatchSportsSetupView: View {
             )
             integerSection(
                 title: NSLocalizedString("watch_setup_points_per_set", value: "每局分数", comment: ""),
-                values: [5, 7, 9, 11, 15, 21],
+                values: draft.pingpongPointOptions,
                 selection: $draft.pointsPerSet
             )
         case .shuttlecock:
@@ -181,8 +203,8 @@ struct WatchSportsSetupView: View {
             )
         case .eightBall:
             integerSection(
-                title: NSLocalizedString("watch_setup_target_racks", value: "目标局数", comment: ""),
-                values: WatchSportsSetupDraft.eightBallRackOptions,
+                title: NSLocalizedString("watch_setup_race_racks", value: "抢局", comment: ""),
+                values: WatchSportsSetupDraft.eightBallRackValues(including: draft.eightBallTargetRacks),
                 selection: Binding(
                     get: { draft.eightBallTargetRacks },
                     set: {
@@ -191,6 +213,15 @@ struct WatchSportsSetupView: View {
                     }
                 )
             )
+            // 与手机端一致：档位只显示纯数字，含义用一句例子说明，不做整表枚举。
+            Text(NSLocalizedString(
+                "watch_setup_race_racks_help",
+                value: "选 3 = 抢3：先赢 3 局",
+                comment: ""
+            ))
+            .font(.system(size: 10))
+            .foregroundStyle(.secondary)
+            .multilineTextAlignment(.center)
             if draft.eightBallTargetRacks > 1 {
                 handicapBeneficiarySection
                 if draft.eightBallHandicapBeneficiary != .none {
@@ -383,10 +414,10 @@ struct WatchSportsSetupView: View {
     ) -> some View {
         VStack(spacing: 4) {
             sectionTitle(title)
-            adaptiveOptionRow {
+            adaptiveOptionRow(height: SetupChipMetrics.minimumHitSide) {
                 ForEach(values, id: \.self) { value in
-                    setupChip(
-                        label: String(value),
+                    numberChip(
+                        value,
                         selected: selection.wrappedValue == value
                     ) {
                         selection.wrappedValue = value
@@ -464,18 +495,19 @@ struct WatchSportsSetupView: View {
     }
 
     private func adaptiveOptionRow<Content: View>(
+        height: CGFloat = SetupChipMetrics.side,
         @ViewBuilder content: @escaping () -> Content
     ) -> some View {
         GeometryReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 7) {
+                HStack(spacing: 8) {
                     content()
                 }
                 .padding(.horizontal, 3)
                 .frame(minWidth: proxy.size.width, alignment: .center)
             }
         }
-        .frame(height: 38)
+        .frame(height: height)
     }
 
     private func toggleSection(title: String, isOn: Binding<Bool>) -> some View {
@@ -517,23 +549,47 @@ struct WatchSportsSetupView: View {
     private func setupChip(
         label: String,
         selected: Bool,
-        minimumWidth: CGFloat = 44,
+        minimumWidth: CGFloat = SetupChipMetrics.side,
         fontSize: CGFloat = 13,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
             Text(label)
-                .font(.system(size: fontSize, weight: .medium))
+                .font(.system(size: fontSize, weight: selected ? .semibold : .medium))
                 .foregroundStyle(selected ? Color.white : WatchTheme.primaryText)
                 .lineLimit(1)
                 .minimumScaleFactor(0.75)
-                .padding(.horizontal, 10)
+                .padding(.horizontal, 11)
                 .frame(minWidth: minimumWidth)
-                .frame(height: 38)
+                .frame(height: SetupChipMetrics.side)
                 .background(selected ? WatchTheme.accent : Color.white.opacity(0.10))
-                .clipShape(Capsule())
+                .clipShape(RoundedRectangle(cornerRadius: SetupChipMetrics.cornerRadius, style: .continuous))
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
+    /// 数值方格：对齐鸿蒙手表 36×36、圆角 10（鸿蒙手机 40×40 / r12、iOS 手机 44×44 / r12 同族），
+    /// 不再用胶囊，避免数字被拉成长条。
+    private func numberChip(
+        _ value: Int,
+        selected: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Text("\(value)")
+                .font(.system(size: 14, weight: selected ? .semibold : .medium))
+                .foregroundStyle(selected ? Color.white : WatchTheme.primaryText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
+                .frame(width: SetupChipMetrics.side, height: SetupChipMetrics.side)
+                .background(selected ? WatchTheme.accent : Color.white.opacity(0.10))
+                .clipShape(RoundedRectangle(cornerRadius: SetupChipMetrics.cornerRadius, style: .continuous))
+                .frame(width: SetupChipMetrics.minimumHitSide, height: SetupChipMetrics.minimumHitSide)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private func commonNamePicker(for index: Int) -> some View {

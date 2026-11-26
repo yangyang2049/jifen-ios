@@ -28,9 +28,9 @@ struct WatchLinkSettingsView: View {
             switch self {
             case .liveScoring:
                 return [
-                    NSLocalizedString("watch_sync_usage_step_1", value: "在手机选择支持的计分项目。", comment: ""),
-                    NSLocalizedString("watch_sync_usage_step_2", value: "点击发送到手表，手表确认后主控计分。", comment: ""),
-                    NSLocalizedString("watch_sync_usage_step_3", value: "手机实时同步比分，完赛后记录回传保存。", comment: "")
+                    NSLocalizedString("watch_sync_usage_step_1", value: "在手机选择支持的计分项目，例如投篮训练。", comment: ""),
+                    NSLocalizedString("watch_sync_shared_usage_step_2", value: "Send the match to your watch. Once accepted, you can score on either device.", comment: ""),
+                    NSLocalizedString("watch_sync_shared_usage_step_3", value: "Scores update on both devices. The phone saves the record when you finish.", comment: "")
                 ]
             case .commonNames:
                 return [
@@ -40,7 +40,7 @@ struct WatchLinkSettingsView: View {
                 ]
             case .watchRecords:
                 return [
-                    NSLocalizedString("watch_sync_watch_records_step_1", value: "手表完赛后自动回传记录到手机。", comment: ""),
+                    NSLocalizedString("watch_sync_watch_records_step_1", value: "开启手表的自动同步记录后，比赛和投篮训练结束时，记录会自动回传到手机。", comment: ""),
                     NSLocalizedString("watch_sync_watch_records_step_2", value: "手机记录页可查看，并标示来自手表。", comment: ""),
                     NSLocalizedString("watch_sync_watch_records_step_3", value: "手机与手表保持配对即可，无需手动同步。", comment: "")
                 ]
@@ -90,7 +90,7 @@ struct WatchLinkSettingsView: View {
 
             Text(NSLocalizedString(
                 "watch_sync_hero_description",
-                value: "双端同步计分；常用名称自动同步到手表；手表完赛记录自动回传到手机。",
+                value: "手机与手表同步计分、同步常用名称，手表上的比赛和投篮训练结束后自动回传记录。",
                 comment: ""
             ))
             .font(.system(size: 13))
@@ -106,10 +106,12 @@ struct WatchLinkSettingsView: View {
                         .font(.system(size: 18, weight: .medium))
                         .foregroundStyle(Theme.textPrimary)
                         .lineLimit(1)
-                    Text(installStatusText)
-                        .font(.system(size: 13))
-                        .foregroundStyle(installStatusColor)
-                        .lineLimit(1)
+                    if let installStatusText {
+                        Text(installStatusText)
+                            .font(.system(size: 13))
+                            .foregroundStyle(installStatusColor)
+                            .lineLimit(1)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -233,6 +235,7 @@ struct WatchLinkSettingsView: View {
     /// 文案复用已有键，不新增未翻译词条。
     private var troubleshootingText: String? {
         let status = watchLinkService.connectivityStatus
+        guard status.isActivated else { return nil }
         if !status.isPaired {
             return NSLocalizedString(
                 "watch_sync_usage_prerequisite",
@@ -257,8 +260,9 @@ struct WatchLinkSettingsView: View {
         return nil
     }
 
-    private var installStatusText: String {
+    private var installStatusText: String? {
         let status = watchLinkService.connectivityStatus
+        guard status.isActivated else { return nil }
         if !status.isPaired {
             return NSLocalizedString("watch_sync_install_not_paired", value: "尚未配对 Apple Watch", comment: "")
         }
@@ -290,7 +294,7 @@ struct WatchLinkSettingsView: View {
         if status.isPaired && status.isWatchAppInstalled {
             return NSLocalizedString("watch_sync_status_wait_reply", value: "等待手表在线", comment: "")
         }
-        if !status.isPaired {
+        if !status.isActivated || !status.isPaired {
             return NSLocalizedString("watch_sync_status_no_connection", value: "未连接", comment: "")
         }
         return NSLocalizedString("watch_sync_status_app_not_installed", value: "未安装应用", comment: "")

@@ -118,10 +118,12 @@ extension WatchLinkService {
         let pendingMessageId = pendingAck.pending?.messageId
         if let data = pendingAck.retryIfDue(nowEpochMilliseconds: nowMs()) {
             Task {
+                let shared = controlRole == .shared
+                guard transport.isReachable || !shared else { return }
                 do {
                     try await transport.sendRealtime(data)
                 } catch {
-                    lastLinkErrorMessage = error.localizedDescription
+                    if !shared { lastLinkErrorMessage = error.localizedDescription }
                 }
             }
         } else if let pendingMessageId,
@@ -130,11 +132,13 @@ extension WatchLinkService {
                 _ = machine.acknowledge(messageId: pendingMessageId)
                 sessionMachine = machine
             }
-            lastLinkErrorMessage = NSLocalizedString(
-                "linked_score_sync_timeout",
-                value: "比分同步超时，将在重新连接后继续同步。",
-                comment: ""
-            )
+            if controlRole != .shared {
+                lastLinkErrorMessage = NSLocalizedString(
+                    "linked_score_sync_timeout",
+                    value: "比分同步超时，将在重新连接后继续同步。",
+                    comment: ""
+                )
+            }
         }
         let dueTerminalData = terminalOutbox.retryDue(
             nowEpochMilliseconds: nowMs()
@@ -142,10 +146,15 @@ extension WatchLinkService {
         if !dueTerminalData.isEmpty {
             persistTerminalOutbox()
             for data in dueTerminalData {
+                if let item = terminalOutbox.items.first(where: { $0.pendingLocalRecord != nil && $0.data == data }),
+                   !prepareLocalFinishedRecord(item) { continue }
                 do {
                     try transport.enqueueDurable(data)
                 } catch {
                     lastLinkErrorMessage = error.localizedDescription
+                }
+                if transport.isReachable {
+                    Task { try? await transport.sendRealtime(data) }
                 }
             }
         }
@@ -208,11 +217,9 @@ extension WatchLinkService {
                 }
                 do {
                     try await send(envelope)
-                    pendingSessionEnds.removeAll {
-                        $0.handle.sessionId == sessionId
-                    }
+                    pendingSessionEnds.removeAll { $0 == request }
                     persistPendingSessionEnds()
-                    if activeSessionId == sessionId {
+                    if activeHandle == request.handle {
                         endLocalSession()
                     }
                 } catch {
@@ -244,7 +251,8 @@ extension WatchLinkService {
                 ?? setup.initialSnapshot,
             detailedActions: mergedDetailedActions,
             completedMatchIds: publishedFinishedMatchIds,
-            pendingTerminalMessageIds: Set(terminalOutbox.items.map(\.messageId))
+            pendingTerminalMessageIds: Set(terminalOutbox.items.map(\.messageId)),
+            peerSupportsCompressedFinish: peerSupportsCompressedFinish
         )
         do {
             let data = try JSONEncoder().encode(context)
@@ -278,12 +286,14 @@ extension WatchLinkService {
         synchronizeSessionStateFromMachine()
         activeGameType = context.setup.gameType
         activeSetup = context.setup
+        peerSupportsCompressedFinish = context.peerSupportsCompressedFinish == true
         phoneTookOver = context.role == .watchFollower
         mergedDetailedActions = context.detailedActions
         if let snapshot = context.latestAuthoritativeSnapshot {
             latestSnapshot = LinkedSnapshotUpdate(
                 sessionId: context.handle.sessionId,
                 revision: context.revision,
+                matchGeneration: context.handle.matchGeneration,
                 snapshot: snapshot,
                 detailedActions: context.detailedActions
             )

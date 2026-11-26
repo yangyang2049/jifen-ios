@@ -664,6 +664,7 @@ struct RallyScoreboardView: View {
                 if officialBreakSupported, officialBreakSession.state != nil {
                     OfficialBreakOverlay(
                         session: $officialBreakSession,
+                        isReadOnly: linkScoringLocked,
                         onComplete: completeOfficialBreak,
                         onCancel: cancelOfficialBreak,
                         onVoiceCue: speakOfficialBreakCue
@@ -731,11 +732,12 @@ struct RallyScoreboardView: View {
                             shareFinishedMatch()
                         },
                         onExit: {
-                            if let id = watchSessionId {
-                                watchLinkService.leaveSessionIfMatchFinished(id)
-                            }
                             store.persistSnapshot { success in
                                 guard success else { return }
+                                if let id = watchSessionId {
+                                    if store.state.finished { notifyLinkedFinishIfNeeded() }
+                                    watchLinkService.leaveSessionIfMatchFinished(id)
+                                }
                                 performScoreboardExit(
                                     onNavigationBack: onNavigationBack,
                                     dismiss: dismiss
@@ -765,7 +767,7 @@ struct RallyScoreboardView: View {
         ))
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
-                ScoreboardRecordDetailPage(recordId: store.sessionId.uuidString)
+                ScoreboardRecordDetailPage(recordId: (watchSessionId == nil ? nil : watchLinkService.finishedRecordId) ?? store.sessionId.uuidString)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             ModalCloseButton { showFinishedRecordDetail = false }
@@ -803,7 +805,10 @@ struct RallyScoreboardView: View {
                     matchGeneration: update.matchGeneration,
                     persistFormalRecord: false
                 )
-                if applied, rally.finished { showGameOverDialog = true }
+                if applied {
+                    if rally.finished { showGameOverDialog = true }
+                    applyRemoteOfficialBreak(rally.finished ? nil : rally.officialBreakState)
+                }
             }
             }
             revealImmersiveChrome()
@@ -834,12 +839,22 @@ struct RallyScoreboardView: View {
                 if state.finished { notifyLinkedFinishIfNeeded() }
             }
         }
-        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
-            guard let watchSessionId,
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { previous, update in
+            guard watchLinkService.incomingSnapshot != nil, let watchSessionId,
                   let update,
                   update.sessionId == watchSessionId,
                   let rally = update.snapshot.rallyState else { return }
+            if watchLinkService.controlRole == .shared, update.beginsMatch(after: previous) {
+                let finishedStore = store
+                store = finishedStore.makeFreshMatchStore(initialState: rally)
+                ParticipantIdentityStore.shared.copySelections(
+                    from: finishedStore.sessionId.uuidString, to: store.sessionId.uuidString
+                )
+                manualFinishRequested = false
+                bindMatchClock()
+            }
             let snapshotFinished = rally.finished
+            let remoteBreak = snapshotFinished ? nil : rally.officialBreakState
             cancelTerminalSetPresentation()
             Task {
                 let applied = await store.applyAuthoritativeState(
@@ -855,6 +870,7 @@ struct RallyScoreboardView: View {
                     // received snapshot is finished, and dismisses it when a new
                     // unfinished match arrives after 再来一场).
                     showGameOverDialog = snapshotFinished
+                    applyRemoteOfficialBreak(remoteBreak)
                 }
             }
         }
@@ -865,11 +881,14 @@ struct RallyScoreboardView: View {
                   let state = pending.snapshot.rallyState else { return }
             cancelTerminalSetPresentation()
             Task {
-                _ = await store.applyAuthoritativeState(
+                let applied = await store.applyAuthoritativeState(
                     state,
                     detailedActions: pending.detailedActions,
                     revision: pending.revision
                 )
+                if applied {
+                    syncOfficialBreakFromState(state.finished ? nil : state.officialBreakState)
+                }
                 watchLinkService.completePhoneTakeover(messageId: pending.messageId)
             }
         }
@@ -924,7 +943,7 @@ struct RallyScoreboardView: View {
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
             // Capture before leave — ending the session clears follower role.
             let skipPersist = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+                && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId {
                 watchLinkService.detachPage(sessionId: watchSessionId)
             }
@@ -2227,6 +2246,33 @@ struct RallyScoreboardView: View {
         store.send(.setOfficialBreakState(nil))
     }
 
+    private func applyRemoteOfficialBreak(_ remoteBreak: OfficialBreakState?) {
+        guard watchSessionId != nil, watchLinkService.incomingSnapshot != nil else { return }
+        syncOfficialBreakFromState(remoteBreak)
+    }
+
+    private func syncOfficialBreakFromState(_ remoteBreak: OfficialBreakState?) {
+        guard officialBreakSupported else { return }
+        guard let remoteBreak, remoteBreak.isRunning else {
+            officialBreakSession = OfficialBreakSession()
+            store.setScoreInputFrozen(false)
+            return
+        }
+        if let current = officialBreakSession.state,
+           current.kind == remoteBreak.kind,
+           current.startedWallClockMilliseconds == remoteBreak.startedWallClockMilliseconds,
+           current.durationSeconds == remoteBreak.durationSeconds,
+           current.isRunning == remoteBreak.isRunning {
+            return
+        }
+        var restored = OfficialBreakSession(state: remoteBreak)
+        restored.reconcileAfterRestore(
+            nowMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
+        )
+        officialBreakSession = restored
+        store.setScoreInputFrozen(restored.inputFrozen)
+    }
+
     private func cancelOfficialBreak() {
         officialBreakSession = OfficialBreakSession()
         store.setScoreInputFrozen(false)
@@ -2947,10 +2993,11 @@ struct RallyScoreboardView: View {
 
     private func back() {
         cancelTerminalSetPresentation()
-        if let id = watchSessionId {
-            watchLinkService.leaveSessionIfMatchFinished(id)
-        }
         store.flush {
+            if let id = watchSessionId {
+                if store.state.finished { notifyLinkedFinishIfNeeded() }
+                watchLinkService.leaveSessionIfMatchFinished(id)
+            }
             performScoreboardExit(
                 onNavigationBack: onNavigationBack,
                 dismiss: dismiss
@@ -3185,7 +3232,7 @@ struct RallyScoreboardView: View {
 
     private func publishCurrentRallyState() {
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-        guard let watchSessionId, watchLinkService.isController else { return }
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
         watchLinkService.syncWatch(
             sessionId: watchSessionId,
             gameType: gameType,
@@ -3195,17 +3242,17 @@ struct RallyScoreboardView: View {
     }
 
     private func notifyLinkedFinishIfNeeded() {
-        guard let watchSessionId, watchLinkService.isController else { return }
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
         let state = store.state
-        let winner: MatchSide? = state.leftSets == state.rightSets
-            ? nil
-            : (state.leftSets > state.rightSets ? .left : .right)
         watchLinkService.notifyMatchFinished(
             sessionId: watchSessionId,
             snapshot: .rally(state),
             recordId: store.sessionId.uuidString,
-            winnerSide: winner,
-            manualEnd: manualFinishRequested
+            winnerSide: RallyFinishedScorePresentation.winnerSide(for: state),
+            manualEnd: manualFinishRequested,
+            startTime: store.startedAt,
+            totalScoreChanges: store.actionTimeline.count,
+            detailedActions: store.actionTimeline
         )
     }
 

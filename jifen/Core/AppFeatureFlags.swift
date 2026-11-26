@@ -55,7 +55,7 @@ enum AppFeatureFlags {
         switch gameType {
         case .pingpong, .badminton, .tennis, .pickleball,
              .shuttlecock, .squash, .foosball,
-             .football, .football5v5,
+             .football, .football5v5, .basketballTraining,
              .archery,
              .eightBall, .nineBall, .snooker:
             return true

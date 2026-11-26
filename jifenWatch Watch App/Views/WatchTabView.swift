@@ -22,7 +22,10 @@ struct WatchTabView: View {
             WatchSettingsView()
                 .tag(3)
         }
-        // Keep page indicator hidden to avoid bottom reserved area leaking into pushed scoreboards.
-        .tabViewStyle(.page(indexDisplayMode: .never))
+        // 分页圆点由 TabView 自己绘制，只给四个根页签留出底部安全区
+        // （46mm/49mm 模拟器实测约 6pt，各页 ScrollView 的 12pt 底内边距仍在其上）。
+        // 计分板是 NavigationStack 的 destination，与 TabView 是兄弟节点，
+        // 不会继承这圈留白；旧注释「留白漏进计分板」的结论在当前层级下不成立。
+        .tabViewStyle(.page(indexDisplayMode: .automatic))
     }
 }

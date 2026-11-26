@@ -104,6 +104,18 @@ enum LinkedMatchRecordIngestor {
         gameType: ScoreCore.GameType,
         sessionId: UUID? = nil
     ) throws -> ScoreboardRecord {
+        if gameType == .basketballTraining, let training = payload.snapshot.basketballTrainingState {
+            let id = payload.recordId.isEmpty
+                ? (sessionId.map { "w_\($0.uuidString)" } ?? "w_\(UUID().uuidString)")
+                : payload.recordId
+            return try makeWatchTrainingRecord(
+                id: id,
+                state: training,
+                endTimeEpochMilliseconds: payload.endTimeEpochMilliseconds,
+                duration: payload.durationSeconds,
+                linkedSessionId: sessionId
+            )
+        }
         guard let appType = GameType(scoreCoreGameType: gameType) else {
             throw LinkedRecordIngestError.unsupportedGameType(gameType.rawValue)
         }
@@ -129,7 +141,7 @@ enum LinkedMatchRecordIngestor {
         ) ?? []
         var extra: [String: AnyCodable] = [
             "syncFrom": AnyCodable("watch"),
-            "watchSyncTime": AnyCodable(Int64(Date().timeIntervalSince1970 * 1000))
+            "watchSyncTime": AnyCodable(Int(Date().timeIntervalSince1970 * 1000))
         ]
         if let sessionId {
             extra["linkedSessionId"] = AnyCodable(sessionId.uuidString)
@@ -215,7 +227,7 @@ enum LinkedMatchRecordIngestor {
         case .football(let state):
             configuration["footballHalfLengthSeconds"] = AnyCodable(state.timer.halfLengthSeconds)
             configuration["showMatchTime"] = AnyCodable(true)
-        case .archery, .eightBall:
+        case .archery, .eightBall, .basketballTraining:
             break
         }
         return configuration
@@ -245,6 +257,17 @@ enum LinkedMatchRecordIngestor {
             }
         }()
         switch snapshot {
+        case .basketballTraining(let state):
+            let counts = state.counts
+            return .init(
+                leftName: NSLocalizedString("shot_training_miss", value: "未中", comment: ""),
+                rightName: NSLocalizedString("shot_training_made", value: "命中", comment: ""),
+                leftScore: counts.missed,
+                rightScore: counts.made,
+                leftSets: nil,
+                rightSets: nil,
+                winner: nil
+            )
         case .football(let state):
             return .init(
                 leftName: state.leftName,
@@ -384,6 +407,14 @@ enum WatchStandaloneRecordIngestor {
             throw LinkedRecordIngestError.unsupportedGameType(payload.gameType)
         }
         let rawId = payload.id.hasPrefix("w_") ? payload.id : "w_\(payload.id)"
+        if gameType == .basketballTraining, let training = payload.basketballTraining {
+            return try makeWatchTrainingRecord(
+                id: rawId,
+                state: training,
+                endTimeEpochMilliseconds: payload.endTimeEpochMilliseconds,
+                duration: payload.durationSeconds
+            )
+        }
         let start = Date(timeIntervalSince1970: Double(payload.startTimeEpochMilliseconds) / 1000)
         let end = Date(timeIntervalSince1970: Double(payload.endTimeEpochMilliseconds) / 1000)
         let winnerSide: String? = {
@@ -416,7 +447,7 @@ enum WatchStandaloneRecordIngestor {
         }()
         var extraData: [String: AnyCodable] = [
             "syncFrom": AnyCodable("watch"),
-            "watchSyncTime": AnyCodable(Int64(Date().timeIntervalSince1970 * 1000))
+            "watchSyncTime": AnyCodable(Int(Date().timeIntervalSince1970 * 1000))
         ]
         if let participants = payload.participants, !participants.isEmpty {
             extraData["players"] = AnyCodable(participants.map {
@@ -437,7 +468,7 @@ enum WatchStandaloneRecordIngestor {
         // Football has periods but no set layer. The watch payload always carries
         // an integer set score, so drop the zeroed 0:0 here — otherwise the
         // correction sheet offers a meaningless "局分 / 盘分" section.
-        let hasNoSetLayer = gameType == .football || gameType == .football5v5
+        let hasNoSetLayer = gameType == .football || gameType == .football5v5 || gameType == .basketballTraining
         let dropsSetScore = isTennisTiebreakOnly || hasNoSetLayer
         let detailedActions = recordActions(
             payload.detailedActions,
@@ -483,8 +514,7 @@ enum WatchStandaloneRecordIngestor {
         case "eight_ball", "eightBall": return .eightBall
         case "nine_ball", "nineBall": return .nineBall
         case "snooker": return .snooker
-        // Phone has no basketball-training scoreboard yet — keep watch-only.
-        case "basketballTraining": return nil
+        case "basketballTraining", "basketball_training": return .basketballTraining
         default:
             return GameType(rawValue: raw)
         }
@@ -516,6 +546,55 @@ enum WatchStandaloneRecordIngestor {
         }
         return appGameType.supportsSinglesAndDoubles ? nil : appGameType.scoreCoreGameType
     }
+}
+
+@MainActor
+private func makeWatchTrainingRecord(
+    id: String,
+    state: LinkedShotTrainingState,
+    endTimeEpochMilliseconds: Int64,
+    duration: TimeInterval,
+    linkedSessionId: UUID? = nil
+) throws -> ScoreboardRecord {
+    let endTime = Date(timeIntervalSince1970: Double(endTimeEpochMilliseconds) / 1_000)
+    let mode = ShotTrainingMode(rawValue: state.mode.rawValue) ?? .fixed1
+    let shots = state.shots.map { ShotTrainingShot(points: $0.points, made: $0.made, timestamp: $0.timestamp) }
+    let counts = state.counts
+    let detailedActions = state.detailedActions(endingAt: endTime)
+    var extraData = ShotTrainingRecordMetadata.extraData(mode: mode, counts: counts)
+    extraData["syncFrom"] = AnyCodable("watch")
+    extraData["watchSyncTime"] = AnyCodable(Int(Date().timeIntervalSince1970 * 1_000))
+    if let linkedSessionId { extraData["linkedSessionId"] = AnyCodable(linkedSessionId.uuidString) }
+    let resumeState = ShotTrainingResumeState(
+        mode: mode,
+        shots: shots,
+        finished: true,
+        earlierCounts: state.earlierCounts
+    )
+    return ScoreboardRecord(
+        id: id,
+        gameType: .basketballTraining,
+        startTime: state.startTime,
+        endTime: endTime,
+        duration: max(0, duration),
+        team1Name: NSLocalizedString("shot_training_miss", value: "未中", comment: ""),
+        team2Name: NSLocalizedString("shot_training_made", value: "命中", comment: ""),
+        team1FinalScore: counts.missed,
+        team2FinalScore: counts.made,
+        actions: detailedActions.compactMap { action in
+            guard let time = action.epochMilliseconds, let code = action.operationCode else { return nil }
+            return "\(time)|\(code)"
+        },
+        detailedActions: detailedActions,
+        totalScoreChanges: counts.attempts,
+        extraData: extraData,
+        projectConfiguration: [
+            ScoreboardRecordConfiguration.Key.scoreCoreGameType: AnyCodable(ScoreCore.GameType.basketballTraining.rawValue),
+            "basketballTrainingScoringMode": AnyCodable(mode.rawValue)
+        ],
+        stateSnapshot: try JSONEncoder().encode(resumeState),
+        status: .finished
+    )
 }
 
 private func recordActions(

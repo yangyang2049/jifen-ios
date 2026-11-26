@@ -1,0 +1,422 @@
+/* Watch App - nl */
+
+/* Tab Bar */
+"tab_score" = "Score";
+"tab_tools" = "Hulpmiddelen";
+"tab_timer" = "Timer";
+
+/* Game Types */
+"game_badminton" = "Badminton";
+"game_pingpong" = "Tafeltennis";
+"game_tennis" = "Tennis";
+"game_pickleball" = "Pickleball";
+"game_archery" = "Boogschieten";
+"tool_basketball_training" = "Schottraining";
+
+/* Tools */
+"tool_flip_coin" = "Munt opgooien";
+"tool_random_number" = "Willekeurig getal";
+"tool_ten_second" = "Stop de klok";
+"game_counter" = "Teller";
+"press_again_to_reset" = "Tik opnieuw om te resetten";
+
+/* Records */
+"records" = "Historie";
+"loading" = "Laden";
+"no_records" = "Geen records";
+"record_not_found" = "Record niet gevonden";
+"match_details" = "Wedstrijddetails";
+"match_record" = "Wedstrijdrecord";
+"delete_record" = "Record verwijderen";
+"confirm_deletion" = "Verwijdering bevestigen";
+"cannot_be_recovered_after_deletion" = "Dit kan niet ongedaan worden gemaakt";
+"date" = "Datum";
+"time" = "Tijd";
+"duration" = "Duur";
+
+/* Common */
+"cancel" = "Annuleren";
+"confirm" = "Bevestigen";
+"delete" = "Verwijderen";
+"setup" = "Instellen";
+"vibration" = "Trillingen";
+"sound" = "Geluid";
+"watch_scoreboard_keep_screen_on" = "Scherm ingeschakeld houden";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Uitleg";
+"usage_prompt_message" = "Tik op de kant die scoort\nVeeg omlaag om ongedaan te maken\nHoud ingedrukt voor het menu";
+"got_it" = "Begrepen";
+
+/* Privacy */
+"privacy_policy" = "Privacybeleid";
+"scan_to_view_details" = "Scan de code voor details";
+
+/* Settings / About */
+"version" = "Versie";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Feedback";
+"watch_contact_us" = "Contact";
+
+/* Scoreboard menu */
+"menu_undo" = "Ongedaan maken";
+"menu_reset" = "Opnieuw instellen";
+"watch_continue" = "Ga verder";
+"watch_end_match" = "Voltooien";
+"watch_layout_vertical" = "Verticaal";
+"watch_layout_horizontal" = "Horizontaal";
+"watch_settings_layout_title" = "Indeling";
+"watch_reset_toast" = "Opnieuw instellen";
+"watch_undo_toast" = "Ongedaan gemaakt";
+"watch_play_again" = "Speel opnieuw";
+"watch_exit" = "Afsluiten";
+"exit" = "Afsluiten";
+"watch_team_red" = "Rood";
+"watch_team_blue" = "Blauw";
+"team_a" = "Team A";
+"team_b" = "Team B";
+"team_home" = "Thuis";
+"team_away" = "Uit";
+"player_a" = "Speler A";
+"player_b" = "Speler B";
+"archer_a" = "Boogschutter A";
+"archer_b" = "Boogschutter B";
+"linked_score_confirm_title" = "Telefoon–horlogekoppeling?";
+"linked_score_phone_started_scoreboard" = "Telefoon–horlogekoppeling · Spel gestart";
+"linked_score_accept" = "Accepteren";
+"linked_score_reject" = "Afwijzen";
+"linked_score_watch_reclaim" = "Overnemen";
+"linked_score_setup_rules" = "%1$d sets · %2$d punten";
+"linked_score_setup_rules_sets" = "%d sets";
+"linked_score_setup_race_to" = "Doel %d";
+"linked_score_sport_badminton" = "Badminton-enkelspel";
+"linked_score_sport_badminton_doubles" = "Badminton-dubbelspel";
+"linked_score_sport_pingpong" = "Tafeltennis-enkelspel";
+"linked_score_sport_pingpong_doubles" = "Tafeltennis-dubbelspel";
+"linked_score_sport_tennis" = "Tennis-enkelspel";
+"linked_score_sport_tennis_doubles" = "Tennis-dubbelspel";
+"linked_score_sport_pickleball" = "Pickleball-enkelspel";
+"linked_score_sport_pickleball_doubles" = "Pickleball-dubbelspel";
+"game_basketball" = "Basketbal";
+"game_three_basketball" = "3x3 basketbal";
+"linked_score_sport_archery" = "Boogschieten";
+"linked_score_sport_eight_ball" = "8-ball";
+"linked_score_sport_nine_ball" = "9-ball puntenjacht";
+"linked_score_sport_snooker" = "Snooker";
+"linked_score_sport_shuttlecock" = "Jianzi";
+"linked_score_sport_squash" = "Squash";
+"linked_score_sport_foosball" = "Tafelvoetbal";
+"linked_score_sport_football" = "Voetbal";
+"linked_score_sport_football_5v5" = "5×5 voetbal";
+"watch_menu_end_match" = "Wedstrijd beëindigen";
+"watch_menu_restart" = "Opnieuw starten";
+"watch_bball_overtime" = "Verlenging";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d spelers";
+"archery_closest_title" = "Schieten · Dichtst bij midden";
+"archery_closest_message" = "Gelijkstand bij %d — kies de dichtstbijzijnde pijl";
+"watch_set_end_format" = "Set %d voltooid";
+"watch_match_start" = "Spel gestart";
+"watch_match_finished" = "Wedstrijd afgelopen";
+"watch_bb_hit_rate" = "Trefpercentage";
+"watch_bb_end_training" = "Training voltooien";
+"watch_training_finish_confirm_title" = "Training beëindigen?";
+"watch_training_finish_confirm_message" = "De training wordt beëindigd en opgeslagen.";
+"watch_counter_finish_confirm_title" = "Tellen beëindigen?";
+"watch_counter_finish_confirm_message" = "De telling wordt opgeslagen en begint opnieuw bij nul.";
+"watch_bb_restart" = "Opnieuw starten";
+
+/* Records */
+"clear_all_records" = "Wis alle records";
+"clear_all_records_message" = "Alle resultaten worden definitief verwijderd.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Kop";
+"watch_coin_tails" = "Munt";
+"watch_archery_miss" = "Mis";
+"watch_flip_coin_hint" = "Tik om de munt op te gooien";
+"watch_ten_second_challenge" = "Stop de klok";
+"watch_ten_second_usage" = "Tik om te starten. Tik opnieuw op de doeltijd.";
+"watch_mid_game_rest" = "Pauze halverwege de game";
+"watch_rest_between_sets" = "Pauze tussen games";
+"watch_official_timeout" = "Time-out";
+"watch_medical_break" = "Medisch";
+"watch_score_event_set_title" = "Set %d voltooid";
+"watch_score_event_set_detail" = "%1$@ wint %2$d:%3$d · Sets %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Set %d · Pauze halverwege de game";
+"watch_score_event_mid_game_detail" = "%1$@ Leidt %2$d:%3$d · Sets %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Set %d voltooid";
+"watch_score_event_tennis_game_detail" = "%1$@ wint · Games %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Set %d voltooid";
+"watch_score_event_tennis_set_detail" = "%1$@ wint %2$d:%3$d · Sets %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "7-punts tiebreak";
+"watch_tiebreak_indicator_10" = "10-punts tiebreak";
+"watch_continue_match" = "Hervatten";
+"watch_continue_scoring" = "Hervatten";
+"watch_resume_discard" = "Onvoltooide wedstrijd weggooien";
+"watch_resume_discard_training" = "Onvoltooide training weggooien";
+"unit_hour" = "u";
+"unit_minute" = "min";
+"unit_second" = "s";
+"today" = "Vandaag";
+"yesterday" = "Gisteren";
+
+/* Sports setup */
+"watch_setup_start" = "Starten";
+"watch_setup_sets" = "Sets";
+"watch_setup_points_per_set" = "Punten per set";
+"watch_setup_tennis_deuce" = "Deuce-regel";
+"watch_setup_tennis_advantage" = "Voordeel";
+"watch_setup_tennis_no_ad" = "Geen voordeel";
+"watch_setup_target_score" = "Doelscore";
+"watch_setup_rally_scoring" = "Rallyscore";
+"watch_setup_target_racks" = "Doel";
+"watch_setup_race_racks" = "Race tot";
+"watch_setup_race_racks_help" = "3 = eerst 3 frames";
+"watch_setup_handicap" = "Handicap";
+"watch_setup_handicap_none" = "Geen";
+"watch_setup_handicap_red_gives_blue" = "Rood → Blauw";
+"watch_setup_handicap_blue_gives_red" = "Blauw → Rood";
+"watch_setup_handicap_racks" = "Handicapgames";
+"watch_setup_frames" = "Frames";
+"watch_setup_custom_frames" = "Eigen aantal frames";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Voer 1-99 in";
+"watch_setup_players" = "Spelers";
+"watch_setup_archers" = "Boogschutters";
+"watch_setup_player_number" = "Speler %d";
+"watch_setup_red_a" = "Rood A";
+"watch_setup_red_b" = "Rood B";
+"watch_setup_blue_a" = "Blauw A";
+"watch_setup_blue_b" = "Blauw B";
+"watch_setup_name_missing" = "Vul alle namen in of laat ze allemaal leeg";
+"watch_setup_select_players" = "Spelers";
+"watch_setup_player_count" = "%d spelers";
+"watch_common_names_select_player" = "Selecteer speler";
+"watch_common_names_no_records" = "Geen veelgebruikte namen";
+"watch_common_names_title" = "Veelgebruikte namen";
+"watch_common_names_add" = "Toevoegen";
+"watch_common_names_edit" = "Naam bewerken";
+"watch_common_names_delete_title" = "Naam verwijderen?";
+"watch_common_names_error_title" = "Updaten is mislukt";
+"watch_common_names_players" = "Spelers";
+"watch_common_names_teams" = "-teams";
+"watch_common_names_empty" = "Geen veelgebruikte namen";
+"watch_common_names_team_placeholder" = "Teamnaam";
+"watch_common_names_player_placeholder" = "Spelernaam";
+"watch_common_names_length_hint" = "Tot %d tekens";
+"watch_common_names_error_empty" = "Naam mag niet leeg zijn";
+"watch_common_names_error_duplicate" = "Naam bestaat al";
+"watch_common_names_error_missing" = "Record niet gevonden · Opnieuw proberen";
+"watch_common_names_error_generic" = "Kan niet opslaan. Probeer het opnieuw.";
+"watch_common_names_sync_now" = "Nu synchroniseren";
+"watch_common_names_actions" = "Veelgebruikte namen";
+"watch_common_names_sync_requested" = "Wacht op synchronisatie";
+"watch_common_names_sync_queued" = "Telefoon niet verbonden · Wacht op synchronisatie";
+"watch_common_names_sync_inactive" = "Telefoon niet verbonden";
+"watch_common_names_sync_failed" = "Verbinding mislukt · Opnieuw proberen";
+"watch_common_names_sync_conflict" = "Sommige wijzigingen zijn niet gesynchroniseerd";
+"watch_common_names_sync_pending" = "Wacht op synchronisatie";
+"watch_common_names_sync_unavailable" = "Telefoon niet verbonden";
+"watch_common_names_sync_done" = "Gesynchroniseerd";
+"watch_common_names_pending_count" = "Wacht op synchronisatie · %d";
+"watch_common_names_never_synced" = "Nog niet gesynchroniseerd";
+"watch_common_names_last_sync" = "Laatst gesynchroniseerd %@";
+
+"watch_phone_link_title" = "Horlogelink";
+"watch_phone_link_intro" = "Start op je telefoon, scoor op je horloge";
+"watch_phone_link_support" = "Badminton · Voetbal · Boogschieten · Schottraining…";
+"watch_phone_link_status" = "Verbindingsstatus";
+"watch_phone_link_steps" = "Gebruiksaanwijzing";
+"watch_phone_link_step_1" = "Stel een wedstrijd of schietoefening in op je telefoon.";
+"watch_phone_link_step_2" = "Start van · Apple Watch";
+"watch_phone_link_step_3" = "Houd de score bij op je horloge. Het resultaat synchroniseert na afloop.";
+"watch_phone_link_help" = "Koppel beide apparaten, installeer iScoreboard op beide en open de app op je telefoon.";
+"watch_phone_link_testing" = "Bezig met testen";
+"watch_phone_link_normal" = "Verbonden";
+"watch_phone_link_failed" = "Verbinding mislukt";
+"watch_phone_link_reachable" = "Verbonden";
+"watch_phone_link_waiting" = "Wachten op telefoon";
+"watch_phone_link_inactive" = "Telefoon niet verbonden";
+"watch_phone_link_testing_detail" = "Wachten op telefoon";
+"watch_phone_link_normal_detail" = "Verbonden";
+"watch_phone_link_failed_detail" = "Geen antwoord van de telefoon binnen 8 seconden.";
+"watch_phone_link_failed_inactive" = "Telefoon niet verbonden · Opnieuw proberen";
+"watch_phone_link_failed_unreachable" = "Open iScoreboard op je telefoon en probeer het opnieuw.";
+"watch_phone_link_failed_send" = "Verbinding mislukt · Opnieuw proberen";
+"watch_phone_link_reachable_detail" = "Testen";
+"watch_phone_link_waiting_detail" = "Open iScoreboard op je telefoon en probeer het opnieuw.";
+"watch_phone_link_test_waiting" = "Bezig met testen…";
+"watch_phone_link_test_retry" = "Opnieuw proberen";
+"watch_phone_link_test" = "Testen";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Laatste verbinding %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Trainingsmodus";
+"watch_bb_1pt" = "1 pt";
+"watch_bb_2pt" = "2 pt";
+"watch_bb_3pt" = "3 pt";
+"watch_bb_free" = "Vrij";
+"watch_training_miss" = "Mis";
+"watch_training_made" = "Raak";
+"watch_training_point_value" = "%d punten";
+"watch_training_breakdown" = "Worpdetails";
+"watch_training_start" = "Schottraining · Start van";
+"watch_training_rate_format" = "Trefpercentage %d%%";
+"watch_training_action_format" = "%d punten · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Bovenaan vastmaken?";
+"watch_home_pin_confirm" = "Vastmaken";
+"watch_home_unpin_title" = "Losmaken?";
+"watch_home_unpin_confirm" = "Losmaken";
+"watch_home_pin_full_title" = "Limiet bereikt";
+"watch_home_pin_full_message" = "Je kunt er 2 vastmaken. Maak er eerst één los.";
+"watch_home_pin_hint" = "Houd ingedrukt om vast te maken";
+"watch_home_pin_success" = "Vastgezet";
+"watch_home_unpin_success" = "Losgemaakt";
+"multi_score_player_default_format" = "Speler %d";
+"nine_ball_big_gold" = "Groot goud";
+"nine_ball_small_gold" = "Klein goud";
+"nine_ball_golden_nine" = "Gouden 9";
+"nine_ball_normal_win" = "Gewone winst";
+"nine_ball_ball_in_hand" = "Bal in de hand";
+"nine_ball_foul" = "Fout";
+"watch_archery_set_rest" = "Setpauze";
+"watch_finish_confirm_title" = "Wedstrijd beëindigen?";
+"watch_finish_confirm_message" = "De wedstrijd wordt beëindigd en opgeslagen.";
+"watch_reset_confirm_title" = "Wedstrijd opnieuw starten?";
+"watch_reset_confirm_message" = "De huidige score wordt gewist.";
+"watch_side_exchange" = "Wissel van kant";
+"watch_winner_format" = "%@ wint";
+"watch_finished_win_badge" = "W";
+"watch_finished_winner" = "Winnaar";
+"watch_finished_home" = "Thuis";
+"watch_snooker_foul" = "Fout";
+"watch_snooker_foul_selected_format" = "Fout +%d";
+"watch_snooker_foul_next_turn" = "Wissel van beurt";
+"watch_snooker_foul_switch_turn" = "Wissel van beurt";
+"watch_snooker_foul_continue" = "Ga verder";
+"watch_action_snooker_foul_continue_format" = "%@· Fout · Opp +%d · Overtreder gaat verder";
+"watch_snooker_handover" = "Wissel van beurt";
+"watch_snooker_settle_frame" = "Frame vereffenen";
+"watch_snooker_choose_frame_winner" = "Kies framewinnaar";
+"watch_snooker_frame_finished" = "Ronde voltooid";
+"watch_snooker_next_frame" = "Volgend frame";
+"watch_training_breakdown_format" = "%d punten · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Dezelfde afstand. Ga door met de schietpartij.";
+"edit" = "Bewerken";
+"game_badminton_doubles" = "Badminton-dubbelspel";
+"game_eight_ball" = "8-ball";
+"game_nine_ball" = "9-ball puntenjacht";
+"game_pickleball_doubles" = "Pickleball-dubbelspel";
+"game_pingpong_doubles" = "Tafeltennis-dubbelspel";
+"game_snooker" = "Snooker";
+"game_tennis_doubles" = "Tennis-dubbelspel";
+"save" = "Opslaan";
+"watch_action_adjust_score_format" = "%@· Score gewijzigd";
+"watch_action_archery_arrow_format" = "%@+%d punten";
+"watch_action_archery_closest" = "Schieten · Dichtst bij midden";
+"watch_action_archery_miss_format" = "%@· Mis";
+"watch_action_archery_set_ready" = "Boogschieten · Ronde voltooid";
+"watch_action_ball_potted_format" = "%@ · Bal gepot %@";
+"watch_action_basketball_foul_format" = "%@· Fout";
+"watch_action_basketball_period_format" = "Periode %d · Start van";
+"watch_action_basketball_timeout_format" = "%@· Time-out";
+"watch_action_edit_name" = "Bijgewerkt";
+"watch_action_exchange_sides" = "Van kant wisselen";
+"watch_action_exchange_sides_reminder" = "Wissel handmatig van kant";
+"watch_action_game_finished_format" = "Set %1$d voltooid · %2$@ wint";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ wint";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Set %1$d voltooid · %2$@ wint";
+"watch_action_shooter_format" = "%@ begint te schieten";
+"watch_action_side_out_format" = "Opslag · %@";
+"watch_action_snooker_foul_format" = "%@· Fout · Opp +%d";
+"watch_action_snooker_frame_format" = "Frame %1$d · %2$@ wint";
+"watch_action_snooker_handover_format" = "Wissel van beurt · %@";
+"watch_action_snooker_miss_format" = "%@· Mis";
+"watch_action_snooker_next_frame_format" = "Frame %d · Start van";
+"watch_action_snooker_pot_format" = "%@· Bal gepot +%d";
+"watch_record_actions_unavailable" = "Geen records";
+"linked_score_error_title" = "Verbinding mislukt";
+"linked_score_persistence_failed" = "Telefoon–horlogekoppeling · Opslaan mislukt: %@";
+"resume_persistence_error_title" = "Kan niet opslaan";
+"resume_persistence_failed" = "Wedstrijd hervatten · Opslaan mislukt: %@";
+"linked_score_control_timeout" = "Overnemen · Wachttijd verstreken · Opnieuw proberen";
+"linked_score_sync_timeout" = "Wachttijd verstreken · Wacht op synchronisatie";
+
+/* Football */
+"game_football" = "Voetbal";
+"game_football_5v5" = "5×5 voetbal";
+"watch_setup_half_length" = "Halve lengte";
+"watch_setup_teams" = "-teams";
+"football_first_half" = "Eerste helft";
+"football_second_half" = "Tweede helft";
+"football_extra_time_first" = "Verlenging — eerste helft";
+"football_extra_time_second" = "Verlenging — tweede helft";
+"football_first_half_over" = "Eerste helft afgelopen";
+"football_switch_half" = "Tweede helft";
+"football_switch_half_title" = "Tweede helft starten?";
+"football_switch_half_message" = "De eerste helft wordt gepauzeerd en kan niet opnieuw worden geopend.";
+"football_extra_time_first_over" = "Verlenging — eerste helft · Ronde voltooid";
+"football_switch_extra_time_half" = "Verlenging — tweede helft";
+"football_enter_extra_time_title" = "Reglementstijd geëindigd";
+"football_post_regulation_action" = "Na reguliere speeltijd";
+"football_injury_title" = "Blessuretijd";
+"football_undo_stoppage" = "De blessuretijd ongedaan maken";
+"football_enter_extra_time" = "Verlenging starten";
+"football_end_as_draw" = "Eindigen als gelijkspel";
+"football_goal_hint" = "Tik om een doelpunt toe te voegen";
+"watch_football_start" = "Starten";
+"watch_football_pause" = "Pauze";
+"watch_football_resume" = "Hervatten";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Start van · %@";
+"watch_action_football_stoppage_format" = "Blessuretijd +%d s";
+"watch_action_football_clock_start" = "Timer gestart";
+"watch_action_football_clock_pause" = "Timer gepauzeerd";
+"watch_record_sync_sent" = "Gesynchroniseerd";
+"watch_record_sync_pending" = "Wacht op synchronisatie";
+"watch_record_sync_not_synced" = "Niet gesynchroniseerd met iPhone";
+"watch_record_sync_action" = "Synchroniseer met iPhone";
+"watch_settings_auto_sync_records" = "Automatisch synchroniseren";
+"game_shuttlecock" = "Jianzi";
+"game_squash" = "Squash";
+"game_foosball" = "Tafelvoetbal";
+
+"watch_setup_win_by_two" = "Win de laatste set met 2";
+"watch_setup_score_cap" = "Scorelimiet";
+"watch_setup_serving_side" = "Eerste opslager";
+"watch_setup_kickoff_side" = "Eerste aftrap";
+"watch_setup_side_left" = "Rood";
+"watch_setup_side_right" = "Blauw";
+
+"watch_about_us" = "Over ons";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Versie %@";
+"watch_wechat_group_title" = "WeChat-groep";
+"watch_wechat_group_scan_hint" = "WeChat · Scan de code voor details";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Break";
+"watch_nine_ball_select_payer" = "Kies wie betaalt";
+"watch_nine_ball_select_continue" = "Kies volgende speler";
+"watch_nine_ball_prev_player" = "Vorige";
+"watch_nine_ball_next_player" = "Volgende";
+"watch_nine_ball_continue_badge" = "Spelen";
+
+"watch_a11y_points_format" = "%d punten";
+"watch_a11y_sets_format" = "%d sets";
+"watch_a11y_serving" = "Opslag";
+
+"watch_phone_shared_link_intro" = "Start op je telefoon en houd de score bij op beide apparaten.";
+"linked_score_simultaneous_edit" = "Op beide apparaten zijn wijzigingen gedaan. Controleer de score.";

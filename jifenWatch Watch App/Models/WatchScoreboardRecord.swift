@@ -1,4 +1,5 @@
 import Foundation
+import LinkCore
 import RecordCore
 import ScoreCore
 import SwiftUI // Required for Color, though not directly used in this file for styling. Keep for consistency if needed elsewhere.
@@ -8,7 +9,7 @@ struct WatchRecordParticipant: Codable, Hashable {
     let score: Int
 }
 
-struct WatchBasketballTrainingShot: Codable, Hashable, Identifiable {
+nonisolated struct WatchBasketballTrainingShot: Codable, Hashable, Identifiable {
     let id: String
     let points: Int
     let made: Bool
@@ -25,6 +26,14 @@ struct WatchBasketballTrainingShot: Codable, Hashable, Identifiable {
         self.made = made
         self.timestamp = timestamp
     }
+
+    var linkedShot: LinkedShotTrainingShot {
+        .init(points: points, made: made, timestamp: timestamp)
+    }
+
+    init(linkedShot: LinkedShotTrainingShot) {
+        self.init(points: linkedShot.points, made: linkedShot.made, timestamp: linkedShot.timestamp)
+    }
 }
 
 struct WatchBasketballTrainingDetails: Codable, Hashable {
@@ -39,15 +48,19 @@ struct WatchBasketballTrainingDetails: Codable, Hashable {
     let threePointMade: Int?
     let threePointMiss: Int?
 
-    init(mode: WatchBasketballTrainingMode, shots: [WatchBasketballTrainingShot]) {
+    init(
+        mode: WatchBasketballTrainingMode,
+        shots: [WatchBasketballTrainingShot],
+        totals: ShotTrainingCounts? = nil
+    ) {
         self.mode = mode
         self.shots = shots
-        onePointMade = Self.count(shots, points: 1, made: true)
-        onePointMiss = Self.count(shots, points: 1, made: false)
-        twoPointMade = Self.count(shots, points: 2, made: true)
-        twoPointMiss = Self.count(shots, points: 2, made: false)
-        threePointMade = Self.count(shots, points: 3, made: true)
-        threePointMiss = Self.count(shots, points: 3, made: false)
+        onePointMade = totals?.oneMade ?? Self.count(shots, points: 1, made: true)
+        onePointMiss = totals?.oneMiss ?? Self.count(shots, points: 1, made: false)
+        twoPointMade = totals?.twoMade ?? Self.count(shots, points: 2, made: true)
+        twoPointMiss = totals?.twoMiss ?? Self.count(shots, points: 2, made: false)
+        threePointMade = totals?.threeMade ?? Self.count(shots, points: 3, made: true)
+        threePointMiss = totals?.threeMiss ?? Self.count(shots, points: 3, made: false)
     }
 
     func count(points: Int, made: Bool) -> Int {
@@ -177,7 +190,8 @@ struct WatchScoreboardRecordSummary: Identifiable, Codable, Equatable {
     var listDisplayText: String {
         let usePointScore = watchRecordUsesPointScore(
             gameType: gameType,
-            projectConfiguration: projectConfiguration
+            projectConfiguration: projectConfiguration,
+            hasSetScore: team1SetScore != 0 || team2SetScore != 0
         )
         let leftScore = usePointScore ? team1FinalScore : team1SetScore
         let rightScore = usePointScore ? team2FinalScore : team2SetScore
@@ -202,18 +216,27 @@ extension WatchScoreboardRecord {
     var usesPointScoreForDisplay: Bool {
         watchRecordUsesPointScore(
             gameType: gameType,
-            projectConfiguration: projectConfiguration
+            projectConfiguration: projectConfiguration,
+            hasSetScore: team1SetScore != 0 || team2SetScore != 0
         )
     }
 }
 
 private func watchRecordUsesPointScore(
     gameType: WatchGameType,
-    projectConfiguration: [String: String]?
+    projectConfiguration: [String: String]?,
+    hasSetScore: Bool
 ) -> Bool {
-    gameType.usesPointScoreInList
-        || (gameType == .tennis
-            && projectConfiguration?["setScoringMode"] == "tiebreak_only")
+    if gameType.usesPointScoreInList
+        || (gameType == .tennis && projectConfiguration?["setScoringMode"] == "tiebreak_only") {
+        return true
+    }
+    switch gameType {
+    case .badminton, .pingpong, .pickleball, .tennis, .shuttlecock, .squash, .foosball:
+        return !hasSetScore
+    default:
+        return false
+    }
 }
 
 private func watchDoublesTeamNames(
@@ -274,6 +297,8 @@ func watchFormatDisplayDate(_ dateStr: String) -> String {
 
     let formatter = DateFormatter()
 
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+
     formatter.dateFormat = "yyyy-MM-dd"
 
     guard let date = formatter.date(from: dateStr) else {
@@ -298,12 +323,6 @@ func watchFormatDisplayDate(_ dateStr: String) -> String {
 
     
 
-    let monthFormat = NSLocalizedString("month_day_format", value: "%d月%d日", comment: "Month Day format")
-
-    let month = calendar.component(.month, from: date)
-
-    let day = calendar.component(.day, from: date)
-
-    return String(format: monthFormat, month, day)
+    return date.formatted(.dateTime.month(.defaultDigits).day())
 
 }

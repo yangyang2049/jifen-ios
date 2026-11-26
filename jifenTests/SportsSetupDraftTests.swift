@@ -191,13 +191,14 @@ final class SportsSetupDraftTests: XCTestCase {
 
     func testAndroid31SetupPresetOrderAndSportSpecificSetChoices() {
         var draft = SportsSetupDraft()
-        XCTAssertEqual(draft.pointPresets(for: .pingpong), [5, 7, 9, 11])
+        XCTAssertEqual(draft.pointPresets(for: .pingpong), [7, 9, 11, 15])
         XCTAssertEqual(draft.pointPresets(for: .badminton), [11, 15, 21])
         XCTAssertEqual(draft.pointPresets(for: .shuttlecock), [11, 15, 21])
         XCTAssertEqual(draft.pointPresets(for: .foosball), [5, 7, 8])
 
         draft.matchCompletionMode = .bestOf
         XCTAssertEqual(draft.matchCompletionPresets(for: .tennis), [1, 3, 5, 7])
+        XCTAssertEqual(draft.matchCompletionPresets(for: .badminton), [1, 3, 5])
         XCTAssertEqual(draft.matchCompletionPresets(for: .foosball), [1, 3, 5, 7])
 
         draft.matchCompletionMode = .playAll

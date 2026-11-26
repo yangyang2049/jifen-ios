@@ -130,12 +130,6 @@ struct WatchLayout {
     static var archeryMenuButtonHeight: CGFloat { isCompactScreen ? 44 : 52 }
     /// 射箭菜单图标字号
     static var archeryMenuIconSize: CGFloat { isCompactScreen ? 18 : 22 }
-    /// 射箭结束 overlay 内边距
-    static var archeryStoppedOverlayPadding: CGFloat { isCompactScreen ? 14 : 24 }
-    /// 射箭结束 overlay 主按钮宽度
-    static var archeryStoppedButtonWidth: CGFloat { isCompactScreen ? 130 : 160 }
-    /// 射箭结束 overlay 按钮高度
-    static var archeryStoppedButtonHeight: CGFloat { isCompactScreen ? 38 : 44 }
     /// 记录列表行左右内边距（含 44mm 窄屏时缩小，避免第一行被截断）
     static var recordRowHorizontalPadding: CGFloat {
         recordRowHorizontalPadding(for: cachedScreenWidth)
@@ -165,12 +159,12 @@ struct WatchScoreTypography {
 
     /// Primary standalone scoreboard values.
     static func primaryScore(size: CGFloat, weight: Font.Weight = .bold) -> Font {
-        .system(size: size, weight: weight, design: .rounded).monospacedDigit()
+        .system(size: size, weight: weight).monospacedDigit()
     }
 
     /// Supporting values such as sets, games, frames and handicaps.
     static func secondaryScore(size: CGFloat, weight: Font.Weight = .medium) -> Font {
-        .system(size: size, weight: weight, design: .rounded).monospacedDigit()
+        .system(size: size, weight: weight).monospacedDigit()
     }
 
     static func adaptiveFontSize(
@@ -265,8 +259,10 @@ struct WatchMenuGridButton: View {
                 }
                 Text(title)
                     .font(.system(size: WatchLayout.isCompactScreen ? 9 : 10, weight: .medium))
-                    .lineLimit(1)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
                     .minimumScaleFactor(0.75)
+                    .padding(.horizontal, 2)
             }
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)

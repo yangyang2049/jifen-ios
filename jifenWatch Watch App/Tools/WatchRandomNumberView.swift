@@ -27,9 +27,11 @@ struct WatchRandomNumberView: View {
                 Spacer()
 
                 if !showNumber {
-                    Text("👆")
-                        .font(.system(size: 40))
+                    Image(systemName: "hand.tap.fill")
+                        .font(.system(size: 38, weight: .medium))
+                        .foregroundStyle(WatchTheme.accent)
                         .scaleEffect(fingerScale * tapHintPulse)
+                        .accessibilityHidden(true)
                 } else {
                     Text("\(randomNumber)")
                         .font(.system(size: 84, weight: .bold))
@@ -85,22 +87,43 @@ struct WatchRandomNumberView: View {
         }
     }
 
-    /// 点一下在 1–10 / 1–100 之间切换；数字本身无需本地化。
+    /// 两段式胶囊开关：直接展示 1–10 与 1–100，消除隐藏切换入口的可发现性问题。
     private var rangePicker: some View {
-        Button {
-            rangeMax = rangeMax == 10 ? 100 : 10
+        let compact = WatchLayout.isCompactScreen
+        return HStack(spacing: 2) {
+            rangeOptionButton(max: 10, compact: compact)
+            rangeOptionButton(max: 100, compact: compact)
+        }
+        .padding(2)
+        .background(Color.white.opacity(0.10), in: Capsule())
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("watch_random_number_range")
+    }
+
+    private func rangeOptionButton(max: Int, compact: Bool) -> some View {
+        let selected = rangeMax == max
+        return Button {
+            guard rangeMax != max else { return }
+            withAnimation(.easeInOut(duration: 0.16)) {
+                rangeMax = max
+            }
             WatchHaptics.shared.play(.light)
         } label: {
-            Text("1–\(rangeMax)")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(WatchTheme.secondaryText)
-                .padding(.horizontal, 10)
-                .frame(height: 24)
-                .background(Color.white.opacity(0.12))
-                .clipShape(Capsule())
+            Text("1–\(max)")
+                .font(.system(size: compact ? 11 : 12, weight: selected ? .semibold : .medium))
+                .monospacedDigit()
+                .foregroundStyle(selected ? Color.white : WatchTheme.secondaryText)
+                .padding(.horizontal, compact ? 9 : 11)
+                .frame(height: compact ? 22 : 24)
+                .background(
+                    selected ? Color.white.opacity(0.26) : Color.clear,
+                    in: Capsule()
+                )
+                .contentShape(Capsule())
         }
         .buttonStyle(.plain)
-        .accessibilityIdentifier("watch_random_number_range")
+        .accessibilityIdentifier("watch_random_number_range_\(max)")
+        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 
     private var recentHistory: [Int] {

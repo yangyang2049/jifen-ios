@@ -211,9 +211,18 @@ struct SnookerScoreboardView: View {
             runBottomBarShake()
         }
 
-        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
-            guard let watchSessionId, let update, update.sessionId == watchSessionId,
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { previous, update in
+            guard watchLinkService.incomingSnapshot != nil, let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.snookerState else { return }
+            if watchLinkService.controlRole == .shared, update.beginsMatch(after: previous) {
+                let previousRecordID = recordID
+                startedAt = Date()
+                recordID = ScoreboardRecordIdentity.next(prefix: GameType.snooker.canonicalScoreboardIdentifier)
+                sessionStore = sessionStore.makeLinkedMatchStore(state: remote, startedAt: startedAt, recordID: recordID)
+                ParticipantIdentityStore.shared.copySelections(from: previousRecordID, to: recordID)
+                actionCount = 0
+                actionLog.removeAll()
+            }
             detailedActions = update.detailedActions
             applyAuthoritativeSnooker(remote)
         }
@@ -229,7 +238,7 @@ struct SnookerScoreboardView: View {
             bottomBarShakeTask?.cancel()
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             let skipSave = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+                && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             if !skipSave {
                 sessionStore.flush {
@@ -367,7 +376,7 @@ struct SnookerScoreboardView: View {
 
     private var finishedRecordDetailPage: some View {
         NavigationStack {
-            ScoreboardRecordDetailPage(recordId: recordID)
+            ScoreboardRecordDetailPage(recordId: (watchSessionId == nil ? nil : watchLinkService.finishedRecordId) ?? recordID)
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         ModalCloseButton { showFinishedRecordDetail = false }
@@ -526,7 +535,7 @@ struct SnookerScoreboardView: View {
     }
 
     private func publishWatchIfNeeded(_ state: SnookerState) {
-        guard let watchSessionId, watchLinkService.isController else { return }
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
         watchLinkService.syncWatch(
             sessionId: watchSessionId,
             gameType: .snooker,
@@ -1140,7 +1149,7 @@ struct SnookerScoreboardView: View {
             watchLinkService.leaveSessionIfMatchFinished(id)
         }
         let skipSave = watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+            && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
         sessionStore.flush {
             if !skipSave { _ = saveRecord() }
             performScoreboardExit(
@@ -1380,7 +1389,7 @@ struct SnookerScoreboardView: View {
     }
 
     private func notifyLinkedFinishIfNeeded() {
-        guard let watchSessionId, watchLinkService.isController else { return }
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
         let left = state.maxFrames > 1 ? state.leftFrames : state.leftScore
         let right = state.maxFrames > 1 ? state.rightFrames : state.rightScore
         let winner: MatchSide? = left == right ? nil : (left > right ? .left : .right)
@@ -1393,7 +1402,8 @@ struct SnookerScoreboardView: View {
             startTime: startedAt,
             endTime: Date(),
             totalScoreChanges: actionCount,
-            participantNames: [leftName, rightName]
+            participantNames: [leftName, rightName],
+            detailedActions: detailedActions
         )
     }
     private func startNewMatch() {
@@ -1457,6 +1467,7 @@ struct SnookerScoreboardView: View {
     }
     @discardableResult
     private func saveRecord() -> Bool {
+        if watchSessionId != nil, watchLinkService.peerFinishedSharedMatch { return true }
         if state.finished, sessionStore.hasCommittedFinishedRecord {
             return true
         }

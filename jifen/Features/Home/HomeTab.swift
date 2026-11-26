@@ -9,7 +9,6 @@ import SwiftUI
 import Combine
 import PersistenceCore
 import ScoreCore
-import StoreKit
 import UIKit
 
 enum HomeLayoutPolicy {
@@ -158,12 +157,12 @@ struct HomeTab: View {
     @State private var groupReminders = GroupActivityReminder.shared
     @State private var groupPush = GroupPushManager.shared
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
+    @Environment(WatchLinkIntroPresentation.self) private var watchLinkIntro: WatchLinkIntroPresentation?
     @State private var upcomingBookings: [LocalBooking] = []
     /// 首页球局卡「一键开赛」防重复点击（对齐鸿蒙 ScheduleEntrySection 的 Block 命中）。
     @State private var startingBookingID: String?
     @State private var unfinishedRecord: UnfinishedGameSummary?
     @State private var showNewGameDialog = false
-    @State private var showNationalDayCampaign = false
     @State private var showQuickStartEditSheet = false
     @State private var isDiscardConfirmationPending = false
     @State private var showDiscardConfirmationToast = false
@@ -485,13 +484,13 @@ struct HomeTab: View {
                 showHomeQRScan = false
             }
         }
-        .sheet(item: $groupPush.destination) { destination in
+        .sheet(item: notificationRoute($groupPush.destination)) { destination in
             GroupPushDestinationView(destination: destination) { type, _, sessionID in
                 groupPush.destination = nil
                 path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
             }
         }
-        .sheet(item: $groupReminders.destination) { destination in
+        .sheet(item: notificationRoute($groupReminders.destination)) { destination in
             GroupReminderDestinationView(destination: destination) { type, _, sessionID in
                 groupReminders.destination = nil
                 path.append(NavigationDestination.scoreboard(.init(gameType: type, recordId: sessionID, setupResult: nil, analyticsEntryPoint: .bookingDetail)))
@@ -503,18 +502,8 @@ struct HomeTab: View {
             showNewGameDialog = false
             showCreateBookingSheet = false
             showQuickStartEditSheet = false
-            showNationalDayCampaign = false
         }
-        .sheet(isPresented: $showNationalDayCampaign) {
-            NationalDayMembershipSheet(
-                onDismiss: { showNationalDayCampaign = false },
-                onOpenAccount: {
-                    showNationalDayCampaign = false
-                    onNavigateToTab?(4, nil)
-                }
-            )
-        }
-        .vipCommunityInvitation(active: homeSheet == nil && !showNationalDayCampaign && !showNewGameDialog &&
+        .vipCommunityInvitation(active: watchLinkIntro?.reservesLaunchPresentation != true && homeSheet == nil && !showNewGameDialog &&
             !showQuickStartEditSheet && !showCreateBookingSheet && pendingScoreboardSetupItem == nil &&
             path.isEmpty && groupPush.destination == nil && groupReminders.destination == nil &&
             !SessionStore.shared.presentsWechatUpgradePrompt)
@@ -548,20 +537,11 @@ struct HomeTab: View {
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await groups.refresh() } }
-            // 首页恢复前台时评估活动（对齐安卓：前台 → 方向/弹窗合适 → 先活动后评分）。
-            evaluateNationalDayCampaign()
-        }
-        .onChange(of: homeSheet) { _, destination in
-            if destination == nil { evaluateNationalDayCampaign() }
-        }
-        .onChange(of: showNewGameDialog) { _, shown in
-            if !shown { evaluateNationalDayCampaign() }
         }
         .onAppear {
             // Home is a normal page: iPad follows the physical device in all
             // directions, while iPhone returns to portrait.
             OrientationLock.shared.unlock()
-            evaluateNationalDayCampaign()
             loadData()
             configureQuickStartDefaultsForCurrentDevice()
             scoreboardVM.ensureLoaded()
@@ -670,9 +650,16 @@ struct HomeTab: View {
         }
     }
 
+    private func notificationRoute<Destination>(_ destination: Binding<Destination?>) -> Binding<Destination?> {
+        Binding(
+            get: { watchLinkIntro?.isCoveringHome == true ? nil : destination.wrappedValue },
+            set: { destination.wrappedValue = $0 }
+        )
+    }
+
     private var resumeLoadErrorBinding: Binding<Bool> {
         Binding(
-            get: { resumeLoadErrorMessage != nil },
+            get: { watchLinkIntro?.isCoveringHome != true && resumeLoadErrorMessage != nil },
             set: { isPresented in
                 if !isPresented {
                     resumeLoadErrorMessage = nil
@@ -715,40 +702,6 @@ struct HomeTab: View {
     ]
 
     // MARK: - Private Methods
-
-    // MARK: - 国庆会员活动（对齐安卓 HomeTabScreen 触发链：先活动、后评分，互斥）
-
-    /// 展示前先经 `reserve()` 持久化时间戳，进程重启/视图重建都不会重复弹出；
-    /// 展示当天由 `NationalDayCampaignReviewGate` 抑制评分邀请。
-    private func evaluateNationalDayCampaign() {
-        guard scenePhase == .active else { return }
-        if !NationalDayCampaignPolicy.isActive() {
-            showNationalDayCampaign = false
-        }
-        guard !showNationalDayCampaign else { return }
-        // 有其他首页弹窗/表单时不叠加活动弹窗。
-        guard homeSheet == nil, !showNewGameDialog, !showQuickStartEditSheet,
-              !showCreateBookingSheet, pendingScoreboardSetupItem == nil,
-              !isDiscardConfirmationPending else { return }
-
-        Task { @MainActor in
-            guard NationalDayCampaignGate.deviceUsesSimplifiedChinese() else { return }
-            guard NationalDayCampaignPolicy.isActive() else { return }
-            let prompt = NationalDayCampaignPrompt.shared
-            guard !prompt.wasShownToday() else { return }
-            guard AppStore.canMakePayments else { return }
-            // 已有会员（账号会员或本机 StoreKit 权益）不再打扰。
-            guard !SessionStore.shared.isVIP else { return }
-
-            let manager = StoreKitPurchaseManager.shared
-            if !manager.didLoadProducts || manager.products.isEmpty {
-                await manager.loadProducts()
-            }
-            guard manager.products.contains(where: { $0.id == StoreKitPurchaseManager.lifetimeProductID }) else { return }
-            guard prompt.reserve() else { return }
-            showNationalDayCampaign = true
-        }
-    }
 
     private func loadData() {
         updateHeaderDate()
@@ -1092,6 +1045,7 @@ struct HomeTab: View {
         if gameType == .basketballTraining {
             ShotTrainingSetupDialogView(
                 maxDialogHeight: maxDialogHeight,
+                allowsStartOnWatch: true,
                 onConfirm: onConfirm,
                 onCancel: onCancel
             )

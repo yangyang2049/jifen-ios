@@ -103,7 +103,7 @@ extension PhoneWatchLinkService {
         )
     }
 
-    /// Reuses the current phone-controller link for a distinct match while
+    /// Reuses the current link for a distinct match while
     /// clearing match-scoped terminal and action state from the previous one.
     func prepareControllerForNewMatch(
         sessionId: UUID,
@@ -114,13 +114,17 @@ extension PhoneWatchLinkService {
         guard let currentSession = activeSession,
               currentSession.sessionId == sessionId,
               currentSession.gameType == gameType,
-              currentSession.role == .phoneController,
+              canEditLinkedMatch,
               var machine = sessionMachine else { return }
         let nextHandle = machine.beginNextMatch()
+        pendingAck.clear()
+        pendingSessionEnds.removeAll { $0.handle.sessionId == sessionId }
+        persistPendingSessionEnds()
         sessionMachine = machine
         synchronizeActiveSessionFromStateMachine()
         guard activeSession != nil else { return }
         finishedRecordId = nil
+        latestRemoteSnapshot = nil
         mergedDetailedActions.removeAll()
         _ = revisionGate.beginMatch(nextHandle, initialRevision: 0)
         persistContext()
@@ -493,8 +497,8 @@ extension PhoneWatchLinkService {
     /// keeps the Resume GameBar alive — the finished record is already on the
     /// phone (watch ingest or local commit), so there is nothing left to resume.
     func leaveSessionIfMatchFinished(_ sessionId: UUID) {
-        guard activeSession?.sessionId == sessionId,
-              sessionMachine?.lifecycle == .matchFinished else { return }
+        guard let session = activeSession, session.sessionId == sessionId,
+              session.completedMatchIds.contains(session.handle.matchId) else { return }
         leaveSession(sessionId)
     }
 
@@ -512,19 +516,25 @@ extension PhoneWatchLinkService {
         startTime: Date? = nil,
         endTime: Date? = nil,
         totalScoreChanges: Int? = nil,
-        participantNames: [String]? = nil
+        participantNames: [String]? = nil,
+        detailedActions: [DetailedScoreAction]? = nil,
+        recordAlreadySaved: Bool = false
     ) {
         guard let currentSession = activeSession,
               currentSession.sessionId == sessionId,
+              canEditLinkedMatch,
+              !peerFinishedSharedMatch,
+              !currentSession.completedMatchIds.contains(currentSession.handle.matchId),
               !publishedFinishedMatchIds.contains(currentSession.handle.matchId),
               !terminalOutbox.contains(
                   sessionId: sessionId,
                   matchId: currentSession.handle.matchId
               ),
               var machine = sessionMachine else { return }
+        mergeDetailedActions(detailedActions)
         publishedFinishedMatchIds.insert(currentSession.handle.matchId)
         _ = machine.markFinished(matchId: currentSession.handle.matchId)
-        _ = machine.advanceRevision()
+        _ = machine.advanceRevision(sender: .phone)
         sessionMachine = machine
         synchronizeActiveSessionFromStateMachine()
         guard let session = activeSession else { return }
@@ -554,29 +564,38 @@ extension PhoneWatchLinkService {
                 durationSeconds: duration,
                 totalScoreChanges: totalScoreChanges ?? 0,
                 detailedActions: mergedDetailedActions,
-                participantNames: participantNames ?? []
+                participantNames: participantNames ?? session.setup.participantNames
             )
         )
+        if recordAlreadySaved, !recordId.isEmpty {
+            finishedRecordId = recordId
+        }
+        latestRemoteSnapshot = .init(
+            sessionId: sessionId,
+            revision: session.revision,
+            matchGeneration: session.handle.matchGeneration,
+            snapshot: snapshot,
+            detailedActions: mergedDetailedActions
+        )
+        let data = LinkFinishedEncoding.encode(envelope, compress: peerSupportsCompressedFinish)
         sessionMachine?.registerPendingAcknowledgement(messageId)
+        terminalOutbox.enqueue(.init(
+            messageId: messageId,
+            handle: session.handle,
+            data: data,
+            lastSentAtEpochMilliseconds: nowMs()
+        ))
+        persistTerminalOutbox()
+        persistContext()
+        rescheduleRetryIfNeeded()
         Task {
             do {
-                // 完赛消息带全量动作历史，超限时保底裁剪（投递优先于保真）。
-                let data = LinkEnvelopeEncoding.data(
-                    envelope,
-                    actionsKeyPath: \LinkMatchFinishedPayload.detailedActions
-                )
-                terminalOutbox.enqueue(.init(
-                    messageId: messageId,
-                    handle: session.handle,
-                    data: data,
-                    lastSentAtEpochMilliseconds: nowMs()
-                ))
-                persistTerminalOutbox()
-                persistContext()
-                rescheduleRetryIfNeeded()
                 try transport.enqueueDurable(data)
             } catch {
                 lastErrorMessage = error.localizedDescription
+            }
+            if transport.isReachable {
+                try? await transport.sendRealtime(data)
             }
         }
     }
@@ -592,7 +611,7 @@ extension PhoneWatchLinkService {
              .pickleball, .pickleballDoubles,
              .shuttlecock, .squash,
              .foosball, .foosballDoubles,
-             .football, .football5v5,
+             .football, .football5v5, .basketballTraining,
              .archeryDual, .eightBall, .nineBall, .snooker:
             return true
         default:
@@ -602,11 +621,15 @@ extension PhoneWatchLinkService {
 
 
     func clearSession() {
+        if let session = activeRecordSession { retiredRecordSessions.retire(session) }
         sessionMachine?.endSession()
         if let id = activeSession?.sessionId {
             revisionGate.endSession(id)
         }
         activeSession = nil
+        sharedEditTracker = LinkSharedEditTracker()
+        simultaneousEditNotice = nil
+        peerSupportsCompressedFinish = false
         sessionMachine = nil
         controlRole = nil
         pendingTakeoverMessageId = nil

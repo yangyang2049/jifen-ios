@@ -86,7 +86,12 @@ struct WatchResumeGameBar: View {
     }
 
     private func closeButton(size: CGFloat, compact: Bool) -> some View {
-        let confirmTitle = NSLocalizedString("watch_resume_confirm_discard", value: "确认放弃", comment: "")
+        let confirmTitle = NSLocalizedString(
+            "watch_resume_confirm_discard",
+            tableName: "WatchResumeActions",
+            value: "Discard",
+            comment: "Short button label for discarding an unfinished match or training session."
+        )
 
         return Button(action: handleClose) {
             ZStack {

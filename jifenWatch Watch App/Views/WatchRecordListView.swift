@@ -14,14 +14,13 @@ struct WatchRecordListView: View {
                         .foregroundColor(WatchTheme.secondaryText)
                         .frame(maxWidth: .infinity, minHeight: 80)
                 } else if records.isEmpty {
-                    VStack(spacing: 8) {
-                        Text("📝")
-                            .font(.system(size: 32))
+                    VStack(spacing: 10) {
+                        WatchEmptyStateCourtIcon(size: 44)
                         Text(NSLocalizedString("no_records", comment: "No Records"))
                             .font(.system(size: 14))
                             .foregroundColor(WatchTheme.secondaryText)
                     }
-                    .frame(maxWidth: .infinity, minHeight: 100)
+                    .frame(maxWidth: .infinity, minHeight: 112)
                 } else {
                     VStack(spacing: 8) {
                         ForEach(records) { record in
@@ -129,23 +128,24 @@ struct WatchRecordListView: View {
         record.listDisplayText
     }
 
-    /// Relative time for list (e.g. "5分钟前", "2小时前", "3天前"), aligned with HarmonyOS SportsSetupDialog formatTime.
     private func formatRelativeTime(timestamp: TimeInterval) -> String {
-        let now = Date().timeIntervalSince1970
-        let diff = now - timestamp
-        let minutes = Int(diff / 60)
-        let hours = Int(diff / 3600)
-        let days = Int(diff / 86400)
-
-        if minutes < 60 {
-            return String(format: NSLocalizedString("minutes_ago", comment: "Minutes ago"), max(0, minutes))
-        } else if hours < 24 {
-            return String(format: NSLocalizedString("hours_ago", comment: "Hours ago"), hours)
-        } else if days < 7 {
-            return String(format: NSLocalizedString("days_ago", comment: "Days ago"), days)
-        }
         let date = Date(timeIntervalSince1970: timestamp)
-        let cal = Calendar.current
-        return "\(cal.component(.month, from: date))-\(cal.component(.day, from: date))"
+        let secondsAgo = max(0, Int(Date().timeIntervalSince(date)))
+        let minutes = secondsAgo / 60
+        let hours = secondsAgo / 3_600
+        let days = secondsAgo / 86_400
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        if minutes == 0 {
+            formatter.dateTimeStyle = .named
+            return formatter.localizedString(from: DateComponents(second: 0))
+        } else if minutes < 60 {
+            return formatter.localizedString(from: DateComponents(minute: -minutes))
+        } else if hours < 24 {
+            return formatter.localizedString(from: DateComponents(hour: -hours))
+        } else if days < 7 {
+            return formatter.localizedString(from: DateComponents(day: -days))
+        }
+        return date.formatted(.dateTime.month(.defaultDigits).day())
     }
 }

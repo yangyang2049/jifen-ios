@@ -1,0 +1,422 @@
+/* Watch App - nb */
+
+/* Tab Bar */
+"tab_score" = "Poeng";
+"tab_tools" = "Verktøy";
+"tab_timer" = "Timer";
+
+/* Game Types */
+"game_badminton" = "Badminton";
+"game_pingpong" = "Bordtennis";
+"game_tennis" = "Tennis";
+"game_pickleball" = "Pickleball";
+"game_archery" = "Bueskyting";
+"tool_basketball_training" = "Skudstrening";
+
+/* Tools */
+"tool_flip_coin" = "Kast mynt";
+"tool_random_number" = "Tilfeldig tall";
+"tool_ten_second" = "Stopp klokken";
+"game_counter" = "Teller";
+"press_again_to_reset" = "Trykk igjen for å nullstille";
+
+/* Records */
+"records" = "Historikk";
+"loading" = "Laster";
+"no_records" = "Ingen historikk";
+"record_not_found" = "Posten ble ikke funnet";
+"match_details" = "Kampdetaljer";
+"match_record" = "Kamphistorikk";
+"delete_record" = "Slett post";
+"confirm_deletion" = "Bekreft sletting";
+"cannot_be_recovered_after_deletion" = "Dette kan ikke angres";
+"date" = "Dato";
+"time" = "Tid";
+"duration" = "Varighet";
+
+/* Common */
+"cancel" = "Avbryt";
+"confirm" = "Bekreft";
+"delete" = "Slett";
+"setup" = "Oppsett";
+"vibration" = "Vibrasjon";
+"sound" = "Lyd";
+"watch_scoreboard_keep_screen_on" = "Hold skjermen på";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Guide";
+"usage_prompt_message" = "Trykk på siden for å gi poeng\nSveip ned for å angre\nHold inne for å åpne menyen";
+"got_it" = "Skjønner det";
+
+/* Privacy */
+"privacy_policy" = "Personvernerklæring";
+"scan_to_view_details" = "Skann koden for detaljer";
+
+/* Settings / About */
+"version" = "Versjon";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Tilbakemelding";
+"watch_contact_us" = "Kontakt";
+
+/* Scoreboard menu */
+"menu_undo" = "Angre";
+"menu_reset" = "Tilbakestill";
+"watch_continue" = "Fortsett";
+"watch_end_match" = "Fullfør";
+"watch_layout_vertical" = "Loddrett";
+"watch_layout_horizontal" = "Vannrett";
+"watch_settings_layout_title" = "Oppsett";
+"watch_reset_toast" = "Tilbakestill";
+"watch_undo_toast" = "Angret";
+"watch_play_again" = "Spill på nytt";
+"watch_exit" = "Avslutt";
+"exit" = "Avslutt";
+"watch_team_red" = "Rød";
+"watch_team_blue" = "Blå";
+"team_a" = "Lag A";
+"team_b" = "Lag B";
+"team_home" = "Hjemme";
+"team_away" = "Borte";
+"player_a" = "Spiller A";
+"player_b" = "Spiller B";
+"archer_a" = "Bueskytter A";
+"archer_b" = "Bueskytter B";
+"linked_score_confirm_title" = "Telefon–klokke-kobling?";
+"linked_score_phone_started_scoreboard" = "Telefon–klokke-kobling · Spillet startet";
+"linked_score_accept" = "Godta";
+"linked_score_reject" = "Avvis";
+"linked_score_watch_reclaim" = "Ta over";
+"linked_score_setup_rules" = "%1$d sett · %2$d poeng";
+"linked_score_setup_rules_sets" = "%d sett";
+"linked_score_setup_race_to" = "Mål %d";
+"linked_score_sport_badminton" = "Badminton singler";
+"linked_score_sport_badminton_doubles" = "Badminton double";
+"linked_score_sport_pingpong" = "Bordtennissingler";
+"linked_score_sport_pingpong_doubles" = "Bordtennisdobler";
+"linked_score_sport_tennis" = "Tennissingler";
+"linked_score_sport_tennis_doubles" = "Tennisdobler";
+"linked_score_sport_pickleball" = "Pickleball-singler";
+"linked_score_sport_pickleball_doubles" = "Pickleball-dobler";
+"game_basketball" = "Basketball";
+"game_three_basketball" = "3x3 basketball";
+"linked_score_sport_archery" = "Bueskyting";
+"linked_score_sport_eight_ball" = "8-ball";
+"linked_score_sport_nine_ball" = "9-ball chase";
+"linked_score_sport_snooker" = "Snooker";
+"linked_score_sport_shuttlecock" = "Jianzi";
+"linked_score_sport_squash" = "Squash";
+"linked_score_sport_foosball" = "Bordfotball";
+"linked_score_sport_football" = "Fotball";
+"linked_score_sport_football_5v5" = "5×5 fotball";
+"watch_menu_end_match" = "Avslutt kamp";
+"watch_menu_restart" = "Start på nytt";
+"watch_bball_overtime" = "Ekstraomgang";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d Spillere";
+"archery_closest_title" = "Omskyting · Nærmest midten";
+"archery_closest_message" = "Uavgjort på %d — velg pilen nærmest midten";
+"watch_set_end_format" = "Sett %d fullført";
+"watch_match_start" = "Spillet startet";
+"watch_match_finished" = "Kamp fullført";
+"watch_bb_hit_rate" = "Treffprosent";
+"watch_bb_end_training" = "Avslutt treningen";
+"watch_training_finish_confirm_title" = "Avslutte treningen?";
+"watch_training_finish_confirm_message" = "Treningen avsluttes og lagres.";
+"watch_counter_finish_confirm_title" = "Avslutte tellingen?";
+"watch_counter_finish_confirm_message" = "Tellingen lagres og starter på nytt fra null.";
+"watch_bb_restart" = "Start på nytt";
+
+/* Records */
+"clear_all_records" = "Slett all historikk";
+"clear_all_records_message" = "Alle oppføringer slettes permanent.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Krone";
+"watch_coin_tails" = "Mynt";
+"watch_archery_miss" = "Bom";
+"watch_flip_coin_hint" = "Trykk for å kaste mynten";
+"watch_ten_second_challenge" = "Stopp klokken";
+"watch_ten_second_usage" = "Trykk for å starte. Trykk igjen ved måltiden.";
+"watch_mid_game_rest" = "Pause midt i sett";
+"watch_rest_between_sets" = "Pause mellom sett";
+"watch_official_timeout" = "Timeout";
+"watch_medical_break" = "Medisinsk";
+"watch_score_event_set_title" = "Sett %d fullført";
+"watch_score_event_set_detail" = "%1$@ vinner %2$d:%3$d · Sett %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Sett %d · Pause midt i sett";
+"watch_score_event_mid_game_detail" = "%1$@ Leder %2$d:%3$d · Sett %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Sett %d fullført";
+"watch_score_event_tennis_game_detail" = "%1$@ vinner · Spill %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Sett %d fullført";
+"watch_score_event_tennis_set_detail" = "%1$@ vinner %2$d:%3$d · Sett %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "Tiebreak til 7";
+"watch_tiebreak_indicator_10" = "Tiebreak til 10";
+"watch_continue_match" = "Fortsett";
+"watch_continue_scoring" = "Fortsett";
+"watch_resume_discard" = "Kast uferdig kamp";
+"watch_resume_discard_training" = "Kast uferdig trening";
+"unit_hour" = "t";
+"unit_minute" = "min";
+"unit_second" = "s";
+"today" = "I dag";
+"yesterday" = "I går";
+
+/* Sports setup */
+"watch_setup_start" = "Start";
+"watch_setup_sets" = "Sett";
+"watch_setup_points_per_set" = "Poeng per sett";
+"watch_setup_tennis_deuce" = "Deuce-regel";
+"watch_setup_tennis_advantage" = "Fordel";
+"watch_setup_tennis_no_ad" = "Uten fordel";
+"watch_setup_target_score" = "Målscore";
+"watch_setup_rally_scoring" = "Rallyscoring";
+"watch_setup_target_racks" = "Mål";
+"watch_setup_race_racks" = "Løp til";
+"watch_setup_race_racks_help" = "3 = først til 3 frames";
+"watch_setup_handicap" = "Handicap";
+"watch_setup_handicap_none" = "Ingen";
+"watch_setup_handicap_red_gives_blue" = "Rød → Blå";
+"watch_setup_handicap_blue_gives_red" = "Blå → Rød";
+"watch_setup_handicap_racks" = "Handicap-partier";
+"watch_setup_frames" = "Frames";
+"watch_setup_custom_frames" = "Eget antall frames";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Skriv inn 1-99";
+"watch_setup_players" = "Spillere";
+"watch_setup_archers" = "Bueskyttere";
+"watch_setup_player_number" = "Spiller %d";
+"watch_setup_red_a" = "Rød A";
+"watch_setup_red_b" = "Rød B";
+"watch_setup_blue_a" = "Blå A";
+"watch_setup_blue_b" = "Blå B";
+"watch_setup_name_missing" = "Fyll ut alle navn eller la alle stå tomme";
+"watch_setup_select_players" = "Spillere";
+"watch_setup_player_count" = "%d Spillere";
+"watch_common_names_select_player" = "Velg spiller";
+"watch_common_names_no_records" = "Ingen lagrede navn";
+"watch_common_names_title" = "Lagrede navn";
+"watch_common_names_add" = "Legg til";
+"watch_common_names_edit" = "Rediger navn";
+"watch_common_names_delete_title" = "Slette navnet?";
+"watch_common_names_error_title" = "Kunne ikke oppdatere";
+"watch_common_names_players" = "Spillere";
+"watch_common_names_teams" = "lag";
+"watch_common_names_empty" = "Ingen lagrede navn";
+"watch_common_names_team_placeholder" = "Lagnavn";
+"watch_common_names_player_placeholder" = "Spillernavn";
+"watch_common_names_length_hint" = "Opptil %d tegn";
+"watch_common_names_error_empty" = "Navnet kan ikke være tomt";
+"watch_common_names_error_duplicate" = "Navnet finnes allerede";
+"watch_common_names_error_missing" = "Posten ble ikke funnet · Prøv på nytt";
+"watch_common_names_error_generic" = "Kunne ikke lagre. Vennligst prøv igjen.";
+"watch_common_names_sync_now" = "Synkroniser nå";
+"watch_common_names_actions" = "Lagrede navn";
+"watch_common_names_sync_requested" = "Venter på synkronisering";
+"watch_common_names_sync_queued" = "Telefonen er frakoblet · Venter på synkronisering";
+"watch_common_names_sync_inactive" = "Telefonen er frakoblet";
+"watch_common_names_sync_failed" = "Tilkoblingen mislyktes · Prøv på nytt";
+"watch_common_names_sync_conflict" = "Noen endringer ble ikke synkronisert";
+"watch_common_names_sync_pending" = "Venter på synkronisering";
+"watch_common_names_sync_unavailable" = "Telefonen er frakoblet";
+"watch_common_names_sync_done" = "Synkronisert";
+"watch_common_names_pending_count" = "Venter på synkronisering · %d";
+"watch_common_names_never_synced" = "Ikke synkronisert ennå";
+"watch_common_names_last_sync" = "Sist synkronisert %@";
+
+"watch_phone_link_title" = "Klokkekobling";
+"watch_phone_link_intro" = "Start på telefonen, før poeng på klokka";
+"watch_phone_link_support" = "Badminton · Fotball · Bueskyting · Skudstrening…";
+"watch_phone_link_status" = "Tilkoblingsstatus";
+"watch_phone_link_steps" = "Slik bruker du";
+"watch_phone_link_step_1" = "Sett opp en kamp eller skuddtrening på telefonen.";
+"watch_phone_link_step_2" = "Begynnelse · Apple Watch";
+"watch_phone_link_step_3" = "Før poeng på klokka. Resultatet synkroniseres når du er ferdig.";
+"watch_phone_link_help" = "Koble sammen enhetene, installer iScoreboard på begge og åpne appen på telefonen.";
+"watch_phone_link_testing" = "Tester";
+"watch_phone_link_normal" = "Tilkoblet";
+"watch_phone_link_failed" = "Tilkoblingen mislyktes";
+"watch_phone_link_reachable" = "Tilkoblet";
+"watch_phone_link_waiting" = "Venter på telefonen";
+"watch_phone_link_inactive" = "Telefonen er frakoblet";
+"watch_phone_link_testing_detail" = "Venter på telefonen";
+"watch_phone_link_normal_detail" = "Tilkoblet";
+"watch_phone_link_failed_detail" = "Telefonen svarte ikke innen 8 sekunder.";
+"watch_phone_link_failed_inactive" = "Telefonen er frakoblet · Prøv på nytt";
+"watch_phone_link_failed_unreachable" = "Åpne iScoreboard på telefonen og prøv igjen.";
+"watch_phone_link_failed_send" = "Tilkoblingen mislyktes · Prøv på nytt";
+"watch_phone_link_reachable_detail" = "Test";
+"watch_phone_link_waiting_detail" = "Åpne iScoreboard på telefonen og prøv igjen.";
+"watch_phone_link_test_waiting" = "Tester…";
+"watch_phone_link_test_retry" = "Prøv på nytt";
+"watch_phone_link_test" = "Test";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Siste tilkobling %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Treningsmodus";
+"watch_bb_1pt" = "1 pkt";
+"watch_bb_2pt" = "2 poeng";
+"watch_bb_3pt" = "3 poeng";
+"watch_bb_free" = "Fri";
+"watch_training_miss" = "Bom";
+"watch_training_made" = "Treff";
+"watch_training_point_value" = "%d poeng";
+"watch_training_breakdown" = "Skudddetaljer";
+"watch_training_start" = "Skudstrening · Begynnelse";
+"watch_training_rate_format" = "Treffprosent %d%%";
+"watch_training_action_format" = "%d poeng · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Feste øverst?";
+"watch_home_pin_confirm" = "Fest";
+"watch_home_unpin_title" = "Løsne?";
+"watch_home_unpin_confirm" = "Løsne";
+"watch_home_pin_full_title" = "Festegrense";
+"watch_home_pin_full_message" = "Du kan feste 2. Løsne én først.";
+"watch_home_pin_hint" = "Hold inne for å feste";
+"watch_home_pin_success" = "Festet";
+"watch_home_unpin_success" = "Løsnet";
+"multi_score_player_default_format" = "Spiller %d";
+"nine_ball_big_gold" = "Stort gull";
+"nine_ball_small_gold" = "Lite gull";
+"nine_ball_golden_nine" = "Gyllen 9";
+"nine_ball_normal_win" = "Vanlig seier";
+"nine_ball_ball_in_hand" = "Ball i hånden";
+"nine_ball_foul" = "Feil";
+"watch_archery_set_rest" = "Settpause";
+"watch_finish_confirm_title" = "Avslutt kamp?";
+"watch_finish_confirm_message" = "Kampen avsluttes og lagres.";
+"watch_reset_confirm_title" = "Starte kampen på nytt?";
+"watch_reset_confirm_message" = "Poengstillingen nullstilles.";
+"watch_side_exchange" = "Bytt side";
+"watch_winner_format" = "%@ vinner";
+"watch_finished_win_badge" = "S";
+"watch_finished_winner" = "Vinner";
+"watch_finished_home" = "Hjem";
+"watch_snooker_foul" = "Feil";
+"watch_snooker_foul_selected_format" = "Feil +%d";
+"watch_snooker_foul_next_turn" = "Bytt tur";
+"watch_snooker_foul_switch_turn" = "Bytt tur";
+"watch_snooker_foul_continue" = "Fortsett";
+"watch_action_snooker_foul_continue_format" = "%@· Feil · Motst. +%d · Spilleren som gjorde feil, fortsetter";
+"watch_snooker_handover" = "Bytt tur";
+"watch_snooker_settle_frame" = "Avslutt frame";
+"watch_snooker_choose_frame_winner" = "Velg framevinner";
+"watch_snooker_frame_finished" = "Runde ferdig";
+"watch_snooker_next_frame" = "Neste frame";
+"watch_training_breakdown_format" = "%d poeng · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Samme avstand. Fortsett omskytingen.";
+"edit" = "Rediger";
+"game_badminton_doubles" = "Badminton double";
+"game_eight_ball" = "8-ball";
+"game_nine_ball" = "9-ball chase";
+"game_pickleball_doubles" = "Pickleball-dobler";
+"game_pingpong_doubles" = "Bordtennisdobler";
+"game_snooker" = "Snooker";
+"game_tennis_doubles" = "Tennisdobler";
+"save" = "Lagre";
+"watch_action_adjust_score_format" = "%@· Poengsum endret";
+"watch_action_archery_arrow_format" = "%@+%d poeng";
+"watch_action_archery_closest" = "Omskyting · Nærmest midten";
+"watch_action_archery_miss_format" = "%@· Bom";
+"watch_action_archery_set_ready" = "Bueskyting · Runde ferdig";
+"watch_action_ball_potted_format" = "%@ · Ball i hull %@";
+"watch_action_basketball_foul_format" = "%@· Feil";
+"watch_action_basketball_period_format" = "Periode %d · Begynnelse";
+"watch_action_basketball_timeout_format" = "%@· Timeout";
+"watch_action_edit_name" = "Oppdatert";
+"watch_action_exchange_sides" = "Bytt sider";
+"watch_action_exchange_sides_reminder" = "Vennligst bytt side manuelt";
+"watch_action_game_finished_format" = "Sett %1$d fullført · %2$@ vinner";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ vinner";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Sett %1$d fullført · %2$@ vinner";
+"watch_action_shooter_format" = "%@ begynner å skyte";
+"watch_action_side_out_format" = "Serve · %@";
+"watch_action_snooker_foul_format" = "%@· Feil · Motst. +%d";
+"watch_action_snooker_frame_format" = "Frame %1$d · %2$@ vinner";
+"watch_action_snooker_handover_format" = "Bytt tur · %@";
+"watch_action_snooker_miss_format" = "%@· Bom";
+"watch_action_snooker_next_frame_format" = "Frame %d · Begynnelse";
+"watch_action_snooker_pot_format" = "%@· Ball i hull +%d";
+"watch_record_actions_unavailable" = "Ingen historikk";
+"linked_score_error_title" = "Tilkoblingen mislyktes";
+"linked_score_persistence_failed" = "Telefon–klokke-kobling · Lagring mislyktes: %@";
+"resume_persistence_error_title" = "Kunne ikke lagre";
+"resume_persistence_failed" = "Fortsett kampen · Lagring mislyktes: %@";
+"linked_score_control_timeout" = "Ta over · Tidsavbrudd · Prøv på nytt";
+"linked_score_sync_timeout" = "Tidsavbrudd · Venter på synkronisering";
+
+/* Football */
+"game_football" = "Fotball";
+"game_football_5v5" = "5×5 fotball";
+"watch_setup_half_length" = "Omgangens varighet";
+"watch_setup_teams" = "lag";
+"football_first_half" = "Første omgang";
+"football_second_half" = "Andre omgang";
+"football_extra_time_first" = "Forlengelse — første omgang";
+"football_extra_time_second" = "Forlengelse – andre omgang";
+"football_first_half_over" = "Første omgang avsluttet";
+"football_switch_half" = "Andre omgang";
+"football_switch_half_title" = "Starte andre omgang?";
+"football_switch_half_message" = "Første halvdel blir satt på pause og kan ikke åpnes igjen.";
+"football_extra_time_first_over" = "Forlengelse — første omgang · Runde ferdig";
+"football_switch_extra_time_half" = "Forlengelse – andre omgang";
+"football_enter_extra_time_title" = "Ordinær spilletid er over";
+"football_post_regulation_action" = "Etter ordinær spilletid";
+"football_injury_title" = "Tilleggstid";
+"football_undo_stoppage" = "Angre tilleggstid";
+"football_enter_extra_time" = "Gå til ekstraomganger";
+"football_end_as_draw" = "Avslutt uavgjort";
+"football_goal_hint" = "Trykk for å legge til et mål";
+"watch_football_start" = "Start";
+"watch_football_pause" = "Pause";
+"watch_football_resume" = "Fortsett";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Begynnelse · %@";
+"watch_action_football_stoppage_format" = "Tilleggstid +%d s";
+"watch_action_football_clock_start" = "Tidtakeren startet";
+"watch_action_football_clock_pause" = "Timer satt på pause";
+"watch_record_sync_sent" = "Synkronisert";
+"watch_record_sync_pending" = "Venter på synkronisering";
+"watch_record_sync_not_synced" = "Ikke synkronisert med iPhone";
+"watch_record_sync_action" = "Synkroniser med iPhone";
+"watch_settings_auto_sync_records" = "Automatisk synkronisering";
+"game_shuttlecock" = "Jianzi";
+"game_squash" = "Squash";
+"game_foosball" = "Bordfotball";
+
+"watch_setup_win_by_two" = "Vinn finalesett med 2";
+"watch_setup_score_cap" = "Poengtak";
+"watch_setup_serving_side" = "Første server";
+"watch_setup_kickoff_side" = "Første avspark";
+"watch_setup_side_left" = "Rød";
+"watch_setup_side_right" = "Blå";
+
+"watch_about_us" = "Om oss";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Versjon %@";
+"watch_wechat_group_title" = "WeChat-gruppe";
+"watch_wechat_group_scan_hint" = "WeChat · Skann koden for detaljer";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Åpning";
+"watch_nine_ball_select_payer" = "Velg betaler";
+"watch_nine_ball_select_continue" = "Velg neste spiller";
+"watch_nine_ball_prev_player" = "Forrige";
+"watch_nine_ball_next_player" = "Neste";
+"watch_nine_ball_continue_badge" = "Spill";
+
+"watch_a11y_points_format" = "%d poeng";
+"watch_a11y_sets_format" = "%d sett";
+"watch_a11y_serving" = "Serve";
+
+"watch_phone_shared_link_intro" = "Start på telefonen og registrer poeng på begge enheter.";
+"linked_score_simultaneous_edit" = "Det ble gjort endringer på begge enhetene. Sjekk stillingen.";

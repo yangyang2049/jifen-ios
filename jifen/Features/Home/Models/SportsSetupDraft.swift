@@ -7,6 +7,9 @@ import ScoreCore
 /// in `SportsSetupDialogView`; this value contains only data that contributes to
 /// validation or the resulting `SportsSetupResult`.
 struct SportsSetupDraft: Equatable {
+    static let badmintonClassicSetPresets = [1, 3, 5]
+    static let pingpongPointPresets = [7, 9, 11, 15]
+
     var team1Name = ""
     var team2Name = ""
     var participantSelections: [String: ParticipantSelection] = [:]
@@ -293,22 +296,27 @@ extension SportsSetupDraft {
     }
 
     func pointPresets(for gameType: GameType) -> [Int] {
-        if gameType == .pingpong { return [5, 7, 9, 11] }
+        if gameType == .pingpong { return Self.pingpongPointPresets }
         if gameType == .foosball { return [5, 7, 8] }
         return [11, 15, 21]
     }
 
-    /// 对齐安卓 `setupMaxSetsPresets`：每个分支固定 4 个预设。
-    /// 「4 预设 + 自定义铅笔 chip」在手机内容宽下仍是一行，点开输入框后也不会换行；
+    /// 数字预设与自定义铅笔尽量同排，羽毛球经典只显示 1、3、5 局。
     /// 打满模式原先的第 5 个预设（5 局）改由自定义输入承接，1~99 的可选范围不变。
     func matchCompletionPresets(for gameType: GameType) -> [Int] {
         if gameType == .foosball { return [1, 3, 5, 7] }
+        if matchCompletionMode == .bestOf && gameType == .badminton {
+            return Self.badmintonClassicSetPresets
+        }
         return matchCompletionMode == .playAll ? [1, 2, 3, 4] : [1, 3, 5, 7]
     }
 
     func frameCountPresets(for gameType: GameType) -> [Int] {
         switch gameType {
-        case .eightBall, .billiards:
+        case .eightBall:
+            // 「抢局」档位：数字即先赢几局（引擎 targetPoints 语义）。
+            return [3, 5, 7, 13]
+        case .billiards:
             return [1, 3, 5, 7, 9, 11]
         case .snooker:
             return [1, 3, 5, 7, 9, 11, 15, 17, 19, 25, 33, 35]
@@ -541,7 +549,7 @@ extension SportsSetupDraft {
             // 目标局与让局都静默纠正（对齐安卓 normalizeEightBallHandicapRacks）。
             let target = SetupInputCorrection.billiardsTarget(
                 selectedMaxSets > 0 ? String(selectedMaxSets) : nil,
-                fallback: Self.defaultMaxSets(for: .eightBall) ?? 9
+                fallback: Self.defaultMaxSets(for: .eightBall) ?? 5
             )
             result.maxSets = target
             let beneficiaryValid = eightBallHandicapMode == "team1" || eightBallHandicapMode == "team2"
@@ -590,7 +598,8 @@ extension SportsSetupDraft {
         case .badminton, .shuttlecock, .pickleball, .boxing, .foosball, .tennis, .padel: return 3
         case .squash: return 5
         case .snooker: return 1
-        case .eightBall: return 9
+        // 抢 5：落在 [3, 5, 7, 13] 档位内，与手表端默认一致。
+        case .eightBall: return 5
         default: return nil
         }
     }

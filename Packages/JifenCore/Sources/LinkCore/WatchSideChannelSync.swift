@@ -226,6 +226,7 @@ public struct WatchRecordTransferPayload: Codable, Equatable, Sendable {
     public var totalScoreChanges: Int
     public var participants: [WatchRecordParticipantPayload]?
     public var projectConfiguration: [String: String]?
+    public var basketballTraining: LinkedShotTrainingState?
 
     public init(
         id: String,
@@ -244,7 +245,8 @@ public struct WatchRecordTransferPayload: Codable, Equatable, Sendable {
         detailedActions: [DetailedScoreAction]? = nil,
         totalScoreChanges: Int,
         participants: [WatchRecordParticipantPayload]? = nil,
-        projectConfiguration: [String: String]? = nil
+        projectConfiguration: [String: String]? = nil,
+        basketballTraining: LinkedShotTrainingState? = nil
     ) {
         self.id = id
         self.gameType = gameType
@@ -263,5 +265,6 @@ public struct WatchRecordTransferPayload: Codable, Equatable, Sendable {
         self.totalScoreChanges = totalScoreChanges
         self.participants = participants
         self.projectConfiguration = projectConfiguration
+        self.basketballTraining = basketballTraining
     }
 }

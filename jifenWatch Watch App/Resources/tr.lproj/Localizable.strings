@@ -1,0 +1,422 @@
+/* Watch App - tr */
+
+/* Tab Bar */
+"tab_score" = "Skor";
+"tab_tools" = "Araçlar";
+"tab_timer" = "Zamanlayıcı";
+
+/* Game Types */
+"game_badminton" = "Badminton";
+"game_pingpong" = "Masa Tenisi";
+"game_tennis" = "Tenis";
+"game_pickleball" = "Pickleball";
+"game_archery" = "Okçuluk";
+"tool_basketball_training" = "Şut Antrenmanı";
+
+/* Tools */
+"tool_flip_coin" = "Yazı Tura";
+"tool_random_number" = "Rastgele sayı";
+"tool_ten_second" = "Saati Durdur";
+"game_counter" = "Sayaç";
+"press_again_to_reset" = "Sıfırlamak için tekrar dokun";
+
+/* Records */
+"records" = "Kayıtlar";
+"loading" = "Yükleniyor";
+"no_records" = "Kayıt Yok";
+"record_not_found" = "Kayıt bulunamadı";
+"match_details" = "Maç Detayları";
+"match_record" = "Maç Kaydı";
+"delete_record" = "Kaydı Sil";
+"confirm_deletion" = "Silmeyi Onayla";
+"cannot_be_recovered_after_deletion" = "Bu işlem geri alınamaz";
+"date" = "Tarih";
+"time" = "Zaman";
+"duration" = "Süre";
+
+/* Common */
+"cancel" = "İptal";
+"confirm" = "Onayla";
+"delete" = "Sil";
+"setup" = "Kurulum";
+"vibration" = "Titreşim";
+"sound" = "Ses";
+"watch_scoreboard_keep_screen_on" = "Ekranı Açık Tut";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Rehber";
+"usage_prompt_message" = "Puan eklemek için ilgili tarafa dokun\nGeri almak için aşağı kaydır\nMenüyü açmak için basılı tut";
+"got_it" = "Anladım";
+
+/* Privacy */
+"privacy_policy" = "Gizlilik Politikası";
+"scan_to_view_details" = "Ayrıntılar için kodu tara";
+
+/* Settings / About */
+"version" = "Sürüm";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Geribildirim";
+"watch_contact_us" = "İletişim";
+
+/* Scoreboard menu */
+"menu_undo" = "Geri al";
+"menu_reset" = "Sıfırla";
+"watch_continue" = "Devam Et";
+"watch_end_match" = "Bitir";
+"watch_layout_vertical" = "Dikey";
+"watch_layout_horizontal" = "Yatay";
+"watch_settings_layout_title" = "Düzen";
+"watch_reset_toast" = "Sıfırla";
+"watch_undo_toast" = "Geri alındı";
+"watch_play_again" = "Tekrar Oynat";
+"watch_exit" = "Çıkış";
+"exit" = "Çıkış";
+"watch_team_red" = "Kırmızı";
+"watch_team_blue" = "Mavi";
+"team_a" = "A Takımı";
+"team_b" = "B Takımı";
+"team_home" = "Ev Sahibi";
+"team_away" = "Deplasman";
+"player_a" = "Oyuncu A";
+"player_b" = "Oyuncu B";
+"archer_a" = "Okçu A";
+"archer_b" = "Okçu B";
+"linked_score_confirm_title" = "Telefon–saat bağlantısı?";
+"linked_score_phone_started_scoreboard" = "Telefon–saat bağlantısı · Oyun başladı";
+"linked_score_accept" = "Kabul et";
+"linked_score_reject" = "Reddet";
+"linked_score_watch_reclaim" = "Devral";
+"linked_score_setup_rules" = "%1$d set · %2$d puan";
+"linked_score_setup_rules_sets" = "%d set";
+"linked_score_setup_race_to" = "Hedef %d";
+"linked_score_sport_badminton" = "Badminton Tekler";
+"linked_score_sport_badminton_doubles" = "Badminton Çiftler";
+"linked_score_sport_pingpong" = "Masa Tenisi Tekli";
+"linked_score_sport_pingpong_doubles" = "Masa Tenisi Çiftler";
+"linked_score_sport_tennis" = "Tekli Tenis";
+"linked_score_sport_tennis_doubles" = "Çift Tenis";
+"linked_score_sport_pickleball" = "Pickleball Tekler";
+"linked_score_sport_pickleball_doubles" = "Pickleball Çiftler";
+"game_basketball" = "Basketbol";
+"game_three_basketball" = "3x3 Basketbol";
+"linked_score_sport_archery" = "Okçuluk";
+"linked_score_sport_eight_ball" = "Sekiz top";
+"linked_score_sport_nine_ball" = "9 Top Takibi";
+"linked_score_sport_snooker" = "Snooker";
+"linked_score_sport_shuttlecock" = "Jianzi";
+"linked_score_sport_squash" = "Squash";
+"linked_score_sport_foosball" = "Langırt";
+"linked_score_sport_football" = "Futbol";
+"linked_score_sport_football_5v5" = "5×5 Futbol";
+"watch_menu_end_match" = "Maçı Bitir";
+"watch_menu_restart" = "Yeniden Başlat";
+"watch_bball_overtime" = "Uzatmalar";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d Oyuncu";
+"archery_closest_title" = "Eşitlik Atışı · Merkeze En Yakın";
+"archery_closest_message" = "%d'de berabere — daha yakın oku seçin";
+"watch_set_end_format" = "Set %d Bitti";
+"watch_match_start" = "Oyun başladı";
+"watch_match_finished" = "Maç Bitti";
+"watch_bb_hit_rate" = "İsabet oranı";
+"watch_bb_end_training" = "Antrenmanı Bitir";
+"watch_training_finish_confirm_title" = "Antrenman bitsin mi?";
+"watch_training_finish_confirm_message" = "Antrenman biter ve kaydedilir.";
+"watch_counter_finish_confirm_title" = "Sayım bitsin mi?";
+"watch_counter_finish_confirm_message" = "Sayım kaydedilir ve sıfırdan başlar.";
+"watch_bb_restart" = "Yeniden Başlat";
+
+/* Records */
+"clear_all_records" = "Tüm Kayıtları Temizle";
+"clear_all_records_message" = "Tüm kayıtlar kalıcı olarak silinir.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Yazı";
+"watch_coin_tails" = "Tura";
+"watch_archery_miss" = "Iska";
+"watch_flip_coin_hint" = "Para atmak için dokun";
+"watch_ten_second_challenge" = "Saati Durdur";
+"watch_ten_second_usage" = "Başlamak için dokun. Hedef zamanda tekrar dokun.";
+"watch_mid_game_rest" = "Oyun ortası molası";
+"watch_rest_between_sets" = "Oyunlar arası mola";
+"watch_official_timeout" = "Mola";
+"watch_medical_break" = "Tıbbi";
+"watch_score_event_set_title" = "Set %d Bitti";
+"watch_score_event_set_detail" = "%1$@ Kazanır %2$d:%3$d · Setler %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Set %d · Oyun ortası molası";
+"watch_score_event_mid_game_detail" = "%1$@ Önde %2$d:%3$d · Setler %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Set %d Bitti";
+"watch_score_event_tennis_game_detail" = "%1$@ Kazanır · Oyunlar %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Set %d Bitti";
+"watch_score_event_tennis_set_detail" = "%1$@ Kazanır %2$d:%3$d · Setler %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "7 Puanlık Tie-break";
+"watch_tiebreak_indicator_10" = "10 Puanlık Tie-break";
+"watch_continue_match" = "Devam Et";
+"watch_continue_scoring" = "Devam Et";
+"watch_resume_discard" = "Yarım kalan maçı at";
+"watch_resume_discard_training" = "Yarım kalan antrenmanı at";
+"unit_hour" = "sa";
+"unit_minute" = "dk";
+"unit_second" = "sn";
+"today" = "Bugün";
+"yesterday" = "Dün";
+
+/* Sports setup */
+"watch_setup_start" = "Başlat";
+"watch_setup_sets" = "Setler";
+"watch_setup_points_per_set" = "Set Başına Puan";
+"watch_setup_tennis_deuce" = "Deuce Kuralı";
+"watch_setup_tennis_advantage" = "Avantaj";
+"watch_setup_tennis_no_ad" = "Avantajsız";
+"watch_setup_target_score" = "Hedef Puan";
+"watch_setup_rally_scoring" = "Ralli Skoru";
+"watch_setup_target_racks" = "Hedef";
+"watch_setup_race_racks" = "Yarış";
+"watch_setup_race_racks_help" = "3 = ilk 3 frame";
+"watch_setup_handicap" = "Handikap";
+"watch_setup_handicap_none" = "Hiçbiri";
+"watch_setup_handicap_red_gives_blue" = "Kırmızı → Mavi";
+"watch_setup_handicap_blue_gives_red" = "Mavi → Kırmızı";
+"watch_setup_handicap_racks" = "Handicap seferleri";
+"watch_setup_frames" = "Frame’ler";
+"watch_setup_custom_frames" = "Özel frame sayısı";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "1-99'u girin";
+"watch_setup_players" = "Oyuncular";
+"watch_setup_archers" = "Okçular";
+"watch_setup_player_number" = "Oyuncu %d";
+"watch_setup_red_a" = "Kırmızı A";
+"watch_setup_red_b" = "Kırmızı B";
+"watch_setup_blue_a" = "Mavi A";
+"watch_setup_blue_b" = "Mavi B";
+"watch_setup_name_missing" = "Tüm adları doldur veya hepsini boş bırak";
+"watch_setup_select_players" = "Oyuncular";
+"watch_setup_player_count" = "%d Oyuncu";
+"watch_common_names_select_player" = "Oyuncu Seç";
+"watch_common_names_no_records" = "Kaydedilen ad yok";
+"watch_common_names_title" = "Kaydedilen Adlar";
+"watch_common_names_add" = "Ekle";
+"watch_common_names_edit" = "Adı Düzenle";
+"watch_common_names_delete_title" = "Ad silinsin mi?";
+"watch_common_names_error_title" = "Güncelleme başarısız oldu";
+"watch_common_names_players" = "Oyuncular";
+"watch_common_names_teams" = "takımlar";
+"watch_common_names_empty" = "Kaydedilen ad yok";
+"watch_common_names_team_placeholder" = "Takım Adı";
+"watch_common_names_player_placeholder" = "Oyuncu Adı";
+"watch_common_names_length_hint" = "En fazla %d karakter";
+"watch_common_names_error_empty" = "İsim boş olamaz";
+"watch_common_names_error_duplicate" = "İsim zaten mevcut";
+"watch_common_names_error_missing" = "Kayıt bulunamadı · Tekrar Dene";
+"watch_common_names_error_generic" = "Kaydedilemedi. Lütfen tekrar deneyin.";
+"watch_common_names_sync_now" = "Şimdi eşitle";
+"watch_common_names_actions" = "Kaydedilen Adlar";
+"watch_common_names_sync_requested" = "Eşitleme bekleniyor";
+"watch_common_names_sync_queued" = "Telefon bağlı değil · Eşitleme bekleniyor";
+"watch_common_names_sync_inactive" = "Telefon bağlı değil";
+"watch_common_names_sync_failed" = "Bağlantı başarısız · Tekrar Dene";
+"watch_common_names_sync_conflict" = "Bazı değişiklikler eşitlenmedi";
+"watch_common_names_sync_pending" = "Eşitleme bekleniyor";
+"watch_common_names_sync_unavailable" = "Telefon bağlı değil";
+"watch_common_names_sync_done" = "Eşitlendi";
+"watch_common_names_pending_count" = "Eşitleme bekleniyor · %d";
+"watch_common_names_never_synced" = "Henüz eşitlenmedi";
+"watch_common_names_last_sync" = "Son eşitleme %@";
+
+"watch_phone_link_title" = "Saat bağlantısı";
+"watch_phone_link_intro" = "Telefonda başlat, saatte skor tut";
+"watch_phone_link_support" = "Badminton · Futbol · Okçuluk · Şut Antrenmanı…";
+"watch_phone_link_status" = "Bağlantı durumu";
+"watch_phone_link_steps" = "Nasıl Kullanılır";
+"watch_phone_link_step_1" = "Telefonda bir maç veya atış antrenmanı ayarla.";
+"watch_phone_link_step_2" = "Başlangıç · Apple Watch";
+"watch_phone_link_step_3" = "Saatte skor tut. Bitince kayıt eşitlenir.";
+"watch_phone_link_help" = "Cihazları eşleştir, ikisine de iScoreboard’u yükle ve telefonda aç.";
+"watch_phone_link_testing" = "Test ediliyor";
+"watch_phone_link_normal" = "Bağlı";
+"watch_phone_link_failed" = "Bağlantı başarısız";
+"watch_phone_link_reachable" = "Bağlı";
+"watch_phone_link_waiting" = "Telefon bekleniyor";
+"watch_phone_link_inactive" = "Telefon bağlı değil";
+"watch_phone_link_testing_detail" = "Telefon bekleniyor";
+"watch_phone_link_normal_detail" = "Bağlı";
+"watch_phone_link_failed_detail" = "Telefon 8 saniye içinde yanıt vermedi.";
+"watch_phone_link_failed_inactive" = "Telefon bağlı değil · Tekrar Dene";
+"watch_phone_link_failed_unreachable" = "Telefonda iScoreboard’u aç ve yeniden dene.";
+"watch_phone_link_failed_send" = "Bağlantı başarısız · Tekrar Dene";
+"watch_phone_link_reachable_detail" = "Test et";
+"watch_phone_link_waiting_detail" = "Telefonda iScoreboard’u aç ve yeniden dene.";
+"watch_phone_link_test_waiting" = "Test ediliyor…";
+"watch_phone_link_test_retry" = "Tekrar Dene";
+"watch_phone_link_test" = "Test et";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Son bağlantı %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Antrenman modu";
+"watch_bb_1pt" = "1 puan";
+"watch_bb_2pt" = "2 puan";
+"watch_bb_3pt" = "3 puan";
+"watch_bb_free" = "Serbest";
+"watch_training_miss" = "Kaçtı";
+"watch_training_made" = "İsabet";
+"watch_training_point_value" = "%d puan";
+"watch_training_breakdown" = "Atış ayrıntıları";
+"watch_training_start" = "Şut Antrenmanı · Başlangıç";
+"watch_training_rate_format" = "İsabet oranı %d%%";
+"watch_training_action_format" = "%d puan · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Üste sabitlensin mi?";
+"watch_home_pin_confirm" = "Sabitle";
+"watch_home_unpin_title" = "Sabitlemeyi kaldır?";
+"watch_home_unpin_confirm" = "Sabitlemeyi kaldır";
+"watch_home_pin_full_title" = "Sabitleme sınırı";
+"watch_home_pin_full_message" = "2 öğe sabitleyebilirsin. Önce birini kaldır.";
+"watch_home_pin_hint" = "Sabitlemek için basılı tut";
+"watch_home_pin_success" = "Sabitlenmiş";
+"watch_home_unpin_success" = "Sabitleme kaldırıldı";
+"multi_score_player_default_format" = "Oyuncu %d";
+"nine_ball_big_gold" = "Büyük Altın";
+"nine_ball_small_gold" = "Küçük Altın";
+"nine_ball_golden_nine" = "Altın 9";
+"nine_ball_normal_win" = "Normal galibiyet";
+"nine_ball_ball_in_hand" = "Eldeki Top";
+"nine_ball_foul" = "Faul";
+"watch_archery_set_rest" = "Set Arası";
+"watch_finish_confirm_title" = "Maçı Bitir?";
+"watch_finish_confirm_message" = "Maç biter ve kaydedilir.";
+"watch_reset_confirm_title" = "Maç yeniden başlasın mı?";
+"watch_reset_confirm_message" = "Mevcut skor sıfırlanır.";
+"watch_side_exchange" = "Taraf değiştir";
+"watch_winner_format" = "%@ Kazanır";
+"watch_finished_win_badge" = "G";
+"watch_finished_winner" = "Kazanan";
+"watch_finished_home" = "Ana Sayfa";
+"watch_snooker_foul" = "Faul";
+"watch_snooker_foul_selected_format" = "Faul +%d";
+"watch_snooker_foul_next_turn" = "Sırayı Değiştir";
+"watch_snooker_foul_switch_turn" = "Sırayı Değiştir";
+"watch_snooker_foul_continue" = "Devam Et";
+"watch_action_snooker_foul_continue_format" = "%@· Faul · Rakip +%d · Suçlu devam ediyor";
+"watch_snooker_handover" = "Sırayı Değiştir";
+"watch_snooker_settle_frame" = "Frame’i Sonuçlandır";
+"watch_snooker_choose_frame_winner" = "Frame Kazananını Seç";
+"watch_snooker_frame_finished" = "Tur tamamlandı";
+"watch_snooker_next_frame" = "Sonraki Frame";
+"watch_training_breakdown_format" = "%d puan · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Aynı mesafe. Atışlara devam edin.";
+"edit" = "Düzenle";
+"game_badminton_doubles" = "Badminton Çiftler";
+"game_eight_ball" = "Sekiz top";
+"game_nine_ball" = "9 Top Takibi";
+"game_pickleball_doubles" = "Pickleball Çiftler";
+"game_pingpong_doubles" = "Masa Tenisi Çiftler";
+"game_snooker" = "Snooker";
+"game_tennis_doubles" = "Çift Tenis";
+"save" = "Kaydet";
+"watch_action_adjust_score_format" = "%@· Puan değiştirildi";
+"watch_action_archery_arrow_format" = "%@+%d puan";
+"watch_action_archery_closest" = "Eşitlik Atışı · Merkeze En Yakın";
+"watch_action_archery_miss_format" = "%@· Iska";
+"watch_action_archery_set_ready" = "Okçuluk · Tur tamamlandı";
+"watch_action_ball_potted_format" = "%@ · Top deliğe girdi %@";
+"watch_action_basketball_foul_format" = "%@· Faul";
+"watch_action_basketball_period_format" = "Periyot %d · Başlangıç";
+"watch_action_basketball_timeout_format" = "%@· Mola";
+"watch_action_edit_name" = "Güncellendi";
+"watch_action_exchange_sides" = "Tarafları Değiştir";
+"watch_action_exchange_sides_reminder" = "Lütfen tarafları manuel olarak değiştirin";
+"watch_action_game_finished_format" = "Set %1$d Bitti · %2$@ Kazanır";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ Kazanır";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Set %1$d Bitti · %2$@ Kazanır";
+"watch_action_shooter_format" = "%@ atışa başlıyor";
+"watch_action_side_out_format" = "Servis · %@";
+"watch_action_snooker_foul_format" = "%@· Faul · Rakip +%d";
+"watch_action_snooker_frame_format" = "Frame %1$d · %2$@ Kazanır";
+"watch_action_snooker_handover_format" = "Sırayı Değiştir · %@";
+"watch_action_snooker_miss_format" = "%@· Kaçtı";
+"watch_action_snooker_next_frame_format" = "Frame %d · Başlangıç";
+"watch_action_snooker_pot_format" = "%@· Top deliğe girdi +%d";
+"watch_record_actions_unavailable" = "Kayıt Yok";
+"linked_score_error_title" = "Bağlantı başarısız";
+"linked_score_persistence_failed" = "Telefon–saat bağlantısı · Kaydetme başarısız oldu: %@";
+"resume_persistence_error_title" = "Kaydedilemedi";
+"resume_persistence_failed" = "Maçı sürdür · Kaydetme başarısız oldu: %@";
+"linked_score_control_timeout" = "Devral · Zaman aşımı · Tekrar Dene";
+"linked_score_sync_timeout" = "Zaman aşımı · Eşitleme bekleniyor";
+
+/* Football */
+"game_football" = "Futbol";
+"game_football_5v5" = "5×5 Futbol";
+"watch_setup_half_length" = "Devre Süresi";
+"watch_setup_teams" = "takımlar";
+"football_first_half" = "İlk Yarı";
+"football_second_half" = "İkinci Yarı";
+"football_extra_time_first" = "Uzatmalar — ilk yarı";
+"football_extra_time_second" = "Uzatmalar — ikinci yarı";
+"football_first_half_over" = "İlk yarı bitti";
+"football_switch_half" = "İkinci Yarı";
+"football_switch_half_title" = "İkinci yarı başlasın mı?";
+"football_switch_half_message" = "İlk yarı duraklatılacak ve yeniden açılamaz.";
+"football_extra_time_first_over" = "Uzatmalar — ilk yarı · Tur tamamlandı";
+"football_switch_extra_time_half" = "Uzatmalar — ikinci yarı";
+"football_enter_extra_time_title" = "Normal Süre Bitti";
+"football_post_regulation_action" = "Normal Süreden Sonra";
+"football_injury_title" = "Kayıp Zaman Uzatması";
+"football_undo_stoppage" = "Kayıp Zaman Uzatmasını Geri Al";
+"football_enter_extra_time" = "Uzatmaları Başlat";
+"football_end_as_draw" = "Berabere Bitir";
+"football_goal_hint" = "Gol eklemek için dokun";
+"watch_football_start" = "Başlat";
+"watch_football_pause" = "Duraklat";
+"watch_football_resume" = "Devam Et";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Başlangıç · %@";
+"watch_action_football_stoppage_format" = "Kayıp Zaman Uzatması +%d sn";
+"watch_action_football_clock_start" = "Zamanlayıcı başlatıldı";
+"watch_action_football_clock_pause" = "Zamanlayıcı duraklatıldı";
+"watch_record_sync_sent" = "Eşitlendi";
+"watch_record_sync_pending" = "Eşitleme bekleniyor";
+"watch_record_sync_not_synced" = "iPhone ile eşitlenmedi";
+"watch_record_sync_action" = "iPhone ile eşitle";
+"watch_settings_auto_sync_records" = "Otomatik kayıt eşitleme";
+"game_shuttlecock" = "Jianzi";
+"game_squash" = "Squash";
+"game_foosball" = "Langırt";
+
+"watch_setup_win_by_two" = "Final Seti 2 farkla kazanın";
+"watch_setup_score_cap" = "Puan Sınırı";
+"watch_setup_serving_side" = "İlk Servis Atan";
+"watch_setup_kickoff_side" = "İlk başlama vuruşu";
+"watch_setup_side_left" = "Kırmızı";
+"watch_setup_side_right" = "Mavi";
+
+"watch_about_us" = "Hakkımızda";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Sürüm %@";
+"watch_wechat_group_title" = "WeChat Grubu";
+"watch_wechat_group_scan_hint" = "WeChat · Ayrıntılar için kodu tara";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Açılış";
+"watch_nine_ball_select_payer" = "Ödeyecek oyuncuyu seç";
+"watch_nine_ball_select_continue" = "Sıradaki oyuncuyu seç";
+"watch_nine_ball_prev_player" = "Önceki";
+"watch_nine_ball_next_player" = "Sonraki";
+"watch_nine_ball_continue_badge" = "Oyna";
+
+"watch_a11y_points_format" = "%d puan";
+"watch_a11y_sets_format" = "%d set";
+"watch_a11y_serving" = "Servis";
+
+"watch_phone_shared_link_intro" = "Telefonda başlatın, iki cihazdan da skor girebilirsiniz.";
+"linked_score_simultaneous_edit" = "İki cihazda da değişiklik yapıldı. Skoru kontrol edin.";

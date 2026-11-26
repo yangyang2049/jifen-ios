@@ -168,14 +168,24 @@ struct UnfinishedGameSummary: Sendable {
                 ? "\(state.leftFrames) : \(state.rightFrames)"
                 : "\(state.leftScore) : \(state.rightScore)"
             matchTitle = Self.namesTitle(names)
+        case .basketballTraining(let state):
+            let counts = state.counts
+            scoreText = "\(counts.made)/\(counts.attempts) · \(counts.rate)%"
+            matchTitle = appGameType.displayName
         case .football(let state):
             scoreText = "\(state.leftScore) : \(state.rightScore)"
             matchTitle = Self.namesTitle(names)
         }
 
-        let authority = descriptor.role == .phoneController
-            ? NSLocalizedString("linked_score_phone_controller", value: "手机主控", comment: "")
-            : NSLocalizedString("linked_score_watch_controller", value: "手表主控", comment: "")
+        let linkMode: String
+        switch descriptor.role {
+        case .shared:
+            linkMode = NSLocalizedString("linked_score_shared_mode", value: "Score on both devices", comment: "")
+        case .phoneController:
+            linkMode = NSLocalizedString("linked_score_phone_controller", value: "手机主控", comment: "")
+        default:
+            linkMode = NSLocalizedString("linked_score_watch_controller", value: "手表主控", comment: "")
+        }
         let connection: String
         if descriptor.watchBackgrounded {
             connection = NSLocalizedString("linked_score_interrupted", value: "已中断", comment: "")
@@ -184,7 +194,7 @@ struct UnfinishedGameSummary: Sendable {
         } else {
             connection = NSLocalizedString("linked_score_disconnected", value: "已断开", comment: "")
         }
-        linkStatusText = "\(authority) · \(connection)"
+        linkStatusText = "\(linkMode) · \(connection)"
         linkedSetupResult = Self.linkedSetupResult(descriptor)
     }
 
@@ -265,6 +275,8 @@ struct UnfinishedGameSummary: Sendable {
         result.isSingles = !descriptor.gameType.isDoublesScoreboard
 
         switch descriptor.snapshot {
+        case .basketballTraining(let state):
+            result.basketballTrainingScoringMode = state.mode.rawValue
         case .football(let state):
             result.team1Name = state.leftName
             result.team2Name = state.rightName
@@ -407,10 +419,12 @@ struct UnfinishedGameBarView: View {
                             .font(.system(size: 18, weight: .bold))
                             .foregroundColor(Theme.homeNeutralCardTextSecondary)
                             .opacity(isClosePending ? 0 : 1)
-                        Text(NSLocalizedString("unfinished_discard_button", value: "放弃", comment: ""))
+                        Text(NSLocalizedString("unfinished_discard_confirm_button", value: "确认放弃", comment: "Discard an unfinished match"))
                             .font(.system(size: 13, weight: .semibold))
                             .foregroundColor(.white)
                             .lineLimit(1)
+                            .minimumScaleFactor(0.75)
+                            .padding(.horizontal, 5)
                             .opacity(isClosePending ? 1 : 0)
                     }
                 }

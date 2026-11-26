@@ -2,7 +2,51 @@ import SwiftUI
 import ScoreCore
 import UIKit
 
+enum BasketballMenuItemPolicy {
+    static let autoBuzzerActionID = "basketballAutoBuzzer"
+
+    @MainActor
+    static func items(
+        resetConfirming: Bool,
+        exchangeConfirming: Bool,
+        finishConfirming: Bool,
+        autoBuzzerEnabled: Bool,
+        finished: Bool,
+        sharingActive: Bool? = nil
+    ) -> [ScoreboardMenuItem] {
+        ScoreboardMenuItemBuilder.defaultItems(
+            showEndGame: true,
+            showExchangeSide: false,
+            showWhistle: false,
+            resetConfirming: resetConfirming,
+            finishConfirming: finishConfirming,
+            scoringEnabled: true,
+            extraItems: [
+                ScoreboardMenuItem(
+                    title: NSLocalizedString("menu_swap_sides", comment: "Exchange sides"),
+                    action: ScoreboardMenuActionID.exchangeSide.rawValue,
+                    group: .tools,
+                    icon: "arrow.left.arrow.right",
+                    keepDialogOpen: true,
+                    confirming: exchangeConfirming,
+                    enabled: !finished
+                ),
+                ScoreboardMenuItem(
+                    title: NSLocalizedString("basketball_auto_buzzer", value: "自动蜂鸣", comment: "Basketball auto buzzer toggle"),
+                    action: autoBuzzerActionID,
+                    group: .tools,
+                    icon: autoBuzzerEnabled ? "bell.fill" : "bell.slash",
+                    keepDialogOpen: true,
+                    activeColor: autoBuzzerEnabled ? Theme.primary : nil
+                )
+            ],
+            sharingActive: sharingActive
+        )
+    }
+}
+
 struct BasketballScoreboardView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.scoreboardEditAboveMenu) private var editAboveMenu
     @Environment(\.dismiss) private var dismiss
 
@@ -16,6 +60,10 @@ struct BasketballScoreboardView: View {
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
     @State private var typographySession: ScoreboardTypographySession
     @State private var preferences = PreferencesManager.shared
+    @State private var soundManager = SoundManager.shared
+    @State private var autoBuzzerEnabled = PreferencesManager.shared.basketballAutoBuzzerEnabled
+    @State private var showSignalButtonHints = false
+    @State private var signalHintGeneration = 0
     @State private var showDisplaySettings = false
     @State private var styleEditorEntry = ScoreboardStyleEditorEntry()
     @State private var showMenu = false
@@ -228,6 +276,7 @@ struct BasketballScoreboardView: View {
         .simultaneousGesture(TapGesture().onEnded { revealImmersiveChrome() })
         .onLongPressGesture(minimumDuration: 0.55) {
             guard !isEditMode, !styleEditorEntry.isEditing else { return }
+            dismissSignalButtonHints()
             showMenu = true
             revealImmersiveChrome()
         }
@@ -253,12 +302,22 @@ struct BasketballScoreboardView: View {
             typographySession.switchStyleID(ScoreboardStyleID(gameType: appGameType))
             store.startClock()
             appearance = .current(styleID: typographySession.styleID)
+            autoBuzzerEnabled = preferences.basketballAutoBuzzerEnabled
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             registerScoreboardSync()
             revealImmersiveChrome()
+            presentSignalButtonHints()
             if store.state.finished {
                 showGameOverDialog = true
+            }
+        }
+        .task(id: signalHintGeneration) {
+            guard showSignalButtonHints else { return }
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            withAnimation(reduceMotion ? nil : .easeOut(duration: 0.35)) {
+                showSignalButtonHints = false
             }
         }
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
@@ -271,11 +330,23 @@ struct BasketballScoreboardView: View {
                     }
             }
         }
+        .onChange(of: store.mainClockExpirationCount) { previous, current in
+            guard current > previous, autoBuzzerEnabled else { return }
+            if soundManager.playSound("buzzer") == .started {
+                VibrationManager.shared.vibrateHeavy()
+            }
+        }
         .onChange(of: store.state) { _, state in
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             if state.finished {
                 showGameOverDialog = true
             }
+        }
+        .onChange(of: showMenu) { _, visible in
+            if visible { dismissSignalButtonHints() }
+        }
+        .onChange(of: styleEditorEntry.isEditing) { _, editing in
+            if editing { dismissSignalButtonHints() }
         }
         .onChange(of: store.state.timeoutRemainingSeconds) { previous, remaining in
             guard store.state.timeoutActiveSide != nil, previous > 0, remaining == 0 else { return }
@@ -288,6 +359,7 @@ struct BasketballScoreboardView: View {
         }
         .onChange(of: preferences.scoreboardRevision) { _, _ in
             appearance = .current(styleID: typographySession.styleID)
+            autoBuzzerEnabled = preferences.basketballAutoBuzzerEnabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             revealImmersiveChrome()
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
@@ -296,6 +368,7 @@ struct BasketballScoreboardView: View {
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onDisappear {
+            soundManager.stopIfPlaying(["whistle", "buzzer"])
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
             store.stopClock()
@@ -329,13 +402,12 @@ struct BasketballScoreboardView: View {
     }
 
     private var basketballMenuItems: [ScoreboardMenuItem] {
-        return ScoreboardMenuItemBuilder.defaultItems(
-            showEndGame: true,
-            showExchangeSide: true,
+        BasketballMenuItemPolicy.items(
             resetConfirming: menuConfirm.resetConfirming,
             exchangeConfirming: menuConfirm.exchangeConfirming,
             finishConfirming: menuConfirm.finishConfirming,
-            scoringEnabled: true
+            autoBuzzerEnabled: autoBuzzerEnabled,
+            finished: store.state.finished
         )
     }
 
@@ -432,6 +504,7 @@ struct BasketballScoreboardView: View {
             )
         } else {
             let logicalSide = logicalSide(forScreen: screenSide)
+            let signalSoundName = isScreenLeft ? "buzzer" : "whistle"
             BasketballTeamPanel(
                 name: displayName(for: screenSide),
                 score: displayScore(for: screenSide),
@@ -454,6 +527,9 @@ struct BasketballScoreboardView: View {
                 timeoutRemainingSeconds: store.state.timeoutRemainingSeconds,
                 timeoutDurationSeconds: BasketballMatchEngine.timeoutDurationSeconds(store.state),
                 logicalSide: logicalSide,
+                showSignalButton: !styleEditorEntry.isEditing,
+                isSignalPlaying: soundManager.activeSoundName == signalSoundName,
+                showSignalHint: showSignalButtonHints && !styleEditorEntry.isEditing && !showMenu && !store.state.finished,
                 onScore: {
                     VibrationManager.shared.vibrateLight()
                     store.send(.addPoints(side: logicalSide, points: $0))
@@ -470,6 +546,9 @@ struct BasketballScoreboardView: View {
                         value: "点中央播放键恢复比赛",
                         comment: "Basketball timeout resume hint"
                     ))
+                },
+                onSignalTap: {
+                    triggerSignalSound(signalSoundName)
                 }
             )
         }
@@ -477,6 +556,7 @@ struct BasketballScoreboardView: View {
 
     private func beginBasketballEdit() {
         guard !store.state.finished, store.state.timeoutActiveSide == nil else { return }
+        dismissSignalButtonHints()
         editLeftName = displayName(for: .left)
         editRightName = displayName(for: .right)
         editLeftScore = displayScore(for: .left)
@@ -627,10 +707,53 @@ struct BasketballScoreboardView: View {
             if !styleEditorEntry.handleDisplaySettings(styleID: typographySession.styleID, typographySession: typographySession) {
                 showDisplaySettings = true
             }
-        case "whistle":
-            break
+        case BasketballMenuItemPolicy.autoBuzzerActionID:
+            autoBuzzerEnabled.toggle()
+            preferences.basketballAutoBuzzerEnabled = autoBuzzerEnabled
+            VibrationManager.shared.vibrateLight()
+            showToastMessage(
+                autoBuzzerEnabled
+                    ? NSLocalizedString("basketball_auto_buzzer_on", value: "自动蜂鸣已开启（主计时到 00:00 响一次）", comment: "Basketball auto buzzer enabled")
+                    : NSLocalizedString("basketball_auto_buzzer_off", value: "自动蜂鸣已关闭", comment: "Basketball auto buzzer disabled")
+            )
         default:
             break
+        }
+    }
+
+    private func triggerSignalSound(_ soundName: String) {
+        dismissSignalButtonHints()
+        switch soundManager.toggleSound(soundName) {
+        case .started:
+            if soundName == "buzzer" {
+                VibrationManager.shared.vibrateHeavy()
+            } else {
+                VibrationManager.shared.vibrateLight()
+            }
+        case .stopped:
+            VibrationManager.shared.vibrateLight()
+        case .disabledBySettings:
+            VibrationManager.shared.vibrateLight()
+            showToastMessage(NSLocalizedString(
+                "scoreboard_sound_disabled_hint",
+                value: "音效已关闭，请在设置中开启",
+                comment: "Sound effects disabled hint"
+            ))
+        case .unavailable:
+            VibrationManager.shared.vibrateLight()
+        }
+    }
+
+    private func presentSignalButtonHints() {
+        guard !isEditMode, !styleEditorEntry.isEditing, !store.state.finished else { return }
+        showSignalButtonHints = true
+        signalHintGeneration &+= 1
+    }
+
+    private func dismissSignalButtonHints() {
+        guard showSignalButtonHints else { return }
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.22)) {
+            showSignalButtonHints = false
         }
     }
 
@@ -793,6 +916,7 @@ struct BasketballScoreboardView: View {
                 editLeftScore = displayScore(for: .left)
                 editRightScore = displayScore(for: .right)
                 store.startClock()
+                presentSignalButtonHints()
                 LocalScoreboardSyncCoordinator.shared.publishSnapshot()
             }
         }
@@ -937,6 +1061,8 @@ private struct BasketballEditTeamPanel: View {
 }
 
 private struct BasketballTeamPanel: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     let name: String
     let score: Int
     let fouls: Int
@@ -958,12 +1084,16 @@ private struct BasketballTeamPanel: View {
     let timeoutRemainingSeconds: Int
     let timeoutDurationSeconds: Int
     let logicalSide: MatchSide
+    let showSignalButton: Bool
+    let isSignalPlaying: Bool
+    let showSignalHint: Bool
     let onScore: (Int) -> Void
     let onFoul: () -> Void
     let onRemoveFoul: () -> Void
     let onTimeout: () -> Void
     let onRestoreTimeout: () -> Void
     let onTimeoutResumeHint: () -> Void
+    let onSignalTap: () -> Void
 
     @State private var timeoutPendingConfirmation = false
 
@@ -971,6 +1101,10 @@ private struct BasketballTeamPanel: View {
 
     private var controlColor: Color {
         .white
+    }
+
+    private var statsBottomPadding: CGFloat {
+        Theme.usesPadLayout ? 68 : 48
     }
 
     private var resolvedTypography: ScoreboardTypographyResult {
@@ -1055,19 +1189,29 @@ private struct BasketballTeamPanel: View {
                 Spacer()
             }
 
-            GeometryReader { geo in
-                foulRow
-                    .position(x: geo.size.width / 2, y: geo.size.height * 0.84)
-            }
-
             VStack {
                 Spacer()
-                HStack {
-                    if isLeftSide { Spacer() }
+                VStack(spacing: Theme.usesPadLayout ? 10 : 6) {
+                    foulRow
+                        .padding(.horizontal, 8)
+
                     timeoutChip
-                        .padding(isLeftSide ? .trailing : .leading, 12)
-                        .padding(.bottom, 12)
-                    if !isLeftSide { Spacer() }
+                        .padding(.leading, isLeftSide ? 72 : 66)
+                        .padding(.trailing, isLeftSide ? 66 : 72)
+                }
+                .padding(.bottom, statsBottomPadding)
+            }
+
+            if showSignalButton {
+                VStack {
+                    Spacer()
+                    HStack {
+                        if isLeftSide { Spacer() }
+                        signalControl
+                            .padding(isLeftSide ? .trailing : .leading, 14)
+                            .padding(.bottom, ScoreboardConstants.buttonPadding)
+                        if !isLeftSide { Spacer() }
+                    }
                 }
             }
         }
@@ -1154,6 +1298,7 @@ private struct BasketballTeamPanel: View {
                     Text(String(format: "%d:%02d", timeoutRemainingSeconds / 60, timeoutRemainingSeconds % 60))
                         .font(typography.font.swiftUIFont(size: 19, weight: .bold))
                         .monospacedDigit()
+                        .lineLimit(1)
                 }
             } else {
                 Text(timeoutPendingConfirmation
@@ -1167,6 +1312,8 @@ private struct BasketballTeamPanel: View {
                     size: min(16, max(12, resolvedTypography.secondaryFontSize * 0.3)),
                     weight: .semibold
                 ))
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
             }
         }
         .foregroundStyle(timeoutTone)
@@ -1206,6 +1353,89 @@ private struct BasketballTeamPanel: View {
                     }
                 )
         )
+    }
+
+    private var signalControl: some View {
+        let soundAsset = isLeftSide ? "icon_3d_buzzer" : "icon_3d_whistle"
+        let iconSize: CGFloat = isLeftSide ? 26 : 28
+        let label = isLeftSide
+            ? NSLocalizedString("long_whistle", comment: "Buzzer")
+            : NSLocalizedString("menu_whistle", comment: "Whistle")
+        let accessibilityID = isLeftSide ? "basketball_buzzer_button" : "basketball_whistle_button"
+
+        return Button(action: onSignalTap) {
+            Image(soundAsset)
+                .renderingMode(.original)
+                .resizable()
+                .scaledToFit()
+                .frame(width: iconSize, height: iconSize)
+                .frame(width: ScoreboardConstants.buttonSize, height: ScoreboardConstants.buttonSize)
+                .background(
+                    Circle()
+                        .fill(isSignalPlaying ? Color(hex: "245D45") : Color.black.opacity(0.25))
+                )
+                .overlay(
+                    Circle()
+                        .strokeBorder(
+                            isSignalPlaying ? Color(hex: "76D5AB") : Color.white.opacity(0.18),
+                            lineWidth: isSignalPlaying ? 1.5 : 1
+                        )
+                )
+                .scaleEffect(isSignalPlaying && !reduceMotion ? 1.06 : 1.0)
+                .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: isSignalPlaying)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+        .accessibilityIdentifier(accessibilityID)
+        .accessibilityAddTraits(isSignalPlaying ? .isSelected : [])
+        .overlay(alignment: isLeftSide ? .topTrailing : .topLeading) {
+            signalHintBubble(label: label)
+                .alignmentGuide(.top) { dimensions in dimensions[.bottom] + 6 }
+                .opacity(showSignalHint ? 1 : 0)
+                .offset(y: showSignalHint ? 0 : 4)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private func signalHintBubble(label: String) -> some View {
+        let bubbleSurface = Color(hex: "111827").opacity(0.86)
+        return VStack(alignment: isLeftSide ? .trailing : .leading, spacing: 0) {
+            Text(label)
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.white)
+                .lineLimit(1)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .frame(minWidth: ScoreboardConstants.buttonSize)
+                .background(
+                    Capsule()
+                        .fill(bubbleSurface)
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(Color.white.opacity(0.16), lineWidth: 1)
+                )
+
+            SignalHintPointer()
+                .fill(bubbleSurface)
+                .frame(width: 8, height: 4)
+                .padding(isLeftSide ? .trailing : .leading, ScoreboardConstants.buttonSize / 2 - 4)
+        }
+        .fixedSize()
+        .shadow(color: .black.opacity(0.32), radius: 6, y: 2)
+    }
+}
+
+private struct SignalHintPointer: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.closeSubpath()
+        return path
     }
 }
 

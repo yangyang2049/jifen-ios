@@ -26,7 +26,7 @@ struct WatchToolsTabView: View {
                     WatchPillRow(
                         icon: "⏱️",
                         iconAsset: WatchCatalogIconAssets.tool("ten_second"),
-                        title: NSLocalizedString("tool_ten_second", comment: "10s Challenge")
+                        title: NSLocalizedString("tool_ten_second", comment: "Stop the Clock")
                     )
                 }
                 .buttonStyle(.plain)

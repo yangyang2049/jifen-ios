@@ -47,6 +47,33 @@ final class WatchBasketballTrainingUITests: XCTestCase {
         sleep(1)
     }
 
+    func testVerticalTrainingMissTargetIncludesTopEdge() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-watch_scoreboard_layout", "vertical"
+        ]
+        app.launch()
+        dismissResumeBarIfNeeded(app)
+        tapSportTile("投篮训练", in: app)
+        let twoPoint = app.buttons["2 分"]
+        XCTAssertTrue(twoPoint.waitForExistence(timeout: 3))
+        twoPoint.tap()
+
+        let miss = app.buttons["watch_training_miss_2"]
+        let made = app.buttons["watch_training_made_2"]
+        XCTAssertTrue(miss.waitForExistence(timeout: 4))
+        XCTAssertTrue(made.waitForExistence(timeout: 4))
+        XCTAssertLessThan(miss.frame.midY, made.frame.midY)
+        XCTAssertEqual(miss.value as? String, "0")
+        miss.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.08)).tap()
+
+        let counted = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "1"), object: miss)
+        XCTAssertEqual(XCTWaiter.wait(for: [counted], timeout: 3), .completed)
+        XCTAssertEqual(made.value as? String, "0")
+        capture("bb_vertical_top_tap", settle: 0)
+    }
+
     func testModePickerAndResumeBarWording() throws {
         continueAfterFailure = false
         let app = XCUIApplication()
@@ -106,15 +133,21 @@ final class WatchBasketballTrainingUITests: XCTestCase {
         XCTAssertTrue(discard.exists)
         XCTAssertTrue(resumeScoring.exists, "确认超时后应保留续赛")
 
-        app.terminate()
-        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
-        app.launch()
-        _ = expandDiscardButton(
-            app.buttons["Discard unfinished training"],
-            on: app.buttons["Resume scoring"],
-            confirmation: app.buttons["Confirm Discard"]
-        )
-        capture("bb_04_confirm_en", settle: 0)
+        for (language, locale, discard, resume, confirmation, screenshot) in [
+            ("en", "en_US", "Discard unfinished training", "Resume scoring", "Discard", "bb_04_confirm_en"),
+            ("fr-CA", "fr_CA", "Abandonner l’entraînement en cours", "Reprendre", "Abandonner", "bb_05_confirm_fr_ca"),
+            ("ko", "ko_KR", "미완료 훈련 버리기", "재개", "버리기", "bb_06_confirm_ko"),
+        ] {
+            app.terminate()
+            app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", locale]
+            app.launch()
+            _ = expandDiscardButton(
+                app.buttons[discard],
+                on: app.buttons[resume],
+                confirmation: app.buttons[confirmation]
+            )
+            capture(screenshot, settle: 0)
+        }
 
         app.terminate()
         app.launchArguments = ["-AppleLanguages", "(zh-Hant)", "-AppleLocale", "zh_TW"]
@@ -125,7 +158,7 @@ final class WatchBasketballTrainingUITests: XCTestCase {
             on: traditionalResume,
             confirmation: app.buttons["確認放棄"]
         )
-        capture("bb_05_confirm_zh_hant", settle: 0)
+        capture("bb_07_confirm_zh_hant", settle: 0)
         let confirmFrame = traditionalConfirm.frame
         let overlap = confirmFrame.intersection(traditionalResume.frame)
         traditionalConfirm.coordinate(withNormalizedOffset: CGVector(

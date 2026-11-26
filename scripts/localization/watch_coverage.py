@@ -1,99 +1,125 @@
 #!/usr/bin/env python3
-"""Report localization coverage for the Apple Watch app.
+"""Check the Apple Watch resource tables against the phone's supported locales."""
 
-The watch ships its own string catalog (jifenWatch Watch App/Resources). Until a
-locale is reviewed and added there, iOS falls back to English per key. This
-script answers two questions for every phone locale:
-
-1. How many watch keys already have a phone translation with the same key?
-2. Which watch-only keys still need a reviewed translation?
-
-Usage:
-    python3 scripts/localization/watch_coverage.py            # table
-    python3 scripts/localization/watch_coverage.py --json      # machine output
-    python3 scripts/localization/watch_coverage.py --missing ja
-"""
 from __future__ import annotations
 
 import argparse
-import glob
 import json
-import os
 import re
-from typing import Dict, Set
+from pathlib import Path
 
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-WATCH_RES = os.path.join(ROOT, "jifenWatch Watch App", "Resources")
-PHONE_RES = os.path.join(ROOT, "jifen", "Resources")
-ENTRY_RE = re.compile(r'^"((?:[^"\\]|\\.)*)"\s*=')
+from localize import format_arguments, parse_strings
 
+ROOT = Path(__file__).resolve().parents[2]
+WATCH_APP = ROOT / "jifenWatch Watch App"
+WATCH_RES = WATCH_APP / "Resources"
+PHONE_RES = ROOT / "jifen" / "Resources"
+SHARED_STRINGS = Path(__file__).with_name("watch_shared_strings.json")
 
-def keys(path: str) -> Set[str]:
-    out: Set[str] = set()
-    if not os.path.exists(path):
-        return out
-    with open(path, encoding="utf-8") as handle:
-        for line in handle:
-            match = ENTRY_RE.match(line)
-            if match:
-                out.add(match.group(1))
-    return out
+STRING_LOOKUP = re.compile(r'\bNSLocalizedString\(\s*"([^"\\]+)"')
 
 
-def locales(res: str) -> Dict[str, str]:
-    found = {}
-    for path in sorted(glob.glob(os.path.join(res, "*.lproj", "Localizable.strings"))):
-        found[os.path.basename(os.path.dirname(path))] = path
-    return found
+def table_entries(path: Path) -> dict[str, str]:
+    return {entry.key: entry.value for entry in parse_strings(path, path.stem)} if path.is_file() else {}
+
+
+def language_files(resources: Path, filename: str) -> dict[str, Path]:
+    return {path.parent.stem: path for path in sorted(resources.glob(f"*.lproj/{filename}"))}
+
+
+def resource_tables(locales: list[str]) -> dict[str, dict[str, dict[str, str]]]:
+    tables = {}
+    for source in sorted((WATCH_RES / "en.lproj").glob("*.strings")):
+        paths = language_files(WATCH_RES, source.name)
+        tables[source.stem] = {locale: table_entries(paths[locale]) if locale in paths else {}
+                               for locale in locales}
+    for path in sorted(WATCH_RES.glob("*.xcstrings")):
+        catalog = json.loads(path.read_text(encoding="utf-8"))
+        tables[path.stem] = {locale: {} for locale in locales}
+        for key, item in catalog["strings"].items():
+            for locale, localization in item.get("localizations", {}).items():
+                if locale in tables[path.stem]:
+                    tables[path.stem][locale][key] = localization.get("stringUnit", {}).get("value", "")
+    return tables
+
+
+def coverage() -> dict:
+    phone_files = language_files(PHONE_RES, "Localizable.strings")
+    locales = list(phone_files)
+    tables = resource_tables(locales)
+    pairs = json.loads(SHARED_STRINGS.read_text(encoding="utf-8"))
+    missing_source = set()
+    source_keys = {key for name, table in tables.items() if name != "InfoPlist" for key in table["en"]}
+    for file in WATCH_APP.rglob("*.swift"):
+        missing_source.update(set(STRING_LOOKUP.findall(file.read_text(encoding="utf-8"))) - source_keys)
+
+    rows = []
+    for locale in locales:
+        missing, extra, invalid_formats, shared_mismatches = [], [], [], []
+        phone = table_entries(phone_files[locale])
+        for name, table in tables.items():
+            english, translated = table["en"], table[locale]
+            for key, value in english.items():
+                item = f"{name}/{key}"
+                translation = translated.get(key, "")
+                if not translation.strip():
+                    missing.append(item)
+                else:
+                    arguments = format_arguments(translation)
+                    if arguments != format_arguments(value) or arguments[1]:
+                        invalid_formats.append(item)
+            extra.extend(f"{name}/{key}" for key in translated.keys() - english.keys())
+        for name, shared in pairs.items():
+            for watch_key, phone_key in shared.items():
+                value = tables[name][locale].get(watch_key)
+                if not value or value != phone.get(phone_key):
+                    shared_mismatches.append(f"{name}/{watch_key} ↔ {phone_key}")
+        rows.append({
+            "locale": locale,
+            "missing": missing,
+            "extra": sorted(extra),
+            "invalidFormats": invalid_formats,
+            "sharedMismatches": shared_mismatches,
+        })
+    return {
+        "watchKeys": sum(len(table["en"]) for table in tables.values()),
+        "phoneLocales": len(locales),
+        "missingSourceKeys": sorted(missing_source),
+        "locales": rows,
+    }
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--json", action="store_true")
-    parser.add_argument("--missing", help="print watch-only keys missing for this locale")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--json", action="store_true", help="print the complete machine-readable audit")
+    parser.add_argument("--missing", help="print missing watch table entries for a locale")
+    parser.add_argument("--check", action="store_true", help="fail on coverage, format or shared-translation differences")
     args = parser.parse_args()
-
-    watch_en = keys(os.path.join(WATCH_RES, "en.lproj", "Localizable.strings"))
-    phone_locales = locales(PHONE_RES)
-    watch_locales = set(locales(WATCH_RES))
-
-    report = {
-        "watchKeys": len(watch_en),
-        "shippedLocales": sorted(watch_locales),
-        "phoneLocales": len(phone_locales),
-        "locales": [],
-    }
-    for locale, path in phone_locales.items():
-        phone_keys = keys(path)
-        reusable = watch_en & phone_keys
-        report["locales"].append({
-            "locale": locale,
-            "reusable": len(reusable),
-            "coverage": round(100 * len(reusable) / max(1, len(watch_en)), 1),
-            "shipped": locale in watch_locales,
-        })
-
+    report = coverage()
+    rows = report["locales"]
     if args.missing:
-        path = phone_locales.get(args.missing)
-        if not path:
-            print(f"unknown locale: {args.missing}")
-            return 1
-        for key in sorted(watch_en - keys(path)):
-            print(key)
-        return 0
-
-    if args.json:
+        locale = args.missing.removesuffix(".lproj")
+        row = next((row for row in rows if row["locale"] == locale), None)
+        if row is None:
+            parser.error(f"unknown locale: {args.missing}")
+        print("\n".join(row["missing"]))
+    elif args.json:
         print(json.dumps(report, ensure_ascii=False, indent=2))
-        return 0
-
-    print(f"watch keys: {report['watchKeys']}")
-    print(f"watch locales: {', '.join(report['shippedLocales'])}")
-    print(f"phone locales: {report['phoneLocales']}")
-    print()
-    print(f"{'locale':10} {'reusable':>9} {'coverage':>9}  shipped")
-    for row in report["locales"]:
-        print(f"{row['locale']:10} {row['reusable']:9} {row['coverage']:8}%  {'yes' if row['shipped'] else 'no'}")
-    return 0
+    else:
+        print(f"{report['watchKeys']} watch entries across {report['phoneLocales']} language and region variants")
+        for row in rows:
+            if row["missing"] or row["extra"] or row["invalidFormats"] or row["sharedMismatches"]:
+                print(f"{row['locale']:7} {len(row['missing']):3} missing  "
+                      f"{len(row['extra']):3} extra  {len(row['invalidFormats']):3} format mismatches  "
+                      f"{len(row['sharedMismatches']):3} phone/watch differences")
+                for key in row["extra"] + row["invalidFormats"] + row["sharedMismatches"]:
+                    print(f"  {key}")
+        if report["missingSourceKeys"]:
+            print("Missing from English: " + ", ".join(report["missingSourceKeys"]))
+    incomplete = report["missingSourceKeys"] or any(
+        row["missing"] or row["extra"] or row["invalidFormats"] or row["sharedMismatches"] for row in rows
+    )
+    return int(args.check and bool(incomplete))
 
 
 if __name__ == "__main__":

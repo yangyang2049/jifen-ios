@@ -21,10 +21,31 @@ enum WatchGameType: String, Codable, CaseIterable {
     case snooker
     case football
     case football5v5 = "football_5v5"
-    /// Local watch-only tool; not transferred to phone (phone has no training scoreboard yet).
     case basketballTraining
     /// 计数器工具的历史记录；仅手表本地保存，不回传手机（对齐鸿蒙 WatchCounter 的计数记录）。
     case counter
+
+    init?(scoreCoreGameType gameType: ScoreCore.GameType) {
+        switch gameType {
+        case .pingpong, .pingpongDoubles: self = .pingpong
+        case .badminton, .badmintonDoubles: self = .badminton
+        case .tennis, .tennisDoubles: self = .tennis
+        case .pickleball, .pickleballDoubles: self = .pickleball
+        case .shuttlecock: self = .shuttlecock
+        case .squash: self = .squash
+        case .foosball, .foosballDoubles: self = .foosball
+        case .archeryDual: self = .archery
+        case .eightBall: self = .eightBall
+        case .nineBall: self = .nineBall
+        case .snooker: self = .snooker
+        case .football: self = .football
+        case .football5v5: self = .football5v5
+        case .basketball: self = .basketball
+        case .threeBasketball: self = .threeBasketball
+        case .basketballTraining: self = .basketballTraining
+        default: return nil
+        }
+    }
 
     var displayName: String {
         switch self {
@@ -111,7 +132,7 @@ enum WatchGameType: String, Codable, CaseIterable {
         case .snooker: .snooker
         case .football: .football
         case .football5v5: .football5v5
-        case .basketballTraining: nil
+        case .basketballTraining: .basketballTraining
         case .counter: nil
         }
     }

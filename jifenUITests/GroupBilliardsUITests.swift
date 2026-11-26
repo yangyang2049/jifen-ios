@@ -14,8 +14,7 @@ final class GroupBilliardsUITests:XCTestCase {
         app.launchArguments = [
             "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent",
             "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing",
-            "-UITestGroupsFixture", "-UITestGroupsFreshDrafts", "-UITestBilliardsGroup",
-            "-national_day_2026_10_autopopup_count", "99"
+            "-UITestGroupsFixture", "-UITestGroupsFreshDrafts", "-UITestBilliardsGroup"
         ]
         app.launch()
         let group = app.buttons["group_card_ui-group"]
@@ -65,7 +64,7 @@ final class GroupBilliardsUITests:XCTestCase {
     func testCreationNoticePreservesDraftUntilConfirmed() {
         continueAfterFailure = false
         let app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestGroupsFixture", "-UITestGroupsFreshDrafts", "-UITestBilliardsGroup", "-national_day_2026_10_autopopup_count", "99"]
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestGroupsFixture", "-UITestGroupsFreshDrafts", "-UITestBilliardsGroup"]
         app.launch()
         XCTAssertTrue(app.buttons["group_create"].waitForExistence(timeout: 15))
         app.buttons["group_create"].tap()
@@ -99,7 +98,7 @@ final class GroupBilliardsUITests:XCTestCase {
         continueAfterFailure=false
         XCUIDevice.shared.orientation = .portrait
         let app=XCUIApplication()
-        app.launchArguments=["-AppleLanguages","(zh-Hans)","-AppleLocale","zh_CN","-UITestSkipLegalConsent","-UITestSkipScoreboardUsageHints","-UITestFakeSession","-UITestSportsVoiceMissing","-UITestGroupsFixture","-UITestGroupsFreshDrafts","-UITestBilliardsGroup","-national_day_2026_10_autopopup_count","99"]
+        app.launchArguments=["-AppleLanguages","(zh-Hans)","-AppleLocale","zh_CN","-UITestSkipLegalConsent","-UITestSkipScoreboardUsageHints","-UITestFakeSession","-UITestSportsVoiceMissing","-UITestGroupsFixture","-UITestGroupsFreshDrafts","-UITestBilliardsGroup"]
         app.launch()
         XCTAssertTrue(app.buttons["group_create"].waitForExistence(timeout:15));app.buttons["group_create"].tap()
         XCTAssertTrue(app.textFields["group_name"].waitForExistence(timeout:10))
@@ -155,8 +154,7 @@ final class GroupBilliardsUITests:XCTestCase {
             "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing",
             "-UITestGroupsFixture", "-UITestGroupsFreshDrafts", "-UITestBilliardsGroup",
             "-UIPreferredContentSizeCategoryName",
-            largeText ? "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge" : "UICTContentSizeCategoryL",
-            "-national_day_2026_10_autopopup_count", "99"
+            largeText ? "UICTContentSizeCategoryAccessibilityExtraExtraExtraLarge" : "UICTContentSizeCategoryL"
         ]
         app.launch()
         let group = app.buttons["group_card_ui-group"]

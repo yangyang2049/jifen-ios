@@ -6,8 +6,7 @@ final class ParticipantIdentityUITests: XCTestCase {
     func testRecordListLayoutKeepsNamesScoresAndDurationsVisible() {
         let app = XCUIApplication()
         app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
-            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures",
-            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures"]
         app.launch()
         defer { app.terminate() }
         app.descendants(matching: .any)["main_tab_1"].firstMatch.tap()
@@ -34,8 +33,7 @@ final class ParticipantIdentityUITests: XCTestCase {
     func testLinkedHistoryUsesSharedRowsInMyRecords() {
         let app = XCUIApplication()
         app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
-            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures",
-            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures"]
         app.launch()
         defer { app.terminate() }
         let names = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "常用名称")).firstMatch
@@ -59,8 +57,7 @@ final class ParticipantIdentityUITests: XCTestCase {
     func testPersonalEntryHidesWhileSearchingAndReturnsAfterCancel() {
         let app = XCUIApplication()
         app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
-            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures",
-            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestRecordFixtures"]
         app.launch()
         defer { app.terminate() }
         app.descendants(matching: .any)["main_tab_1"].firstMatch.tap()

@@ -1,0 +1,422 @@
+/* Watch App - th */
+
+/* Tab Bar */
+"tab_score" = "คะแนน";
+"tab_tools" = "เครื่องมือ";
+"tab_timer" = "ตัวจับเวลา";
+
+/* Game Types */
+"game_badminton" = "แบดมินตัน";
+"game_pingpong" = "เทเบิลเทนนิส";
+"game_tennis" = "เทนนิส";
+"game_pickleball" = "พิกเกิลบอล";
+"game_archery" = "ยิงธนู";
+"tool_basketball_training" = "ฝึกชู้ต";
+
+/* Tools */
+"tool_flip_coin" = "โยนเหรียญ";
+"tool_random_number" = "สุ่มตัวเลข";
+"tool_ten_second" = "หยุดเวลาให้เป๊ะ";
+"game_counter" = "ตัวนับ";
+"press_again_to_reset" = "แตะอีกครั้งเพื่อรีเซ็ต";
+
+/* Records */
+"records" = "บันทึก";
+"loading" = "กำลังโหลด";
+"no_records" = "ไม่มีบันทึก";
+"record_not_found" = "ไม่พบบันทึก";
+"match_details" = "รายละเอียดการแข่งขัน";
+"match_record" = "บันทึกการแข่งขัน";
+"delete_record" = "ลบบันทึก";
+"confirm_deletion" = "ยืนยันการลบ";
+"cannot_be_recovered_after_deletion" = "สิ่งนี้ไม่สามารถยกเลิกได้";
+"date" = "วันที่";
+"time" = "เวลา";
+"duration" = "ระยะเวลา";
+
+/* Common */
+"cancel" = "ยกเลิก";
+"confirm" = "ยืนยัน";
+"delete" = "ลบ";
+"setup" = "การตั้งค่า";
+"vibration" = "การสั่นสะเทือน";
+"sound" = "เสียง";
+"watch_scoreboard_keep_screen_on" = "เปิดหน้าจอไว้";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "คู่มือ";
+"usage_prompt_message" = "แตะฝั่งที่จะเพิ่มคะแนน\nปัดลงเพื่อเลิกทำ\nกดค้างเพื่อเปิดเมนู";
+"got_it" = "เข้าใจแล้ว";
+
+/* Privacy */
+"privacy_policy" = "นโยบายความเป็นส่วนตัว";
+"scan_to_view_details" = "สแกนโค้ดเพื่อดูรายละเอียด";
+
+/* Settings / About */
+"version" = "เวอร์ชั่น";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "คำติชม";
+"watch_contact_us" = "ติดต่อเรา";
+
+/* Scoreboard menu */
+"menu_undo" = "เลิกทำ";
+"menu_reset" = "รีเซ็ต";
+"watch_continue" = "ดำเนินการต่อ";
+"watch_end_match" = "เสร็จสิ้น";
+"watch_layout_vertical" = "แนวตั้ง";
+"watch_layout_horizontal" = "แนวนอน";
+"watch_settings_layout_title" = "การจัดวาง";
+"watch_reset_toast" = "รีเซ็ต";
+"watch_undo_toast" = "เลิกทำแล้ว";
+"watch_play_again" = "เล่นอีกครั้ง";
+"watch_exit" = "ออก";
+"exit" = "ออก";
+"watch_team_red" = "สีแดง";
+"watch_team_blue" = "สีฟ้า";
+"team_a" = "ทีม A";
+"team_b" = "ทีม B";
+"team_home" = "เหย้า";
+"team_away" = "เยือน";
+"player_a" = "ผู้เล่น A";
+"player_b" = "ผู้เล่น B";
+"archer_a" = "นักยิงธนู A";
+"archer_b" = "นักยิงธนู B";
+"linked_score_confirm_title" = "ลิงก์โทรศัพท์กับนาฬิกา?";
+"linked_score_phone_started_scoreboard" = "ลิงก์โทรศัพท์กับนาฬิกา · เริ่มเกมแล้ว";
+"linked_score_accept" = "ยอมรับ";
+"linked_score_reject" = "ปฏิเสธ";
+"linked_score_watch_reclaim" = "รับช่วง";
+"linked_score_setup_rules" = "%1$d เซต · %2$dแต้ม";
+"linked_score_setup_rules_sets" = "%d เซต";
+"linked_score_setup_race_to" = "เป้าหมาย %d";
+"linked_score_sport_badminton" = "แบดมินตันเดี่ยว";
+"linked_score_sport_badminton_doubles" = "แบดมินตันคู่";
+"linked_score_sport_pingpong" = "เทเบิลเทนนิสเดี่ยว";
+"linked_score_sport_pingpong_doubles" = "เทเบิลเทนนิสคู่";
+"linked_score_sport_tennis" = "เทนนิสเดี่ยว";
+"linked_score_sport_tennis_doubles" = "เทนนิสคู่";
+"linked_score_sport_pickleball" = "พิกเกิลบอลเดี่ยว";
+"linked_score_sport_pickleball_doubles" = "พิกเคิลบอลคู่";
+"game_basketball" = "บาสเก็ตบอล";
+"game_three_basketball" = "บาสเก็ตบอล 3x3";
+"linked_score_sport_archery" = "ยิงธนู";
+"linked_score_sport_eight_ball" = "แปดลูก";
+"linked_score_sport_nine_ball" = "ไล่แต้ม 9 บอล";
+"linked_score_sport_snooker" = "สนุกเกอร์";
+"linked_score_sport_shuttlecock" = "เจี้ยนจือ";
+"linked_score_sport_squash" = "สควอช";
+"linked_score_sport_foosball" = "ฟุตบอลโต๊ะ";
+"linked_score_sport_football" = "ฟุตบอล";
+"linked_score_sport_football_5v5" = "ฟุตบอล 5×5";
+"watch_menu_end_match" = "จบการแข่งขัน";
+"watch_menu_restart" = "รีสตาร์ท";
+"watch_bball_overtime" = "ต่อเวลา";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d ผู้เล่น";
+"archery_closest_title" = "ยิงตัดสิน · ใกล้จุดศูนย์กลางที่สุด";
+"archery_closest_message" = "เสมอกันที่ %d — เลือกลูกศรที่ใกล้กว่า";
+"watch_set_end_format" = "เซต %d จบแล้ว";
+"watch_match_start" = "เริ่มเกมแล้ว";
+"watch_match_finished" = "การแข่งขันเสร็จสิ้นแล้ว";
+"watch_bb_hit_rate" = "ความแม่นยำ";
+"watch_bb_end_training" = "จบการฝึก";
+"watch_training_finish_confirm_title" = "จบการฝึกหรือไม่";
+"watch_training_finish_confirm_message" = "การฝึกจะสิ้นสุดและบันทึกไว้";
+"watch_counter_finish_confirm_title" = "จบการนับหรือไม่";
+"watch_counter_finish_confirm_message" = "บันทึกจำนวน แล้วเริ่มนับใหม่จากศูนย์";
+"watch_bb_restart" = "รีสตาร์ท";
+
+/* Records */
+"clear_all_records" = "ล้างบันทึกทั้งหมด";
+"clear_all_records_message" = "บันทึกทั้งหมดจะถูกลบถาวร";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "หัว";
+"watch_coin_tails" = "ก้อย";
+"watch_archery_miss" = "พลาดเป้า";
+"watch_flip_coin_hint" = "แตะเพื่อโยนเหรียญ";
+"watch_ten_second_challenge" = "หยุดเวลาให้เป๊ะ";
+"watch_ten_second_usage" = "แตะเพื่อเริ่ม แล้วแตะอีกครั้งให้ตรงเวลาเป้าหมาย";
+"watch_mid_game_rest" = "พักกลางเกม";
+"watch_rest_between_sets" = "พักระหว่างเกม";
+"watch_official_timeout" = "ขอเวลานอก";
+"watch_medical_break" = "การแพทย์";
+"watch_score_event_set_title" = "เซต %d จบแล้ว";
+"watch_score_event_set_detail" = "%1$@ ชนะ %2$d:%3$d · เซต %4$d:%5$d";
+"watch_score_event_mid_game_title" = "เซต %d · พักกลางเกม";
+"watch_score_event_mid_game_detail" = "%1$@ นำ %2$d:%3$d · เซต %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "เซต %d จบแล้ว";
+"watch_score_event_tennis_game_detail" = "%1$@ ชนะ · เกมส์ %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "เซต %d จบแล้ว";
+"watch_score_event_tennis_set_detail" = "%1$@ ชนะ %2$d:%3$d · เซต %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "ไทเบรก 7 แต้ม";
+"watch_tiebreak_indicator_10" = "ไทเบรก 10 แต้ม";
+"watch_continue_match" = "เล่นต่อ";
+"watch_continue_scoring" = "เล่นต่อ";
+"watch_resume_discard" = "ทิ้งการแข่งที่ยังไม่จบ";
+"watch_resume_discard_training" = "ทิ้งการฝึกที่ยังไม่จบ";
+"unit_hour" = "ชม.";
+"unit_minute" = "นาที";
+"unit_second" = "วิ";
+"today" = "วันนี้";
+"yesterday" = "เมื่อวาน";
+
+/* Sports setup */
+"watch_setup_start" = "เริ่มต้น";
+"watch_setup_sets" = "เซต";
+"watch_setup_points_per_set" = "คะแนนต่อเซต";
+"watch_setup_tennis_deuce" = "กฎดิวซ์";
+"watch_setup_tennis_advantage" = "ความได้เปรียบ";
+"watch_setup_tennis_no_ad" = "ไม่ใช้แต้มได้เปรียบ";
+"watch_setup_target_score" = "คะแนนเป้าหมาย";
+"watch_setup_rally_scoring" = "การให้คะแนนแรลลี่";
+"watch_setup_target_racks" = "เป้าหมาย";
+"watch_setup_race_racks" = "แข่งถึง";
+"watch_setup_race_racks_help" = "3 = ชนะ 3 เฟรมก่อน";
+"watch_setup_handicap" = "แฮนดิแคป";
+"watch_setup_handicap_none" = "ไม่มี";
+"watch_setup_handicap_red_gives_blue" = "สีแดง → สีฟ้า";
+"watch_setup_handicap_blue_gives_red" = "สีฟ้า → สีแดง";
+"watch_setup_handicap_racks" = "จำนวนรอบแฮนดิแคป";
+"watch_setup_frames" = "เฟรม";
+"watch_setup_custom_frames" = "จำนวนเฟรมกำหนดเอง";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "ใส่ 1-99";
+"watch_setup_players" = "ผู้เล่น";
+"watch_setup_archers" = "นักยิงธนู";
+"watch_setup_player_number" = "ผู้เล่น %d";
+"watch_setup_red_a" = "เอ แดง";
+"watch_setup_red_b" = "สีแดง บี";
+"watch_setup_blue_a" = "สีฟ้าเอ";
+"watch_setup_blue_b" = "สีฟ้า บี";
+"watch_setup_name_missing" = "กรอกชื่อให้ครบหรือเว้นว่างทั้งหมด";
+"watch_setup_select_players" = "ผู้เล่น";
+"watch_setup_player_count" = "%d ผู้เล่น";
+"watch_common_names_select_player" = "เลือกผู้เล่น";
+"watch_common_names_no_records" = "ไม่มีชื่อที่บันทึกไว้";
+"watch_common_names_title" = "ชื่อที่บันทึกไว้";
+"watch_common_names_add" = "เพิ่ม";
+"watch_common_names_edit" = "แก้ไขชื่อ";
+"watch_common_names_delete_title" = "ลบชื่อหรือไม่";
+"watch_common_names_error_title" = "ล้มเหลวในการอัปเดต";
+"watch_common_names_players" = "ผู้เล่น";
+"watch_common_names_teams" = "ทีม";
+"watch_common_names_empty" = "ไม่มีชื่อที่บันทึกไว้";
+"watch_common_names_team_placeholder" = "ชื่อทีม";
+"watch_common_names_player_placeholder" = "ชื่อผู้เล่น";
+"watch_common_names_length_hint" = "สูงสุด %d อักขระ";
+"watch_common_names_error_empty" = "ชื่อไม่สามารถเว้นว่างได้";
+"watch_common_names_error_duplicate" = "มีชื่ออยู่แล้ว";
+"watch_common_names_error_missing" = "ไม่พบบันทึก · ลองอีกครั้ง";
+"watch_common_names_error_generic" = "ไม่สามารถบันทึกได้โปรดลองอีกครั้ง";
+"watch_common_names_sync_now" = "ซิงค์ตอนนี้";
+"watch_common_names_actions" = "ชื่อที่บันทึกไว้";
+"watch_common_names_sync_requested" = "รอซิงค์";
+"watch_common_names_sync_queued" = "ไม่ได้เชื่อมต่อโทรศัพท์ · รอซิงค์";
+"watch_common_names_sync_inactive" = "ไม่ได้เชื่อมต่อโทรศัพท์";
+"watch_common_names_sync_failed" = "เชื่อมต่อไม่สำเร็จ · ลองอีกครั้ง";
+"watch_common_names_sync_conflict" = "การเปลี่ยนแปลงบางรายการไม่ได้ซิงค์";
+"watch_common_names_sync_pending" = "รอซิงค์";
+"watch_common_names_sync_unavailable" = "ไม่ได้เชื่อมต่อโทรศัพท์";
+"watch_common_names_sync_done" = "ซิงค์แล้ว";
+"watch_common_names_pending_count" = "รอซิงค์ · %d";
+"watch_common_names_never_synced" = "ยังไม่เคยซิงค์";
+"watch_common_names_last_sync" = "ซิงค์ล่าสุด %@";
+
+"watch_phone_link_title" = "ลิงก์นาฬิกา";
+"watch_phone_link_intro" = "เริ่มบนโทรศัพท์ นับคะแนนบนนาฬิกา";
+"watch_phone_link_support" = "แบดมินตัน · ฟุตบอล · ยิงธนู · ฝึกชู้ต…";
+"watch_phone_link_status" = "สถานะการเชื่อมต่อ";
+"watch_phone_link_steps" = "วิธีใช้งาน";
+"watch_phone_link_step_1" = "ตั้งค่าการแข่งขันหรือการฝึกชู้ตบนโทรศัพท์";
+"watch_phone_link_step_2" = "เริ่มต้น · Apple Watch";
+"watch_phone_link_step_3" = "นับคะแนนบนนาฬิกา เมื่อจบจะซิงค์บันทึก";
+"watch_phone_link_help" = "จับคู่อุปกรณ์ ติดตั้ง iScoreboard ทั้งสองเครื่อง แล้วเปิดแอปบนโทรศัพท์";
+"watch_phone_link_testing" = "กำลังทดสอบ";
+"watch_phone_link_normal" = "เชื่อมต่อแล้ว";
+"watch_phone_link_failed" = "เชื่อมต่อไม่สำเร็จ";
+"watch_phone_link_reachable" = "เชื่อมต่อแล้ว";
+"watch_phone_link_waiting" = "รอโทรศัพท์";
+"watch_phone_link_inactive" = "ไม่ได้เชื่อมต่อโทรศัพท์";
+"watch_phone_link_testing_detail" = "รอโทรศัพท์";
+"watch_phone_link_normal_detail" = "เชื่อมต่อแล้ว";
+"watch_phone_link_failed_detail" = "โทรศัพท์ไม่ตอบกลับภายใน 8 วินาที";
+"watch_phone_link_failed_inactive" = "ไม่ได้เชื่อมต่อโทรศัพท์ · ลองอีกครั้ง";
+"watch_phone_link_failed_unreachable" = "เปิด iScoreboard บนโทรศัพท์แล้วลองอีกครั้ง";
+"watch_phone_link_failed_send" = "เชื่อมต่อไม่สำเร็จ · ลองอีกครั้ง";
+"watch_phone_link_reachable_detail" = "ทดสอบ";
+"watch_phone_link_waiting_detail" = "เปิด iScoreboard บนโทรศัพท์แล้วลองอีกครั้ง";
+"watch_phone_link_test_waiting" = "กำลังทดสอบ…";
+"watch_phone_link_test_retry" = "ลองอีกครั้ง";
+"watch_phone_link_test" = "ทดสอบ";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "เชื่อมต่อล่าสุด %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "โหมดฝึกซ้อม";
+"watch_bb_1pt" = "1 คะแนน";
+"watch_bb_2pt" = "2 คะแนน";
+"watch_bb_3pt" = "3 คะแนน";
+"watch_bb_free" = "อิสระ";
+"watch_training_miss" = "ไม่ลง";
+"watch_training_made" = "ลง";
+"watch_training_point_value" = "%dแต้ม";
+"watch_training_breakdown" = "รายละเอียดการชู้ต";
+"watch_training_start" = "ฝึกชู้ต · เริ่มต้น";
+"watch_training_rate_format" = "ความแม่นยำ %d%%";
+"watch_training_action_format" = "%dแต้ม · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "ปักหมุดไว้ด้านบนหรือไม่";
+"watch_home_pin_confirm" = "ปักหมุด";
+"watch_home_unpin_title" = "เลิกปักหมุด?";
+"watch_home_unpin_confirm" = "เลิกปักหมุด";
+"watch_home_pin_full_title" = "ปักหมุดเต็มแล้ว";
+"watch_home_pin_full_message" = "ปักหมุดได้ 2 รายการ เลิกปักหมุดหนึ่งรายการก่อน";
+"watch_home_pin_hint" = "กดค้างเพื่อปักหมุด";
+"watch_home_pin_success" = "ปักหมุด";
+"watch_home_unpin_success" = "เลิกปักหมุดแล้ว";
+"multi_score_player_default_format" = "ผู้เล่น %d";
+"nine_ball_big_gold" = "บิ๊กโกลด์";
+"nine_ball_small_gold" = "ทองเล็ก";
+"nine_ball_golden_nine" = "โกลเดนไนน์";
+"nine_ball_normal_win" = "ชนะปกติ";
+"nine_ball_ball_in_hand" = "บอลอยู่ในมือ";
+"nine_ball_foul" = "ฟาวล์";
+"watch_archery_set_rest" = "เซตเบรค";
+"watch_finish_confirm_title" = "จบการแข่งขัน?";
+"watch_finish_confirm_message" = "การแข่งขันจะสิ้นสุดและบันทึกไว้";
+"watch_reset_confirm_title" = "เริ่มการแข่งขันใหม่หรือไม่";
+"watch_reset_confirm_message" = "คะแนนปัจจุบันจะถูกล้าง";
+"watch_side_exchange" = "สลับฝั่ง";
+"watch_winner_format" = "%@ ชนะ";
+"watch_finished_win_badge" = "ช";
+"watch_finished_winner" = "ผู้ชนะ";
+"watch_finished_home" = "หน้าแรก";
+"watch_snooker_foul" = "ฟาวล์";
+"watch_snooker_foul_selected_format" = "ฟาวล์ +%d";
+"watch_snooker_foul_next_turn" = "เปลี่ยนตาผู้เล่น";
+"watch_snooker_foul_switch_turn" = "เปลี่ยนตาผู้เล่น";
+"watch_snooker_foul_continue" = "ดำเนินการต่อ";
+"watch_action_snooker_foul_continue_format" = "%@· ฟาวล์ · คู่แข่ง +%d · ผู้กระทำผิดยังคงดำเนินต่อไป";
+"watch_snooker_handover" = "เปลี่ยนตาผู้เล่น";
+"watch_snooker_settle_frame" = "ชำระเฟรม";
+"watch_snooker_choose_frame_winner" = "เลือกผู้ชนะเฟรม";
+"watch_snooker_frame_finished" = "รอบเสร็จแล้ว";
+"watch_snooker_next_frame" = "เฟรมถัดไป";
+"watch_training_breakdown_format" = "%dแต้ม · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "ระยะห่างเท่ากัน ให้ยิงตัดสินต่อ";
+"edit" = "แก้ไข";
+"game_badminton_doubles" = "แบดมินตันคู่";
+"game_eight_ball" = "แปดลูก";
+"game_nine_ball" = "ไล่แต้ม 9 บอล";
+"game_pickleball_doubles" = "พิกเคิลบอลคู่";
+"game_pingpong_doubles" = "เทเบิลเทนนิสคู่";
+"game_snooker" = "สนุกเกอร์";
+"game_tennis_doubles" = "เทนนิสคู่";
+"save" = "บันทึก";
+"watch_action_adjust_score_format" = "%@· คะแนนเปลี่ยนไป";
+"watch_action_archery_arrow_format" = "%@+%dแต้ม";
+"watch_action_archery_closest" = "ยิงตัดสิน · ใกล้จุดศูนย์กลางที่สุด";
+"watch_action_archery_miss_format" = "%@· พลาดเป้า";
+"watch_action_archery_set_ready" = "ยิงธนู · รอบเสร็จแล้ว";
+"watch_action_ball_potted_format" = "%@ · ลูกลงหลุม %@";
+"watch_action_basketball_foul_format" = "%@· ฟาวล์";
+"watch_action_basketball_period_format" = "ควอเตอร์ %d · เริ่มต้น";
+"watch_action_basketball_timeout_format" = "%@· ขอเวลานอก";
+"watch_action_edit_name" = "อัปเดตแล้ว";
+"watch_action_exchange_sides" = "เปลี่ยนข้าง";
+"watch_action_exchange_sides_reminder" = "กรุณาเปลี่ยนข้างด้วยตนเอง";
+"watch_action_game_finished_format" = "เซต %1$d จบแล้ว · %2$@ ชนะ";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ ชนะ";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "เซต %1$d จบแล้ว · %2$@ ชนะ";
+"watch_action_shooter_format" = "%@ เริ่มยิง";
+"watch_action_side_out_format" = "เสิร์ฟ · %@";
+"watch_action_snooker_foul_format" = "%@· ฟาวล์ · คู่แข่ง +%d";
+"watch_action_snooker_frame_format" = "เฟรม %1$d · %2$@ ชนะ";
+"watch_action_snooker_handover_format" = "เปลี่ยนตาผู้เล่น · %@";
+"watch_action_snooker_miss_format" = "%@· ไม่ลง";
+"watch_action_snooker_next_frame_format" = "เฟรม %d · เริ่มต้น";
+"watch_action_snooker_pot_format" = "%@· ลูกลงหลุม +%d";
+"watch_record_actions_unavailable" = "ไม่มีบันทึก";
+"linked_score_error_title" = "เชื่อมต่อไม่สำเร็จ";
+"linked_score_persistence_failed" = "ลิงก์โทรศัพท์กับนาฬิกา · บันทึกล้มเหลว: %@";
+"resume_persistence_error_title" = "ไม่สามารถบันทึก";
+"resume_persistence_failed" = "เล่นต่อ · บันทึกล้มเหลว: %@";
+"linked_score_control_timeout" = "รับช่วง · หมดเวลารอการตอบกลับ · ลองอีกครั้ง";
+"linked_score_sync_timeout" = "หมดเวลารอการตอบกลับ · รอซิงค์";
+
+/* Football */
+"game_football" = "ฟุตบอล";
+"game_football_5v5" = "ฟุตบอล 5×5";
+"watch_setup_half_length" = "เวลาต่อครึ่ง";
+"watch_setup_teams" = "ทีม";
+"football_first_half" = "ครึ่งแรก";
+"football_second_half" = "ครึ่งหลัง";
+"football_extra_time_first" = "ต่อเวลาพิเศษ — ครึ่งแรก";
+"football_extra_time_second" = "ต่อเวลาพิเศษ — ครึ่งหลัง";
+"football_first_half_over" = "จบครึ่งแรกแล้ว";
+"football_switch_half" = "ครึ่งหลัง";
+"football_switch_half_title" = "เริ่มครึ่งหลังเลยเหรอ?";
+"football_switch_half_message" = "ครึ่งแรกจะหยุดชั่วคราวและไม่สามารถเปิดใหม่ได้";
+"football_extra_time_first_over" = "ต่อเวลาพิเศษ — ครึ่งแรก · รอบเสร็จแล้ว";
+"football_switch_extra_time_half" = "ต่อเวลาพิเศษ — ครึ่งหลัง";
+"football_enter_extra_time_title" = "จบเวลาปกติแล้ว";
+"football_post_regulation_action" = "หลังเวลาปกติ";
+"football_injury_title" = "ทดเวลาบาดเจ็บ";
+"football_undo_stoppage" = "เลิกทำช่วงทดเวลาบาดเจ็บ";
+"football_enter_extra_time" = "เข้าสู่ช่วงต่อเวลาพิเศษ";
+"football_end_as_draw" = "จบแบบเสมอกัน";
+"football_goal_hint" = "แตะเพื่อเพิ่มประตู";
+"watch_football_start" = "เริ่มต้น";
+"watch_football_pause" = "หยุดชั่วคราว";
+"watch_football_resume" = "เล่นต่อ";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "เริ่มต้น · %@";
+"watch_action_football_stoppage_format" = "ทดเวลาบาดเจ็บ +%dวิ";
+"watch_action_football_clock_start" = "เริ่มจับเวลาแล้ว";
+"watch_action_football_clock_pause" = "ตัวจับเวลาหยุดชั่วคราว";
+"watch_record_sync_sent" = "ซิงค์แล้ว";
+"watch_record_sync_pending" = "รอซิงค์";
+"watch_record_sync_not_synced" = "ยังไม่ซิงค์กับ iPhone";
+"watch_record_sync_action" = "ซิงค์กับ iPhone";
+"watch_settings_auto_sync_records" = "ซิงค์บันทึกอัตโนมัติ";
+"game_shuttlecock" = "เจี้ยนจือ";
+"game_squash" = "สควอช";
+"game_foosball" = "ฟุตบอลโต๊ะ";
+
+"watch_setup_win_by_two" = "ชนะเซตสุดท้ายโดยนำ 2 คะแนน";
+"watch_setup_score_cap" = "ขีด จำกัด คะแนน";
+"watch_setup_serving_side" = "ฝ่ายเสิร์ฟก่อน";
+"watch_setup_kickoff_side" = "ฝ่ายเริ่มเขี่ยบอล";
+"watch_setup_side_left" = "สีแดง";
+"watch_setup_side_right" = "สีฟ้า";
+
+"watch_about_us" = "เกี่ยวกับเรา";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "เวอร์ชัน %@";
+"watch_wechat_group_title" = "กลุ่มวีแชท";
+"watch_wechat_group_scan_hint" = "WeChat · สแกนโค้ดเพื่อดูรายละเอียด";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "แทงเปิด";
+"watch_nine_ball_select_payer" = "เลือกคนจ่ายแต้ม";
+"watch_nine_ball_select_continue" = "เลือกคนแทงต่อ";
+"watch_nine_ball_prev_player" = "ก่อนหน้า";
+"watch_nine_ball_next_player" = "ถัดไป";
+"watch_nine_ball_continue_badge" = "แทงต่อ";
+
+"watch_a11y_points_format" = "%dแต้ม";
+"watch_a11y_sets_format" = "%d เซต";
+"watch_a11y_serving" = "เสิร์ฟ";
+
+"watch_phone_shared_link_intro" = "เริ่มบนโทรศัพท์และบันทึกคะแนนได้จากทั้งสองอุปกรณ์";
+"linked_score_simultaneous_edit" = "มีการเปลี่ยนแปลงจากทั้งสองอุปกรณ์ โปรดตรวจสอบคะแนน";

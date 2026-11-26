@@ -7,7 +7,31 @@
 
 import AVFoundation
 import Foundation
+import Observation
 import ScoreCore
+
+enum SoundPlaybackOutcome: Equatable {
+    case started
+    case stopped
+    case disabledBySettings
+    case unavailable
+}
+
+private final class SoundManagerPlayerDelegate: NSObject, AVAudioPlayerDelegate {
+    private let onFinish: () -> Void
+
+    init(onFinish: @escaping () -> Void) {
+        self.onFinish = onFinish
+    }
+
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        onFinish()
+    }
+
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        onFinish()
+    }
+}
 
 /// Explicit tool sounds and announcements remain audible in Silent mode.
 /// Configure at playback time because voice-note recording changes the shared session.
@@ -24,52 +48,110 @@ enum AppAudioPlaybackSession {
 }
 
 /// Sound effects manager
-class SoundManager {
+@Observable
+final class SoundManager {
     static let shared = SoundManager()
-    
-    private var audioPlayer: AVAudioPlayer?
-    private let preferences = PreferencesManager.shared
-    
+
+    private(set) var activeSoundName: String?
+
+    @ObservationIgnored private var playbackGeneration: UInt64 = 0
+    @ObservationIgnored private var audioPlayer: AVAudioPlayer?
+    @ObservationIgnored private var delegateProxy: SoundManagerPlayerDelegate?
+    @ObservationIgnored private let preferences = PreferencesManager.shared
+
     private init() {}
-    
-    func playSound(_ soundName: String) {
-        guard preferences.soundEnabled else { return }
-        
-        // Try to find the sound file in multiple locations
-        var url: URL?
-        
-        // First try: root bundle (most common)
-        if let bundleUrl = Bundle.main.url(forResource: soundName, withExtension: "mp3") {
-            url = bundleUrl
-        }
-        // Second try: Resources subdirectory
-        else if let resourceUrl = Bundle.main.url(forResource: soundName, withExtension: "mp3", subdirectory: "Resources") {
-            url = resourceUrl
-        }
-        // Third try: direct path in Resources folder
-        else if let resourcesPath = Bundle.main.resourcePath {
-            let filePath = (resourcesPath as NSString).appendingPathComponent("Resources/\(soundName).mp3")
-            if FileManager.default.fileExists(atPath: filePath) {
-                url = URL(fileURLWithPath: filePath)
-            }
-        }
-        
-        guard let soundUrl = url else {
+
+    @discardableResult
+    func playSound(_ soundName: String) -> SoundPlaybackOutcome {
+        guard preferences.soundEnabled else { return .disabledBySettings }
+
+        guard let soundUrl = resolveSoundURL(soundName) else {
             #if DEBUG
             print("Sound file not found: \(soundName).mp3")
             #endif
-            return
+            return .unavailable
         }
-        
+
+        audioPlayer?.delegate = nil
+        audioPlayer?.stop()
+        audioPlayer = nil
+        delegateProxy = nil
+        playbackGeneration &+= 1
+        let generation = playbackGeneration
+
         do {
             try AppAudioPlaybackSession.activate()
-            audioPlayer = try AVAudioPlayer(contentsOf: soundUrl)
-            audioPlayer?.play()
+            let player = try AVAudioPlayer(contentsOf: soundUrl)
+            let proxy = SoundManagerPlayerDelegate { [weak self] in
+                DispatchQueue.main.async {
+                    guard let self, self.playbackGeneration == generation else { return }
+                    self.audioPlayer = nil
+                    self.delegateProxy = nil
+                    self.activeSoundName = nil
+                }
+            }
+            player.delegate = proxy
+            player.prepareToPlay()
+            guard player.play() else {
+                activeSoundName = nil
+                return .unavailable
+            }
+            audioPlayer = player
+            delegateProxy = proxy
+            activeSoundName = soundName
+            return .started
         } catch {
+            audioPlayer = nil
+            delegateProxy = nil
+            activeSoundName = nil
             #if DEBUG
             print("Error playing sound: \(error)")
             #endif
+            return .unavailable
         }
+    }
+
+    @discardableResult
+    func toggleSound(_ soundName: String) -> SoundPlaybackOutcome {
+        if activeSoundName == soundName {
+            stopSound()
+            return .stopped
+        }
+        return playSound(soundName)
+    }
+
+    func stopSound() {
+        playbackGeneration &+= 1
+        audioPlayer?.delegate = nil
+        audioPlayer?.stop()
+        audioPlayer = nil
+        delegateProxy = nil
+        activeSoundName = nil
+    }
+
+    func stopIfPlaying(_ names: Set<String>) {
+        if let current = activeSoundName, names.contains(current) {
+            stopSound()
+        }
+    }
+
+    private func resolveSoundURL(_ soundName: String) -> URL? {
+        // First try: root bundle (most common)
+        if let bundleUrl = Bundle.main.url(forResource: soundName, withExtension: "mp3") {
+            return bundleUrl
+        }
+        // Second try: Resources subdirectory
+        if let resourceUrl = Bundle.main.url(forResource: soundName, withExtension: "mp3", subdirectory: "Resources") {
+            return resourceUrl
+        }
+        // Third try: direct path in Resources folder
+        if let resourcesPath = Bundle.main.resourcePath {
+            let filePath = (resourcesPath as NSString).appendingPathComponent("Resources/\(soundName).mp3")
+            if FileManager.default.fileExists(atPath: filePath) {
+                return URL(fileURLWithPath: filePath)
+            }
+        }
+        return nil
     }
 }
 

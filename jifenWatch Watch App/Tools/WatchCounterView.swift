@@ -7,15 +7,60 @@
 
 import SwiftUI
 
+struct WatchCounterSession {
+    private(set) var count = 0
+    private var undoStack: [Int] = []
+    private var startedAt = Date()
+
+    var canUndo: Bool { !undoStack.isEmpty }
+
+    mutating func increment() {
+        undoStack.append(count)
+        count += 1
+    }
+
+    mutating func undo() {
+        if let previous = undoStack.popLast() { count = previous }
+    }
+
+    mutating func reset() {
+        count = 0
+        undoStack.removeAll()
+    }
+
+    mutating func finish(save: (WatchScoreboardRecord) -> Bool) -> Bool {
+        let end = Date()
+        if count > 0 {
+            let record = WatchScoreboardRecord(
+                id: "w_counter_\(UUID().uuidString)",
+                gameType: .counter,
+                startTime: startedAt,
+                endTime: end,
+                duration: end.timeIntervalSince(startedAt),
+                team1Name: NSLocalizedString("game_counter", comment: "Counter"),
+                team2Name: "",
+                team1FinalScore: count,
+                team2FinalScore: 0,
+                team1SetScore: 0,
+                team2SetScore: 0,
+                winner: nil,
+                actions: [],
+                totalScoreChanges: count
+            )
+            guard save(record) else { return false }
+        }
+        reset()
+        startedAt = end
+        return true
+    }
+}
+
 struct WatchCounterView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var count: Int = 0
-    /// 每次 +1 前的值，用于撤销（对齐鸿蒙 WatchCounter 的 undo）。
-    @State private var undoStack: [Int] = []
-    @State private var startTime: Date = Date()
-    @State private var showResetConfirm: Bool = false
-    @State private var showFinishConfirm: Bool = false
-    @State private var didSaveRecord = false
+    @State private var session = WatchCounterSession()
+    @State private var showResetConfirm = false
+    @State private var showFinishConfirm = false
+    @State private var showSaveFailure = false
 
     /// 杠铃布局：顶部 48、中间数字、底部 48（重置放在底部 48 里）
     private let barHeight: CGFloat = 48
@@ -33,11 +78,10 @@ struct WatchCounterView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            undoStack.append(count)
-                            count += 1
+                            session.increment()
                             WatchHaptics.shared.play(.light)
                         }
-                    Text("\(count)")
+                    Text("\(session.count)")
                         .font(WatchScoreTypography.primaryScore(size: 72))
                         .foregroundColor(WatchTheme.accent)
                         .contentTransition(.numericText())
@@ -47,18 +91,18 @@ struct WatchCounterView: View {
 
                 HStack(spacing: 0) {
                     Button {
-                        guard let previous = undoStack.popLast() else { return }
-                        count = previous
+                        guard session.canUndo else { return }
+                        session.undo()
                         WatchHaptics.shared.play(.undo)
                     } label: {
                         Text(NSLocalizedString("menu_undo", value: "撤销", comment: ""))
                             .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(undoStack.isEmpty ? WatchTheme.secondaryText.opacity(0.45) : WatchTheme.secondaryText)
+                            .foregroundColor(session.canUndo ? WatchTheme.secondaryText : WatchTheme.secondaryText.opacity(0.45))
                             .frame(maxWidth: .infinity)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .disabled(undoStack.isEmpty)
+                    .disabled(!session.canUndo)
                     .accessibilityIdentifier("watch_counter_undo")
 
                     Button {
@@ -92,8 +136,7 @@ struct WatchCounterView: View {
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(NSLocalizedString("menu_reset", comment: "Reset"), isPresented: $showResetConfirm) {
             Button(NSLocalizedString("menu_reset", comment: "Reset"), role: .destructive) {
-                count = 0
-                undoStack.removeAll()
+                session.reset()
                 WatchHaptics.shared.play(.undo)
             }
             Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
@@ -112,7 +155,12 @@ struct WatchCounterView: View {
         } message: {
             Text(NSLocalizedString("watch_counter_finish_confirm_message", value: "将结束并保存本次计数。", comment: ""))
         }
-        .onAppear { startTime = Date() }
+        .alert(
+            NSLocalizedString("watch_common_names_error_generic", value: "Couldn't save. Try again.", comment: "Generic save failure"),
+            isPresented: $showSaveFailure
+        ) {
+            Button(NSLocalizedString("confirm", comment: "Confirm"), role: .cancel) {}
+        }
         .gesture(
             DragGesture(minimumDistance: 30, coordinateSpace: .local)
                 .onEnded { value in
@@ -123,33 +171,12 @@ struct WatchCounterView: View {
         )
     }
 
-    /// 结束并保存为手表本地「计数器」记录；不回传手机（对齐鸿蒙 WatchCounter 的计数记录）。
     private func finishAndSave() {
-        guard !didSaveRecord else {
-            dismiss()
+        guard session.finish(save: { WatchRecordManager.shared.saveRecord($0, transferToPhone: false) }) else {
+            showSaveFailure = true
             return
         }
-        didSaveRecord = true
-        let end = Date()
-        let record = WatchScoreboardRecord(
-            id: "w_counter_\(UUID().uuidString)",
-            gameType: .counter,
-            startTime: startTime,
-            endTime: end,
-            duration: end.timeIntervalSince(startTime),
-            team1Name: NSLocalizedString("game_counter", comment: "Counter"),
-            team2Name: "",
-            team1FinalScore: count,
-            team2FinalScore: 0,
-            team1SetScore: 0,
-            team2SetScore: 0,
-            winner: nil,
-            actions: [],
-            totalScoreChanges: count
-        )
-        WatchRecordManager.shared.saveRecord(record, transferToPhone: false)
         WatchHaptics.shared.play(.finish)
-        dismiss()
     }
 }
 

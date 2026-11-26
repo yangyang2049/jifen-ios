@@ -580,9 +580,18 @@ struct NineBallChaseScoreboardView: View {
                 showNineBallToast(NSLocalizedString("scoreboard_save_failed", value: "保存失败，请稍后重试", comment: ""))
             }
         }
-        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
-            guard let watchSessionId, let update, update.sessionId == watchSessionId,
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { previous, update in
+            guard watchLinkService.incomingSnapshot != nil, let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.nineBallState else { return }
+            if watchLinkService.controlRole == .shared, update.beginsMatch(after: previous) {
+                let previousRecordID = recordID
+                startedAt = Date()
+                recordID = ScoreboardRecordIdentity.next(prefix: GameType.nineBall.canonicalScoreboardIdentifier)
+                sessionStore = sessionStore.makeLinkedMatchStore(state: remote, startedAt: startedAt, recordID: recordID)
+                ParticipantIdentityStore.shared.copySelections(from: previousRecordID, to: recordID)
+                actionCount = 0
+                actionLog.removeAll()
+            }
             detailedActions = update.detailedActions
             applyAuthoritativeNineBall(remote)
         }
@@ -596,7 +605,7 @@ struct NineBallChaseScoreboardView: View {
         .onDisappear {
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             let skipSave = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+                && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             if !skipSave {
                 sessionStore.flush {
@@ -612,7 +621,7 @@ struct NineBallChaseScoreboardView: View {
         )
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
-                ScoreboardRecordDetailPage(recordId: recordID)
+                ScoreboardRecordDetailPage(recordId: (watchSessionId == nil ? nil : watchLinkService.finishedRecordId) ?? recordID)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             ModalCloseButton { showFinishedRecordDetail = false }
@@ -642,7 +651,7 @@ struct NineBallChaseScoreboardView: View {
     }
 
     private func publishWatchIfNeeded(_ state: NineBallChaseState) {
-        guard let watchSessionId, watchLinkService.isController else { return }
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
         var snapshot = state
         snapshot.playerNames = Array((playerNames + Array(repeating: "", count: 4)).prefix(4))
         watchLinkService.syncWatch(
@@ -1665,7 +1674,7 @@ struct NineBallChaseScoreboardView: View {
             watchLinkService.leaveSessionIfMatchFinished(id)
         }
         let skipSave = watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+            && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
         sessionStore.flush {
             if !skipSave { _ = saveRecord() }
             performScoreboardExit(
@@ -1722,7 +1731,7 @@ struct NineBallChaseScoreboardView: View {
     }
 
     private func notifyLinkedFinishIfNeeded() {
-        guard let watchSessionId, watchLinkService.isController else { return }
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
         let activeScores = Array(state.playerPoints.prefix(state.playerCount))
         let winner: MatchSide? = state.playerCount == 2 && activeScores.count >= 2 && activeScores[0] != activeScores[1]
             ? (activeScores[0] > activeScores[1] ? .left : .right)
@@ -1738,7 +1747,8 @@ struct NineBallChaseScoreboardView: View {
             startTime: startedAt,
             endTime: Date(),
             totalScoreChanges: actionCount,
-            participantNames: (0..<state.playerCount).map { playerName($0) }
+            participantNames: (0..<state.playerCount).map { playerName($0) },
+            detailedActions: detailedActions
         )
     }
     private func startNewMatch() {
@@ -1898,6 +1908,7 @@ struct NineBallChaseScoreboardView: View {
     }
     @discardableResult
     private func saveRecord() -> Bool {
+        if watchSessionId != nil, watchLinkService.peerFinishedSharedMatch { return true }
         if state.finished, sessionStore.hasCommittedFinishedRecord {
             return true
         }

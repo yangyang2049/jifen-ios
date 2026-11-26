@@ -1999,6 +1999,7 @@ enum OfficialBreakOverlayPresentation {
 
 struct OfficialBreakOverlay: View {
     @Binding var session: OfficialBreakSession
+    var isReadOnly: Bool = false
     var onComplete: (OfficialBreakAfterAction) -> Void
     var onCancel: () -> Void = {}
     var onVoiceCue: (OfficialBreakCue) -> Void = { _ in }
@@ -2028,7 +2029,7 @@ struct OfficialBreakOverlay: View {
                         currentRemainingMilliseconds: currentRemaining
                     ).forEach(deliverVoiceCue)
                 }
-                if completed {
+                if completed, !isReadOnly {
                     deliverVoiceCue(.complete)
                     completeOnce(state.afterAction)
                 }
@@ -2071,37 +2072,39 @@ struct OfficialBreakOverlay: View {
             Text(clockText)
                 .font(.system(size: 44, weight: .bold, design: .monospaced))
                 .foregroundColor(Color(red: 0x31 / 255, green: 0xD1 / 255, blue: 0x58 / 255))
-            HStack(spacing: 8) {
-                if OfficialBreakOverlayPresentation.showsUndo(for: state) {
-                    Button {
-                        if session.undo(), session.state == nil {
-                            onCancel()
+            if !isReadOnly {
+                HStack(spacing: 8) {
+                    if OfficialBreakOverlayPresentation.showsUndo(for: state) {
+                        Button {
+                            if session.undo(), session.state == nil {
+                                onCancel()
+                            }
+                        } label: {
+                            Text(NSLocalizedString("undo", value: "撤销", comment: ""))
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 6)
+                                .frame(minHeight: 36)
+                                .background(Color.white.opacity(0.14), in: Capsule())
+                                .contentShape(Capsule())
                         }
+                    }
+                    Button {
+                        let action = state.afterAction
+                        deliverVoiceCue(.earlyResume)
+                        session.skip()
+                        completeOnce(action)
                     } label: {
-                        Text(NSLocalizedString("undo", value: "撤销", comment: ""))
-                            .font(.system(size: 14))
-                            .foregroundColor(.white)
+                        Text(NSLocalizedString("official_break_continue", value: "继续", comment: ""))
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(Color(red: 0x0B / 255, green: 0x0B / 255, blue: 0x0C / 255))
                             .padding(.horizontal, 18)
                             .padding(.vertical, 6)
                             .frame(minHeight: 36)
-                            .background(Color.white.opacity(0.14), in: Capsule())
+                            .background(Color.white.opacity(0.92), in: Capsule())
                             .contentShape(Capsule())
                     }
-                }
-                Button {
-                    let action = state.afterAction
-                    deliverVoiceCue(.earlyResume)
-                    session.skip()
-                    completeOnce(action)
-                } label: {
-                    Text(NSLocalizedString("official_break_continue", value: "继续", comment: ""))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color(red: 0x0B / 255, green: 0x0B / 255, blue: 0x0C / 255))
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 6)
-                        .frame(minHeight: 36)
-                        .background(Color.white.opacity(0.92), in: Capsule())
-                        .contentShape(Capsule())
                 }
             }
         }

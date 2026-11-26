@@ -137,6 +137,12 @@ enum SportsSetupWatchSessionLauncher {
         case .foosball:
             coreGameType = config.isSingles == false ? .foosballDoubles : .foosball
             rules = config.foosballRules
+        case .basketballTraining:
+            let mode = LinkedShotTrainingMode(rawValue: config.basketballTrainingScoringMode ?? "") ?? .fixed1
+            return try await service.startInteractiveOnWatch(
+                snapshot: .basketballTraining(.init(mode: mode)),
+                gameType: .basketballTraining
+            )
         case .football, .football5v5:
             let fiveAside = gameType == .football5v5
             let halfLength = config.footballHalfLengthSeconds

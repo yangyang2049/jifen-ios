@@ -53,9 +53,25 @@ extension PhoneWatchLinkService {
             initialSnapshot: initialSnapshot,
             participantNames: participantNames ?? []
         )
+        if let session = activeRecordSession { retiredRecordSessions.retire(session) }
         if let existing = activeSession?.sessionId {
             leaveSession(existing)
         }
+        pendingTakeoverMessageId = nil
+        pendingReclaimGrantMessageId = nil
+        pendingReclaimRequest = nil
+        pendingTakeoverApplication = nil
+        forceTakeoverConfirmationSessionId = nil
+        pendingStatusCorrelationId = nil
+        statusTimeoutTask?.cancel()
+        statusTimeoutTask = nil
+        resumeStatusContinuations(throwing: CancellationError())
+        reclaimTimeoutTask?.cancel()
+        reclaimTimeoutTask = nil
+        pendingAck.clear()
+        peerSupportsCompressedFinish = false
+        mergedDetailedActions = []
+        watchBackgrounded = false
         activeSession = ActiveSession(
             handle: LinkedMatchHandle(sessionId: sessionId),
             gameType: gameType,
@@ -79,6 +95,8 @@ extension PhoneWatchLinkService {
         persistContext()
         sequence += 1
         let envelope = LinkEnvelope(
+            supportsCompressedFinish: true,
+            supportsSharedEditing: true,
             sessionId: sessionId,
             matchId: activeSession?.handle.matchId,
             matchGeneration: activeSession?.handle.matchGeneration ?? 1,
@@ -148,9 +166,21 @@ extension PhoneWatchLinkService {
         guard let currentSession = activeSession,
               currentSession.sessionId == sessionId,
               currentSession.gameType == gameType,
-              currentSession.role == .phoneController,
+              canEditLinkedMatch,
+              !peerFinishedSharedMatch,
+              !currentSession.completedMatchIds.contains(currentSession.handle.matchId),
               var machine = sessionMachine else { return }
-        _ = machine.advanceRevision()
+        let shared = machine.role == .shared
+        let baseRevision = machine.revision
+        if shared, baseRevision != 0 || currentSession.handle.matchGeneration == 1,
+           snapshot == (latestRemoteSnapshot?.snapshot ?? currentSession.setup.initialSnapshot),
+           participantNames == nil || participantNames == currentSession.setup.participantNames {
+            let knownActionIds = Set(mergedDetailedActions.map(\.id))
+            if detailedActions?.allSatisfy({ knownActionIds.contains($0.id) }) ?? true {
+                return
+            }
+        }
+        _ = machine.advanceRevision(sender: .phone)
         sessionMachine = machine
         synchronizeActiveSessionFromStateMachine()
         guard var session = activeSession else { return }
@@ -174,6 +204,7 @@ extension PhoneWatchLinkService {
         sequence += 1
         let messageId = UUID()
         let envelope = LinkEnvelope(
+            baseSnapshotRevision: shared ? baseRevision : nil,
             messageId: messageId,
             sessionId: sessionId,
             matchId: session.handle.matchId,
@@ -192,13 +223,30 @@ extension PhoneWatchLinkService {
                 participantNames: session.setup.participantNames
             )
         )
+        if shared {
+            sharedEditTracker.recordLocalEdit(
+                handle: envelope.handle, revision: envelope.sessionRevision,
+                baseRevision: baseRevision, sentAt: envelope.sentAtEpochMilliseconds
+            )
+        }
         Task {
+            guard let current = activeSession, current.handle == envelope.handle,
+                  canEditLinkedMatch else { return }
+            let isLatest = current.revision == envelope.sessionRevision
+            let supersededByWatch = shared && LinkSharedRevision.writer(of: current.revision) == .watch
+            guard isLatest || (supersededByWatch && transport.isReachable) else { return }
+            let data = LinkEnvelopeEncoding.data(
+                envelope,
+                actionsKeyPath: \LinkedScoreboardSetup.detailedActions
+            )
+            if !isLatest {
+                // Let the peer detect a simultaneous edit without replacing
+                // the current application context or retrying the older score.
+                try? await transport.sendRealtime(data)
+                return
+            }
             do {
                 // 实时快照携带全量动作历史，超出 64KB 时裁剪最旧尾部。
-                let data = LinkEnvelopeEncoding.data(
-                    envelope,
-                    actionsKeyPath: \LinkedScoreboardSetup.detailedActions
-                )
                 sessionMachine?.registerPendingAcknowledgement(messageId)
                 pendingAck.enqueue(.init(
                     messageId: messageId,
@@ -387,6 +435,9 @@ extension PhoneWatchLinkService {
                     print("[PhoneLink] terminal outbox re-enqueue failed: \(error.localizedDescription)")
                     #endif
                 }
+                if transport.isReachable {
+                    Task { try? await transport.sendRealtime(data) }
+                }
             }
         }
         flushPendingSessionEnds()
@@ -452,11 +503,9 @@ extension PhoneWatchLinkService {
                 }
                 do {
                     try await sendEnvelope(envelope)
-                    pendingSessionEnds.removeAll {
-                        $0.handle.sessionId == sessionId
-                    }
+                    pendingSessionEnds.removeAll { $0 == request }
                     persistPendingSessionEnds()
-                    if activeSession?.sessionId == sessionId {
+                    if activeSession?.handle == request.handle {
                         clearSession()
                     }
                 } catch {
@@ -485,7 +534,9 @@ extension PhoneWatchLinkService {
                 ?? session.setup.initialSnapshot,
             detailedActions: mergedDetailedActions,
             completedMatchIds: session.completedMatchIds,
-            pendingTerminalMessageIds: Set(terminalOutbox.items.map(\.messageId))
+            pendingTerminalMessageIds: Set(terminalOutbox.items.map(\.messageId)),
+            finishedRecordId: finishedRecordId,
+            peerSupportsCompressedFinish: peerSupportsCompressedFinish
         )
         do {
             let data = try JSONEncoder().encode(context)
@@ -525,9 +576,14 @@ extension PhoneWatchLinkService {
             completedMatchIds: context.completedMatchIds
         )
         if let session = activeSession {
-            installStateMachine(from: session)
+            installStateMachine(
+                from: session,
+                lifecycle: context.completedMatchIds.contains(context.handle.matchId) ? .matchFinished : .active
+            )
             synchronizeActiveSessionFromStateMachine()
         }
+        finishedRecordId = context.finishedRecordId
+        peerSupportsCompressedFinish = context.peerSupportsCompressedFinish == true
         mergedDetailedActions = context.detailedActions
         publishedFinishedMatchIds = context.completedMatchIds
         if let snapshot = context.latestAuthoritativeSnapshot {

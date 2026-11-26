@@ -72,7 +72,8 @@ extension WatchLinkService {
         guard envelope.protocolVersion == LinkProtocol.currentVersion,
               envelope.capabilities == LinkProtocol.capabilities,
               envelope.payload.capabilities == LinkProtocol.capabilities,
-              Self.isValidLinkedSetup(envelope.payload) else {
+              Self.isValidLinkedSetup(envelope.payload),
+              envelope.payload.gameType != .basketballTraining || envelope.supportsCompressedFinish == true else {
             sequence += 1
             let rejection = LinkEnvelope(
                 correlationId: envelope.messageId,
@@ -111,7 +112,9 @@ extension WatchLinkService {
             handle: envelope.handle,
             messageId: envelope.messageId,
             authorityEpoch: envelope.authorityEpoch,
-            setup: envelope.payload
+            setup: envelope.payload,
+            peerSupportsCompressedFinish: envelope.supportsCompressedFinish == true,
+            peerSupportsSharedEditing: envelope.supportsSharedEditing == true
         )
         mergeDetailedActions(envelope.payload.detailedActions)
         return true
@@ -134,14 +137,17 @@ extension WatchLinkService {
             $0.messageId == messageId
         }
         let terminalItem: LinkDurableOutbox.Item?
-        if let terminalCandidate,
+        if let terminalCandidate, terminalCandidate.pendingLocalRecord == nil,
            envelope.kind == .recordAcknowledgement,
            envelope.handle == terminalCandidate.handle {
             terminalItem = terminalOutbox.acknowledge(messageId: messageId)
         } else {
             terminalItem = nil
         }
-        if terminalItem != nil {
+        if let terminalItem {
+            if let finishedEnvelope = LinkFinishedEncoding.decode(terminalItem.data), !finishedEnvelope.payload.recordId.isEmpty {
+                recordSink.markSynced(recordId: finishedEnvelope.payload.recordId)
+            }
             persistTerminalOutbox()
             persistContext()
             flushPendingSessionEnds()
@@ -156,9 +162,23 @@ extension WatchLinkService {
               envelope.kind == .stateSnapshot,
               let snapshot = envelope.payload.initialSnapshot,
               envelope.sessionId == activeSessionId,
+              envelope.payload.gameType == activeGameType,
               Self.isValidLinkedSetup(envelope.payload),
               var machine = sessionMachine else { return false }
 
+        let shared = machine.role == .shared
+        if shared {
+            guard envelope.authorityEpoch == machine.authorityEpoch,
+                  LinkSharedRevision.writer(of: envelope.sessionRevision) == .phone else { return false }
+        }
+        if machine.completedMatchIds.contains(envelope.matchId), shared || !snapshot.isFinished {
+            sendAck(
+                sessionId: envelope.sessionId, messageId: envelope.messageId,
+                revision: envelope.sessionRevision, handle: envelope.handle,
+                authorityEpoch: envelope.authorityEpoch
+            )
+            return true
+        }
         let previousHandle = machine.handle
         let validation = machine.accept(
             handle: envelope.handle,
@@ -169,7 +189,12 @@ extension WatchLinkService {
             return false
         }
         let beganNewMatch = machine.handle != previousHandle
-        if validation == .current {
+        if shared, sharedEditTracker.shouldShowNotice(
+            for: envelope, now: nowMs()
+        ) {
+            simultaneousEditNotice = UUID()
+        }
+        if !shared, validation == .current {
             _ = machine.adoptAuthority(
                 role: .watchFollower,
                 epoch: envelope.authorityEpoch
@@ -181,7 +206,7 @@ extension WatchLinkService {
         if beganNewMatch {
             mergedDetailedActions = []
             latestSnapshot = nil
-            phoneTookOver = true
+            phoneTookOver = !shared
             _ = revisionGate.beginMatch(
                 envelope.handle,
                 initialRevision: envelope.sessionRevision
@@ -192,7 +217,9 @@ extension WatchLinkService {
                 revision: envelope.sessionRevision
             )
         }
-        if validation == .current {
+        let hasCurrentHistory = shared && envelope.sessionRevision == machine.revision
+            && !envelope.payload.detailedActions.isEmpty
+        if validation == .current || hasCurrentHistory {
             mergeDetailedActions(envelope.payload.detailedActions)
             var updatedSetup = envelope.payload
             updatedSetup.detailedActions = mergedDetailedActions
@@ -200,6 +227,7 @@ extension WatchLinkService {
             latestSnapshot = .init(
                 sessionId: envelope.sessionId,
                 revision: envelope.sessionRevision,
+                matchGeneration: envelope.matchGeneration,
                 snapshot: snapshot,
                 detailedActions: mergedDetailedActions
             )
@@ -224,7 +252,7 @@ extension WatchLinkService {
               envelope.sender == .phone,
               envelope.kind == .takeoverByPhone,
               envelope.handle == activeHandle,
-              var machine = sessionMachine else { return false }
+              var machine = sessionMachine, machine.role != .shared else { return false }
         // The watch remains authoritative until this message is received. Use
         // its frozen latest state in the ACK so any point scored while the
         // takeover request was in flight cannot be lost.
@@ -371,56 +399,73 @@ extension WatchLinkService {
     }
 
     private func handleMatchFinishedFromPhone(_ data: Data) -> Bool {
-        guard let envelope = try? JSONDecoder().decode(LinkEnvelope<LinkMatchFinishedPayload>.self, from: data),
+        guard let envelope = LinkFinishedEncoding.decode(data),
               envelope.sender == .phone,
               envelope.kind == .matchFinished,
-              envelope.sessionId == activeSessionId,
-              let currentHandle = activeHandle,
-              var machine = sessionMachine,
-              envelope.matchGeneration <= currentHandle.matchGeneration else {
-            return false
-        }
-        let isCurrentMatch = envelope.handle == currentHandle
-        guard !isCurrentMatch || envelope.authorityEpoch >= authorityEpoch else {
-            return false
-        }
-        if publishedFinishedMatchIds.contains(envelope.matchId) {
-            sendAck(
-                sessionId: envelope.sessionId,
-                messageId: envelope.messageId,
-                revision: envelope.sessionRevision,
-                handle: envelope.handle,
-                authorityEpoch: envelope.authorityEpoch,
-                recordAck: true
-            )
-            return true
-        }
-        if isCurrentMatch {
-            let validation = machine.accept(
-                handle: envelope.handle,
-                authorityEpoch: envelope.authorityEpoch,
-                revision: envelope.sessionRevision
-            )
-            guard validation == .current || validation == .duplicateOrOlder else {
-                return false
+              envelope.protocolVersion == LinkProtocol.currentVersion else { return false }
+        let liveSession = activeRecordSession
+        let isActiveSession = liveSession?.handle.sessionId == envelope.sessionId
+        let session = isActiveSession ? liveSession : retiredRecordSessions[envelope.sessionId]
+        guard let session, session.accepts(handle: envelope.handle, authorityEpoch: envelope.authorityEpoch),
+              envelope.payload.snapshot.matches(gameType: session.gameType) else { return false }
+
+        if !session.completedMatchIds.contains(envelope.matchId) {
+            let isCurrentMatch = liveSession?.handle == envelope.handle
+            let beginsNewMatch = isActiveSession && envelope.matchGeneration > session.handle.matchGeneration
+            var machine = sessionMachine
+            if isCurrentMatch || beginsNewMatch {
+                let validation = machine?.accept(
+                    handle: envelope.handle, authorityEpoch: envelope.authorityEpoch,
+                    revision: envelope.sessionRevision
+                )
+                guard validation == .current || validation == .duplicateOrOlder else { return false }
             }
-            _ = revisionGate.classify(
-                handle: envelope.handle,
-                revision: envelope.sessionRevision
-            )
-            mergeDetailedActions(envelope.payload.detailedActions)
-            latestSnapshot = .init(
-                sessionId: envelope.sessionId,
-                revision: envelope.sessionRevision,
-                snapshot: envelope.payload.snapshot,
-                detailedActions: mergedDetailedActions
-            )
-            WatchResumeSessionStore.shared.clear()
+            var payload = envelope.payload
+            if isCurrentMatch {
+                mergeDetailedActions(payload.detailedActions)
+                payload.detailedActions = mergedDetailedActions
+            }
+            guard recordSink.ingest(
+                payload: payload, gameType: session.gameType, matchId: envelope.matchId, syncState: .sent
+            ) != nil else {
+                reportPersistenceError(CocoaError(.fileWriteUnknown))
+                return true
+            }
+
+            if isActiveSession, var machine {
+                _ = machine.markFinished(matchId: envelope.matchId)
+                sessionMachine = machine
+                synchronizeSessionStateFromMachine()
+                if isCurrentMatch || beginsNewMatch {
+                    if beginsNewMatch {
+                        pendingAck.clear()
+                        _ = revisionGate.beginMatch(envelope.handle, initialRevision: envelope.sessionRevision)
+                    } else {
+                        _ = revisionGate.classify(handle: envelope.handle, revision: envelope.sessionRevision)
+                    }
+                    mergedDetailedActions = payload.detailedActions
+                    latestSnapshot = .init(
+                        sessionId: envelope.sessionId,
+                        revision: envelope.sessionRevision,
+                        matchGeneration: envelope.matchGeneration,
+                        snapshot: payload.snapshot,
+                        detailedActions: payload.detailedActions
+                    )
+                    activeSetup = LinkedScoreboardSetup(
+                        gameType: session.gameType, maxSets: maxSets(for: payload.snapshot),
+                        initialSnapshot: payload.snapshot, detailedActions: payload.detailedActions,
+                        participantNames: payload.participantNames
+                    )
+                    WatchResumeSessionStore.shared.clear()
+                }
+                persistContext()
+            } else {
+                retiredRecordSessions.markFinished(envelope.handle)
+            }
         }
-        _ = machine.markFinished(matchId: envelope.matchId)
-        sessionMachine = machine
-        synchronizeSessionStateFromMachine()
-        persistContext()
+        if session.gameType == .basketballTraining {
+            cancelPendingTrainingFinish(handle: envelope.handle)
+        }
         sendAck(
             sessionId: envelope.sessionId,
             messageId: envelope.messageId,
@@ -441,7 +486,11 @@ extension WatchLinkService {
             pendingConfirmRequest = nil
             return true
         }
-        guard envelope.sessionId == activeSessionId else { return false }
+        guard envelope.handle == activeHandle else {
+            retiredRecordSessions.removeConfirmedSession(handle: envelope.handle, authorityEpoch: envelope.authorityEpoch)
+            return false
+        }
+        guard envelope.authorityEpoch >= authorityEpoch else { return false }
         let pendingCount = pendingSessionEnds.count
         pendingSessionEnds.removeAll { $0.handle.sessionId == envelope.sessionId }
         if pendingSessionEnds.count != pendingCount {
@@ -450,6 +499,7 @@ extension WatchLinkService {
         rescheduleRetryIfNeeded()
         WatchResumeSessionStore.shared.clear()
         endLocalSession()
+        retiredRecordSessions.removeConfirmedSession(handle: envelope.handle, authorityEpoch: envelope.authorityEpoch)
         return true
     }
 

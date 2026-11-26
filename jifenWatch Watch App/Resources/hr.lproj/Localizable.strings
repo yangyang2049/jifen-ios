@@ -1,0 +1,422 @@
+/* Watch App - hr */
+
+/* Tab Bar */
+"tab_score" = "Rezultat";
+"tab_tools" = "Alati";
+"tab_timer" = "Odbrojavanje";
+
+/* Game Types */
+"game_badminton" = "Badminton";
+"game_pingpong" = "Stolni tenis";
+"game_tennis" = "Tenis";
+"game_pickleball" = "Pickleball";
+"game_archery" = "Streličarstvo";
+"tool_basketball_training" = "Trening šuta";
+
+/* Tools */
+"tool_flip_coin" = "Bacite novčić";
+"tool_random_number" = "Nasumični broj";
+"tool_ten_second" = "Zaustavi sat";
+"game_counter" = "Brojač";
+"press_again_to_reset" = "Dodirni ponovno za poništavanje rezultata";
+
+/* Records */
+"records" = "Zapisi";
+"loading" = "Učitavanje";
+"no_records" = "Nema zapisa";
+"record_not_found" = "Zapis nije pronađen";
+"match_details" = "Detalji utakmice";
+"match_record" = "Zapis utakmice";
+"delete_record" = "Izbriši zapis";
+"confirm_deletion" = "Potvrdite brisanje";
+"cannot_be_recovered_after_deletion" = "Ovo se ne može poništiti";
+"date" = "Datum";
+"time" = "Vrijeme";
+"duration" = "Trajanje";
+
+/* Common */
+"cancel" = "Odustani";
+"confirm" = "Potvrdite";
+"delete" = "Izbriši";
+"setup" = "Postavke";
+"vibration" = "Vibracija";
+"sound" = "Zvuk";
+"watch_scoreboard_keep_screen_on" = "Drži zaslon uključenim";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Upute";
+"usage_prompt_message" = "Dodirni stranu za dodavanje boda\nPovuci dolje za poništavanje\nZadrži pritisak za izbornik";
+"got_it" = "Shvaćam";
+
+/* Privacy */
+"privacy_policy" = "Pravila privatnosti";
+"scan_to_view_details" = "Skeniraj kôd za pojedinosti";
+
+/* Settings / About */
+"version" = "Verzija";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Povratne informacije";
+"watch_contact_us" = "Kontakt";
+
+/* Scoreboard menu */
+"menu_undo" = "Poništi";
+"menu_reset" = "Ponovno postavi";
+"watch_continue" = "Nastavi";
+"watch_end_match" = "Završi";
+"watch_layout_vertical" = "Okomito";
+"watch_layout_horizontal" = "Vodoravno";
+"watch_settings_layout_title" = "Raspored";
+"watch_reset_toast" = "Reset";
+"watch_undo_toast" = "Poništeno";
+"watch_play_again" = "Igrajte ponovno";
+"watch_exit" = "Izlaz";
+"exit" = "Izlaz";
+"watch_team_red" = "Crveno";
+"watch_team_blue" = "Plava";
+"team_a" = "Tim A";
+"team_b" = "Tim B";
+"team_home" = "Domaći";
+"team_away" = "Gosti";
+"player_a" = "Igrač A";
+"player_b" = "Igrač B";
+"archer_a" = "Strijelac A";
+"archer_b" = "Strijelac B";
+"linked_score_confirm_title" = "Veza telefona i sata?";
+"linked_score_phone_started_scoreboard" = "Veza telefona i sata · Igra je započela";
+"linked_score_accept" = "Prihvati";
+"linked_score_reject" = "Odbaci";
+"linked_score_watch_reclaim" = "Preuzmi";
+"linked_score_setup_rules" = "%1$d setova · %2$d bodova";
+"linked_score_setup_rules_sets" = "%d setova";
+"linked_score_setup_race_to" = "Cilj %d";
+"linked_score_sport_badminton" = "Badminton pojedinačno";
+"linked_score_sport_badminton_doubles" = "Badminton parovi";
+"linked_score_sport_pingpong" = "Stolni tenis pojedinačno";
+"linked_score_sport_pingpong_doubles" = "Stolnoteniski parovi";
+"linked_score_sport_tennis" = "Tenis pojedinačno";
+"linked_score_sport_tennis_doubles" = "Teniski parovi";
+"linked_score_sport_pickleball" = "Pickleball pojedinačno";
+"linked_score_sport_pickleball_doubles" = "Pickleball parovi";
+"game_basketball" = "Košarka";
+"game_three_basketball" = "Košarka 3x3";
+"linked_score_sport_archery" = "Streličarstvo";
+"linked_score_sport_eight_ball" = "Osmica";
+"linked_score_sport_nine_ball" = "Devetka – lov na bodove";
+"linked_score_sport_snooker" = "Snooker";
+"linked_score_sport_shuttlecock" = "Jianzi";
+"linked_score_sport_squash" = "Squash";
+"linked_score_sport_foosball" = "Stolni nogomet";
+"linked_score_sport_football" = "Nogomet";
+"linked_score_sport_football_5v5" = "Nogomet 5×5";
+"watch_menu_end_match" = "Završi utakmicu";
+"watch_menu_restart" = "Ponovno pokreni";
+"watch_bball_overtime" = "Produžetak";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d igrača";
+"archery_closest_title" = "Raspucavanje · Najbliže središtu";
+"archery_closest_message" = "Izjednačeno na %d bodova – odaberite strelicu bližu središtu";
+"watch_set_end_format" = "Set %d završen";
+"watch_match_start" = "Igra je započela";
+"watch_match_finished" = "Utakmica završena";
+"watch_bb_hit_rate" = "Preciznost";
+"watch_bb_end_training" = "Završi trening";
+"watch_training_finish_confirm_title" = "Završiti trening?";
+"watch_training_finish_confirm_message" = "Trening će završiti i biti spremljen.";
+"watch_counter_finish_confirm_title" = "Završiti brojanje?";
+"watch_counter_finish_confirm_message" = "Broj će se spremiti i brojanje kreće od nule.";
+"watch_bb_restart" = "Ponovno pokreni";
+
+/* Records */
+"clear_all_records" = "Obriši sve zapise";
+"clear_all_records_message" = "Svi zapisi trajno će se izbrisati.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Glava";
+"watch_coin_tails" = "Pismo";
+"watch_archery_miss" = "Promašaj";
+"watch_flip_coin_hint" = "Dodirni za bacanje novčića";
+"watch_ten_second_challenge" = "Zaustavi sat";
+"watch_ten_second_usage" = "Dodirni za početak. Ponovno dodirni u ciljano vrijeme.";
+"watch_mid_game_rest" = "Pauza usred seta";
+"watch_rest_between_sets" = "Pauza između setova";
+"watch_official_timeout" = "Minuta odmora";
+"watch_medical_break" = "Medicina";
+"watch_score_event_set_title" = "Set %d završen";
+"watch_score_event_set_detail" = "%1$@ Pobjeđuje %2$d:%3$d · Setovi %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Set %d · Pauza usred seta";
+"watch_score_event_mid_game_detail" = "%1$@ Vodi %2$d:%3$d · Setovi %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Set %d završen";
+"watch_score_event_tennis_game_detail" = "%1$@ Pobjeđuje · Gemovi %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Set %d završen";
+"watch_score_event_tennis_set_detail" = "%1$@ Pobjeđuje %2$d:%3$d · Setovi %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "Tie-break do 7 bodova";
+"watch_tiebreak_indicator_10" = "Tie-break do 10 bodova";
+"watch_continue_match" = "Nastavi";
+"watch_continue_scoring" = "Nastavi";
+"watch_resume_discard" = "Odbaci nedovršenu utakmicu";
+"watch_resume_discard_training" = "Odbaci nedovršeni trening";
+"unit_hour" = "h";
+"unit_minute" = "min";
+"unit_second" = "s";
+"today" = "Danas";
+"yesterday" = "Jučer";
+
+/* Sports setup */
+"watch_setup_start" = "Početak";
+"watch_setup_sets" = "Setovi";
+"watch_setup_points_per_set" = "Bodovi po setu";
+"watch_setup_tennis_deuce" = "Pravilo kod izjednačenja";
+"watch_setup_tennis_advantage" = "Prednost";
+"watch_setup_tennis_no_ad" = "Bez prednosti";
+"watch_setup_target_score" = "Ciljani rezultat";
+"watch_setup_rally_scoring" = "Bod za svako nadigravanje";
+"watch_setup_target_racks" = "Cilj";
+"watch_setup_race_racks" = "Utrka do";
+"watch_setup_race_racks_help" = "3 = prvi do 3 framea";
+"watch_setup_handicap" = "Hendikep";
+"watch_setup_handicap_none" = "Ništa";
+"watch_setup_handicap_red_gives_blue" = "Crveno → Plava";
+"watch_setup_handicap_blue_gives_red" = "Plava → Crveno";
+"watch_setup_handicap_racks" = "Partije hendikepa";
+"watch_setup_frames" = "Partije";
+"watch_setup_custom_frames" = "Prilagođeni frejmovi";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Unesite 1-99";
+"watch_setup_players" = "Igrači";
+"watch_setup_archers" = "Strijelci";
+"watch_setup_player_number" = "Igrač %d";
+"watch_setup_red_a" = "Crveno A";
+"watch_setup_red_b" = "Crveno B";
+"watch_setup_blue_a" = "Plava A";
+"watch_setup_blue_b" = "Plava B";
+"watch_setup_name_missing" = "Unesi sva imena ili sva ostavi prazna";
+"watch_setup_select_players" = "Igrači";
+"watch_setup_player_count" = "%d igrača";
+"watch_common_names_select_player" = "Odaberite igrača";
+"watch_common_names_no_records" = "Nema spremljenih imena";
+"watch_common_names_title" = "Spremljena imena";
+"watch_common_names_add" = "Dodaj";
+"watch_common_names_edit" = "Uredi naziv";
+"watch_common_names_delete_title" = "Izbrisati ime?";
+"watch_common_names_error_title" = "Ažuriranje nije uspjelo";
+"watch_common_names_players" = "Igrači";
+"watch_common_names_teams" = "timovi";
+"watch_common_names_empty" = "Nema spremljenih imena";
+"watch_common_names_team_placeholder" = "Ime tima";
+"watch_common_names_player_placeholder" = "Ime igrača";
+"watch_common_names_length_hint" = "Do %d znakova";
+"watch_common_names_error_empty" = "Ime ne može biti prazno";
+"watch_common_names_error_duplicate" = "Naziv već postoji";
+"watch_common_names_error_missing" = "Zapis nije pronađen · Pokušaj ponovo";
+"watch_common_names_error_generic" = "Nije moguće spremiti. Molimo pokušajte ponovo.";
+"watch_common_names_sync_now" = "Sinkroniziraj sada";
+"watch_common_names_actions" = "Spremljena imena";
+"watch_common_names_sync_requested" = "Čeka sinkronizaciju";
+"watch_common_names_sync_queued" = "Telefon nije povezan · Čeka sinkronizaciju";
+"watch_common_names_sync_inactive" = "Telefon nije povezan";
+"watch_common_names_sync_failed" = "Povezivanje nije uspjelo · Pokušaj ponovo";
+"watch_common_names_sync_conflict" = "Neke promjene nisu sinkronizirane";
+"watch_common_names_sync_pending" = "Čeka sinkronizaciju";
+"watch_common_names_sync_unavailable" = "Telefon nije povezan";
+"watch_common_names_sync_done" = "Sinkronizirano";
+"watch_common_names_pending_count" = "Čeka sinkronizaciju · %d";
+"watch_common_names_never_synced" = "Još nije sinkronizirano";
+"watch_common_names_last_sync" = "Zadnja sinkronizacija %@";
+
+"watch_phone_link_title" = "Veza sa satom";
+"watch_phone_link_intro" = "Pokreni na telefonu, bilježi bodove na satu";
+"watch_phone_link_support" = "Badminton · Nogomet · Streličarstvo · Trening šuta…";
+"watch_phone_link_status" = "Status veze";
+"watch_phone_link_steps" = "Kako koristiti";
+"watch_phone_link_step_1" = "Postavi utakmicu ili vježbu šutiranja na telefonu.";
+"watch_phone_link_step_2" = "Početak · Apple Watch";
+"watch_phone_link_step_3" = "Bilježi bodove na satu. Zapis se sinkronizira po završetku.";
+"watch_phone_link_help" = "Upari uređaje, instaliraj iScoreboard na oba i otvori ga na telefonu.";
+"watch_phone_link_testing" = "Testiranje";
+"watch_phone_link_normal" = "Povezano";
+"watch_phone_link_failed" = "Povezivanje nije uspjelo";
+"watch_phone_link_reachable" = "Povezano";
+"watch_phone_link_waiting" = "Čeka se telefon";
+"watch_phone_link_inactive" = "Telefon nije povezan";
+"watch_phone_link_testing_detail" = "Čeka se telefon";
+"watch_phone_link_normal_detail" = "Povezano";
+"watch_phone_link_failed_detail" = "Telefon nije odgovorio u 8 sekundi.";
+"watch_phone_link_failed_inactive" = "Telefon nije povezan · Pokušaj ponovo";
+"watch_phone_link_failed_unreachable" = "Otvori iScoreboard na telefonu i pokušaj ponovno.";
+"watch_phone_link_failed_send" = "Povezivanje nije uspjelo · Pokušaj ponovo";
+"watch_phone_link_reachable_detail" = "Testiraj";
+"watch_phone_link_waiting_detail" = "Otvori iScoreboard na telefonu i pokušaj ponovno.";
+"watch_phone_link_test_waiting" = "Testiranje…";
+"watch_phone_link_test_retry" = "Pokušaj ponovo";
+"watch_phone_link_test" = "Testiraj";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Zadnja veza %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Način treninga";
+"watch_bb_1pt" = "1 bod";
+"watch_bb_2pt" = "2 boda";
+"watch_bb_3pt" = "3 boda";
+"watch_bb_free" = "Slobodni način";
+"watch_training_miss" = "Promašaj";
+"watch_training_made" = "Pogodak";
+"watch_training_point_value" = "%d bodova";
+"watch_training_breakdown" = "Pregled šutova";
+"watch_training_start" = "Trening šuta · Početak";
+"watch_training_rate_format" = "Preciznost %d%%";
+"watch_training_action_format" = "%d bodova · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Prikvačiti na vrh?";
+"watch_home_pin_confirm" = "Prikvači";
+"watch_home_unpin_title" = "Otkvači?";
+"watch_home_unpin_confirm" = "Otkvači";
+"watch_home_pin_full_title" = "Ograničenje prikvačivanja";
+"watch_home_pin_full_message" = "Možeš prikvačiti 2 stavke. Prvo otkvači jednu.";
+"watch_home_pin_hint" = "Zadrži za prikvačivanje";
+"watch_home_pin_success" = "Prikvačeno";
+"watch_home_unpin_success" = "Otkvačeno";
+"multi_score_player_default_format" = "Igrač %d";
+"nine_ball_big_gold" = "Veliko zlato";
+"nine_ball_small_gold" = "Malo zlato";
+"nine_ball_golden_nine" = "Zlatna 9";
+"nine_ball_normal_win" = "Obična pobjeda";
+"nine_ball_ball_in_hand" = "Lopta u ruci";
+"nine_ball_foul" = "Prekršaj";
+"watch_archery_set_rest" = "Stanka između setova";
+"watch_finish_confirm_title" = "Završi utakmicu?";
+"watch_finish_confirm_message" = "Utakmica će završiti i biti spremljena.";
+"watch_reset_confirm_title" = "Ponovno pokrenuti utakmicu?";
+"watch_reset_confirm_message" = "Trenutačni rezultat će se izbrisati.";
+"watch_side_exchange" = "Zamijeni strane";
+"watch_winner_format" = "%@ Pobjeđuje";
+"watch_finished_win_badge" = "P";
+"watch_finished_winner" = "Pobjednik";
+"watch_finished_home" = "Početna";
+"watch_snooker_foul" = "Prekršaj";
+"watch_snooker_foul_selected_format" = "Prekršaj +%d";
+"watch_snooker_foul_next_turn" = "Promijeni igrača";
+"watch_snooker_foul_switch_turn" = "Promijeni igrača";
+"watch_snooker_foul_continue" = "Nastavi";
+"watch_action_snooker_foul_continue_format" = "%@· Prekršaj · Protivnik +%d · Počinitelj nastavlja";
+"watch_snooker_handover" = "Promijeni igrača";
+"watch_snooker_settle_frame" = "Zaključi partiju";
+"watch_snooker_choose_frame_winner" = "Odaberite pobjednika partije";
+"watch_snooker_frame_finished" = "Runda završena";
+"watch_snooker_next_frame" = "Sljedeća partija";
+"watch_training_breakdown_format" = "%d bodova · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Ista udaljenost. Nastavi raspucavanje.";
+"edit" = "Uredi";
+"game_badminton_doubles" = "Badminton parovi";
+"game_eight_ball" = "Osmica";
+"game_nine_ball" = "Devetka – lov na bodove";
+"game_pickleball_doubles" = "Pickleball parovi";
+"game_pingpong_doubles" = "Stolnoteniski parovi";
+"game_snooker" = "Snooker";
+"game_tennis_doubles" = "Teniski parovi";
+"save" = "Spremi";
+"watch_action_adjust_score_format" = "%@· Rezultat promijenjen";
+"watch_action_archery_arrow_format" = "%@+%d bodova";
+"watch_action_archery_closest" = "Raspucavanje · Najbliže središtu";
+"watch_action_archery_miss_format" = "%@· Promašaj";
+"watch_action_archery_set_ready" = "Streličarstvo · Runda završena";
+"watch_action_ball_potted_format" = "%@ · Ubačena kugla %@";
+"watch_action_basketball_foul_format" = "%@· Prekršaj";
+"watch_action_basketball_period_format" = "Razdoblje %d · Početak";
+"watch_action_basketball_timeout_format" = "%@· Minuta odmora";
+"watch_action_edit_name" = "Ažurirano";
+"watch_action_exchange_sides" = "Promijenite strane";
+"watch_action_exchange_sides_reminder" = "Molimo promijenite strane ručno";
+"watch_action_game_finished_format" = "Set %1$d završen · %2$@ Pobjeđuje";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ Pobjeđuje";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Set %1$d završen · %2$@ Pobjeđuje";
+"watch_action_shooter_format" = "%@ počinje gađati";
+"watch_action_side_out_format" = "Servis · %@";
+"watch_action_snooker_foul_format" = "%@· Prekršaj · Protivnik +%d";
+"watch_action_snooker_frame_format" = "Partija %1$d · %2$@ Pobjeđuje";
+"watch_action_snooker_handover_format" = "Promijeni igrača · %@";
+"watch_action_snooker_miss_format" = "%@· Promašaj";
+"watch_action_snooker_next_frame_format" = "Partija %d · Početak";
+"watch_action_snooker_pot_format" = "%@· Ubačena kugla +%d";
+"watch_record_actions_unavailable" = "Nema zapisa";
+"linked_score_error_title" = "Povezivanje nije uspjelo";
+"linked_score_persistence_failed" = "Veza telefona i sata · Spremanje nije uspjelo: %@";
+"resume_persistence_error_title" = "Spremanje nije uspjelo";
+"resume_persistence_failed" = "Nastavi meč · Spremanje nije uspjelo: %@";
+"linked_score_control_timeout" = "Preuzmi · Isteklo je vrijeme čekanja · Pokušaj ponovo";
+"linked_score_sync_timeout" = "Isteklo je vrijeme čekanja · Čeka sinkronizaciju";
+
+/* Football */
+"game_football" = "Nogomet";
+"game_football_5v5" = "Nogomet 5×5";
+"watch_setup_half_length" = "Trajanje poluvremena";
+"watch_setup_teams" = "timovi";
+"football_first_half" = "Prvo poluvrijeme";
+"football_second_half" = "Drugo poluvrijeme";
+"football_extra_time_first" = "Produžeci — prvo poluvrijeme";
+"football_extra_time_second" = "Produžeci — drugo poluvrijeme";
+"football_first_half_over" = "Prvo poluvrijeme je završilo";
+"football_switch_half" = "Drugo poluvrijeme";
+"football_switch_half_title" = "Početi drugo poluvrijeme?";
+"football_switch_half_message" = "Prvo poluvrijeme bit će pauzirano i ne može se ponovno otvoriti.";
+"football_extra_time_first_over" = "Produžeci — prvo poluvrijeme · Runda završena";
+"football_switch_extra_time_half" = "Produžeci — drugo poluvrijeme";
+"football_enter_extra_time_title" = "Regularno vrijeme je završilo";
+"football_post_regulation_action" = "Nakon regularnog vremena";
+"football_injury_title" = "Sudačka nadoknada";
+"football_undo_stoppage" = "Poništi sudačku nadoknadu";
+"football_enter_extra_time" = "Započni produžetak";
+"football_end_as_draw" = "Kraj kao neriješeno";
+"football_goal_hint" = "Dodirni za dodavanje gola";
+"watch_football_start" = "Početak";
+"watch_football_pause" = "Stanka";
+"watch_football_resume" = "Nastavi";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Početak · %@";
+"watch_action_football_stoppage_format" = "Sudačka nadoknada +%d s";
+"watch_action_football_clock_start" = "Odbrojavanje je pokrenuto";
+"watch_action_football_clock_pause" = "Odbrojavanje pauzirano";
+"watch_record_sync_sent" = "Sinkronizirano";
+"watch_record_sync_pending" = "Čeka sinkronizaciju";
+"watch_record_sync_not_synced" = "Nije sinkronizirano s iPhoneom";
+"watch_record_sync_action" = "Sinkroniziraj s iPhoneom";
+"watch_settings_auto_sync_records" = "Automatska sinkronizacija";
+"game_shuttlecock" = "Jianzi";
+"game_squash" = "Squash";
+"game_foosball" = "Stolni nogomet";
+
+"watch_setup_win_by_two" = "Pobjeda u odlučujućem setu s 2 boda prednosti";
+"watch_setup_score_cap" = "Gornja granica rezultata";
+"watch_setup_serving_side" = "Prvi igrač na servisu";
+"watch_setup_kickoff_side" = "Prvi početni udarac";
+"watch_setup_side_left" = "Crveno";
+"watch_setup_side_right" = "Plava";
+
+"watch_about_us" = "O nama";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Verzija %@";
+"watch_wechat_group_title" = "WeChat grupa";
+"watch_wechat_group_scan_hint" = "WeChat · Skeniraj kôd za pojedinosti";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Razbijanje";
+"watch_nine_ball_select_payer" = "Odaberi tko plaća";
+"watch_nine_ball_select_continue" = "Odaberi sljedećeg igrača";
+"watch_nine_ball_prev_player" = "Prethodni";
+"watch_nine_ball_next_player" = "Sljedeći";
+"watch_nine_ball_continue_badge" = "Igraj";
+
+"watch_a11y_points_format" = "%d bodova";
+"watch_a11y_sets_format" = "%d setova";
+"watch_a11y_serving" = "Servis";
+
+"watch_phone_shared_link_intro" = "Započnite na telefonu i bilježite bodove na bilo kojem uređaju.";
+"linked_score_simultaneous_edit" = "Na oba su uređaja napravljene izmjene. Provjerite rezultat.";

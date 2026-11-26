@@ -277,7 +277,7 @@
 /* Messages */
 "duplicate_names_warning" = "名称重复警告";
 "undone" = "已撤销";
-"change_sides" = "换边";
+"change_sides" = "交换场地";
 "please_change_sides_manually" = "请手动换边";
 "press_again_to_exit" = "再按一次退出";
 "click_again_to_reset" = "再次点击重置";
@@ -328,7 +328,7 @@
 "tool_red_yellow_card" = "红黄牌";
 "tool_time" = "翻页时钟";
 "tool_aa_calculator" = "AA计算器";
-"tool_ten_second" = "十秒挑战";
+"tool_ten_second" = "掐秒挑战";
 
 /* Whistle Tool */
 "short_whistle" = "哨声";
@@ -391,9 +391,9 @@
 "add" = "添加";
 
 /* Ten Second Challenge */
-"ten_second_title" = "十秒挑战";
-"tap_to_start_stop" = "点击开始，尽量在10秒时停止";
-"target_10_seconds" = "目标是10.00秒";
+"ten_second_title" = "掐秒挑战";
+"tap_to_start_stop" = "点击开始，尽量在目标时间停止";
+"target_10_seconds" = "目标：%d.00 秒";
 "error_label" = "误差";
 "seconds" = "秒";
 "start" = "开始";
@@ -716,6 +716,7 @@
 "schedule_tiebreak_summary" = "抢七 %d 分";
 "tomorrow" = "明天";
 "unfinished_discard_button" = "放弃";
+"unfinished_discard_confirm_button" = "确认放弃";
 "unfinished_abandon_confirm" = "再点击一次丢弃比赛";
 
 /* Record detail / Boxing */
@@ -946,7 +947,7 @@
 "nine_ball_big_gold" = "大金";
 "nine_ball_small_gold" = "小金";
 "nine_ball_golden_nine" = "黄金九";
-"nine_ball_normal_win" = "普胜";
+"nine_ball_normal_win" = "普通胜";
 "nine_ball_decrease_points" = "减少%@分值";
 "nine_ball_current_points" = "%@当前分值%d";
 "nine_ball_increase_points" = "增加%@分值";
@@ -1201,7 +1202,7 @@
 "football_switch_half" = "进入下半场";
 "football_switch_half_message" = "上半场将暂停，且不能切回。";
 "football_switch_half_title" = "进入下半场？";
-"football_undo_stoppage" = "撤销补时";
+"football_undo_stoppage" = "撤销最近一次补时";
 "medical_timeout" = "医疗暂停";
 "official_break" = "官方休息";
 "official_break_prepare" = "准备";
@@ -1892,6 +1893,9 @@
 "group_published" = "已发布";
 "group_qr_direct_hint" = "在全能计分器中扫码，预览后加入。";
 "group_quick_score" = "整场局分";
+"group_score_cap_format" = "%d 分封顶";
+"group_no_score_cap" = "无封顶";
+"group_side_out_scoring" = "发球方得分";
 "group_rally_scoring" = "每球得分";
 "group_read_notices" = "已读";
 "group_registration_closes" = "报名截止时间";
@@ -2946,7 +2950,7 @@
 "linked_score_watch_start_guide_message" = "点右侧手表按钮发送到手表，由手表主控；手机同步显示并保存记录。";
 "linked_score_watch_rejected" = "手表拒绝了联动开局。";
 "linked_score_watch_timeout" = "等待手表确认超时，请重试。";
-"linked_score_takeover" = "接管计分";
+"linked_score_takeover" = "手表接管";
 "linked_score_resync" = "同步积分";
 "linked_score_end" = "结束联动";
 "linked_watch_backgrounded" = "⚠️ 手表已进入后台，建议接管计分";
@@ -2975,21 +2979,21 @@
 "linked_score_sport_snooker" = "🎱 斯诺克";
 "watch_link_title" = "手表联动";
 "watch_link_help" = "在支持项目的开局设置中选择「在手表开始」，即可由手表计分、手机跟随显示。";
-"watch_sync_hero_title" = "手机手表联动";
-"watch_sync_hero_description" = "双端同步计分；常用名称自动同步到手表；手表完赛记录自动回传到手机（投篮训练除外）。";
+"watch_sync_hero_title" = "手表联动";
+"watch_sync_hero_description" = "手机与手表同步计分、同步常用名称，手表上的比赛和投篮训练结束后自动回传记录。";
 "watch_sync_action_refresh" = "刷新连接";
 "watch_sync_usage_title" = "使用说明";
 "watch_sync_usage_prerequisite" = "使用前请确认手机和手表均已安装全能计分器，并保持配对连接。";
 "watch_sync_usage_tab_live_scoring" = "双端计分";
 "watch_sync_usage_tab_common_names" = "常用名称";
 "watch_sync_usage_tab_watch_records" = "手表记录";
-"watch_sync_usage_step_1" = "在手机选择支持的计分项目。";
+"watch_sync_usage_step_1" = "在手机选择支持的计分项目，例如投篮训练。";
 "watch_sync_usage_step_2" = "点击发送到手表，手表确认后主控计分。";
-"watch_sync_usage_step_3" = "手机实时同步比分，完赛后记录回传保存。";
+"watch_sync_usage_step_3" = "手机实时显示计分，比赛或训练结束后自动保存手表回传的记录。";
 "watch_sync_common_names_step_1" = "在手机维护常用名称。";
 "watch_sync_common_names_step_2" = "手机自动同步到手表，无需手动操作。";
 "watch_sync_common_names_step_3" = "手表开局时可直接选用已同步名称。";
-"watch_sync_watch_records_step_1" = "手表完赛后自动回传记录到手机（羽/乒/网/匹、射箭、黑八/追分/斯诺克；投篮训练暂不回传）。";
+"watch_sync_watch_records_step_1" = "开启手表的自动同步记录后，比赛和投篮训练结束时，记录会自动回传到手机。";
 "watch_sync_watch_records_step_2" = "手机记录页与最近记录会标示「手表记录已同步」。";
 "watch_sync_watch_records_step_3" = "手机与手表保持配对即可，无需手动同步。";
 "watch_sync_device_apple_watch" = "Apple Watch";
@@ -3036,6 +3040,7 @@
 "foosball_default_red_doubles" = "红A/红B";
 "foosball_default_blue_doubles" = "蓝A/蓝B";
 "eight_ball_race_to" = "抢局";
+"eight_ball_race_help_detail" = "选 3 就是台球常说的「抢3」：先赢 3 局获胜（5局3胜）。";
 "eight_ball_team1_gets" = "红方受让";
 "eight_ball_team2_gets" = "蓝方受让";
 "eight_ball_handicap_racks_format" = "受让 %d 局";
@@ -3093,3 +3098,13 @@
 "record_note_more_actions" = "笔记更多操作";
 "record_note_voice_play_failed" = "语音播放失败，请重试";
 "sync_display_waiting_message" = "请在另一台设备打开计分板并开始记分";
+"basketball_auto_buzzer" = "自动蜂鸣";
+"basketball_auto_buzzer_on" = "自动蜂鸣已开启（主计时到 00:00 响一次）";
+"basketball_auto_buzzer_off" = "自动蜂鸣已关闭";
+"scoreboard_sound_disabled_hint" = "音效已关闭，请在设置中开启";
+
+"linked_score_shared_mode" = "双端计分";
+"linked_score_shared_start_guide_message" = "点手表按钮发起联动。手表确认后，两端都可以计分。";
+"watch_sync_shared_usage_step_2" = "发送到手表，手表确认后，两端都可以计分。";
+"watch_sync_shared_usage_step_3" = "两端实时同步比分，结束后手机会保存记录。";
+"linked_score_simultaneous_edit" = "两端刚刚都改了比分，请核对";

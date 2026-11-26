@@ -342,6 +342,7 @@ struct TennisScoreboardView: View {
                 if officialBreakSupported, officialBreakSession.state != nil {
                     OfficialBreakOverlay(
                         session: $officialBreakSession,
+                        isReadOnly: linkScoringLocked,
                         onComplete: completeOfficialBreak,
                         onCancel: cancelOfficialBreak,
                         onVoiceCue: speakOfficialBreakCue
@@ -443,13 +444,17 @@ struct TennisScoreboardView: View {
                let update = watchLinkService.attachPage(sessionId: watchSessionId),
                let tennis = update.snapshot.tennisState {
                 Task {
-                    _ = await store.applyAuthoritativeState(
+                    let applied = await store.applyAuthoritativeState(
                         tennis,
                         detailedActions: update.detailedActions,
                         revision: update.revision,
                         matchGeneration: update.matchGeneration,
                         persistFormalRecord: false
                     )
+                    if applied {
+                        if tennis.finished { showGameOverDialog = true }
+                        applyRemoteOfficialBreak(tennis.finished ? nil : tennis.officialBreakState)
+                    }
                 }
             }
             revealImmersiveChrome()
@@ -473,12 +478,21 @@ struct TennisScoreboardView: View {
                 if terminalGamePresentation == nil { notifyLinkedFinishIfNeeded() }
             }
         }
-        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
-            guard let watchSessionId,
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { previous, update in
+            guard watchLinkService.incomingSnapshot != nil, let watchSessionId,
                   let update,
                   update.sessionId == watchSessionId,
                   let tennis = update.snapshot.tennisState else { return }
+            if watchLinkService.controlRole == .shared, update.beginsMatch(after: previous) {
+                let finishedStore = store
+                store = finishedStore.makeFreshMatchStore(initialState: tennis)
+                ParticipantIdentityStore.shared.copySelections(
+                    from: finishedStore.sessionId.uuidString, to: store.sessionId.uuidString
+                )
+                manualFinishRequested = false
+            }
             let snapshotFinished = tennis.finished
+            let remoteBreak = snapshotFinished ? nil : tennis.officialBreakState
             cancelTerminalGamePresentation()
             Task {
                 let applied = await store.applyAuthoritativeState(
@@ -494,6 +508,7 @@ struct TennisScoreboardView: View {
                     // received snapshot is finished, and dismisses it when a new
                     // unfinished match arrives after 再来一场).
                     showGameOverDialog = snapshotFinished
+                    applyRemoteOfficialBreak(remoteBreak)
                 }
             }
         }
@@ -509,7 +524,10 @@ struct TennisScoreboardView: View {
                     detailedActions: pending.detailedActions,
                     revision: pending.revision
                 )
-                if applied, state.finished { showGameOverDialog = true }
+                if applied {
+                    if state.finished { showGameOverDialog = true }
+                    syncOfficialBreakFromState(state.finished ? nil : state.officialBreakState)
+                }
                 watchLinkService.completePhoneTakeover(messageId: pending.messageId)
             }
         }
@@ -574,7 +592,7 @@ struct TennisScoreboardView: View {
         }
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
-                ScoreboardRecordDetailPage(recordId: store.sessionId.uuidString)
+                ScoreboardRecordDetailPage(recordId: (watchSessionId == nil ? nil : watchLinkService.finishedRecordId) ?? store.sessionId.uuidString)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             ModalCloseButton { showFinishedRecordDetail = false }
@@ -601,7 +619,7 @@ struct TennisScoreboardView: View {
                 UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled
             }
             let skipPersist = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+                && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId {
                 watchLinkService.detachPage(sessionId: watchSessionId)
             }
@@ -1712,7 +1730,7 @@ struct TennisScoreboardView: View {
 
     private func publishCurrentTennisState() {
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-        guard let watchSessionId, watchLinkService.isController else { return }
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
         watchLinkService.syncWatch(
             sessionId: watchSessionId,
             gameType: store.gameType,
@@ -1722,13 +1740,16 @@ struct TennisScoreboardView: View {
     }
 
     private func notifyLinkedFinishIfNeeded() {
-        guard let watchSessionId, watchLinkService.isController else { return }
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
         watchLinkService.notifyMatchFinished(
             sessionId: watchSessionId,
             snapshot: .tennis(store.state),
             recordId: store.sessionId.uuidString,
             winnerSide: winnerSide(for: store.state),
-            manualEnd: manualFinishRequested
+            manualEnd: manualFinishRequested,
+            startTime: store.startedAt,
+            totalScoreChanges: store.actionTimeline.count,
+            detailedActions: store.actionTimeline
         )
     }
 
@@ -2065,6 +2086,33 @@ struct TennisScoreboardView: View {
         store.send(.setOfficialBreakState(nil))
     }
 
+    private func applyRemoteOfficialBreak(_ remoteBreak: OfficialBreakState?) {
+        guard watchSessionId != nil, watchLinkService.incomingSnapshot != nil else { return }
+        syncOfficialBreakFromState(remoteBreak)
+    }
+
+    private func syncOfficialBreakFromState(_ remoteBreak: OfficialBreakState?) {
+        guard officialBreakSupported else { return }
+        guard let remoteBreak, remoteBreak.isRunning else {
+            officialBreakSession = OfficialBreakSession()
+            store.setScoreInputFrozen(false)
+            return
+        }
+        if let current = officialBreakSession.state,
+           current.kind == remoteBreak.kind,
+           current.startedWallClockMilliseconds == remoteBreak.startedWallClockMilliseconds,
+           current.durationSeconds == remoteBreak.durationSeconds,
+           current.isRunning == remoteBreak.isRunning {
+            return
+        }
+        var restored = OfficialBreakSession(state: remoteBreak)
+        restored.reconcileAfterRestore(
+            nowMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
+        )
+        officialBreakSession = restored
+        store.setScoreInputFrozen(restored.inputFrozen)
+    }
+
     private func cancelOfficialBreak() {
         officialBreakSession = OfficialBreakSession()
         store.setScoreInputFrozen(false)
@@ -2107,10 +2155,11 @@ struct TennisScoreboardView: View {
 
     private func goBack() {
         cancelTerminalGamePresentation()
-        if let id = watchSessionId {
-            watchLinkService.leaveSessionIfMatchFinished(id)
-        }
         store.flush {
+            if let id = watchSessionId {
+                if store.state.finished { notifyLinkedFinishIfNeeded() }
+                watchLinkService.leaveSessionIfMatchFinished(id)
+            }
             performScoreboardExit(
                 onNavigationBack: onNavigationBack,
                 dismiss: dismiss

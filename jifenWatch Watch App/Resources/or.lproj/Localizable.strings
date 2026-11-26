@@ -1,0 +1,422 @@
+/* Watch App - or */
+
+/* Tab Bar */
+"tab_score" = "ସ୍କୋର";
+"tab_tools" = "ଉପକରଣଗୁଡ଼ିକ";
+"tab_timer" = "ଟାଇମର୍";
+
+/* Game Types */
+"game_badminton" = "ବ୍ୟାଡମିଣ୍ଟନ୍";
+"game_pingpong" = "ଟେବୁଲ୍ ଟେନିସ୍";
+"game_tennis" = "ଟେନିସ୍";
+"game_pickleball" = "ପିକଲ୍‌ବଲ୍";
+"game_archery" = "ତୀରନ୍ଦାଜ";
+"tool_basketball_training" = "ସଟ ଟ୍ରେନିଂ";
+
+/* Tools */
+"tool_flip_coin" = "ମୁଦ୍ରା ଟସ୍";
+"tool_random_number" = "ଅନିୟମିତ ସଂଖ୍ୟା";
+"tool_ten_second" = "ଘଣ୍ଟା ଅଟକାନ୍ତୁ";
+"game_counter" = "କାଉଣ୍ଟର";
+"press_again_to_reset" = "ରିସେଟ୍ ପାଇଁ ପୁଣି ଟ୍ୟାପ୍ କରନ୍ତୁ";
+
+/* Records */
+"records" = "ରେକର୍ଡଗୁଡିକ";
+"loading" = "ଲୋଡିଂ";
+"no_records" = "କୌଣସି ରେକର୍ଡ ନାହିଁ";
+"record_not_found" = "ରେକର୍ଡ ମିଳିଲା ନାହିଁ";
+"match_details" = "ମ୍ୟାଚ୍ ବିବରଣୀ";
+"match_record" = "ମ୍ୟାଚ୍ ରେକର୍ଡ";
+"delete_record" = "ରେକର୍ଡ ବିଲୋପ କରନ୍ତୁ";
+"confirm_deletion" = "ବିଲୋପ ନିଶ୍ଚିତ କରନ୍ତୁ";
+"cannot_be_recovered_after_deletion" = "ଏହାକୁ ପୂର୍ବବତ୍ କରାଯାଇପାରିବ ନାହିଁ";
+"date" = "ତାରିଖ";
+"time" = "ସମୟ";
+"duration" = "ଅବଧି";
+
+/* Common */
+"cancel" = "ବାତିଲ୍ କରନ୍ତୁ";
+"confirm" = "ନିଶ୍ଚିତ କରନ୍ତୁ";
+"delete" = "ବିଲୋପ କରନ୍ତୁ";
+"setup" = "ସେଟଅପ୍";
+"vibration" = "କମ୍ପନ";
+"sound" = "ଧ୍ୱନି";
+"watch_scoreboard_keep_screen_on" = "ସ୍କ୍ରିନ୍ ଅନ୍ ରଖନ୍ତୁ";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "ଗାଇଡ୍";
+"usage_prompt_message" = "ପଏଣ୍ଟ ପାଇଁ ସେହି ପାର୍ଶ୍ୱ ଟ୍ୟାପ୍ କରନ୍ତୁ\nପ୍ରତ୍ୟାହାର ପାଇଁ ତଳକୁ ସ୍ୱାଇପ୍ କରନ୍ତୁ\nମେନୁ ପାଇଁ ଚାପି ଧରନ୍ତୁ";
+"got_it" = "ବୁଝିଲି";
+
+/* Privacy */
+"privacy_policy" = "ଗୋପନୀୟତା ନୀତି";
+"scan_to_view_details" = "ବିବରଣୀ ପାଇଁ କୋଡ୍ ସ୍କାନ୍ କରନ୍ତୁ";
+
+/* Settings / About */
+"version" = "ସଂସ୍କରଣ";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "ମତାମତ";
+"watch_contact_us" = "ଯୋଗାଯୋଗ";
+
+/* Scoreboard menu */
+"menu_undo" = "ପୂର୍ବବତ୍ କରନ୍ତୁ";
+"menu_reset" = "ରିସେଟ୍ କରନ୍ତୁ";
+"watch_continue" = "ଜାରି ରଖନ୍ତୁ";
+"watch_end_match" = "ସମାପ୍ତ କରନ୍ତୁ";
+"watch_layout_vertical" = "ଭୂଲମ୍ବ";
+"watch_layout_horizontal" = "ଭୂସମାନ୍ତର";
+"watch_settings_layout_title" = "ବିନ୍ୟାସ";
+"watch_reset_toast" = "ରିସେଟ୍ କରନ୍ତୁ";
+"watch_undo_toast" = "ପୂର୍ବବତ୍ ହେଲା";
+"watch_play_again" = "ପୁନର୍ବାର ଖେଳ";
+"watch_exit" = "ପ୍ରସ୍ଥାନ";
+"exit" = "ପ୍ରସ୍ଥାନ";
+"watch_team_red" = "ଲାଲ୍";
+"watch_team_blue" = "ନୀଳ";
+"team_a" = "ଦଳ A";
+"team_b" = "ଦଳ ବି";
+"team_home" = "ଆୟୋଜକ";
+"team_away" = "ଅତିଥି";
+"player_a" = "ପ୍ଲେୟାର୍ ଏ";
+"player_b" = "ପ୍ଲେୟାର ବି";
+"archer_a" = "ଧନୁର୍ଦ୍ଧର ଏ";
+"archer_b" = "ଧନୁର୍ଦ୍ଧର ବି";
+"linked_score_confirm_title" = "ଫୋନ୍–ଘଡ଼ି ଲିଙ୍କ୍?";
+"linked_score_phone_started_scoreboard" = "ଫୋନ୍–ଘଡ଼ି ଲିଙ୍କ୍ · ଖେଳ ଆରମ୍ଭ ହେଲା";
+"linked_score_accept" = "ଗ୍ରହଣ କରନ୍ତୁ";
+"linked_score_reject" = "ପ୍ରତ୍ୟାଖ୍ୟାନ କରନ୍ତୁ";
+"linked_score_watch_reclaim" = "ନିୟନ୍ତ୍ରଣ ନିଅନ୍ତୁ";
+"linked_score_setup_rules" = "%1$d ସେଟ୍ · %2$d ପଏଣ୍ଟ";
+"linked_score_setup_rules_sets" = "%d ସେଟ୍";
+"linked_score_setup_race_to" = "ଲକ୍ଷ୍ୟ %d";
+"linked_score_sport_badminton" = "ବ୍ୟାଡମିଣ୍ଟନ୍ ସିଙ୍ଗଲ୍ସ";
+"linked_score_sport_badminton_doubles" = "ବ୍ୟାଡମିଣ୍ଟନ୍ ଡବଲ୍ସ";
+"linked_score_sport_pingpong" = "ଟେବୁଲ୍ ଟେନିସ୍ ଏକକ";
+"linked_score_sport_pingpong_doubles" = "ଟେବୁଲ୍ ଟେନିସ୍ ଡବଲ୍ସ";
+"linked_score_sport_tennis" = "ଟେନିସ୍ ସିଙ୍ଗଲ୍ସ";
+"linked_score_sport_tennis_doubles" = "ଟେନିସ୍ ଡବଲ୍ସ";
+"linked_score_sport_pickleball" = "ପିକଲ୍‌ବଲ୍ ଏକକ";
+"linked_score_sport_pickleball_doubles" = "ପିକଲେବଲ୍ ଡବଲ୍ସ";
+"game_basketball" = "ବାସ୍କେଟବଲ୍";
+"game_three_basketball" = "3x3 ବାସ୍କେଟବଲ୍";
+"linked_score_sport_archery" = "ତୀରନ୍ଦାଜ";
+"linked_score_sport_eight_ball" = "ଆଠ-ବଲ୍";
+"linked_score_sport_nine_ball" = "9-ବଲ୍ ଚେସ୍";
+"linked_score_sport_snooker" = "ସ୍ନୁକର";
+"linked_score_sport_shuttlecock" = "ଜିଆନଜି";
+"linked_score_sport_squash" = "ସ୍କ୍ୱାସ୍";
+"linked_score_sport_foosball" = "ଫୁସବଲ୍";
+"linked_score_sport_football" = "ଫୁଟବଲ୍";
+"linked_score_sport_football_5v5" = "5×5 ଫୁଟବଲ୍";
+"watch_menu_end_match" = "ମ୍ୟାଚ୍ ଶେଷ କରନ୍ତୁ";
+"watch_menu_restart" = "ପୁଣି ଆରମ୍ଭ କରନ୍ତୁ";
+"watch_bball_overtime" = "ଓଭରଟାଇମ୍";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d ଖେଳାଳି";
+"archery_closest_title" = "ସୁଟ୍ ଅଫ୍ · କେନ୍ଦ୍ରର ନିକଟତମ";
+"archery_closest_message" = "%d ପଏଣ୍ଟରେ ସମାନ — କେନ୍ଦ୍ରର ନିକଟତମ ତୀର ବାଛନ୍ତୁ";
+"watch_set_end_format" = "ସେଟ୍ %d ସମାପ୍ତ";
+"watch_match_start" = "ଖେଳ ଆରମ୍ଭ ହେଲା";
+"watch_match_finished" = "ମ୍ୟାଚ୍ ସମାପ୍ତ ହୋଇଛି";
+"watch_bb_hit_rate" = "ସଫଳତା ହାର";
+"watch_bb_end_training" = "ତାଲିମ ସମାପ୍ତ କରନ୍ତୁ";
+"watch_training_finish_confirm_title" = "ଅଭ୍ୟାସ ଶେଷ କରିବେ?";
+"watch_training_finish_confirm_message" = "ଅଭ୍ୟାସ ଶେଷ ହୋଇ ସେଭ୍ ହେବ।";
+"watch_counter_finish_confirm_title" = "ଗଣନା ଶେଷ କରିବେ?";
+"watch_counter_finish_confirm_message" = "ଗଣନା ସେଭ୍ ହୋଇ ପୁଣି ଶୂନରୁ ଆରମ୍ଭ ହେବ।";
+"watch_bb_restart" = "ପୁଣି ଆରମ୍ଭ କରନ୍ତୁ";
+
+/* Records */
+"clear_all_records" = "ସମସ୍ତ ରେକର୍ଡଗୁଡିକ ସଫା କରନ୍ତୁ";
+"clear_all_records_message" = "ସବୁ ରେକର୍ଡ ସ୍ଥାୟୀ ଭାବେ ବିଲୋପ ହେବ।";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "ମୁଣ୍ଡ";
+"watch_coin_tails" = "ଲାଞ୍ଜ";
+"watch_archery_miss" = "ଲକ୍ଷ୍ୟ ଚୁକିଲା";
+"watch_flip_coin_hint" = "ମୁଦ୍ରା ଫିଙ୍ଗିବାକୁ ଟ୍ୟାପ୍ କରନ୍ତୁ";
+"watch_ten_second_challenge" = "ଘଣ୍ଟା ଅଟକାନ୍ତୁ";
+"watch_ten_second_usage" = "ଆରମ୍ଭ ପାଇଁ ଟ୍ୟାପ୍ କରନ୍ତୁ। ଲକ୍ଷ୍ୟ ସମୟରେ ପୁଣି ଟ୍ୟାପ୍ କରନ୍ତୁ।";
+"watch_mid_game_rest" = "ଗେମ୍ ମଝିରେ ବିରତି";
+"watch_rest_between_sets" = "ଦୁଇ ଗେମ୍ ମଧ୍ୟରେ ବିରତି";
+"watch_official_timeout" = "ଟାଇମ୍‌ଆଉଟ୍";
+"watch_medical_break" = "ମେଡିକାଲ୍";
+"watch_score_event_set_title" = "ସେଟ୍ %d ସମାପ୍ତ";
+"watch_score_event_set_detail" = "%1$@ ଜିତିଲେ %2$d:%3$d · ସେଟ୍ %4$d:%5$d";
+"watch_score_event_mid_game_title" = "ସେଟ୍ %d · ଗେମ୍ ମଝିରେ ବିରତି";
+"watch_score_event_mid_game_detail" = "%1$@ ଆଗରେ %2$d:%3$d · ସେଟ୍ %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "ସେଟ୍ %d ସମାପ୍ତ";
+"watch_score_event_tennis_game_detail" = "%1$@ ଜିତିଲେ · ଖେଳଗୁଡିକ %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "ସେଟ୍ %d ସମାପ୍ତ";
+"watch_score_event_tennis_set_detail" = "%1$@ ଜିତିଲେ %2$d:%3$d · ସେଟ୍ %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "7-ପଏଣ୍ଟ ଟାଇବ୍ରେକ୍";
+"watch_tiebreak_indicator_10" = "10-ପଏଣ୍ଟ ଟାଇବ୍ରେକ୍";
+"watch_continue_match" = "ପୁଣି ଆରମ୍ଭ କରନ୍ତୁ";
+"watch_continue_scoring" = "ପୁଣି ଆରମ୍ଭ କରନ୍ତୁ";
+"watch_resume_discard" = "ଅସମାପ୍ତ ମ୍ୟାଚ୍ ତ୍ୟାଗ କରନ୍ତୁ";
+"watch_resume_discard_training" = "ଅସମାପ୍ତ ଅଭ୍ୟାସ ତ୍ୟାଗ କରନ୍ତୁ";
+"unit_hour" = "ଘ";
+"unit_minute" = "ମି";
+"unit_second" = "ସେ";
+"today" = "ଆଜି";
+"yesterday" = "ଗତକାଲି";
+
+/* Sports setup */
+"watch_setup_start" = "ଆରମ୍ଭ କରନ୍ତୁ";
+"watch_setup_sets" = "ସେଟ୍";
+"watch_setup_points_per_set" = "ସେଟ୍ ପ୍ରତି ପଏଣ୍ଟ";
+"watch_setup_tennis_deuce" = "ଡ୍ୟୁସ୍ ନିୟମ";
+"watch_setup_tennis_advantage" = "ଆଡଭାଣ୍ଟେଜ୍";
+"watch_setup_tennis_no_ad" = "ଆଡଭାଣ୍ଟେଜ୍ ନାହିଁ";
+"watch_setup_target_score" = "ଟାର୍ଗେଟ୍ ସ୍କୋର";
+"watch_setup_rally_scoring" = "ରାଲି ସ୍କୋରିଂ";
+"watch_setup_target_racks" = "ଲକ୍ଷ୍ୟ";
+"watch_setup_race_racks" = "ରେସ ଟୁ";
+"watch_setup_race_racks_help" = "3 = ପ୍ରଥମେ 3 ଫ୍ରେମ";
+"watch_setup_handicap" = "ହ୍ୟାଣ୍ଡିକ୍ୟାପ୍";
+"watch_setup_handicap_none" = "କିଛି ନୁହେଁ";
+"watch_setup_handicap_red_gives_blue" = "ଲାଲ୍ → ନୀଳ";
+"watch_setup_handicap_blue_gives_red" = "ନୀଳ → ଲାଲ୍";
+"watch_setup_handicap_racks" = "ହାଣ୍ଡିକ୍ୟାପ୍ ରାକ୍";
+"watch_setup_frames" = "ଫ୍ରେମ୍";
+"watch_setup_custom_frames" = "କଷ୍ଟମ୍ ଫ୍ରେମ୍";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "1-99 ପ୍ରବେଶ କରନ୍ତୁ";
+"watch_setup_players" = "ଖେଳାଳୀ";
+"watch_setup_archers" = "ତୀରନ୍ଦାଜ";
+"watch_setup_player_number" = "ଖେଳାଳୀ %d";
+"watch_setup_red_a" = "ଲାଲ୍ ଏ";
+"watch_setup_red_b" = "ଲାଲ୍ ବି";
+"watch_setup_blue_a" = "ନୀଳ ଏ";
+"watch_setup_blue_b" = "ନୀଳ ବି";
+"watch_setup_name_missing" = "ସବୁ ନାମ ଭରନ୍ତୁ କିମ୍ବା ସବୁ ଖାଲି ରଖନ୍ତୁ";
+"watch_setup_select_players" = "ଖେଳାଳୀ";
+"watch_setup_player_count" = "%d ଖେଳାଳି";
+"watch_common_names_select_player" = "ପ୍ଲେୟାର୍ ଚୟନ କରନ୍ତୁ";
+"watch_common_names_no_records" = "କୌଣସି ସଂରକ୍ଷିତ ନାମ ନାହିଁ";
+"watch_common_names_title" = "ସଂରକ୍ଷିତ ନାମଗୁଡିକ";
+"watch_common_names_add" = "ଯୋଡନ୍ତୁ";
+"watch_common_names_edit" = "ନାମ ସଂପାଦନ କରନ୍ତୁ";
+"watch_common_names_delete_title" = "ନାମ ହଟାଇବେ?";
+"watch_common_names_error_title" = "ଅଦ୍ୟତନ କରିବାରେ ବିଫଳ";
+"watch_common_names_players" = "ଖେଳାଳୀ";
+"watch_common_names_teams" = "ଦଳଗୁଡିକ";
+"watch_common_names_empty" = "କୌଣସି ସଂରକ୍ଷିତ ନାମ ନାହିଁ";
+"watch_common_names_team_placeholder" = "ଦଳ ନାମ";
+"watch_common_names_player_placeholder" = "ପ୍ଲେୟାର ନାମ";
+"watch_common_names_length_hint" = "ସର୍ବାଧିକ %d ଅକ୍ଷର";
+"watch_common_names_error_empty" = "ନାମ ଖାଲି ହୋଇପାରିବ ନାହିଁ";
+"watch_common_names_error_duplicate" = "ନାମ ପୂର୍ବରୁ ବିଦ୍ୟମାନ ଅଛି";
+"watch_common_names_error_missing" = "ରେକର୍ଡ ମିଳିଲା ନାହିଁ · ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ";
+"watch_common_names_error_generic" = "ସଞ୍ଚୟ ହୋଇପାରିଲା ନାହିଁ. ଦୟାକରି ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ.";
+"watch_common_names_sync_now" = "ଏବେ ସମନ୍ୱୟ କରନ୍ତୁ";
+"watch_common_names_actions" = "ସଂରକ୍ଷିତ ନାମଗୁଡିକ";
+"watch_common_names_sync_requested" = "ସିଙ୍କ୍ ବାକି";
+"watch_common_names_sync_queued" = "ଫୋନ୍ ସଂଯୁକ୍ତ ନାହିଁ · ସିଙ୍କ୍ ବାକି";
+"watch_common_names_sync_inactive" = "ଫୋନ୍ ସଂଯୁକ୍ତ ନାହିଁ";
+"watch_common_names_sync_failed" = "ସଂଯୋଗ ବିଫଳ · ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ";
+"watch_common_names_sync_conflict" = "କିଛି ପରିବର୍ତ୍ତନ ସିଙ୍କ୍ ହୋଇନି";
+"watch_common_names_sync_pending" = "ସିଙ୍କ୍ ବାକି";
+"watch_common_names_sync_unavailable" = "ଫୋନ୍ ସଂଯୁକ୍ତ ନାହିଁ";
+"watch_common_names_sync_done" = "ସିଙ୍କ୍ ହୋଇଛି";
+"watch_common_names_pending_count" = "ସିଙ୍କ୍ ବାକି · %d";
+"watch_common_names_never_synced" = "ଏଯାଏଁ ସିଙ୍କ୍ ହୋଇନି";
+"watch_common_names_last_sync" = "ଶେଷ ସିଙ୍କ୍ %@";
+
+"watch_phone_link_title" = "ଘଡ଼ି ଲିଙ୍କ୍";
+"watch_phone_link_intro" = "ଫୋନ୍‌ରେ ଆରମ୍ଭ, ଘଡ଼ିରେ ସ୍କୋର";
+"watch_phone_link_support" = "ବ୍ୟାଡମିଣ୍ଟନ୍ · ଫୁଟବଲ୍ · ତୀରନ୍ଦାଜ · ସଟ ଟ୍ରେନିଂ…";
+"watch_phone_link_status" = "ସଂଯୋଗ ସ୍ଥିତି";
+"watch_phone_link_steps" = "କିପରି ବ୍ୟବହାର କରିବେ";
+"watch_phone_link_step_1" = "ଫୋନ୍‌ରେ ମ୍ୟାଚ୍ କିମ୍ବା ଶଟ୍ ଅଭ୍ୟାସ ସେଟ୍ କରନ୍ତୁ।";
+"watch_phone_link_step_2" = "Apple Watch ରେ ଆରମ୍ଭ କରନ୍ତୁ";
+"watch_phone_link_step_3" = "ଘଡ଼ିରେ ସ୍କୋର ଲେଖନ୍ତୁ। ଶେଷରେ ରେକର୍ଡ ସିଙ୍କ୍ ହେବ।";
+"watch_phone_link_help" = "ଉଭୟ ଡିଭାଇସ୍ ଯୋଡ଼ନ୍ତୁ, ଉଭୟରେ iScoreboard ଇନ୍‌ଷ୍ଟଲ୍ କରି ଫୋନ୍‌ରେ ଖୋଲନ୍ତୁ।";
+"watch_phone_link_testing" = "ପରୀକ୍ଷା ଚାଲିଛି";
+"watch_phone_link_normal" = "ସଂଯୁକ୍ତ";
+"watch_phone_link_failed" = "ସଂଯୋଗ ବିଫଳ";
+"watch_phone_link_reachable" = "ସଂଯୁକ୍ତ";
+"watch_phone_link_waiting" = "ଫୋନ୍‌କୁ ଅପେକ୍ଷା";
+"watch_phone_link_inactive" = "ଫୋନ୍ ସଂଯୁକ୍ତ ନାହିଁ";
+"watch_phone_link_testing_detail" = "ଫୋନ୍‌କୁ ଅପେକ୍ଷା";
+"watch_phone_link_normal_detail" = "ସଂଯୁକ୍ତ";
+"watch_phone_link_failed_detail" = "୮ ସେକେଣ୍ଡ ମଧ୍ୟରେ ଫୋନ୍ ଉତ୍ତର ଦେଇନି।";
+"watch_phone_link_failed_inactive" = "ଫୋନ୍ ସଂଯୁକ୍ତ ନାହିଁ · ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ";
+"watch_phone_link_failed_unreachable" = "ଫୋନ୍‌ରେ iScoreboard ଖୋଲି ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।";
+"watch_phone_link_failed_send" = "ସଂଯୋଗ ବିଫଳ · ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ";
+"watch_phone_link_reachable_detail" = "ପରୀକ୍ଷା";
+"watch_phone_link_waiting_detail" = "ଫୋନ୍‌ରେ iScoreboard ଖୋଲି ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।";
+"watch_phone_link_test_waiting" = "ପରୀକ୍ଷା ଚାଲିଛି…";
+"watch_phone_link_test_retry" = "ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ";
+"watch_phone_link_test" = "ପରୀକ୍ଷା";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "ଶେଷ ଯୋଗାଯୋଗ %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "ଅଭ୍ୟାସ ମୋଡ୍";
+"watch_bb_1pt" = "1 ପଏଣ୍ଟ";
+"watch_bb_2pt" = "2 ପଏଣ୍ଟ";
+"watch_bb_3pt" = "3 ପଏଣ୍ଟ";
+"watch_bb_free" = "ସ୍ୱତନ୍ତ୍ର";
+"watch_training_miss" = "ମିସ୍";
+"watch_training_made" = "ସଫଳ";
+"watch_training_point_value" = "%d ପଏଣ୍ଟ";
+"watch_training_breakdown" = "ଶଟ୍ ବିବରଣୀ";
+"watch_training_start" = "ସଟ ଟ୍ରେନିଂ · କିନ୍ତୁ ସେ କହିଲେ yemiti huye 1st 1st.";
+"watch_training_rate_format" = "ସଫଳତା ହାର %d%%";
+"watch_training_action_format" = "%d ପଏଣ୍ଟ · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "ଉପରେ ପିନ୍ କରିବେ?";
+"watch_home_pin_confirm" = "ପିନ୍";
+"watch_home_unpin_title" = "ପିନ୍ ହଟାନ୍ତୁ?";
+"watch_home_unpin_confirm" = "ପିନ୍ ହଟାନ୍ତୁ";
+"watch_home_pin_full_title" = "ପିନ୍ ସୀମା";
+"watch_home_pin_full_message" = "ସର୍ବାଧିକ ୨ଟି ପିନ୍ କରିପାରିବେ। ପ୍ରଥମେ ଗୋଟିଏ ହଟାନ୍ତୁ।";
+"watch_home_pin_hint" = "ପିନ୍ ପାଇଁ ଚାପି ଧରନ୍ତୁ";
+"watch_home_pin_success" = "ପିନ୍ କରାଯାଇଛି";
+"watch_home_unpin_success" = "ପିନ୍ ହଟିଲା";
+"multi_score_player_default_format" = "ପ୍ଲେୟାର୍ %d";
+"nine_ball_big_gold" = "ବଡ ସୁନା";
+"nine_ball_small_gold" = "ଛୋଟ ସୁନା";
+"nine_ball_golden_nine" = "ଗୋଲ୍ଡେନ୍ ୯";
+"nine_ball_normal_win" = "ସାଧାରଣ ବିଜୟ";
+"nine_ball_ball_in_hand" = "ହାତରେ ବଲ୍";
+"nine_ball_foul" = "ଫାଉଲ୍";
+"watch_archery_set_rest" = "ସେଟ୍ ବିରତି";
+"watch_finish_confirm_title" = "ମ୍ୟାଚ୍ ଶେଷ କରନ୍ତୁ?";
+"watch_finish_confirm_message" = "ମ୍ୟାଚ୍ ଶେଷ ହୋଇ ସେଭ୍ ହେବ।";
+"watch_reset_confirm_title" = "ମ୍ୟାଚ୍ ପୁଣି ଆରମ୍ଭ କରିବେ?";
+"watch_reset_confirm_message" = "ବର୍ତ୍ତମାନର ସ୍କୋର ଲିଭିଯିବ।";
+"watch_side_exchange" = "ପାର୍ଶ୍ୱ ବଦଳାନ୍ତୁ";
+"watch_winner_format" = "%@ ଜିତିଲେ";
+"watch_finished_win_badge" = "ବିଜୟ";
+"watch_finished_winner" = "ବିଜେତା";
+"watch_finished_home" = "ହୋମ୍";
+"watch_snooker_foul" = "ଫାଉଲ୍";
+"watch_snooker_foul_selected_format" = "ଫାଉଲ୍ +%d";
+"watch_snooker_foul_next_turn" = "ଟର୍ନ୍ ସୁଇଚ୍ କରନ୍ତୁ";
+"watch_snooker_foul_switch_turn" = "ଟର୍ନ୍ ସୁଇଚ୍ କରନ୍ତୁ";
+"watch_snooker_foul_continue" = "ଜାରି ରଖନ୍ତୁ";
+"watch_action_snooker_foul_continue_format" = "%@· ଫାଉଲ୍ · ପ୍ରତିପକ୍ଷ +%d · ଫାଉଲ୍ କରିଥିବା ଖେଳାଳି ଜାରି ରଖନ୍ତି";
+"watch_snooker_handover" = "ଟର୍ନ୍ ସୁଇଚ୍ କରନ୍ତୁ";
+"watch_snooker_settle_frame" = "ଫ୍ରେମ୍ ଫଳାଫଳ ନିର୍ଦ୍ଧାରଣ କରନ୍ତୁ";
+"watch_snooker_choose_frame_winner" = "ଫ୍ରେମ୍ ବିଜେତା ବାଛନ୍ତୁ";
+"watch_snooker_frame_finished" = "ରାଉଣ୍ଡ ସମାପ୍ତ";
+"watch_snooker_next_frame" = "ପରବର୍ତ୍ତୀ ଫ୍ରେମ୍";
+"watch_training_breakdown_format" = "%d ପଏଣ୍ଟ · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "ଦୂରତା ସମାନ. ଶୁଟ୍-ଅଫ୍ ଜାରି ରଖନ୍ତୁ.";
+"edit" = "ସଂପାଦନ କରନ୍ତୁ";
+"game_badminton_doubles" = "ବ୍ୟାଡମିଣ୍ଟନ୍ ଡବଲ୍ସ";
+"game_eight_ball" = "ଆଠ-ବଲ୍";
+"game_nine_ball" = "9-ବଲ୍ ଚେସ୍";
+"game_pickleball_doubles" = "ପିକଲେବଲ୍ ଡବଲ୍ସ";
+"game_pingpong_doubles" = "ଟେବୁଲ୍ ଟେନିସ୍ ଡବଲ୍ସ";
+"game_snooker" = "ସ୍ନୁକର";
+"game_tennis_doubles" = "ଟେନିସ୍ ଡବଲ୍ସ";
+"save" = "ସେଭ୍ କରନ୍ତୁ";
+"watch_action_adjust_score_format" = "%@· ସ୍କୋର ବଦଳିଗଲା";
+"watch_action_archery_arrow_format" = "%@+%d ପଏଣ୍ଟ";
+"watch_action_archery_closest" = "ସୁଟ୍ ଅଫ୍ · କେନ୍ଦ୍ରର ନିକଟତମ";
+"watch_action_archery_miss_format" = "%@· ଲକ୍ଷ୍ୟ ଚୁକିଲା";
+"watch_action_archery_set_ready" = "ତୀରନ୍ଦାଜ · ରାଉଣ୍ଡ ସମାପ୍ତ";
+"watch_action_ball_potted_format" = "%@ · ବଲ୍ ପକେଟରେ %@";
+"watch_action_basketball_foul_format" = "%@· ଫାଉଲ୍";
+"watch_action_basketball_period_format" = "ସମୟ %d · କିନ୍ତୁ ସେ କହିଲେ yemiti huye 1st 1st.";
+"watch_action_basketball_timeout_format" = "%@· ଟାଇମ୍‌ଆଉଟ୍";
+"watch_action_edit_name" = "ଅଦ୍ୟତନ କରାଯାଇଛି";
+"watch_action_exchange_sides" = "ସାଇଡ୍ ପରିବର୍ତ୍ତନ କରନ୍ତୁ";
+"watch_action_exchange_sides_reminder" = "ଦୟାକରି ପାର୍ଶ୍ୱକୁ ହସ୍ତକୃତ ଭାବରେ ପରିବର୍ତ୍ତନ କରନ୍ତୁ";
+"watch_action_game_finished_format" = "ସେଟ୍ %1$d ସମାପ୍ତ · %2$@ ଜିତିଲେ";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ ଜିତିଲେ";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "ସେଟ୍ %1$d ସମାପ୍ତ · %2$@ ଜିତିଲେ";
+"watch_action_shooter_format" = "%@ ତୀର ଛାଡ଼ିବା ଆରମ୍ଭ କଲେ";
+"watch_action_side_out_format" = "ସର୍ଭ୍ · %@";
+"watch_action_snooker_foul_format" = "%@· ଫାଉଲ୍ · ପ୍ରତିପକ୍ଷ +%d";
+"watch_action_snooker_frame_format" = "ଫ୍ରେମ୍ %1$d · %2$@ ଜିତିଲେ";
+"watch_action_snooker_handover_format" = "ଟର୍ନ୍ ସୁଇଚ୍ କରନ୍ତୁ · %@";
+"watch_action_snooker_miss_format" = "%@· ମିସ୍";
+"watch_action_snooker_next_frame_format" = "ଫ୍ରେମ୍ %d · କିନ୍ତୁ ସେ କହିଲେ yemiti huye 1st 1st.";
+"watch_action_snooker_pot_format" = "%@· ବଲ୍ ପକେଟରେ +%d";
+"watch_record_actions_unavailable" = "କୌଣସି ରେକର୍ଡ ନାହିଁ";
+"linked_score_error_title" = "ସଂଯୋଗ ବିଫଳ";
+"linked_score_persistence_failed" = "ଫୋନ୍–ଘଡ଼ି ଲିଙ୍କ୍ · ସଞ୍ଚୟ ବିଫଳ: %@";
+"resume_persistence_error_title" = "ସଞ୍ଚୟ କରିବାରେ ବିଫଳ";
+"resume_persistence_failed" = "ମ୍ୟାଚ୍ ଜାରି ରଖନ୍ତୁ · ସଞ୍ଚୟ ବିଫଳ: %@";
+"linked_score_control_timeout" = "ନିୟନ୍ତ୍ରଣ ନିଅନ୍ତୁ · ଉତ୍ତର ଅପେକ୍ଷା ସମୟ ସରିଲା · ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ";
+"linked_score_sync_timeout" = "ଉତ୍ତର ଅପେକ୍ଷା ସମୟ ସରିଲା · ସିଙ୍କ୍ ବାକି";
+
+/* Football */
+"game_football" = "ଫୁଟବଲ୍";
+"game_football_5v5" = "5×5 ଫୁଟବଲ୍";
+"watch_setup_half_length" = "ପ୍ରତି ହାଫ୍‌ର ଅବଧି";
+"watch_setup_teams" = "ଦଳଗୁଡିକ";
+"football_first_half" = "ପ୍ରଥମ ଅଧା";
+"football_second_half" = "ଦ୍ୱିତୀୟ ଅଧା";
+"football_extra_time_first" = "ଅତିରିକ୍ତ ସମୟ - ପ୍ରଥମାର୍ଦ୍ଧ";
+"football_extra_time_second" = "ଅତିରିକ୍ତ ସମୟ - ଦ୍ୱିତୀୟାର୍ଦ୍ଧ";
+"football_first_half_over" = "ପ୍ରଥମାର୍ଦ୍ଧ ଶେଷ ହେଲା";
+"football_switch_half" = "ଦ୍ୱିତୀୟ ଅଧା";
+"football_switch_half_title" = "ଦ୍ୱିତୀୟାର୍ଦ୍ଧ ଆରମ୍ଭ କରନ୍ତୁ?";
+"football_switch_half_message" = "ପ୍ରଥମାର୍ଦ୍ଧ ବିରାମ ହେବ ଓ ପୁଣି ଖୋଲାଯାଇପାରିବ ନାହିଁ.";
+"football_extra_time_first_over" = "ଅତିରିକ୍ତ ସମୟ - ପ୍ରଥମାର୍ଦ୍ଧ · ରାଉଣ୍ଡ ସମାପ୍ତ";
+"football_switch_extra_time_half" = "ଅତିରିକ୍ତ ସମୟ - ଦ୍ୱିତୀୟାର୍ଦ୍ଧ";
+"football_enter_extra_time_title" = "ନିୟାମକ ସମୟ ସମାପ୍ତ ହେଲା";
+"football_post_regulation_action" = "ନିୟମିତ ଖେଳ ସମୟ ପରେ";
+"football_injury_title" = "ସ୍ଥଗିତ ସମୟ";
+"football_undo_stoppage" = "ସ୍ଥଗିତ ସମୟ ପୂର୍ବବତ୍ କରନ୍ତୁ";
+"football_enter_extra_time" = "ଅତିରିକ୍ତ ସମୟ ଖେଳ ଆରମ୍ଭ କରନ୍ତୁ";
+"football_end_as_draw" = "ଡ୍ର ଭାବରେ ଶେଷ କରନ୍ତୁ";
+"football_goal_hint" = "ଗୋଲ୍ ଯୋଡ଼ିବାକୁ ଟ୍ୟାପ୍ କରନ୍ତୁ";
+"watch_football_start" = "ଆରମ୍ଭ କରନ୍ତୁ";
+"watch_football_pause" = "ବିରାମ";
+"watch_football_resume" = "ପୁଣି ଆରମ୍ଭ କରନ୍ତୁ";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "କିନ୍ତୁ ସେ କହିଲେ yemiti huye 1st 1st. · %@";
+"watch_action_football_stoppage_format" = "ସ୍ଥଗିତ ସମୟ +%d ସେ";
+"watch_action_football_clock_start" = "ଟାଇମର୍ ଆରମ୍ଭ ହେଲା";
+"watch_action_football_clock_pause" = "ଟାଇମର୍ ବିରତ ହେଲା";
+"watch_record_sync_sent" = "ସିଙ୍କ୍ ହୋଇଛି";
+"watch_record_sync_pending" = "ସିଙ୍କ୍ ବାକି";
+"watch_record_sync_not_synced" = "iPhone ସହ ସିଙ୍କ୍ ହୋଇନି";
+"watch_record_sync_action" = "iPhone ସହ ସିଙ୍କ୍";
+"watch_settings_auto_sync_records" = "ରେକର୍ଡ ଅଟୋ ସିଙ୍କ୍";
+"game_shuttlecock" = "ଜିଆନଜି";
+"game_squash" = "ସ୍କ୍ୱାସ୍";
+"game_foosball" = "ଫୁସବଲ୍";
+
+"watch_setup_win_by_two" = "ଶେଷ ସେଟ୍ 2 ପଏଣ୍ଟ ବ୍ୟବଧାନରେ ଜିତନ୍ତୁ";
+"watch_setup_score_cap" = "ସ୍କୋର କ୍ୟାପ୍";
+"watch_setup_serving_side" = "ପ୍ରଥମ ସର୍ଭର";
+"watch_setup_kickoff_side" = "ପ୍ରଥମେ କିକ୍ ଅଫ୍";
+"watch_setup_side_left" = "ଲାଲ୍";
+"watch_setup_side_right" = "ନୀଳ";
+
+"watch_about_us" = "ଆମ ବିଷୟରେ";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "ସଂସ୍କରଣ %@";
+"watch_wechat_group_title" = "WeChat ଗ୍ରୁପ୍";
+"watch_wechat_group_scan_hint" = "WeChat · ବିବରଣୀ ପାଇଁ କୋଡ୍ ସ୍କାନ୍ କରନ୍ତୁ";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "ବ୍ରେକ୍";
+"watch_nine_ball_select_payer" = "ପଏଣ୍ଟ ଦେବା ଖେଳାଳି ବାଛନ୍ତୁ";
+"watch_nine_ball_select_continue" = "ପରର ଖେଳାଳି ବାଛନ୍ତୁ";
+"watch_nine_ball_prev_player" = "ପୂର୍ବବର୍ତ୍ତୀ";
+"watch_nine_ball_next_player" = "ପରବର୍ତ୍ତୀ";
+"watch_nine_ball_continue_badge" = "ଖେଳନ୍ତୁ";
+
+"watch_a11y_points_format" = "%d ପଏଣ୍ଟ";
+"watch_a11y_sets_format" = "%d ସେଟ୍";
+"watch_a11y_serving" = "ସର୍ଭ୍";
+
+"watch_phone_shared_link_intro" = "ଫୋନରେ ଆରମ୍ଭ କରନ୍ତୁ ଏବଂ ଯେକୌଣସି ଡିଭାଇସରେ ସ୍କୋର ଲେଖନ୍ତୁ।";
+"linked_score_simultaneous_edit" = "ଉଭୟ ଡିଭାଇସରେ ପରିବର୍ତ୍ତନ ହୋଇଛି। ସ୍କୋର ଯାଞ୍ଚ କରନ୍ତୁ।";

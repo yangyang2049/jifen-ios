@@ -1,0 +1,422 @@
+/* Watch App - ro */
+
+/* Tab Bar */
+"tab_score" = "Scor";
+"tab_tools" = "Instrumente";
+"tab_timer" = "Temporizator";
+
+/* Game Types */
+"game_badminton" = "Badminton";
+"game_pingpong" = "Tenis de masă";
+"game_tennis" = "Tenis";
+"game_pickleball" = "Pickleball";
+"game_archery" = "Tir cu arcul";
+"tool_basketball_training" = "Antrenament de aruncări";
+
+/* Tools */
+"tool_flip_coin" = "Aruncă o monedă";
+"tool_random_number" = "Număr aleatoriu";
+"tool_ten_second" = "Oprește ceasul";
+"game_counter" = "Contor";
+"press_again_to_reset" = "Atinge din nou pentru resetare";
+
+/* Records */
+"records" = "Istoric";
+"loading" = "Se încarcă";
+"no_records" = "Nicio înregistrare";
+"record_not_found" = "Înregistrarea nu a fost găsită";
+"match_details" = "Detalii meci";
+"match_record" = "Înregistrare meci";
+"delete_record" = "Șterge înregistrarea";
+"confirm_deletion" = "Confirmă ștergerea";
+"cannot_be_recovered_after_deletion" = "Acest lucru nu poate fi anulat";
+"date" = "Data";
+"time" = "Ora";
+"duration" = "Durată";
+
+/* Common */
+"cancel" = "Anulează";
+"confirm" = "Confirmă";
+"delete" = "Șterge";
+"setup" = "Configurare";
+"vibration" = "Vibrație";
+"sound" = "Sunet";
+"watch_scoreboard_keep_screen_on" = "Menține ecranul aprins";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Ghid";
+"usage_prompt_message" = "Atinge partea pentru a adăuga un punct\nGlisează în jos pentru a anula\nȚine apăsat pentru meniu";
+"got_it" = "Am înțeles";
+
+/* Privacy */
+"privacy_policy" = "Politica de confidențialitate";
+"scan_to_view_details" = "Scanează codul pentru detalii";
+
+/* Settings / About */
+"version" = "Versiunea";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Feedback";
+"watch_contact_us" = "Contact";
+
+/* Scoreboard menu */
+"menu_undo" = "Anulează ultima acțiune";
+"menu_reset" = "Resetare";
+"watch_continue" = "Continuă";
+"watch_end_match" = "Încheie";
+"watch_layout_vertical" = "Vertical";
+"watch_layout_horizontal" = "Orizontal";
+"watch_settings_layout_title" = "Aranjare";
+"watch_reset_toast" = "Resetare";
+"watch_undo_toast" = "Anulat";
+"watch_play_again" = "Joacă din nou";
+"watch_exit" = "Ieșire";
+"exit" = "Ieșire";
+"watch_team_red" = "Roșu";
+"watch_team_blue" = "Albastru";
+"team_a" = "Echipa A";
+"team_b" = "Echipa B";
+"team_home" = "Gazde";
+"team_away" = "Oaspeți";
+"player_a" = "Jucătorul A";
+"player_b" = "Jucătorul B";
+"archer_a" = "Arcaș A";
+"archer_b" = "Arcaș B";
+"linked_score_confirm_title" = "Conectare telefon–ceas?";
+"linked_score_phone_started_scoreboard" = "Conectare telefon–ceas · Jocul a început";
+"linked_score_accept" = "Acceptă";
+"linked_score_reject" = "Respinge";
+"linked_score_watch_reclaim" = "Preia controlul";
+"linked_score_setup_rules" = "%1$d seturi · %2$d puncte";
+"linked_score_setup_rules_sets" = "%d seturi";
+"linked_score_setup_race_to" = "Cursă până la %d";
+"linked_score_sport_badminton" = "Badminton simplu";
+"linked_score_sport_badminton_doubles" = "Badminton dublu";
+"linked_score_sport_pingpong" = "Tenis de masă Simplu";
+"linked_score_sport_pingpong_doubles" = "Tenis de masă dublu";
+"linked_score_sport_tennis" = "Tenis simplu";
+"linked_score_sport_tennis_doubles" = "Tenis Dublu";
+"linked_score_sport_pickleball" = "Pickleball simplu";
+"linked_score_sport_pickleball_doubles" = "Pickleball Dublu";
+"game_basketball" = "Baschet";
+"game_three_basketball" = "Baschet 3x3";
+"linked_score_sport_archery" = "Tir cu arcul";
+"linked_score_sport_eight_ball" = "Bila 8";
+"linked_score_sport_nine_ball" = "Bila 9 — puncte";
+"linked_score_sport_snooker" = "Snooker";
+"linked_score_sport_shuttlecock" = "Jianzi";
+"linked_score_sport_squash" = "Squash";
+"linked_score_sport_foosball" = "Fotbal de masă";
+"linked_score_sport_football" = "Fotbal";
+"linked_score_sport_football_5v5" = "Fotbal 5×5";
+"watch_menu_end_match" = "Încheie meciul";
+"watch_menu_restart" = "Repornește";
+"watch_bball_overtime" = "Prelungiri";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d jucători";
+"archery_closest_title" = "Departajare · Săgeata cea mai aproape de centru";
+"archery_closest_message" = "Egalitate la %d — alege săgeata mai apropiată de centru";
+"watch_set_end_format" = "Setul %d s-a încheiat";
+"watch_match_start" = "Jocul a început";
+"watch_match_finished" = "Meciul s-a încheiat";
+"watch_bb_hit_rate" = "Precizie";
+"watch_bb_end_training" = "Încheie antrenamentul";
+"watch_training_finish_confirm_title" = "Închei antrenamentul?";
+"watch_training_finish_confirm_message" = "Antrenamentul se încheie și se salvează.";
+"watch_counter_finish_confirm_title" = "Închei numărătoarea?";
+"watch_counter_finish_confirm_message" = "Numărătoarea se salvează și pornește din nou de la zero.";
+"watch_bb_restart" = "Repornește";
+
+/* Records */
+"clear_all_records" = "Șterge tot istoricul";
+"clear_all_records_message" = "Toate înregistrările vor fi șterse definitiv.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Cap";
+"watch_coin_tails" = "Pajură";
+"watch_archery_miss" = "Ratat";
+"watch_flip_coin_hint" = "Atinge pentru a arunca moneda";
+"watch_ten_second_challenge" = "Oprește ceasul";
+"watch_ten_second_usage" = "Atinge pentru a porni. Atinge din nou la timpul țintă.";
+"watch_mid_game_rest" = "Pauză la mijlocul jocului";
+"watch_rest_between_sets" = "Pauză între jocuri";
+"watch_official_timeout" = "Time-out";
+"watch_medical_break" = "Pauză medicală";
+"watch_score_event_set_title" = "Setul %d s-a încheiat";
+"watch_score_event_set_detail" = "%1$@ Câștigă %2$d:%3$d · Seturi %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Setul %d · Pauză la mijlocul jocului";
+"watch_score_event_mid_game_detail" = "%1$@ Conduce %2$d:%3$d · Seturi %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Setul %d s-a încheiat";
+"watch_score_event_tennis_game_detail" = "%1$@ Câștigă · Ghemuri %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Setul %d s-a încheiat";
+"watch_score_event_tennis_set_detail" = "%1$@ Câștigă %2$d:%3$d · Seturi %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "Departajare în 7 puncte";
+"watch_tiebreak_indicator_10" = "Departajare în 10 puncte";
+"watch_continue_match" = "Reia";
+"watch_continue_scoring" = "Reia";
+"watch_resume_discard" = "Renunță la meciul neterminat";
+"watch_resume_discard_training" = "Renunță la antrenamentul neterminat";
+"unit_hour" = "h";
+"unit_minute" = "min";
+"unit_second" = "s";
+"today" = "Astăzi";
+"yesterday" = "Ieri";
+
+/* Sports setup */
+"watch_setup_start" = "Începe";
+"watch_setup_sets" = "Seturi";
+"watch_setup_points_per_set" = "Puncte pe set";
+"watch_setup_tennis_deuce" = "Regula de egalitate";
+"watch_setup_tennis_advantage" = "Avantaj";
+"watch_setup_tennis_no_ad" = "Fără avantaj";
+"watch_setup_target_score" = "Scor țintă";
+"watch_setup_rally_scoring" = "Punct la fiecare schimb";
+"watch_setup_target_racks" = "Cursă până la";
+"watch_setup_race_racks" = "Cursă la";
+"watch_setup_race_racks_help" = "3 = primul la 3 frame-uri";
+"watch_setup_handicap" = "Handicap";
+"watch_setup_handicap_none" = "Fără limită";
+"watch_setup_handicap_red_gives_blue" = "Roșu → Albastru";
+"watch_setup_handicap_blue_gives_red" = "Albastru → Roșu";
+"watch_setup_handicap_racks" = "Manșe de handicap";
+"watch_setup_frames" = "Jocuri";
+"watch_setup_custom_frames" = "Frame-uri personalizate";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Introduceți 1-99";
+"watch_setup_players" = "Jucători";
+"watch_setup_archers" = "Arcași";
+"watch_setup_player_number" = "Jucătorul %d";
+"watch_setup_red_a" = "Roșu A";
+"watch_setup_red_b" = "Roșu B";
+"watch_setup_blue_a" = "Albastru A";
+"watch_setup_blue_b" = "Albastru B";
+"watch_setup_name_missing" = "Completează toate numele sau lasă-le pe toate necompletate";
+"watch_setup_select_players" = "Jucători";
+"watch_setup_player_count" = "%d jucători";
+"watch_common_names_select_player" = "Alege un jucător";
+"watch_common_names_no_records" = "Nu există nume salvate";
+"watch_common_names_title" = "Nume salvate";
+"watch_common_names_add" = "Adaugă";
+"watch_common_names_edit" = "Editează numele";
+"watch_common_names_delete_title" = "Ștergi numele?";
+"watch_common_names_error_title" = "Actualizare eșuată";
+"watch_common_names_players" = "Jucători";
+"watch_common_names_teams" = "echipe";
+"watch_common_names_empty" = "Nu există nume salvate";
+"watch_common_names_team_placeholder" = "Numele echipei";
+"watch_common_names_player_placeholder" = "Nume jucător";
+"watch_common_names_length_hint" = "Până la %d caractere";
+"watch_common_names_error_empty" = "Numele nu poate fi gol";
+"watch_common_names_error_duplicate" = "Numele există deja";
+"watch_common_names_error_missing" = "Înregistrarea nu a fost găsită · Reîncearcă";
+"watch_common_names_error_generic" = "Nu s-a putut salva. Încearcă din nou.";
+"watch_common_names_sync_now" = "Sincronizează acum";
+"watch_common_names_actions" = "Nume salvate";
+"watch_common_names_sync_requested" = "În așteptarea sincronizării";
+"watch_common_names_sync_queued" = "Telefon deconectat · În așteptarea sincronizării";
+"watch_common_names_sync_inactive" = "Telefon deconectat";
+"watch_common_names_sync_failed" = "Conectare eșuată · Reîncearcă";
+"watch_common_names_sync_conflict" = "Unele modificări nu s-au sincronizat";
+"watch_common_names_sync_pending" = "În așteptarea sincronizării";
+"watch_common_names_sync_unavailable" = "Telefon deconectat";
+"watch_common_names_sync_done" = "Sincronizat";
+"watch_common_names_pending_count" = "În așteptarea sincronizării · %d";
+"watch_common_names_never_synced" = "Încă nesincronizat";
+"watch_common_names_last_sync" = "Ultima sincronizare %@";
+
+"watch_phone_link_title" = "Legătură ceas";
+"watch_phone_link_intro" = "Începe pe telefon, ține scorul pe ceas";
+"watch_phone_link_support" = "Badminton · Fotbal · Tir cu arcul · Antrenament de aruncări…";
+"watch_phone_link_status" = "Starea conexiunii";
+"watch_phone_link_steps" = "Cum se utilizează";
+"watch_phone_link_step_1" = "Configurează un meci sau un antrenament de aruncări pe telefon.";
+"watch_phone_link_step_2" = "Începe · Apple Watch";
+"watch_phone_link_step_3" = "Ține scorul pe ceas. Rezultatul se sincronizează la final.";
+"watch_phone_link_help" = "Asociază dispozitivele, instalează iScoreboard pe ambele și deschide aplicația pe telefon.";
+"watch_phone_link_testing" = "Se testează";
+"watch_phone_link_normal" = "Conectat";
+"watch_phone_link_failed" = "Conectare eșuată";
+"watch_phone_link_reachable" = "Conectat";
+"watch_phone_link_waiting" = "Așteaptă telefonul";
+"watch_phone_link_inactive" = "Telefon deconectat";
+"watch_phone_link_testing_detail" = "Așteaptă telefonul";
+"watch_phone_link_normal_detail" = "Conectat";
+"watch_phone_link_failed_detail" = "Telefonul nu a răspuns în 8 secunde.";
+"watch_phone_link_failed_inactive" = "Telefon deconectat · Reîncearcă";
+"watch_phone_link_failed_unreachable" = "Deschide iScoreboard pe telefon și încearcă din nou.";
+"watch_phone_link_failed_send" = "Conectare eșuată · Reîncearcă";
+"watch_phone_link_reachable_detail" = "Testează";
+"watch_phone_link_waiting_detail" = "Deschide iScoreboard pe telefon și încearcă din nou.";
+"watch_phone_link_test_waiting" = "Se testează…";
+"watch_phone_link_test_retry" = "Reîncearcă";
+"watch_phone_link_test" = "Testează";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Ultima conectare %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Mod de antrenament";
+"watch_bb_1pt" = "1 pct";
+"watch_bb_2pt" = "2 puncte";
+"watch_bb_3pt" = "3 puncte";
+"watch_bb_free" = "Liber";
+"watch_training_miss" = "Ratare";
+"watch_training_made" = "Reușită";
+"watch_training_point_value" = "%d puncte";
+"watch_training_breakdown" = "Detalii aruncări";
+"watch_training_start" = "Antrenament de aruncări · Începe";
+"watch_training_rate_format" = "Precizie %d%%";
+"watch_training_action_format" = "%d puncte · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Fixezi sus?";
+"watch_home_pin_confirm" = "Fixează";
+"watch_home_unpin_title" = "Anulează fixarea?";
+"watch_home_unpin_confirm" = "Anulează fixarea";
+"watch_home_pin_full_title" = "Limită de fixare";
+"watch_home_pin_full_message" = "Poți fixa 2 elemente. Anulează mai întâi o fixare.";
+"watch_home_pin_hint" = "Ține apăsat ca să fixezi";
+"watch_home_pin_success" = "Fixat";
+"watch_home_unpin_success" = "Fixare anulată";
+"multi_score_player_default_format" = "Jucător %d";
+"nine_ball_big_gold" = "Aur mare";
+"nine_ball_small_gold" = "Aur Mic";
+"nine_ball_golden_nine" = "9 de aur";
+"nine_ball_normal_win" = "Victorie normală";
+"nine_ball_ball_in_hand" = "Bilă în mână";
+"nine_ball_foul" = "Fault";
+"watch_archery_set_rest" = "Pauză între seturi";
+"watch_finish_confirm_title" = "Încheie meciul?";
+"watch_finish_confirm_message" = "Meciul se încheie și se salvează.";
+"watch_reset_confirm_title" = "Repornești meciul?";
+"watch_reset_confirm_message" = "Scorul actual va fi șters.";
+"watch_side_exchange" = "Schimbă partea";
+"watch_winner_format" = "%@ Câștigă";
+"watch_finished_win_badge" = "V";
+"watch_finished_winner" = "Câștigător";
+"watch_finished_home" = "Acasă";
+"watch_snooker_foul" = "Fault";
+"watch_snooker_foul_selected_format" = "Fault +%d";
+"watch_snooker_foul_next_turn" = "Schimbă tura";
+"watch_snooker_foul_switch_turn" = "Schimbă tura";
+"watch_snooker_foul_continue" = "Continuă";
+"watch_action_snooker_foul_continue_format" = "%@· Fault · Adversar +%d · Continuă jucătorul care a comis faultul";
+"watch_snooker_handover" = "Schimbă tura";
+"watch_snooker_settle_frame" = "Încheie jocul";
+"watch_snooker_choose_frame_winner" = "Alege câștigătorul jocului";
+"watch_snooker_frame_finished" = "Runda s-a încheiat";
+"watch_snooker_next_frame" = "Jocul următor";
+"watch_training_breakdown_format" = "%d puncte · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Aceeași distanță. Continuă departajarea.";
+"edit" = "Editează";
+"game_badminton_doubles" = "Badminton dublu";
+"game_eight_ball" = "Bila 8";
+"game_nine_ball" = "Bila 9 — puncte";
+"game_pickleball_doubles" = "Pickleball Dublu";
+"game_pingpong_doubles" = "Tenis de masă dublu";
+"game_snooker" = "Snooker";
+"game_tennis_doubles" = "Tenis Dublu";
+"save" = "Salvează";
+"watch_action_adjust_score_format" = "%@· Scorul a fost modificat";
+"watch_action_archery_arrow_format" = "%@+%d puncte";
+"watch_action_archery_closest" = "Departajare · Săgeata cea mai aproape de centru";
+"watch_action_archery_miss_format" = "%@· Ratat";
+"watch_action_archery_set_ready" = "Tir cu arcul · Runda s-a încheiat";
+"watch_action_ball_potted_format" = "%@ · Bilă introdusă %@";
+"watch_action_basketball_foul_format" = "%@· Fault";
+"watch_action_basketball_period_format" = "Perioada %d · Începe";
+"watch_action_basketball_timeout_format" = "%@· Time-out";
+"watch_action_edit_name" = "Actualizat";
+"watch_action_exchange_sides" = "Schimbă terenurile";
+"watch_action_exchange_sides_reminder" = "Schimbă terenurile manual";
+"watch_action_game_finished_format" = "Setul %1$d s-a încheiat · %2$@ Câștigă";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ Câștigă";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Setul %1$d s-a încheiat · %2$@ Câștigă";
+"watch_action_shooter_format" = "%@ începe să tragă";
+"watch_action_side_out_format" = "Serviciu · %@";
+"watch_action_snooker_foul_format" = "%@· Fault · Adversar +%d";
+"watch_action_snooker_frame_format" = "Joc %1$d · %2$@ Câștigă";
+"watch_action_snooker_handover_format" = "Schimbă tura · %@";
+"watch_action_snooker_miss_format" = "%@· Ratare";
+"watch_action_snooker_next_frame_format" = "Joc %d · Începe";
+"watch_action_snooker_pot_format" = "%@· Bilă introdusă +%d";
+"watch_record_actions_unavailable" = "Nicio înregistrare";
+"linked_score_error_title" = "Conectare eșuată";
+"linked_score_persistence_failed" = "Conectare telefon–ceas · Salvare eșuată: %@";
+"resume_persistence_error_title" = "Salvare eșuată";
+"resume_persistence_failed" = "Reia meciul · Salvare eșuată: %@";
+"linked_score_control_timeout" = "Preia controlul · Timp de așteptare expirat · Reîncearcă";
+"linked_score_sync_timeout" = "Timp de așteptare expirat · În așteptarea sincronizării";
+
+/* Football */
+"game_football" = "Fotbal";
+"game_football_5v5" = "Fotbal 5×5";
+"watch_setup_half_length" = "Durata reprizei";
+"watch_setup_teams" = "echipe";
+"football_first_half" = "Prima repriză";
+"football_second_half" = "Repriza a doua";
+"football_extra_time_first" = "Prelungiri — prima repriză";
+"football_extra_time_second" = "Prelungiri — a doua repriză";
+"football_first_half_over" = "Prima repriză s-a încheiat";
+"football_switch_half" = "Repriza a doua";
+"football_switch_half_title" = "Începi repriza a doua?";
+"football_switch_half_message" = "Prima repriză va fi întreruptă și nu va putea fi reluată.";
+"football_extra_time_first_over" = "Prelungiri — prima repriză · Runda s-a încheiat";
+"football_switch_extra_time_half" = "Prelungiri — a doua repriză";
+"football_enter_extra_time_title" = "Timpul regulamentar s-a încheiat";
+"football_post_regulation_action" = "După timpul regulamentar";
+"football_injury_title" = "Timp suplimentar";
+"football_undo_stoppage" = "Anulează timpul suplimentar";
+"football_enter_extra_time" = "Începe prelungirile";
+"football_end_as_draw" = "Încheie la egalitate";
+"football_goal_hint" = "Atinge pentru a adăuga un gol";
+"watch_football_start" = "Începe";
+"watch_football_pause" = "Pauză";
+"watch_football_resume" = "Reia";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Începe · %@";
+"watch_action_football_stoppage_format" = "Timp suplimentar +%d s";
+"watch_action_football_clock_start" = "Cronometrul a pornit";
+"watch_action_football_clock_pause" = "Cronometrul a fost întrerupt";
+"watch_record_sync_sent" = "Sincronizat";
+"watch_record_sync_pending" = "În așteptarea sincronizării";
+"watch_record_sync_not_synced" = "Nesincronizat cu iPhone";
+"watch_record_sync_action" = "Sincronizează cu iPhone";
+"watch_settings_auto_sync_records" = "Sincronizare automată";
+"game_shuttlecock" = "Jianzi";
+"game_squash" = "Squash";
+"game_foosball" = "Fotbal de masă";
+
+"watch_setup_win_by_two" = "Câștigă setul final cu 2 puncte diferență";
+"watch_setup_score_cap" = "Limită de puncte";
+"watch_setup_serving_side" = "Primul la serviciu";
+"watch_setup_kickoff_side" = "Prima lovitură de start";
+"watch_setup_side_left" = "Roșu";
+"watch_setup_side_right" = "Albastru";
+
+"watch_about_us" = "Despre noi";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Versiunea %@";
+"watch_wechat_group_title" = "Grupul WeChat";
+"watch_wechat_group_scan_hint" = "WeChat · Scanează codul pentru detalii";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Spargere";
+"watch_nine_ball_select_payer" = "Alege cine plătește";
+"watch_nine_ball_select_continue" = "Alege următorul jucător";
+"watch_nine_ball_prev_player" = "Anterior";
+"watch_nine_ball_next_player" = "Următorul";
+"watch_nine_ball_continue_badge" = "Joacă";
+
+"watch_a11y_points_format" = "%d puncte";
+"watch_a11y_sets_format" = "%d seturi";
+"watch_a11y_serving" = "Serviciu";
+
+"watch_phone_shared_link_intro" = "Pornește pe telefon și notează scorul pe oricare dintre dispozitive.";
+"linked_score_simultaneous_edit" = "Au fost făcute modificări pe ambele dispozitive. Verifică scorul.";

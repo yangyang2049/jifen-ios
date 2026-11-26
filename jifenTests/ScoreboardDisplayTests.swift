@@ -155,6 +155,11 @@ final class ScoreboardDisplayTests: XCTestCase {
 
     /// Production SwiftUI views rendered for the nine-ball visual acceptance matrix.
     func testAuditNineBallNativeLayoutSnapshots() throws {
+        let watchLink = PhoneWatchLinkService(
+            transport: FakeWatchLinkTransport(),
+            contextStore: InMemoryLinkDataStore(),
+            outboxStore: InMemoryLinkDataStore()
+        )
         let longNames = ["玩家一 ABCDEFG", "玩家二 ABCDEFG", "玩家三 ABCDEFG", "玩家四 ABCDEFG"]
         let setups: [(String, CGFloat, ColorScheme, SportsSetupResult)] = [
             ("folk_four", 375, .light, .init(team1Name: longNames[0], team2Name: longNames[1], playerCount: 4, playerNames: longNames)),
@@ -165,7 +170,10 @@ final class ScoreboardDisplayTests: XCTestCase {
             let size = CGSize(width: width, height: 667)
             let content = CenteredSetupDialogContainer(onBackdropTap: {}) { maximum in
                 NineBallSetupDialogView(initialSetup: setup, maxDialogHeight: maximum, onConfirm: { _ in }, onCancel: {})
-            }.environment(\.colorScheme, scheme).frame(width: size.width, height: size.height)
+            }
+            .environment(watchLink)
+            .environment(\.colorScheme, scheme)
+            .frame(width: size.width, height: size.height)
             try attachNineBallNativeView(content, size: size, name: "nine_ball_setup_\(name)")
         }
         for width in [CGFloat(375), 768] {

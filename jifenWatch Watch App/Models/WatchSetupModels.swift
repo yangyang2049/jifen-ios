@@ -78,6 +78,15 @@ enum WatchBasketballTrainingMode: String, CaseIterable, Hashable, Codable {
     var fixedPoints: Int? {
         Int(rawValue)
     }
+
+    init(linkedMode: LinkedShotTrainingMode) {
+        self = linkedMode.fixedPoints.flatMap { Self(rawValue: String($0)) } ?? .free
+    }
+
+    var linkedMode: LinkedShotTrainingMode {
+        guard let fixedPoints else { return .free }
+        return LinkedShotTrainingMode(rawValue: "fixed_\(fixedPoints)") ?? .fixed1
+    }
 }
 
 enum WatchEightBallHandicapBeneficiary: String, CaseIterable, Hashable, Codable {
@@ -212,11 +221,10 @@ struct WatchSportsSetupDraft: Hashable {
         case .eightBall:
             maxSets = 0
             pointsPerSet = 0
-            eightBallTargetRacks = preferences.allowedInt(
-                forKey: "watchEightBallSetupTargetRacks",
-                defaultValue: 5,
-                allowed: Self.eightBallRackOptions
-            )
+            // 档位改叫「抢局」后不再包含旧的 9/11/15：历史存值只要仍是合法目标就保留，
+            // 由档位行按需追加显示，避免用户既有设置被打回默认。
+            let storedRacks = preferences.int(forKey: "watchEightBallSetupTargetRacks", defaultValue: 5)
+            eightBallTargetRacks = (1...99).contains(storedRacks) ? storedRacks : 5
             let maximum = Self.maxEightBallHandicap(for: eightBallTargetRacks)
             eightBallHandicapRacks = preferences.allowedInt(
                 forKey: "watchEightBallSetupHandicapRacks",
@@ -249,7 +257,19 @@ struct WatchSportsSetupDraft: Hashable {
         }
     }
 
-    static let eightBallRackOptions = [1, 3, 5, 7, 9, 11, 13, 15]
+    var pingpongPointOptions: [Int] {
+        let presets = [7, 9, 11, 15]
+        // Keep a saved legacy value visible until the player chooses a new preset.
+        return presets.contains(pointsPerSet) ? presets : (presets + [pointsPerSet]).sorted()
+    }
+
+    /// 「抢局」档位：数字即先赢几局（与手机端一致，对齐黑八 targetPoints 语义）。
+    static let eightBallRackOptions = [3, 5, 7, 13]
+
+    /// 档位行实际显示的候选：当前值不在预设里（旧设置 9/11/15 等）时插进排序后的列表。
+    static func eightBallRackValues(including racks: Int) -> [Int] {
+        eightBallRackOptions.contains(racks) ? eightBallRackOptions : (eightBallRackOptions + [racks]).sorted()
+    }
     static let snookerFrameOptions = [1, 3, 5, 7, 9, 11, 15, 17, 19, 25, 33, 35]
     static let footballHalfLengthMinutesKey = "watchFootballSetupHalfLengthMinutes"
     /// Phone allows 1-90 minutes; the watch offers a compact chip set.

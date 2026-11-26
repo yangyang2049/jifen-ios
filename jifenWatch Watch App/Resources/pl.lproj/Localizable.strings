@@ -1,0 +1,422 @@
+/* Watch App - pl */
+
+/* Tab Bar */
+"tab_score" = "Wynik";
+"tab_tools" = "Narzędzia";
+"tab_timer" = "Zegar";
+
+/* Game Types */
+"game_badminton" = "Badminton";
+"game_pingpong" = "Tenis stołowy";
+"game_tennis" = "Tenis";
+"game_pickleball" = "Pickleball";
+"game_archery" = "Łucznictwo";
+"tool_basketball_training" = "Trening rzutów";
+
+/* Tools */
+"tool_flip_coin" = "Rzuć monetą";
+"tool_random_number" = "Losowa liczba";
+"tool_ten_second" = "Zatrzymaj czas";
+"game_counter" = "Licznik";
+"press_again_to_reset" = "Dotknij ponownie, aby wyzerować";
+
+/* Records */
+"records" = "Historia";
+"loading" = "Ładowanie";
+"no_records" = "Brak zapisów";
+"record_not_found" = "Nie znaleziono zapisu";
+"match_details" = "Szczegóły meczu";
+"match_record" = "Zapis meczu";
+"delete_record" = "Usuń zapis";
+"confirm_deletion" = "Potwierdź usunięcie";
+"cannot_be_recovered_after_deletion" = "Tej operacji nie można cofnąć";
+"date" = "Data";
+"time" = "Czas";
+"duration" = "Czas trwania";
+
+/* Common */
+"cancel" = "Anuluj";
+"confirm" = "Potwierdź";
+"delete" = "Usuń";
+"setup" = "Konfiguracja";
+"vibration" = "Wibracje";
+"sound" = "Dźwięk";
+"watch_scoreboard_keep_screen_on" = "Pozostaw ekran włączony";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Pomoc";
+"usage_prompt_message" = "Dotknij strony, aby dodać punkt\nPrzesuń w dół, aby cofnąć\nPrzytrzymaj, aby otworzyć menu";
+"got_it" = "Rozumiem";
+
+/* Privacy */
+"privacy_policy" = "Polityka prywatności";
+"scan_to_view_details" = "Zeskanuj kod, aby zobaczyć szczegóły";
+
+/* Settings / About */
+"version" = "Wersja";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Opinia";
+"watch_contact_us" = "Kontakt";
+
+/* Scoreboard menu */
+"menu_undo" = "Cofnij";
+"menu_reset" = "Zresetuj";
+"watch_continue" = "Kontynuuj";
+"watch_end_match" = "Zakończ";
+"watch_layout_vertical" = "Pionowo";
+"watch_layout_horizontal" = "Poziomo";
+"watch_settings_layout_title" = "Układ";
+"watch_reset_toast" = "Zresetuj";
+"watch_undo_toast" = "Cofnięto";
+"watch_play_again" = "Zagraj ponownie";
+"watch_exit" = "Wyjdź";
+"exit" = "Wyjdź";
+"watch_team_red" = "Czerwony";
+"watch_team_blue" = "Niebieski";
+"team_a" = "Zespół A";
+"team_b" = "Zespół B";
+"team_home" = "Gospodarze";
+"team_away" = "Goście";
+"player_a" = "Gracz A";
+"player_b" = "Gracz B";
+"archer_a" = "Łucznik A";
+"archer_b" = "Łucznik B";
+"linked_score_confirm_title" = "Połączenie telefonu i zegarka?";
+"linked_score_phone_started_scoreboard" = "Połączenie telefonu i zegarka · Gra się rozpoczęła";
+"linked_score_accept" = "Przyjmij";
+"linked_score_reject" = "Odrzuć";
+"linked_score_watch_reclaim" = "Przejmij";
+"linked_score_setup_rules" = "Sety: %1$d · %2$d pkt";
+"linked_score_setup_rules_sets" = "Sety: %d";
+"linked_score_setup_race_to" = "Cel %d";
+"linked_score_sport_badminton" = "Badminton — gra pojedyncza";
+"linked_score_sport_badminton_doubles" = "Gra podwójna w badmintona";
+"linked_score_sport_pingpong" = "Tenis stołowy — gra pojedyncza";
+"linked_score_sport_pingpong_doubles" = "Tenis stołowy gra podwójna";
+"linked_score_sport_tennis" = "Tenis — gra pojedyncza";
+"linked_score_sport_tennis_doubles" = "Gra podwójna w tenisie";
+"linked_score_sport_pickleball" = "Pickleball — gra pojedyncza";
+"linked_score_sport_pickleball_doubles" = "Pickleball — gra podwójna";
+"game_basketball" = "Koszykówka";
+"game_three_basketball" = "Koszykówka 3x3";
+"linked_score_sport_archery" = "Łucznictwo";
+"linked_score_sport_eight_ball" = "Ósemka";
+"linked_score_sport_nine_ball" = "Dziewiątka — punkty";
+"linked_score_sport_snooker" = "Snooker";
+"linked_score_sport_shuttlecock" = "Jianzi";
+"linked_score_sport_squash" = "Squash";
+"linked_score_sport_foosball" = "Piłkarzyki";
+"linked_score_sport_football" = "Piłka nożna";
+"linked_score_sport_football_5v5" = "Piłka nożna 5×5";
+"watch_menu_end_match" = "Zakończ mecz";
+"watch_menu_restart" = "Uruchom ponownie";
+"watch_bball_overtime" = "Dogrywka";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d graczy";
+"archery_closest_title" = "Baraż · Najbliżej środka";
+"archery_closest_message" = "Remis %d — wybierz strzałę bliżej środka";
+"watch_set_end_format" = "Set %d zakończony";
+"watch_match_start" = "Gra się rozpoczęła";
+"watch_match_finished" = "Mecz zakończony";
+"watch_bb_hit_rate" = "Skuteczność";
+"watch_bb_end_training" = "Zakończ trening";
+"watch_training_finish_confirm_title" = "Zakończyć trening?";
+"watch_training_finish_confirm_message" = "Trening zakończy się i zostanie zapisany.";
+"watch_counter_finish_confirm_title" = "Zakończyć liczenie?";
+"watch_counter_finish_confirm_message" = "Wynik zostanie zapisany, a licznik wróci do zera.";
+"watch_bb_restart" = "Uruchom ponownie";
+
+/* Records */
+"clear_all_records" = "Wyczyść całą historię";
+"clear_all_records_message" = "Wszystkie wyniki zostaną trwale usunięte.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Orzeł";
+"watch_coin_tails" = "Reszka";
+"watch_archery_miss" = "Pudło";
+"watch_flip_coin_hint" = "Dotknij, aby rzucić monetą";
+"watch_ten_second_challenge" = "Zatrzymaj czas";
+"watch_ten_second_usage" = "Dotknij, aby zacząć. Dotknij ponownie w wyznaczonym czasie.";
+"watch_mid_game_rest" = "Przerwa w połowie seta";
+"watch_rest_between_sets" = "Przerwa między setami";
+"watch_official_timeout" = "Przerwa na żądanie";
+"watch_medical_break" = "Przerwa medyczna";
+"watch_score_event_set_title" = "Set %d zakończony";
+"watch_score_event_set_detail" = "%1$@ Wygrywa %2$d:%3$d · Sety %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Set %d · Przerwa w połowie seta";
+"watch_score_event_mid_game_detail" = "%1$@ Prowadzi %2$d:%3$d · Sety %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Set %d zakończony";
+"watch_score_event_tennis_game_detail" = "%1$@ Wygrywa · Gemy %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Set %d zakończony";
+"watch_score_event_tennis_set_detail" = "%1$@ Wygrywa %2$d:%3$d · Sety %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "7-punktowy tie-break";
+"watch_tiebreak_indicator_10" = "10-punktowy tie-break";
+"watch_continue_match" = "Wznów";
+"watch_continue_scoring" = "Wznów";
+"watch_resume_discard" = "Odrzuć niedokończony mecz";
+"watch_resume_discard_training" = "Odrzuć niedokończony trening";
+"unit_hour" = "g";
+"unit_minute" = "min";
+"unit_second" = "s";
+"today" = "Dzisiaj";
+"yesterday" = "Wczoraj";
+
+/* Sports setup */
+"watch_setup_start" = "Rozpocznij";
+"watch_setup_sets" = "Sety";
+"watch_setup_points_per_set" = "Punkty na seta";
+"watch_setup_tennis_deuce" = "Zasada równowagi";
+"watch_setup_tennis_advantage" = "Przewaga";
+"watch_setup_tennis_no_ad" = "Bez przewagi";
+"watch_setup_target_score" = "Wynik docelowy";
+"watch_setup_rally_scoring" = "Punkt za każdą wymianę";
+"watch_setup_target_racks" = "Cel";
+"watch_setup_race_racks" = "Wyścig do";
+"watch_setup_race_racks_help" = "3 = pierwszy do 3 framów";
+"watch_setup_handicap" = "Handicap";
+"watch_setup_handicap_none" = "Brak";
+"watch_setup_handicap_red_gives_blue" = "Czerwony → Niebieski";
+"watch_setup_handicap_blue_gives_red" = "Niebieski → Czerwony";
+"watch_setup_handicap_racks" = "Partie z handicapem";
+"watch_setup_frames" = "Frejmy";
+"watch_setup_custom_frames" = "Własna liczba frejmów";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Wprowadź 1-99";
+"watch_setup_players" = "Gracze";
+"watch_setup_archers" = "Łucznicy";
+"watch_setup_player_number" = "Gracz %d";
+"watch_setup_red_a" = "Czerwony A";
+"watch_setup_red_b" = "Czerwony B";
+"watch_setup_blue_a" = "Niebieski A";
+"watch_setup_blue_b" = "Niebieski B";
+"watch_setup_name_missing" = "Wpisz wszystkie nazwy lub zostaw wszystkie puste";
+"watch_setup_select_players" = "Gracze";
+"watch_setup_player_count" = "%d graczy";
+"watch_common_names_select_player" = "Wybierz gracza";
+"watch_common_names_no_records" = "Brak zapisanych nazw";
+"watch_common_names_title" = "Zapisane nazwy";
+"watch_common_names_add" = "Dodaj";
+"watch_common_names_edit" = "Edytuj nazwę";
+"watch_common_names_delete_title" = "Usunąć nazwę?";
+"watch_common_names_error_title" = "Aktualizacja nie powiodła się";
+"watch_common_names_players" = "Gracze";
+"watch_common_names_teams" = "drużyny";
+"watch_common_names_empty" = "Brak zapisanych nazw";
+"watch_common_names_team_placeholder" = "Nazwa drużyny";
+"watch_common_names_player_placeholder" = "Nazwa gracza";
+"watch_common_names_length_hint" = "Do %d znaków";
+"watch_common_names_error_empty" = "Nazwa nie może być pusta";
+"watch_common_names_error_duplicate" = "Nazwa już istnieje";
+"watch_common_names_error_missing" = "Nie znaleziono zapisu · Spróbuj ponownie";
+"watch_common_names_error_generic" = "Nie można zapisać. Spróbuj ponownie.";
+"watch_common_names_sync_now" = "Synchronizuj teraz";
+"watch_common_names_actions" = "Zapisane nazwy";
+"watch_common_names_sync_requested" = "Czeka na synchronizację";
+"watch_common_names_sync_queued" = "Telefon jest rozłączony · Czeka na synchronizację";
+"watch_common_names_sync_inactive" = "Telefon jest rozłączony";
+"watch_common_names_sync_failed" = "Nie udało się połączyć · Spróbuj ponownie";
+"watch_common_names_sync_conflict" = "Niektórych zmian nie zsynchronizowano";
+"watch_common_names_sync_pending" = "Czeka na synchronizację";
+"watch_common_names_sync_unavailable" = "Telefon jest rozłączony";
+"watch_common_names_sync_done" = "Zsynchronizowano";
+"watch_common_names_pending_count" = "Czeka na synchronizację · %d";
+"watch_common_names_never_synced" = "Jeszcze nie zsynchronizowano";
+"watch_common_names_last_sync" = "Ostatnia synchronizacja %@";
+
+"watch_phone_link_title" = "Połącz zegarek";
+"watch_phone_link_intro" = "Zacznij na telefonie, licz punkty na zegarku";
+"watch_phone_link_support" = "Badminton · Piłka nożna · Łucznictwo · Trening rzutów…";
+"watch_phone_link_status" = "Stan połączenia";
+"watch_phone_link_steps" = "Jak używać";
+"watch_phone_link_step_1" = "Ustaw mecz lub trening rzutów na telefonie.";
+"watch_phone_link_step_2" = "Starty · Apple Watch";
+"watch_phone_link_step_3" = "Licz punkty na zegarku. Wynik zsynchronizuje się po zakończeniu.";
+"watch_phone_link_help" = "Sparuj urządzenia, zainstaluj iScoreboard na obu i otwórz aplikację na telefonie.";
+"watch_phone_link_testing" = "Testowanie";
+"watch_phone_link_normal" = "Połączono";
+"watch_phone_link_failed" = "Nie udało się połączyć";
+"watch_phone_link_reachable" = "Połączono";
+"watch_phone_link_waiting" = "Czekam na telefon";
+"watch_phone_link_inactive" = "Telefon jest rozłączony";
+"watch_phone_link_testing_detail" = "Czekam na telefon";
+"watch_phone_link_normal_detail" = "Połączono";
+"watch_phone_link_failed_detail" = "Telefon nie odpowiedział w ciągu 8 sekund.";
+"watch_phone_link_failed_inactive" = "Telefon jest rozłączony · Spróbuj ponownie";
+"watch_phone_link_failed_unreachable" = "Otwórz iScoreboard na telefonie i spróbuj ponownie.";
+"watch_phone_link_failed_send" = "Nie udało się połączyć · Spróbuj ponownie";
+"watch_phone_link_reachable_detail" = "Test";
+"watch_phone_link_waiting_detail" = "Otwórz iScoreboard na telefonie i spróbuj ponownie.";
+"watch_phone_link_test_waiting" = "Testowanie…";
+"watch_phone_link_test_retry" = "Spróbuj ponownie";
+"watch_phone_link_test" = "Test";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Ostatnie połączenie %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Tryb treningu";
+"watch_bb_1pt" = "1 pkt";
+"watch_bb_2pt" = "2 pkt";
+"watch_bb_3pt" = "3 pkt";
+"watch_bb_free" = "Swobodny";
+"watch_training_miss" = "Pudło";
+"watch_training_made" = "Trafienie";
+"watch_training_point_value" = "%d pkt";
+"watch_training_breakdown" = "Szczegóły rzutów";
+"watch_training_start" = "Trening rzutów · Starty";
+"watch_training_rate_format" = "Skuteczność %d%%";
+"watch_training_action_format" = "%d pkt · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Przypiąć u góry?";
+"watch_home_pin_confirm" = "Przypnij";
+"watch_home_unpin_title" = "Odepnij?";
+"watch_home_unpin_confirm" = "Odepnij";
+"watch_home_pin_full_title" = "Limit przypięć";
+"watch_home_pin_full_message" = "Możesz przypiąć 2 pozycje. Najpierw odepnij jedną.";
+"watch_home_pin_hint" = "Przytrzymaj, aby przypiąć";
+"watch_home_pin_success" = "Przypięte";
+"watch_home_unpin_success" = "Odpięto";
+"multi_score_player_default_format" = "Gracz %d";
+"nine_ball_big_gold" = "Wielkie złoto";
+"nine_ball_small_gold" = "Małe złoto";
+"nine_ball_golden_nine" = "Złota 9";
+"nine_ball_normal_win" = "Zwykła wygrana";
+"nine_ball_ball_in_hand" = "Biała bila w ręce";
+"nine_ball_foul" = "Faul";
+"watch_archery_set_rest" = "Przerwa między setami";
+"watch_finish_confirm_title" = "Zakończ mecz?";
+"watch_finish_confirm_message" = "Mecz zakończy się i zostanie zapisany.";
+"watch_reset_confirm_title" = "Rozpocząć mecz od nowa?";
+"watch_reset_confirm_message" = "Bieżący wynik zostanie wyzerowany.";
+"watch_side_exchange" = "Zmień strony";
+"watch_winner_format" = "%@ Wygrywa";
+"watch_finished_win_badge" = "W";
+"watch_finished_winner" = "Zwycięzca";
+"watch_finished_home" = "Strona główna";
+"watch_snooker_foul" = "Faul";
+"watch_snooker_foul_selected_format" = "Faul +%d";
+"watch_snooker_foul_next_turn" = "Zmień kolejkę";
+"watch_snooker_foul_switch_turn" = "Zmień kolejkę";
+"watch_snooker_foul_continue" = "Kontynuuj";
+"watch_action_snooker_foul_continue_format" = "%@· Faul · Rywal +%d · Faulujący kontynuuje";
+"watch_snooker_handover" = "Zmień kolejkę";
+"watch_snooker_settle_frame" = "Rozlicz frejm";
+"watch_snooker_choose_frame_winner" = "Wybierz zwycięzcę frejma";
+"watch_snooker_frame_finished" = "Runda zakończona";
+"watch_snooker_next_frame" = "Następny frejm";
+"watch_training_breakdown_format" = "%d pkt · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Ta sama odległość. Kontynuuj baraż.";
+"edit" = "Edytuj";
+"game_badminton_doubles" = "Gra podwójna w badmintona";
+"game_eight_ball" = "Ósemka";
+"game_nine_ball" = "Dziewiątka — punkty";
+"game_pickleball_doubles" = "Pickleball — gra podwójna";
+"game_pingpong_doubles" = "Tenis stołowy gra podwójna";
+"game_snooker" = "Snooker";
+"game_tennis_doubles" = "Gra podwójna w tenisie";
+"save" = "Zapisz";
+"watch_action_adjust_score_format" = "%@· Wynik zmieniony";
+"watch_action_archery_arrow_format" = "%@+%d pkt";
+"watch_action_archery_closest" = "Baraż · Najbliżej środka";
+"watch_action_archery_miss_format" = "%@· Pudło";
+"watch_action_archery_set_ready" = "Łucznictwo · Runda zakończona";
+"watch_action_ball_potted_format" = "%@ · Wbita bila %@";
+"watch_action_basketball_foul_format" = "%@· Faul";
+"watch_action_basketball_period_format" = "Kwarta %d · Starty";
+"watch_action_basketball_timeout_format" = "%@· Przerwa na żądanie";
+"watch_action_edit_name" = "Zaktualizowano";
+"watch_action_exchange_sides" = "Zmień strony";
+"watch_action_exchange_sides_reminder" = "Zmień strony ręcznie";
+"watch_action_game_finished_format" = "Set %1$d zakończony · %2$@ Wygrywa";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ Wygrywa";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Set %1$d zakończony · %2$@ Wygrywa";
+"watch_action_shooter_format" = "%@ zaczyna strzelać";
+"watch_action_side_out_format" = "Serwis · %@";
+"watch_action_snooker_foul_format" = "%@· Faul · Rywal +%d";
+"watch_action_snooker_frame_format" = "Frejm %1$d · %2$@ Wygrywa";
+"watch_action_snooker_handover_format" = "Zmień kolejkę · %@";
+"watch_action_snooker_miss_format" = "%@· Pudło";
+"watch_action_snooker_next_frame_format" = "Frejm %d · Starty";
+"watch_action_snooker_pot_format" = "%@· Wbita bila +%d";
+"watch_record_actions_unavailable" = "Brak zapisów";
+"linked_score_error_title" = "Nie udało się połączyć";
+"linked_score_persistence_failed" = "Połączenie telefonu i zegarka · Zapis nie powiódł się: %@";
+"resume_persistence_error_title" = "Zapisanie nie powiodło się";
+"resume_persistence_failed" = "Wznów mecz · Zapis nie powiódł się: %@";
+"linked_score_control_timeout" = "Przejmij · Upłynął limit czasu · Spróbuj ponownie";
+"linked_score_sync_timeout" = "Upłynął limit czasu · Czeka na synchronizację";
+
+/* Football */
+"game_football" = "Piłka nożna";
+"game_football_5v5" = "Piłka nożna 5×5";
+"watch_setup_half_length" = "Długość połowy";
+"watch_setup_teams" = "drużyny";
+"football_first_half" = "Pierwsza połowa";
+"football_second_half" = "Druga połowa";
+"football_extra_time_first" = "Dogrywka — pierwsza połowa";
+"football_extra_time_second" = "Dogrywka — druga połowa";
+"football_first_half_over" = "Pierwsza połowa dobiegła końca";
+"football_switch_half" = "Druga połowa";
+"football_switch_half_title" = "Rozpocząć drugą połowę?";
+"football_switch_half_message" = "Pierwsza połowa zostanie wstrzymana i nie będzie można jej wznowić.";
+"football_extra_time_first_over" = "Dogrywka — pierwsza połowa · Runda zakończona";
+"football_switch_extra_time_half" = "Dogrywka — druga połowa";
+"football_enter_extra_time_title" = "Czas regulaminowy dobiegł końca";
+"football_post_regulation_action" = "Po regulaminowym czasie";
+"football_injury_title" = "Doliczony czas";
+"football_undo_stoppage" = "Cofnij doliczony czas";
+"football_enter_extra_time" = "Rozpocznij dogrywkę";
+"football_end_as_draw" = "Zakończ jako remis";
+"football_goal_hint" = "Dotknij, aby dodać gola";
+"watch_football_start" = "Rozpocznij";
+"watch_football_pause" = "Pauza";
+"watch_football_resume" = "Wznów";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Starty · %@";
+"watch_action_football_stoppage_format" = "Doliczony czas +%d s";
+"watch_action_football_clock_start" = "Zegar uruchomiony";
+"watch_action_football_clock_pause" = "Zegar wstrzymany";
+"watch_record_sync_sent" = "Zsynchronizowano";
+"watch_record_sync_pending" = "Czeka na synchronizację";
+"watch_record_sync_not_synced" = "Nie zsynchronizowano z iPhonem";
+"watch_record_sync_action" = "Synchronizuj z iPhonem";
+"watch_settings_auto_sync_records" = "Automatyczna synchronizacja";
+"game_shuttlecock" = "Jianzi";
+"game_squash" = "Squash";
+"game_foosball" = "Piłkarzyki";
+
+"watch_setup_win_by_two" = "Wygraj ostatni set przewagą 2 punktów";
+"watch_setup_score_cap" = "Limit punktów";
+"watch_setup_serving_side" = "Pierwszy serwujący";
+"watch_setup_kickoff_side" = "Pierwsze rozpoczęcie";
+"watch_setup_side_left" = "Czerwony";
+"watch_setup_side_right" = "Niebieski";
+
+"watch_about_us" = "O nas";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Wersja %@";
+"watch_wechat_group_title" = "Grupa WeChat";
+"watch_wechat_group_scan_hint" = "WeChat · Zeskanuj kod, aby zobaczyć szczegóły";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Rozbicie";
+"watch_nine_ball_select_payer" = "Wybierz płacącego";
+"watch_nine_ball_select_continue" = "Wybierz gracza";
+"watch_nine_ball_prev_player" = "Poprzedni";
+"watch_nine_ball_next_player" = "Następny";
+"watch_nine_ball_continue_badge" = "Graj";
+
+"watch_a11y_points_format" = "%d pkt";
+"watch_a11y_sets_format" = "Sety: %d";
+"watch_a11y_serving" = "Serwis";
+
+"watch_phone_shared_link_intro" = "Rozpocznij na telefonie i zapisuj punkty na dowolnym urządzeniu.";
+"linked_score_simultaneous_edit" = "Na obu urządzeniach wprowadzono zmiany. Sprawdź wynik.";

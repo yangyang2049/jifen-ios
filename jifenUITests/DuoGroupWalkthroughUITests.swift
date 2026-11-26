@@ -261,8 +261,7 @@ final class DuoGroupWalkthroughUITests: XCTestCase {
             "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
             "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints",
             "-UITestFakeSession", "-UITestSportsVoiceMissing",
-            "-UITestGroupsFixture", "-UITestGroupsFreshDrafts",
-            "-national_day_2026_10_autopopup_count", "99"
+            "-UITestGroupsFixture", "-UITestGroupsFreshDrafts"
         ] + extraArguments
         application = app
         app.launch()

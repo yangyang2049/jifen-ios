@@ -271,9 +271,7 @@ final class DuoToolsWalkthroughUITests: XCTestCase {
         app.launchArguments = [
             "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
             "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints",
-            "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestOpenTools",
-            "-national_day_2026_10_autopopup_count", "99",
-            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)
+            "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestOpenTools"
         ]
         application = app
         app.launch()

@@ -63,6 +63,20 @@ final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: E
         try? JSONEncoder().encode(cachedBundle)
     }
 
+    func makeLinkedMatchStore(state: State, startedAt: Date, recordID: String) -> BilliardsSessionStore {
+        let previous = cachedBundle.currentSession
+        return BilliardsSessionStore(
+            gameType: previous.gameType,
+            state: state,
+            reducer: reducer,
+            participants: previous.participants,
+            startedAt: startedAt,
+            recordID: recordID,
+            metadataTitle: previous.metadata.title,
+            resumeRepository: resumeRepository
+        )
+    }
+
     init(
         gameType: ScoreCore.GameType,
         state: State,

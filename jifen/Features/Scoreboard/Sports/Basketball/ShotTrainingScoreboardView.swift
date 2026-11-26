@@ -1,4 +1,6 @@
+import LinkCore
 import RecordCore
+import ScoreCore
 import SwiftUI
 import UIKit
 
@@ -16,41 +18,17 @@ nonisolated struct ShotTrainingShot: Codable, Equatable, Identifiable {
     }
 }
 
-nonisolated struct ShotTrainingCounts: Codable, Equatable {
-    var oneMade = 0
-    var oneMiss = 0
-    var twoMade = 0
-    var twoMiss = 0
-    var threeMade = 0
-    var threeMiss = 0
+typealias ShotTrainingCounts = LinkCore.ShotTrainingCounts
 
-    var made: Int { oneMade + twoMade + threeMade }
-    var missed: Int { oneMiss + twoMiss + threeMiss }
-    var attempts: Int { made + missed }
-    var points: Int { oneMade + twoMade * 2 + threeMade * 3 }
-    var rate: Int { attempts == 0 ? 0 : Int((Double(made) * 100 / Double(attempts)).rounded()) }
-
-    func count(points: Int, made: Bool) -> Int {
-        switch (points, made) {
-        case (1, true): return oneMade
-        case (1, false): return oneMiss
-        case (2, true): return twoMade
-        case (2, false): return twoMiss
-        default: return made ? threeMade : threeMiss
-        }
+extension ShotTrainingCounts {
+    nonisolated static func build(from shots: [ShotTrainingShot], earlier: Self = .init()) -> Self {
+        shots.reduce(into: earlier) { $0.add($1.linkedShot) }
     }
+}
 
-    static func build(from shots: [ShotTrainingShot]) -> Self {
-        shots.reduce(into: Self()) { result, shot in
-            switch (shot.points, shot.made) {
-            case (1, true): result.oneMade += 1
-            case (1, false): result.oneMiss += 1
-            case (2, true): result.twoMade += 1
-            case (2, false): result.twoMiss += 1
-            case (3, true): result.threeMade += 1
-            default: result.threeMiss += 1
-            }
-        }
+extension ShotTrainingShot {
+    nonisolated var linkedShot: LinkedShotTrainingShot {
+        .init(points: points, made: made, timestamp: timestamp)
     }
 }
 
@@ -59,6 +37,7 @@ nonisolated struct ShotTrainingResumeState: Codable, Equatable {
     var mode: ShotTrainingMode
     var shots: [ShotTrainingShot]
     var finished: Bool
+    var earlierCounts: ShotTrainingCounts? = nil
 }
 
 /// 投篮训练配色唯一口径（对齐鸿蒙端 ShotTrainingScoreboard 常量）：页面底色 + 未中红、命中绿。
@@ -89,6 +68,7 @@ nonisolated enum ShotTrainingZonePalette {
 struct ShotTrainingScoreboardView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService
 
     var initialSetup: SportsSetupResult? = nil
     var initialResumeSessionId: String? = nil
@@ -100,6 +80,9 @@ struct ShotTrainingScoreboardView: View {
     private static let entrySidePromptDuration: TimeInterval = 2
 
     @State private var mode: ShotTrainingMode
+    @State private var watchSessionId: UUID?
+    @State private var appliedWatchMatchGeneration: UInt64?
+    @State private var earlierCounts: ShotTrainingCounts
     @State private var shots: [ShotTrainingShot]
     @State private var gameStartTime: Date
     @State private var recordID: String
@@ -134,6 +117,7 @@ struct ShotTrainingScoreboardView: View {
         var restoredStart = Date()
         var restoredID = ScoreboardRecordIdentity.next(prefix: GameType.basketballTraining.canonicalScoreboardIdentifier)
         var restoredFinished = false
+        var restoredEarlierCounts = ShotTrainingCounts()
 
         if let initialResumeSessionId,
            let record = ManualResumeSessionStore.load(recordID: initialResumeSessionId) {
@@ -144,12 +128,15 @@ struct ShotTrainingScoreboardView: View {
                 restoredMode = state.mode
                 restoredShots = state.shots
                 restoredFinished = state.finished
+                restoredEarlierCounts = state.earlierCounts ?? .init()
             } else if let rawMode = record.extraData?["basketballTrainingScoringMode"]?.value as? String {
                 restoredMode = ShotTrainingMode(rawValue: rawMode) ?? .fixed1
             }
         }
 
         _mode = State(initialValue: restoredMode)
+        _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
+        _earlierCounts = State(initialValue: restoredEarlierCounts)
         _shots = State(initialValue: restoredShots)
         _gameStartTime = State(initialValue: restoredStart)
         _recordID = State(initialValue: restoredID)
@@ -161,9 +148,70 @@ struct ShotTrainingScoreboardView: View {
         _registersParticipantOwner = State(initialValue: initialResumeSessionId == nil)
     }
 
-    private var counts: ShotTrainingCounts { .build(from: shots) }
+    private var counts: ShotTrainingCounts { .build(from: shots, earlier: earlierCounts) }
+
+    private var scoringLocked: Bool {
+        watchSessionId != nil && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+    }
+
+    private var linkedSnapshot: LinkedScoreboardSnapshot {
+        .basketballTraining(.init(
+            mode: LinkedShotTrainingMode(rawValue: mode.rawValue) ?? .fixed1,
+            startTime: gameStartTime,
+            shots: shots.map(\.linkedShot),
+            earlierCounts: earlierCounts,
+            finished: gameFinished
+        ))
+    }
+
+    private var currentFinishedRecordID: String? {
+        if let finalizedRecordID { return finalizedRecordID }
+        guard let watchSessionId, watchSessionId == watchLinkService.activeSessionId else { return nil }
+        return watchLinkService.finishedRecordId
+    }
 
     var body: some View {
+        board
+            .onChange(of: watchLinkService.incomingSnapshot) { _, update in
+                guard let watchSessionId, let update, update.sessionId == watchSessionId,
+                      let state = update.snapshot.basketballTrainingState else { return }
+                applyLinkedState(state, matchGeneration: update.matchGeneration)
+            }
+            .onChange(of: watchLinkService.finishedRecordId) { _, id in
+                guard let watchSessionId, watchLinkService.activeSessionId == watchSessionId,
+                      let id else { return }
+                finalizedRecordID = id
+            }
+            .onChange(of: watchLinkService.pendingTakeoverApplication, initial: true) { _, pending in
+                guard let watchSessionId, let pending, pending.sessionId == watchSessionId,
+                      let state = pending.snapshot.basketballTrainingState else { return }
+                applyLinkedState(state)
+                watchLinkService.completePhoneTakeover(messageId: pending.messageId)
+            }
+            .onChange(of: watchLinkService.activeSessionId) { _, sessionId in
+                guard let watchSessionId, sessionId != watchSessionId else { return }
+                finalizedRecordID = currentFinishedRecordID
+                self.watchSessionId = nil
+            }
+            .alert(
+                NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
+                isPresented: reclaimAlertPresented
+            ) {
+                Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
+                    resolveWatchReclaim(accepted: true)
+                }
+                Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
+                    resolveWatchReclaim(accepted: false)
+                }
+            } message: {
+                Text(NSLocalizedString(
+                    "linked_score_watch_reclaim_message",
+                    value: "是否允许手表在 5 秒内重新接管计分？", comment: ""
+                ))
+            }
+    }
+
+    private var board: some View {
         GeometryReader { proxy in
             let isLandscape = proxy.size.width > proxy.size.height
             ZStack {
@@ -215,6 +263,10 @@ struct ShotTrainingScoreboardView: View {
         .onAppear {
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = PreferencesManager.shared.keepScoreboardScreenOn
+            if let watchSessionId,
+               let state = watchLinkService.attachPage(sessionId: watchSessionId)?.snapshot.basketballTrainingState {
+                applyLinkedState(state)
+            }
             onSetupConsumed?()
             registerScoreboardSync()
             openEntrySidePrompt()
@@ -231,6 +283,7 @@ struct ShotTrainingScoreboardView: View {
         }
         .onDisappear {
             clearEntrySidePromptTimer()
+            if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             saveRecord(finished: gameFinished)
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled {
@@ -239,7 +292,7 @@ struct ShotTrainingScoreboardView: View {
         }
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
-                ScoreboardRecordDetailPage(recordId: finalizedRecordID ?? recordID)
+                ScoreboardRecordDetailPage(recordId: currentFinishedRecordID ?? recordID)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             ModalCloseButton { showFinishedRecordDetail = false }
@@ -300,6 +353,7 @@ struct ShotTrainingScoreboardView: View {
                 Text("\(count)")
                     .font(.system(size: scoreSize, weight: .heavy))
                     .monospacedDigit()
+                    .accessibilityIdentifier(made ? "shot_training_made_count" : "shot_training_miss_count")
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                     .foregroundStyle(.white)
@@ -464,9 +518,8 @@ struct ShotTrainingScoreboardView: View {
         .buttonStyle(.plain)
     }
 
-    /// 鸿蒙端 getMenuItems：菜单只有这六项，不走 iOS 默认菜单（没有换边 / 样式 / 哨子）。
     private var menuItems: [ScoreboardMenuItem] {
-        [
+        let items = [
             ScoreboardMenuItem(
                 title: NSLocalizedString("menu_undo", comment: "Undo"),
                 action: "undo",
@@ -509,11 +562,39 @@ struct ShotTrainingScoreboardView: View {
                 keepDialogOpen: true
             )
         ]
+        let availableItems = scoringLocked
+            ? items.filter { !["undo", "reset", "finish"].contains($0.action) }
+            : items
+        return availableItems + WatchLinkMenuSupport.extraItems(
+            entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
+            sessionId: watchSessionId,
+            isFollower: watchLinkService.isFollower,
+            watchBackgrounded: watchLinkService.watchBackgrounded
+        )
     }
 
     private func handleMenuAction(_ action: String) {
         menuConfirm.prepare(forMenuAction: action)
         switch action {
+        case "resync":
+            watchLinkService.requestScoreResync()
+        case "takeover", "forceTakeover":
+            guard let watchSessionId else { return }
+            Task {
+                do {
+                    if action == "forceTakeover" {
+                        try await watchLinkService.forceTakeover(sessionId: watchSessionId)
+                    } else {
+                        try await watchLinkService.takeover(sessionId: watchSessionId)
+                    }
+                } catch {
+                    showToastMessage(error.localizedDescription)
+                }
+            }
+        case "endLink":
+            guard let watchSessionId else { return }
+            watchLinkService.leaveSession(watchSessionId)
+            self.watchSessionId = nil
         case "undo":
             undoLastShot()
         case "layout":
@@ -561,16 +642,19 @@ struct ShotTrainingScoreboardView: View {
             rightScore: counts.made,
             winnerIndices: [1],
             newGameLabel: NSLocalizedString("restart", value: "重新开始", comment: ""),
+            newGameDisabled: scoringLocked,
             onNewGame: { restartSession() },
             onRecords: {
-                saveRecord(finished: true)
+                if scoringLocked, currentFinishedRecordID == nil { return }
+                guard saveRecord(finished: true) else { return }
                 // 不收起结束弹窗：查看记录是 fullScreenCover 盖在上面，关闭后仍停在弹窗上，
                 // 否则页面已锁定为已结束态、底部圆钮也隐藏，用户回来就无从下手。
                 showFinishedRecordDetail = true
             },
             onShare: { ScoreboardShareSupport.present(text: shareText) },
             onExit: {
-                saveRecord(finished: true)
+                guard saveRecord(finished: true) else { return }
+                if let watchSessionId { watchLinkService.leaveSessionIfMatchFinished(watchSessionId) }
                 performScoreboardExit(onNavigationBack: onNavigationBack, dismiss: dismiss)
             }
         )
@@ -605,9 +689,10 @@ struct ShotTrainingScoreboardView: View {
     }
 
     private func record(points: Int, made: Bool) {
-        guard !gameFinished else { return }
+        guard !gameFinished, !scoringLocked else { return }
         hideEntrySidePrompt()
         shots.append(.init(points: points, made: made))
+        publishLinkedTraining()
         saveRecord(finished: false)
         // 鸿蒙端 vibrate(made)：命中 40ms、未中 90ms，未中比命中更重。
         made ? VibrationManager.shared.vibrateLight() : VibrationManager.shared.vibrateMedium()
@@ -616,7 +701,7 @@ struct ShotTrainingScoreboardView: View {
     /// - Parameter made: 显示端只撤销指定一侧的最近一次出手；页面自身（菜单 / 左滑）撤销全局最后一次。
     /// - Parameter points: 分区下滑撤销用：指定分值时只撤销该侧该分值的最近一次出手。
     private func undoLastShot(made: Bool? = nil, points: Int? = nil) {
-        guard !gameFinished else { return }
+        guard !gameFinished, !scoringLocked else { return }
         let index: Int?
         if made != nil || points != nil {
             index = shots.lastIndex { shot in
@@ -627,6 +712,7 @@ struct ShotTrainingScoreboardView: View {
         }
         guard let index else { return }
         shots.remove(at: index)
+        publishLinkedTraining()
         saveRecord(finished: false)
         VibrationManager.shared.vibrateLight()
         if made == nil {
@@ -666,24 +752,40 @@ struct ShotTrainingScoreboardView: View {
     }
 
     private func finishTraining() {
-        guard !gameFinished, !shots.isEmpty else { return }
+        guard !gameFinished, !scoringLocked, counts.attempts > 0 else { return }
+        guard saveRecord(finished: true) else { return }
         gameFinished = true
         showGameOver = true
-        saveRecord(finished: true)
+        notifyLinkedTrainingFinished()
         VibrationManager.shared.vibrateMedium()
     }
 
     /// 重新开始：先把上一段落库为已结束，再清零。
     private func restartSession() {
-        saveRecord(finished: true)
+        guard !scoringLocked else { return }
+        if counts.attempts > 0 {
+            guard saveRecord(finished: true) else { return }
+            if !gameFinished {
+                gameFinished = true
+                notifyLinkedTrainingFinished()
+            }
+        }
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.basketballTraining.canonicalScoreboardIdentifier)
         try? ParticipantIdentityStore.shared.registerRecord(recordID)
         gameStartTime = Date()
         shots.removeAll()
+        earlierCounts = .init()
         gameFinished = false
         showGameOver = false
         finalizedRecordID = nil
         menuConfirm.clear()
+        if let watchSessionId, watchLinkService.canEditLinkedMatch {
+            watchLinkService.prepareControllerForNewMatch(
+                sessionId: watchSessionId,
+                gameType: .basketballTraining,
+                snapshot: linkedSnapshot
+            )
+        }
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         openEntrySidePrompt()
     }
@@ -702,6 +804,9 @@ struct ShotTrainingScoreboardView: View {
 
         exitConfirmDeadline = nil
         if !saveRecord(finished: gameFinished) { return }
+        if gameFinished, let watchSessionId {
+            watchLinkService.leaveSessionIfMatchFinished(watchSessionId)
+        }
         performScoreboardExit(onNavigationBack: onNavigationBack, dismiss: dismiss)
     }
 
@@ -722,7 +827,7 @@ struct ShotTrainingScoreboardView: View {
                 guard LocalScoreboardMutationPolicy.allowsMutation(
                     isEditing: false,
                     finished: gameFinished,
-                    scoringLocked: false
+                    scoringLocked: scoringLocked
                 ) else { return }
                 // 自由模式的分值只能由场上记录者决定，显示端只提供固定模式的加减。
                 guard mode != .free else { return }
@@ -777,17 +882,76 @@ struct ShotTrainingScoreboardView: View {
         return compact
     }
 
+    private func applyLinkedState(_ state: LinkedShotTrainingState, matchGeneration: UInt64? = nil) {
+        let isNewMatch = matchGeneration.map { $0 != appliedWatchMatchGeneration } ?? (gameStartTime != state.startTime)
+        if let matchGeneration { appliedWatchMatchGeneration = matchGeneration }
+        if isNewMatch {
+            recordID = ScoreboardRecordIdentity.next(prefix: GameType.basketballTraining.canonicalScoreboardIdentifier)
+            finalizedRecordID = nil
+            showFinishedRecordDetail = false
+        }
+        if state.finished, let id = watchLinkService.finishedRecordId {
+            finalizedRecordID = id
+        }
+        mode = ShotTrainingMode(rawValue: state.mode.rawValue) ?? .fixed1
+        gameStartTime = state.startTime
+        shots = state.shots.map { .init(points: $0.points, made: $0.made, timestamp: $0.timestamp) }
+        earlierCounts = state.earlierCounts
+        gameFinished = state.finished
+        showGameOver = state.finished
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+    }
+
+    private func publishLinkedTraining() {
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
+        watchLinkService.syncWatch(
+            sessionId: watchSessionId,
+            gameType: .basketballTraining,
+            snapshot: linkedSnapshot
+        )
+    }
+
+    private func notifyLinkedTrainingFinished() {
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
+        watchLinkService.notifyMatchFinished(
+            sessionId: watchSessionId,
+            snapshot: linkedSnapshot,
+            recordId: recordID,
+            winnerSide: nil,
+            manualEnd: true,
+            startTime: gameStartTime,
+            endTime: Date(),
+            totalScoreChanges: counts.attempts,
+            recordAlreadySaved: true
+        )
+    }
+
+    private var reclaimAlertPresented: Binding<Bool> {
+        Binding(
+            get: { watchSessionId != nil && watchLinkService.pendingReclaimRequest?.sessionId == watchSessionId },
+            set: { if !$0 { resolveWatchReclaim(accepted: false) } }
+        )
+    }
+
+    private func resolveWatchReclaim(accepted: Bool) {
+        guard let watchSessionId, watchLinkService.pendingReclaimRequest?.sessionId == watchSessionId else { return }
+        watchLinkService.resolveReclaimRequest(accepted: accepted, snapshot: linkedSnapshot, detailedActions: [])
+    }
+
     @discardableResult
     private func saveRecord(finished: Bool) -> Bool {
+        if scoringLocked || (watchSessionId != nil && (watchLinkService.peerFinishedSharedMatch || (!finished && !gameFinished))) {
+            return true
+        }
         let end = Date()
         let currentCounts = counts
         let isFinished = finished || gameFinished
         // 和羽毛球等计分页保持一致：刚进入后即使还是 0:0，也要留下 live
         // resume，用户退出后可以从首页的未完成比赛继续。空训练若被放弃，
         // ResumeSessionLifecycle 会直接清理，不会生成一条 0 次出手的历史记录。
-        guard !shots.isEmpty || !isFinished else { return false }
-        if isFinished, finalizedRecordID == recordID { return true }
-        let snapshot = ShotTrainingResumeState(mode: mode, shots: shots, finished: isFinished)
+        guard currentCounts.attempts > 0 || !isFinished else { return false }
+        if isFinished, currentFinishedRecordID != nil { return true }
+        let snapshot = ShotTrainingResumeState(mode: mode, shots: shots, finished: isFinished, earlierCounts: earlierCounts)
         let snapshotData: Data
         do {
             snapshotData = try JSONEncoder().encode(snapshot)
@@ -796,8 +960,8 @@ struct ShotTrainingScoreboardView: View {
             return false
         }
 
-        var runningMiss = 0
-        var runningMade = 0
+        var runningMiss = earlierCounts.missed
+        var runningMade = earlierCounts.made
         let detailedActions = shots.map { shot -> DetailedScoreAction in
             if shot.made { runningMade += 1 } else { runningMiss += 1 }
             return DetailedScoreAction(
@@ -815,28 +979,7 @@ struct ShotTrainingScoreboardView: View {
             operationCode: "training_rate_\(currentCounts.rate)"
         )] : [])
 
-        let modeValue = mode.fixedPoints.map { "\($0)pt" } ?? "free"
-        var extraData: [String: AnyCodable] = [
-            "type": AnyCodable(GameType.basketballTraining.rawValue),
-            "gameMode": AnyCodable(modeValue),
-            "basketballTrainingMode": AnyCodable(mode.fixedPoints == nil ? "mixed" : "fixed"),
-            "basketballTrainingScoringMode": AnyCodable(mode.rawValue),
-            "onePointMade": AnyCodable(currentCounts.oneMade),
-            "onePointMiss": AnyCodable(currentCounts.oneMiss),
-            "twoPointMade": AnyCodable(currentCounts.twoMade),
-            "twoPointMiss": AnyCodable(currentCounts.twoMiss),
-            "threePointMade": AnyCodable(currentCounts.threeMade),
-            "threePointMiss": AnyCodable(currentCounts.threeMiss),
-            "basketballTrainingMixed": AnyCodable([
-                "onePointMade": currentCounts.oneMade,
-                "onePointMiss": currentCounts.oneMiss,
-                "twoPointMade": currentCounts.twoMade,
-                "twoPointMiss": currentCounts.twoMiss,
-                "threePointMade": currentCounts.threeMade,
-                "threePointMiss": currentCounts.threeMiss
-            ])
-        ]
-        if let fixedPoints = mode.fixedPoints { extraData["targetScore"] = AnyCodable(fixedPoints) }
+        let extraData = ShotTrainingRecordMetadata.extraData(mode: mode, counts: currentCounts)
 
         let actionLog = ["\(Int64(gameStartTime.timeIntervalSince1970 * 1_000))|training_start"]
             + shots.map { shot in
@@ -871,5 +1014,26 @@ struct ShotTrainingScoreboardView: View {
             ScoreboardPersistenceFailureReporter.report(error, context: "Failed to save shot training \(recordID)")
             return false
         }
+    }
+}
+
+enum ShotTrainingRecordMetadata {
+    static func extraData(mode: ShotTrainingMode, counts: ShotTrainingCounts) -> [String: AnyCodable] {
+        let breakdown = [
+            "onePointMade": counts.oneMade,
+            "onePointMiss": counts.oneMiss,
+            "twoPointMade": counts.twoMade,
+            "twoPointMiss": counts.twoMiss,
+            "threePointMade": counts.threeMade,
+            "threePointMiss": counts.threeMiss
+        ]
+        var data = breakdown.mapValues(AnyCodable.init)
+        data["type"] = AnyCodable(GameType.basketballTraining.rawValue)
+        data["gameMode"] = AnyCodable(mode.fixedPoints.map { "\($0)pt" } ?? "free")
+        data["basketballTrainingMode"] = AnyCodable(mode.fixedPoints == nil ? "mixed" : "fixed")
+        data["basketballTrainingScoringMode"] = AnyCodable(mode.rawValue)
+        data["basketballTrainingMixed"] = AnyCodable(breakdown)
+        if let fixedPoints = mode.fixedPoints { data["targetScore"] = AnyCodable(fixedPoints) }
+        return data
     }
 }

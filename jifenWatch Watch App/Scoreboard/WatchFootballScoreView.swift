@@ -36,6 +36,7 @@ struct WatchFootballScoreView: View {
     /// Non-nil when this board follows a phone-started linked session.
     let linkedSessionId: UUID?
 
+    @State private var showRecordSaveFailure = false
     @State private var leftName: String
     @State private var rightName: String
     @State private var leftScore: Int
@@ -196,15 +197,15 @@ struct WatchFootballScoreView: View {
                 WatchFinishedOverlay(
                     title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
                     scoreItems: [
-                        WatchFinishedScoreItem(name: leftName, score: "\(leftScore)"),
-                        WatchFinishedScoreItem(name: rightName, score: "\(rightScore)")
+                        WatchFinishedScoreItem(name: leftName, score: leftScore),
+                        WatchFinishedScoreItem(name: rightName, score: rightScore)
                     ],
-                    winnerText: winnerText,
                     undoAvailable: finishUndoAvailable,
+                    canPlayAgain: !scoringLocked,
                     onUndo: undo,
                     onPlayAgain: restartMatch,
                     onExit: {
-                        finalizeFinish()
+                        guard finalizeFinish() else { return }
                         exitBoard()
                     }
                 )
@@ -212,6 +213,7 @@ struct WatchFootballScoreView: View {
 
             confirmationOverlay
         }
+        .watchFinishSaveFailure(isPresented: $showRecordSaveFailure) { finalizeFinish() }
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
@@ -221,9 +223,13 @@ struct WatchFootballScoreView: View {
         .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
             tickClock()
         }
-        .onChange(of: linkService.latestSnapshot) { _, update in
-            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
+        .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
+            guard linkService.incomingSnapshot != nil, let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let remote = update.snapshot.footballState else { return }
+            if linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+                matchStartTime = Date()
+                actionLog.reset(at: matchStartTime)
+            }
             applyLinkedState(remote, detailedActions: update.detailedActions)
         }
         .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
@@ -362,14 +368,14 @@ struct WatchFootballScoreView: View {
         HStack(spacing: 6) {
             halfBadge
             Text(clockText)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(.system(size: 16, weight: .bold))
                 .monospacedDigit()
                 .foregroundStyle(clockTextColor)
             if clockSession.elapsedStoppageSeconds > 0 {
                 Text(WatchFootballRules.formattedStoppage(
                     seconds: clockSession.elapsedStoppageSeconds
                 ))
-                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .font(.system(size: 11, weight: .semibold))
                 .monospacedDigit()
                 .foregroundStyle(Self.amber)
             }
@@ -393,7 +399,7 @@ struct WatchFootballScoreView: View {
             HStack(spacing: 6) {
                 halfBadge
                 Text(clockText)
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                    .font(.system(size: 20, weight: .bold))
                     .monospacedDigit()
                     .foregroundStyle(clockTextColor)
                 fiveV5ClockIcon
@@ -478,10 +484,9 @@ struct WatchFootballScoreView: View {
 
     private var menuExtraActions: [WatchMenuExtraAction] {
         guard !scoringLocked, !isFinished else { return [] }
-        var actions: [WatchMenuExtraAction]
         switch menuAction {
         case .nextHalf:
-            actions = [
+            return [
                 WatchMenuExtraAction(
                     id: "football_next_half",
                     title: NSLocalizedString("football_switch_half", value: "进入下半场", comment: ""),
@@ -497,7 +502,7 @@ struct WatchFootballScoreView: View {
                 : (kickedOff
                     ? NSLocalizedString("watch_football_resume", value: "继续", comment: "")
                     : NSLocalizedString("watch_football_start", value: "开始", comment: ""))
-            actions = [
+            return [
                 WatchMenuExtraAction(
                     id: "football_clock_toggle",
                     title: title,
@@ -506,7 +511,7 @@ struct WatchFootballScoreView: View {
                 )
             ]
         case .extraTime:
-            actions = [
+            return [
                 WatchMenuExtraAction(
                     id: "football_extra_time",
                     title: NSLocalizedString("football_enter_extra_time", value: "进入加时赛", comment: ""),
@@ -521,7 +526,7 @@ struct WatchFootballScoreView: View {
                 ? "\(NSLocalizedString("football_injury_title", value: "伤停补时", comment: "")) "
                     + WatchFootballRules.formattedStoppage(seconds: stoppage)
                 : NSLocalizedString("football_injury_title", value: "伤停补时", comment: "")
-            actions = [
+            return [
                 WatchMenuExtraAction(
                     id: "football_stoppage",
                     title: title,
@@ -530,37 +535,14 @@ struct WatchFootballScoreView: View {
                 )
             ]
         }
-        actions.append(layoutToggleAction)
-        return actions
-    }
-
-    /// In-board layout switch, mirroring Harmony's menu toggle.
-    private var layoutToggleAction: WatchMenuExtraAction {
-        let isVertical = !isHorizontal
-        return WatchMenuExtraAction(
-            id: "football_layout",
-            title: isVertical
-                ? NSLocalizedString("watch_layout_horizontal", value: "左右", comment: "")
-                : NSLocalizedString("watch_layout_vertical", value: "上下", comment: ""),
-            systemImage: isVertical ? "rectangle.split.2x1" : "rectangle.split.1x2",
-            action: { showMenu = false; toggleLayout() }
-        )
-    }
-
-    private func toggleLayout() {
-        let next = isHorizontal ? "vertical" : "horizontal"
-        WatchPreferences.shared.scoreboardLayout = next
-        scoreboardLayout = next
-        WatchHaptics.shared.play(.light)
     }
 
     private var injuryPanel: some View {
         let compact = WatchLayout.isCompactScreen
-        return ZStack {
-            Color.black.opacity(0.76)
-                .ignoresSafeArea()
-                .onTapGesture { showStoppagePanel = false }
-
+        return WatchFullScreenOverlay(
+            scrim: Color.black.opacity(0.76),
+            onBackgroundTap: { showStoppagePanel = false }
+        ) { _, _ in
             VStack(spacing: 0) {
                 WatchDialogHeader(
                     title: NSLocalizedString("football_injury_title", value: "伤停补时", comment: ""),
@@ -569,7 +551,7 @@ struct WatchFootballScoreView: View {
                     Text(WatchFootballRules.formattedStoppage(
                         seconds: clockSession.currentStoppageSeconds
                     ))
-                    .font(.system(size: compact ? 11 : 14, weight: .bold, design: .rounded))
+                    .font(.system(size: compact ? 11 : 14, weight: .bold))
                     .monospacedDigit()
                     .foregroundStyle(clockSession.currentStoppageSeconds > 0
                         ? WatchTheme.accent
@@ -602,8 +584,10 @@ struct WatchFootballScoreView: View {
                     ))
                     .font(.system(size: compact ? 10 : 11, weight: .medium))
                     .foregroundStyle(.white)
-                    .lineLimit(1)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
                     .minimumScaleFactor(0.8)
+                    .padding(.horizontal, 4)
                     .frame(maxWidth: .infinity)
                     .frame(height: compact ? 30 : 34)
                     .background(Color(hex: 0x2C2C2E), in: Capsule())
@@ -621,8 +605,6 @@ struct WatchFootballScoreView: View {
             .padding(.top, compact ? 24 : 32)
             .padding(.bottom, compact ? 4 : 8)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 
     private func injuryChip(_ seconds: Int) -> some View {
@@ -641,11 +623,10 @@ struct WatchFootballScoreView: View {
 
     private var postRegulationPanel: some View {
         let compact = WatchLayout.isCompactScreen
-        return ZStack {
-            Color.black.opacity(0.76)
-                .ignoresSafeArea()
-                .onTapGesture { showPostRegulationPanel = false }
-
+        return WatchFullScreenOverlay(
+            scrim: Color.black.opacity(0.76),
+            onBackgroundTap: { showPostRegulationPanel = false }
+        ) { _, _ in
             VStack(spacing: 0) {
                 WatchDialogHeader(
                     title: NSLocalizedString(
@@ -658,7 +639,7 @@ struct WatchFootballScoreView: View {
                 .padding(.bottom, compact ? 8 : 10)
 
                 Text("\(leftScore) : \(rightScore)")
-                    .font(.system(size: compact ? 20 : 24, weight: .bold, design: .rounded))
+                    .font(.system(size: compact ? 20 : 24, weight: .bold))
                     .monospacedDigit()
                     .foregroundStyle(.white)
                     .padding(.bottom, compact ? 10 : 14)
@@ -700,8 +681,6 @@ struct WatchFootballScoreView: View {
             .padding(.top, compact ? 22 : 26)
             .padding(.bottom, compact ? 4 : 8)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 
     @ViewBuilder
@@ -852,7 +831,7 @@ struct WatchFootballScoreView: View {
     }
 
     private func publishLinkedIfNeeded() {
-        guard linkedSessionId != nil, linkService.isController else { return }
+        guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
         linkService.publishSnapshot(
             .football(linkedSnapshot),
             detailedActions: actionLog.detailedActions,
@@ -1012,15 +991,6 @@ struct WatchFootballScoreView: View {
 
     // MARK: - Finish / reset / exit
 
-    private var winnerText: String? {
-        guard leftScore != rightScore else { return nil }
-        let winner = leftScore > rightScore ? leftName : rightName
-        return String.localizedStringWithFormat(
-            NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: ""),
-            winner
-        )
-    }
-
     private func finishMatch() {
         guard !isFinished, !scoringLocked else { return }
         flushPendingGoal()
@@ -1038,7 +1008,6 @@ struct WatchFootballScoreView: View {
             )
         ])
         publishLinkedIfNeeded()
-        resumeStore.clear()
         finishUndoAvailable = !undoStack.isEmpty
         showFinishedOverlay = true
         finishTask = Task { @MainActor in
@@ -1049,12 +1018,14 @@ struct WatchFootballScoreView: View {
         }
     }
 
-    private func finalizeFinish() {
-        guard isFinished, !didSaveRecord else { return }
-        resumeStore.clear()
-        if linkedSessionId != nil, linkService.isController {
+    @discardableResult
+    private func finalizeFinish() -> Bool {
+        guard isFinished, !didSaveRecord, !scoringLocked else { return true }
+        finishUndoAvailable = false
+        let saved: Bool
+        if linkedSessionId != nil {
             let winner: MatchSide? = leftScore == rightScore ? nil : (leftScore > rightScore ? .left : .right)
-            linkService.publishMatchFinished(
+            saved = linkService.publishMatchFinished(
                 snapshot: .football(linkedSnapshot),
                 recordId: recordID,
                 winnerSide: winner,
@@ -1065,22 +1036,27 @@ struct WatchFootballScoreView: View {
                 detailedActions: actionLog.detailedActions,
                 participantNames: [leftName, rightName]
             )
-            didSaveRecord = true
-        } else {
-            saveRecordIfNeeded()
+            } else {
+            saved = saveRecordIfNeeded()
         }
+        guard saved else {
+            showRecordSaveFailure = true
+            return false
+        }
+        didSaveRecord = true
+        resumeStore.clear()
+        return true
     }
 
-    private func saveRecordIfNeeded() {
-        guard !didSaveRecord else { return }
+    private func saveRecordIfNeeded() -> Bool {
+        guard !didSaveRecord else { return true }
         let clock = clockSession.snapshot()
         guard leftScore + rightScore > 0
                 || clock.elapsedSeconds > 0
                 || clock.stage > 1
                 || !undoStack.isEmpty else {
-            return
+            return true
         }
-        didSaveRecord = true
         let end = Date()
         let winnerName: String? = leftScore == rightScore
             ? nil
@@ -1106,7 +1082,7 @@ struct WatchFootballScoreView: View {
                 "showMatchTime": "true"
             ]
         )
-        WatchRecordManager.shared.saveRecord(record)
+        return resumeStore.saveFinishedRecord(record)
     }
 
     private func undo() {
@@ -1133,9 +1109,7 @@ struct WatchFootballScoreView: View {
 
     private func restartMatch() {
         guard !scoringLocked else { return }
-        if isFinished {
-            finalizeFinish()
-        }
+        guard !isFinished || finalizeFinish() else { return }
         finishTask?.cancel()
         resumeStore.clear()
         undoStack.removeAll()
@@ -1168,16 +1142,14 @@ struct WatchFootballScoreView: View {
     }
 
     private func exitBoard() {
-        if linkedSessionId != nil {
-            linkService.exitScoreboardToHome()
-        }
+        if let linkedSessionId { linkService.exitScoreboard(sessionId: linkedSessionId) }
         persistResumeSession()
         dismiss()
     }
 
     private func persistResumeSession() {
         guard !isFinished else {
-            resumeStore.clear()
+            if didSaveRecord { resumeStore.clear() }
             return
         }
         let clock = clockSession.snapshot()

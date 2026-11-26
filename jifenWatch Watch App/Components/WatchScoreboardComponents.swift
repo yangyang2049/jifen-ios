@@ -44,24 +44,115 @@ struct WatchRestState: Codable, Equatable {
     let durationSeconds: Int
     let startedAt: Date
     let triggerID: String
+    let countUp: Bool?
 
     init(
         kind: Kind,
         title: String,
         durationSeconds: Int,
         startedAt: Date = Date(),
-        triggerID: String
+        triggerID: String,
+        countUp: Bool? = nil
     ) {
         self.kind = kind
         self.title = title
         self.durationSeconds = max(0, durationSeconds)
         self.startedAt = startedAt
         self.triggerID = triggerID
+        self.countUp = countUp
     }
 
     func remainingSeconds(at date: Date = Date()) -> Int {
-        let elapsed = max(0, date.timeIntervalSince(startedAt))
-        return max(0, durationSeconds - Int(elapsed.rounded(.down)))
+        max(0, durationSeconds - elapsedSeconds(at: date))
+    }
+
+    func elapsedSeconds(at date: Date) -> Int {
+        Int(max(0, date.timeIntervalSince(startedAt)).rounded(.down))
+    }
+
+    func officialBreakState(for gameType: GameType) -> OfficialBreakState? {
+        let sport: OfficialBreakSport
+        switch gameType {
+        case .badminton, .badmintonDoubles:
+            sport = .badminton
+        case .pingpong, .pingpongDoubles:
+            sport = .pingpong
+        case .pickleball, .pickleballDoubles:
+            sport = .pickleball
+        case .shuttlecock:
+            sport = .shuttlecock
+        case .squash:
+            sport = .squash
+        case .tennis, .tennisDoubles:
+            sport = .tennis
+        default:
+            return nil
+        }
+
+        let breakKind: OfficialBreakKind
+        let afterAction: OfficialBreakAfterAction
+        switch kind {
+        case .midGame:
+            breakKind = .midGame
+            afterAction = .none
+        case .betweenSets:
+            breakKind = sport == .tennis ? .setBreak : .gameBreak
+            afterAction = .advanceAndExchange
+        case .archerySet:
+            return nil
+        }
+
+        return OfficialBreakState(
+            sport: sport,
+            kind: breakKind,
+            durationSeconds: durationSeconds,
+            source: .official,
+            afterAction: afterAction,
+            nowMilliseconds: Int64(startedAt.timeIntervalSince1970 * 1_000)
+        )
+    }
+
+    static func fromOfficialBreak(
+        _ state: OfficialBreakState?,
+        now: Date = Date()
+    ) -> WatchRestState? {
+        guard let state, state.isRunning else { return nil }
+        let startedAt: Date
+        if state.startedWallClockMilliseconds > 0 {
+            startedAt = Date(
+                timeIntervalSince1970: TimeInterval(state.startedWallClockMilliseconds) / 1_000
+            )
+        } else {
+            let elapsed = max(0, state.durationSeconds - state.remainingSeconds)
+            startedAt = now.addingTimeInterval(-TimeInterval(elapsed))
+        }
+        let kind: Kind
+        let title: String
+        switch state.kind {
+        case .midGame:
+            kind = .midGame
+            title = NSLocalizedString("watch_mid_game_rest", value: "局中休息", comment: "")
+        case .gameBreak, .setBreak:
+            kind = .betweenSets
+            title = NSLocalizedString("watch_rest_between_sets", value: "局间休息", comment: "")
+        case .changeover:
+            kind = .midGame
+            title = NSLocalizedString("watch_side_exchange", value: "交换场地", comment: "")
+        case .timeout:
+            kind = .midGame
+            title = state.title ?? NSLocalizedString("watch_official_timeout", value: "暂停", comment: "")
+        case .medical:
+            kind = .midGame
+            title = state.title ?? NSLocalizedString("watch_medical_break", value: "医疗中断", comment: "")
+        }
+        return WatchRestState(
+            kind: kind,
+            title: title,
+            durationSeconds: max(0, state.durationSeconds),
+            startedAt: startedAt,
+            triggerID: "remote-\(state.kind.rawValue)-\(state.startedWallClockMilliseconds)",
+            countUp: state.countUp ? true : nil
+        )
     }
 }
 
@@ -211,6 +302,36 @@ struct WatchMenuExtraAction: Identifiable {
     let action: () -> Void
 }
 
+/// Full-bleed watchOS overlay container.
+/// Uses `GeometryReader` + safe-area offset so overlays cover 100% of the watch
+/// display (no bottom black band) and never push the underlying scoreboard ZStack.
+struct WatchFullScreenOverlay<Content: View>: View {
+    let scrim: Color
+    var onBackgroundTap: (() -> Void)? = nil
+    @ViewBuilder let content: (_ fullSize: CGSize, _ safeAreaInsets: EdgeInsets) -> Content
+
+    var body: some View {
+        GeometryReader { proxy in
+            let fullWidth = proxy.size.width + proxy.safeAreaInsets.leading + proxy.safeAreaInsets.trailing
+            let fullHeight = proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
+            ZStack {
+                if let onBackgroundTap {
+                    scrim
+                        .contentShape(Rectangle())
+                        .onTapGesture(perform: onBackgroundTap)
+                } else {
+                    scrim
+                }
+                content(CGSize(width: fullWidth, height: fullHeight), proxy.safeAreaInsets)
+                    .frame(width: fullWidth, height: fullHeight)
+            }
+            .frame(width: fullWidth, height: fullHeight)
+            .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
+        }
+        .ignoresSafeArea()
+    }
+}
+
 struct WatchScoreboardMenuOverlay: View {
     let onDismiss: () -> Void
     let onUndo: () -> Void
@@ -283,11 +404,10 @@ struct WatchScoreboardMenuOverlay: View {
                 )
             }
         }
-        return ZStack(alignment: .bottom) {
-            WatchTheme.fullScreenScrim
-                .ignoresSafeArea()
-                .onTapGesture(perform: onDismiss)
-
+        return WatchFullScreenOverlay(
+            scrim: WatchTheme.panelScrim,
+            onBackgroundTap: onDismiss
+        ) { _, _ in
             VStack(spacing: compact ? 6 : 8) {
                 if needsScroll {
                     ScrollView {
@@ -304,13 +424,9 @@ struct WatchScoreboardMenuOverlay: View {
                 WatchMenuCloseButton(action: onDismiss)
             }
             .padding(.horizontal, compact ? 14 : 20)
-            .padding(.bottom, compact ? 6 : 10)
+            .padding(.bottom, compact ? 8 : 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-            .background(WatchTheme.panelScrim)
-            .ignoresSafeArea()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 }
 
@@ -353,8 +469,8 @@ struct WatchConfirmationOverlay: View {
 
     var body: some View {
         let compact = WatchLayout.isCompactScreen
-        ZStack {
-            Color.black.opacity(resolvedBackdropOpacity).ignoresSafeArea()
+        let combinedScrimOpacity = 1 - (1 - resolvedBackdropOpacity) * (1 - resolvedCardOpacity)
+        WatchFullScreenOverlay(scrim: Color.black.opacity(combinedScrimOpacity)) { _, _ in
             VStack(spacing: compact ? 8 : 10) {
                 Text(title)
                     .font(.headline)
@@ -381,12 +497,9 @@ struct WatchConfirmationOverlay: View {
                 .padding(.top, compact ? 8 : 12)
             }
             .padding(.horizontal, compact ? 12 : 16)
-            .padding(.top, compact ? 14 : 18)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black.opacity(resolvedCardOpacity))
+            .padding(.top, compact ? 18 : 24)
+            .padding(.bottom, compact ? 8 : 12)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 
     private func confirmationIconButton(
@@ -417,47 +530,76 @@ struct WatchConfirmationOverlay: View {
 
 struct WatchRestOverlay: View {
     let state: WatchRestState
+    var isReadOnly: Bool = false
     let onContinue: () -> Void
     let onUndo: () -> Void
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 0.25)) { context in
-            let remaining = state.remainingSeconds(at: context.date)
-            ZStack {
-                Color.black.opacity(0.45).ignoresSafeArea()
-                VStack(spacing: WatchLayout.isCompactScreen ? 8 : 12) {
+        let compact = WatchLayout.isCompactScreen
+        WatchFullScreenOverlay(scrim: Color.black.opacity(0.76)) { _, _ in
+            TimelineView(.periodic(from: .now, by: 0.25)) { context in
+                let remaining = state.remainingSeconds(at: context.date)
+                let elapsed = state.elapsedSeconds(at: context.date)
+                VStack(spacing: compact ? 7 : 10) {
                     Text(state.title)
-                        .font(.system(size: WatchLayout.isCompactScreen ? 17 : 20, weight: .semibold))
-                        .foregroundStyle(.white.opacity(0.85))
-                    Text(Self.timeText(remaining))
-                        .font(.system(size: WatchLayout.isCompactScreen ? 30 : 36, weight: .bold, design: .rounded))
+                        .font(.system(size: compact ? 16 : 19, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.88))
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                        .multilineTextAlignment(.center)
+                    Text(Self.timeText(state.countUp == true ? elapsed : remaining))
+                        .font(.system(size: compact ? 30 : 36, weight: .bold))
                         .monospacedDigit()
                         .foregroundStyle(WatchTheme.timerAccent)
-                    Button(
-                        remaining == 0
-                            ? NSLocalizedString("watch_continue_match", value: "继续比赛", comment: "")
-                            : NSLocalizedString("watch_continue", value: "继续", comment: ""),
-                        action: onContinue
-                    )
-                    .buttonStyle(.borderedProminent)
-                    .tint(WatchTheme.accent)
-                    .foregroundStyle(.white)
-                    .frame(width: WatchLayout.overlayActionButtonWidth)
-
-                    Button(
-                        NSLocalizedString("menu_undo", value: "撤销", comment: ""),
-                        action: onUndo
-                    )
-                    .buttonStyle(.bordered)
-                    .frame(width: WatchLayout.overlayActionButtonWidth)
+                    if !isReadOnly {
+                        VStack(spacing: compact ? 6 : 8) {
+                            restActionButton(
+                                title: remaining == 0 && state.countUp != true
+                                    ? NSLocalizedString("watch_continue_match", value: "继续比赛", comment: "")
+                                    : NSLocalizedString("watch_continue", value: "继续", comment: ""),
+                                background: WatchTheme.accent,
+                                action: onContinue
+                            )
+                            if state.countUp != true {
+                                restActionButton(
+                                    title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                                    background: WatchTheme.card,
+                                    action: onUndo
+                                )
+                            }
+                        }
+                        .padding(.top, compact ? 2 : 4)
+                    }
                 }
-                .padding(.horizontal, WatchLayout.isCompactScreen ? 10 : 14)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.black.opacity(0.52))
+                .padding(.horizontal, compact ? 10 : 16)
+                .padding(.top, compact ? 26 : 34)
+                .padding(.bottom, compact ? 10 : 14)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .ignoresSafeArea()
         }
+    }
+
+    private func restActionButton(
+        title: String,
+        background: Color,
+        action: @escaping () -> Void
+    ) -> some View {
+        let compact = WatchLayout.isCompactScreen
+        return Button(action: action) {
+            Text(title)
+                .font(.system(size: compact ? 14 : 15, weight: .semibold))
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .padding(.horizontal, 5)
+                .frame(maxWidth: .infinity)
+                .frame(height: compact ? 36 : 40)
+                .background(background)
+                .clipShape(Capsule())
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .frame(width: WatchLayout.overlayActionButtonWidth)
     }
 
     static func timeText(_ seconds: Int) -> String {
@@ -467,8 +609,22 @@ struct WatchRestOverlay: View {
 }
 
 struct WatchFinishedScoreItem {
-    let name: String
-    let score: String
+    let names: [String]
+    let score: Int
+
+    init(name: String, score: Int, doublesNames: [String]? = nil, side: MatchSide = .left) {
+        self.score = score
+        guard let doublesNames, doublesNames.count == 4 else {
+            names = [name]
+            return
+        }
+        // Doubles slots are ordered left A, right A, left B, right B.
+        let firstSlot = side == .left ? 0 : 1
+        let players = [doublesNames[firstSlot], doublesNames[firstSlot + 2]]
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        names = players.isEmpty ? [name] : players
+    }
 }
 
 struct WatchUndoCountdownStroke: View {
@@ -508,61 +664,45 @@ struct WatchUndoCountdownStroke: View {
 }
 
 struct WatchFinishedOverlay: View {
+    enum Winner {
+        case highestScore
+        case side(MatchSide?)
+    }
+
     let title: String
     let scoreItems: [WatchFinishedScoreItem]
-    let winnerText: String?
+    var winner: Winner = .highestScore
     let undoAvailable: Bool
+    var canPlayAgain = true
     let onUndo: () -> Void
     let onPlayAgain: () -> Void
     let onExit: () -> Void
     @State private var undoDeadline: Date = .distantPast
 
+    private static let actionHeight: CGFloat = 44
+    private static let gold = Color(hex: 0xFFD285)
+    private static let teamAccents = [
+        WatchTheme.teamRed, WatchTheme.teamBlue, Color(hex: 0x81DB99), Color(hex: 0xD5A4FF)
+    ]
+
     var body: some View {
-        let compact = WatchLayout.isCompactScreen
-        ZStack {
-            Color.black.opacity(0.40).ignoresSafeArea()
+        WatchFullScreenOverlay(scrim: WatchTheme.background) { size, safeArea in
+            let compact = WatchLayout.isNarrowScreen(width: size.width)
             VStack(spacing: compact ? 6 : 9) {
-                Text(title)
-                    .font(.headline)
-                finishedScoreRow
-                if let winnerText, !winnerText.isEmpty {
-                    Text(winnerText)
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.78))
-                        .lineLimit(2)
-                }
-                VStack(spacing: compact ? 6 : 8) {
-                    if undoAvailable {
-                        finishedActionButton(
-                            title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
-                            background: WatchTheme.card,
-                            countdownDeadline: undoDeadline,
-                            action: onUndo
-                        )
-                    } else {
-                        finishedActionButton(
-                            title: NSLocalizedString("watch_play_again", value: "再来一场", comment: ""),
-                            background: WatchTheme.successGreen,
-                            action: onPlayAgain
-                        )
+                ViewThatFits(in: .vertical) {
+                    summary(compact: compact, dense: false)
+                    summary(compact: compact, dense: true)
+                    ScrollView {
+                        summary(compact: compact, dense: true)
                     }
-                    finishedActionButton(
-                        title: NSLocalizedString("watch_exit", value: "退出", comment: ""),
-                        background: WatchTheme.card,
-                        action: onExit
-                    )
                 }
-                .padding(.top, compact ? 4 : 8)
+                .frame(maxHeight: .infinity)
+                actions(compact: compact)
             }
-            .foregroundStyle(.white)
-            .padding(.horizontal, compact ? 10 : 16)
-            .padding(.top, compact ? 14 : 20)
-            .padding(.bottom, compact ? 8 : 12)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(WatchTheme.panelScrim)
+            .padding(.horizontal, compact ? 12 : 18)
+            .padding(.top, max(safeArea.top, compact ? 30 : 36))
+            .padding(.bottom, max(safeArea.bottom, compact ? 14 : 18))
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
         .onAppear {
             resetUndoDeadlineIfNeeded()
         }
@@ -573,58 +713,168 @@ struct WatchFinishedOverlay: View {
         }
     }
 
-    private var finishedScoreRow: some View {
-        HStack(spacing: scoreItems.count > 2 ? 3 : 6) {
-            ForEach(scoreItems.indices, id: \.self) { index in
-                let item = scoreItems[index]
-                VStack(spacing: WatchLayout.isCompactScreen ? 2 : 3) {
-                    Text(item.name)
-                        .font(.system(
-                            size: scoreItems.count > 2 ? 9 : 12,
-                            weight: .medium
-                        ))
-                        .foregroundStyle(.white.opacity(0.78))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.55)
-                    Text(item.score)
-                        .font(WatchScoreTypography.primaryScore(
-                            size: scoreItems.count > 2 ? 18 : 22
-                        ))
-                        .monospacedDigit()
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.6)
-                }
-                .frame(maxWidth: .infinity)
+    private var winningIndex: Int? {
+        switch winner {
+        case .highestScore:
+            guard let best = scoreItems.map(\.score).max() else { return nil }
+            let leaders = scoreItems.indices.filter { scoreItems[$0].score == best }
+            return leaders.count == 1 ? leaders.first : nil
+        case .side(let side):
+            return side.map { $0 == .left ? 0 : 1 }
+        }
+    }
 
-                if scoreItems.count == 2 && index == 0 {
-                    Text("-")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.45))
-                        .frame(width: 12)
+    private func summary(compact: Bool, dense: Bool) -> some View {
+        let winner = winningIndex
+        return VStack(alignment: .leading, spacing: dense ? 4 : (compact ? 5 : 7)) {
+            Text(title)
+                .font(.system(size: compact ? 11 : 12, weight: .semibold))
+                .foregroundStyle(Color(hex: 0xBFC0C9))
+                .padding(.leading, 7)
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityIdentifier("watch_finished_title")
+
+            VStack(spacing: 0) {
+                ForEach(scoreItems.indices, id: \.self) { index in
+                    if index > 0 {
+                        Rectangle()
+                            .fill(.white.opacity(0.16))
+                            .frame(height: 1)
+                            .accessibilityHidden(true)
+                    }
+                    scoreRow(index: index, isWinner: index == winner, compact: compact, dense: dense)
                 }
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func scoreRow(index: Int, isWinner: Bool, compact: Bool, dense: Bool) -> some View {
+        let item = scoreItems[index]
+        let accent = Self.teamAccents[index % Self.teamAccents.count]
+        let shortNames = item.names.allSatisfy { $0.count <= 4 }
+        let manyPlayers = scoreItems.count > 2
+        let nameSize: CGFloat = dense && compact ? 9 : (manyPlayers ? 10 : (compact ? 11 : 12))
+        let scoreSize: CGFloat = manyPlayers ? 16 : (compact ? 23 : 28)
+        return HStack(spacing: 5) {
+            VStack(alignment: .leading, spacing: dense ? 0 : 1) {
+                ForEach(item.names.indices, id: \.self) { nameIndex in
+                    let name = item.names[nameIndex]
+                    Text(name)
+                        .font(.system(size: nameSize, weight: .semibold))
+                        .foregroundStyle(Color(hex: 0xE1E1E8))
+                        .lineLimit(compact ? 1 : 2)
+                        .minimumScaleFactor(0.85)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityLabel(Text(verbatim: name))
+                        .accessibilityIdentifier("watch_finished_name_\(index)_\(nameIndex)")
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.leading, 7)
+            .padding(.trailing, 35)
+            .overlay(alignment: .trailing) {
+                if isWinner {
+                    winnerStamp
+                        .frame(width: 33)
+                        .padding(.trailing, shortNames ? 12 : 1)
+                }
+            }
+
+            Text(String(item.score))
+                .font(WatchScoreTypography.primaryScore(size: scoreSize))
+                .foregroundStyle(.white)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.65)
+                .frame(width: compact ? 32 : 40, alignment: .trailing)
+                .accessibilityIdentifier("watch_finished_score_\(index)")
+        }
+        .padding(.vertical, dense || manyPlayers ? 0 : (compact ? 3 : 5))
+        .overlay(alignment: .leading) {
+            Capsule()
+                .fill(accent)
+                .frame(width: 2)
+                .padding(.vertical, 3)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private var winnerStamp: some View {
+        Text(NSLocalizedString("watch_finished_win_badge", value: "胜", comment: "Short winner stamp"))
+            .font(.system(size: 9, weight: .heavy))
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+            .foregroundStyle(Self.gold)
+            .padding(.horizontal, 4)
+            .padding(.vertical, 2)
+            .background(Color(hex: 0x221A0E), in: RoundedRectangle(cornerRadius: 2))
+            .overlay(alignment: .top) {
+                Rectangle().fill(Self.gold).frame(height: 1)
+            }
+            .overlay(alignment: .bottom) {
+                Rectangle().fill(Self.gold).frame(height: 1)
+            }
+            .rotationEffect(.degrees(-5))
+            .accessibilityLabel(NSLocalizedString("watch_finished_winner", value: "胜方", comment: "Winner stamp accessibility label"))
+            .accessibilityIdentifier("watch_finished_winner_badge")
+            .allowsHitTesting(false)
+    }
+
+    private func actions(compact: Bool) -> some View {
+        HStack(spacing: 6) {
+            Button(action: onExit) {
+                Image(systemName: "house")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: Self.actionHeight, height: Self.actionHeight)
+                    .background(WatchTheme.card, in: Circle())
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(NSLocalizedString("watch_finished_home", value: "返回首页", comment: "Leave the finished match and return home"))
+            .accessibilityIdentifier("watch_finished_home")
+
+            if undoAvailable && canPlayAgain {
+                finishedActionButton(
+                    title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                    compact: compact,
+                    background: WatchTheme.card,
+                    countdownDeadline: undoDeadline,
+                    action: onUndo
+                )
+            } else if canPlayAgain {
+                finishedActionButton(
+                    title: NSLocalizedString("watch_play_again", value: "再来一场", comment: ""),
+                    compact: compact,
+                    background: Color(hex: 0x008336),
+                    action: onPlayAgain
+                )
+            }
+        }
     }
 
     private func finishedActionButton(
         title: String,
+        compact: Bool,
         background: Color,
         countdownDeadline: Date? = nil,
         action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
             Text(title)
-                .font(.system(size: WatchLayout.isCompactScreen ? 13 : 15, weight: .semibold))
+                .font(.system(size: compact ? 13 : 15, weight: .semibold))
                 .foregroundStyle(.white)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .padding(.horizontal, 5)
                 .frame(maxWidth: .infinity)
-                .frame(height: WatchLayout.isCompactScreen ? 36 : 40)
-                .background(background)
-                .clipShape(Capsule())
-                .contentShape(Rectangle())
+                .frame(height: Self.actionHeight)
+                .background(background, in: Capsule())
+                .contentShape(Capsule())
         }
         .buttonStyle(.plain)
-        .frame(width: WatchLayout.overlayActionButtonWidth)
         .overlay {
             if let countdownDeadline {
                 WatchUndoCountdownStroke(
@@ -811,16 +1061,26 @@ struct WatchDoublesBoard: View {
         _ model: WatchDoublesHalfModel,
         isFirst: Bool
     ) -> some View {
-        HStack(spacing: 2) {
-            if isFirst {
+        let hasInnerScore = model.primaryMeta != nil || model.secondaryMeta != nil
+        let outerPadding: CGFloat = WatchLayout.isCompactScreen ? 3 : 4
+        let centerInset: CGFloat = 4
+        return HStack(spacing: 2) {
+            if !hasInnerScore {
                 mainScore(model.score)
+                    .frame(maxWidth: .infinity)
+            } else if isFirst {
+                mainScore(model.score)
+                    .frame(maxWidth: .infinity)
                 innerScore(primary: model.primaryMeta, secondary: model.secondaryMeta)
             } else {
                 innerScore(primary: model.primaryMeta, secondary: model.secondaryMeta)
                 mainScore(model.score)
+                    .frame(maxWidth: .infinity)
             }
         }
-        .padding(.horizontal, 3)
+        .frame(maxWidth: .infinity)
+        .padding(.leading, isFirst ? outerPadding : centerInset)
+        .padding(.trailing, isFirst ? centerInset : outerPadding)
     }
 
     private func mainScore(_ score: String) -> some View {
@@ -841,32 +1101,46 @@ struct WatchDoublesBoard: View {
     @ViewBuilder
     private func innerScore(primary: String?, secondary: String?) -> some View {
         if primary != nil || secondary != nil {
-            VStack(spacing: 2) {
+            let compact = WatchLayout.isCompactScreen
+            let badgeWidth: CGFloat = compact ? 21 : 23
+            let badgeHeight: CGFloat = compact ? 19 : 21
+            let columnWidth: CGFloat = secondary == nil
+                ? (compact ? 17 : 19)
+                : badgeWidth
+            VStack(alignment: .center, spacing: 2) {
                 if let primary {
                     Text(primary)
-                        .font(WatchScoreTypography.secondaryScore(size: secondary == nil ? 24 : 20))
+                        .font(WatchScoreTypography.secondaryScore(
+                            size: secondary == nil
+                                ? (compact ? 22 : 24)
+                                : (compact ? 18 : 20)
+                        ))
                         .monospacedDigit()
                         .foregroundStyle(.white.opacity(0.75))
                         .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
                 if let secondary {
                     Text(secondary)
-                        .font(WatchScoreTypography.secondaryScore(size: 13))
+                        .font(WatchScoreTypography.secondaryScore(size: compact ? 12 : 13))
                         .monospacedDigit()
-                        .foregroundStyle(.white.opacity(0.85))
-                        .frame(minWidth: 22, minHeight: 22)
-                        .padding(.horizontal, 2)
-                        .background(Color.black.opacity(0.16))
-                        .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
+                        .foregroundStyle(.white.opacity(0.88))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        .frame(minWidth: badgeWidth, minHeight: badgeHeight)
+                        .background(
+                            Color.black.opacity(0.18),
+                            in: RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        )
                 }
             }
-            .frame(width: secondary == nil ? 30 : 40)
+            .frame(width: columnWidth, alignment: .center)
         }
     }
 
     private func playerName(_ name: String, alignment: Alignment) -> some View {
         Text(name)
-            .font(.system(size: WatchLayout.isCompactScreen ? 12 : WatchScoreTypography.teamNameSize, weight: .medium))
+            .font(.system(size: WatchLayout.isCompactScreen ? 12 : 15, weight: .medium))
             .foregroundStyle(.white.opacity(0.82))
             .lineLimit(2)
             .minimumScaleFactor(0.65)
@@ -975,5 +1249,21 @@ extension View {
 
     func watchUndoToast(token: Binding<UUID?>) -> some View {
         modifier(WatchUndoToastModifier(token: token))
+    }
+}
+
+extension View {
+    func watchFinishSaveFailure(
+        isPresented: Binding<Bool>,
+        onCancel: @escaping () -> Void = {},
+        retry: @escaping () -> Void
+    ) -> some View {
+        alert(
+            NSLocalizedString("watch_common_names_error_generic", value: "Couldn't save. Try again.", comment: ""),
+            isPresented: isPresented
+        ) {
+            Button(NSLocalizedString("watch_phone_link_test_retry", value: "Retry", comment: ""), action: retry)
+            Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel, action: onCancel)
+        }
     }
 }

@@ -49,19 +49,14 @@ extension PhoneWatchLinkService {
     }
 
     func handleWatchRecordTransfer(_ data: Data) {
-        let syncedId = ingestWatchRecordData(data)
-        lastSyncedWatchRecordId = syncedId
-        // 单条 transferUserInfo 成功入库后也确认清理：该记录同样躺在手表
-        // pending 队列里（auto-transfer 先入队再 flush），没有确认通道会被
-        // 反复重推。ingest 幂等（按 id upsert），重复接收无副作用。
-        if let syncedId {
-            transport.clearPendingWatchRecords(ids: [syncedId])
+        if let watchID = ingestWatchRecordData(data) {
+            transport.clearPendingWatchRecords(ids: [watchID])
         }
     }
 
-    /// Decode + ingest a standalone watch record. Returns the synced record id, or nil on failure.
-    /// Ingestion is idempotent (upsert by record id), so repeated calls for the same payload are safe.
-    func ingestWatchRecordData(_ data: Data) -> String? {
+    /// The acknowledgement uses the original Watch ID, while the phone stores
+    /// the normalized ID for opening the record from phone UI.
+    private func ingestWatchRecordData(_ data: Data) -> String? {
         guard let payload = try? JSONDecoder().decode(WatchRecordTransferPayload.self, from: data) else {
             #if DEBUG
             print("[PhoneLink] ingestWatchRecordData: failed to decode payload")
@@ -74,7 +69,7 @@ extension PhoneWatchLinkService {
             print("[PhoneLink] ingest succeeded, record id=\(id)")
             #endif
             lastSyncedWatchRecordId = id
-            return id
+            return payload.id
         } catch {
             #if DEBUG
             print("[PhoneLink] ingest failed: \(error.localizedDescription)")
@@ -100,7 +95,7 @@ extension PhoneWatchLinkService {
         guard !ingestedIds.isEmpty else { return }
         transport.clearPendingWatchRecords(ids: ingestedIds)
         #if DEBUG
-        print("[PhoneLink] cleared \(ingestedIds.count) pending records on watch")
+        print("[PhoneLink] acknowledged \(ingestedIds.count) pending watch records")
         #endif
     }
 

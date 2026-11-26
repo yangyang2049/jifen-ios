@@ -1,0 +1,422 @@
+/* Watch App - ko */
+
+/* Tab Bar */
+"tab_score" = "점수";
+"tab_tools" = "도구";
+"tab_timer" = "타이머";
+
+/* Game Types */
+"game_badminton" = "배드민턴";
+"game_pingpong" = "탁구";
+"game_tennis" = "테니스";
+"game_pickleball" = "피클볼";
+"game_archery" = "양궁";
+"tool_basketball_training" = "슛 연습";
+
+/* Tools */
+"tool_flip_coin" = "동전 던지기";
+"tool_random_number" = "무작위 숫자";
+"tool_ten_second" = "초 맞추기 챌린지";
+"game_counter" = "카운터";
+"press_again_to_reset" = "한 번 더 탭해서 초기화";
+
+/* Records */
+"records" = "기록";
+"loading" = "로딩 중";
+"no_records" = "기록 없음";
+"record_not_found" = "기록을 찾을 수 없습니다";
+"match_details" = "경기 세부정보";
+"match_record" = "경기 기록";
+"delete_record" = "기록 삭제";
+"confirm_deletion" = "계정 삭제 확인";
+"cannot_be_recovered_after_deletion" = "이 작업은 취소할 수 없습니다.";
+"date" = "날짜";
+"time" = "기간";
+"duration" = "소요 시간";
+
+/* Common */
+"cancel" = "취소";
+"confirm" = "확인";
+"delete" = "삭제";
+"setup" = "설정";
+"vibration" = "진동";
+"sound" = "사운드";
+"watch_scoreboard_keep_screen_on" = "화면 항상 켜기";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "사용 방법";
+"usage_prompt_message" = "점수를 줄 쪽을 탭\n아래로 스와이프해서 실행 취소\n길게 눌러 메뉴 열기";
+"got_it" = "알겠습니다";
+
+/* Privacy */
+"privacy_policy" = "개인정보 처리방침";
+"scan_to_view_details" = "코드를 스캔해 자세히 보기";
+
+/* Settings / About */
+"version" = "버전";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "피드백";
+"watch_contact_us" = "문의하기";
+
+/* Scoreboard menu */
+"menu_undo" = "실행 취소";
+"menu_reset" = "재설정";
+"watch_continue" = "계속";
+"watch_end_match" = "종료";
+"watch_layout_vertical" = "세로";
+"watch_layout_horizontal" = "가로";
+"watch_settings_layout_title" = "배치";
+"watch_reset_toast" = "재설정";
+"watch_undo_toast" = "취소됨";
+"watch_play_again" = "다시 플레이하기";
+"watch_exit" = "종료";
+"exit" = "종료";
+"watch_team_red" = "빨강";
+"watch_team_blue" = "파랑";
+"team_a" = "A팀";
+"team_b" = "B팀";
+"team_home" = "홈팀";
+"team_away" = "원정팀";
+"player_a" = "선수 A";
+"player_b" = "선수 B";
+"archer_a" = "궁수 A";
+"archer_b" = "궁수 B";
+"linked_score_confirm_title" = "폰과 워치 연결?";
+"linked_score_phone_started_scoreboard" = "폰과 워치 연결 · 경기 시작";
+"linked_score_accept" = "수락";
+"linked_score_reject" = "거절";
+"linked_score_watch_reclaim" = "제어권 가져오기";
+"linked_score_setup_rules" = "%1$d 세트 · %2$d점";
+"linked_score_setup_rules_sets" = "%d 세트";
+"linked_score_setup_race_to" = "목표 %d";
+"linked_score_sport_badminton" = "배드민턴 단식";
+"linked_score_sport_badminton_doubles" = "배드민턴 복식";
+"linked_score_sport_pingpong" = "탁구 단식";
+"linked_score_sport_pingpong_doubles" = "탁구 복식";
+"linked_score_sport_tennis" = "테니스 단식";
+"linked_score_sport_tennis_doubles" = "테니스 복식";
+"linked_score_sport_pickleball" = "피클볼 단식";
+"linked_score_sport_pickleball_doubles" = "피클볼 복식";
+"game_basketball" = "농구";
+"game_three_basketball" = "3x3 농구";
+"linked_score_sport_archery" = "양궁";
+"linked_score_sport_eight_ball" = "에이트볼";
+"linked_score_sport_nine_ball" = "9볼 점수전";
+"linked_score_sport_snooker" = "스누커";
+"linked_score_sport_shuttlecock" = "제기차기";
+"linked_score_sport_squash" = "스쿼시";
+"linked_score_sport_foosball" = "테이블 축구";
+"linked_score_sport_football" = "축구";
+"linked_score_sport_football_5v5" = "5×5 축구";
+"watch_menu_end_match" = "경기 종료";
+"watch_menu_restart" = "다시 시작";
+"watch_bball_overtime" = "연장전";
+"watch_nine_ball_players_format" = "Nine-ball chase · 선수 %1$d명";
+"archery_closest_title" = "슛오프 · 중심에 더 가까운 화살";
+"archery_closest_message" = "%d점 동점 — 중심에 더 가까운 화살을 선택하세요";
+"watch_set_end_format" = "%d세트 종료";
+"watch_match_start" = "경기 시작";
+"watch_match_finished" = "경기 종료";
+"watch_bb_hit_rate" = "성공률";
+"watch_bb_end_training" = "연습 종료";
+"watch_training_finish_confirm_title" = "훈련을 끝낼까요?";
+"watch_training_finish_confirm_message" = "훈련을 종료하고 기록을 저장해요.";
+"watch_counter_finish_confirm_title" = "카운트를 끝낼까요?";
+"watch_counter_finish_confirm_message" = "카운트를 저장하고 0부터 다시 시작해요.";
+"watch_bb_restart" = "다시 시작";
+
+/* Records */
+"clear_all_records" = "모든 기록 지우기";
+"clear_all_records_message" = "모든 기록이 영구적으로 삭제돼요.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "앞면";
+"watch_coin_tails" = "뒷면";
+"watch_archery_miss" = "빗나감";
+"watch_flip_coin_hint" = "탭해서 동전 던지기";
+"watch_ten_second_challenge" = "초 맞추기 챌린지";
+"watch_ten_second_usage" = "탭해서 시작하고 목표 시간에 다시 탭하세요.";
+"watch_mid_game_rest" = "게임 중간 휴식";
+"watch_rest_between_sets" = "게임 간 휴식";
+"watch_official_timeout" = "타임아웃";
+"watch_medical_break" = "메디컬 타임아웃";
+"watch_score_event_set_title" = "%d세트 종료";
+"watch_score_event_set_detail" = "%1$@ 승리 %2$d:%3$d · 세트 %4$d:%5$d";
+"watch_score_event_mid_game_title" = "%d세트 · 게임 중간 휴식";
+"watch_score_event_mid_game_detail" = "%1$@ 앞섬 %2$d:%3$d · 세트 %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "%d세트 종료";
+"watch_score_event_tennis_game_detail" = "%1$@ 승리 · 게임 %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "%d세트 종료";
+"watch_score_event_tennis_set_detail" = "%1$@ 승리 %2$d:%3$d · 세트 %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "7점 타이브레이크";
+"watch_tiebreak_indicator_10" = "10점 타이브레이크";
+"watch_continue_match" = "재개";
+"watch_continue_scoring" = "재개";
+"watch_resume_discard" = "미완료 경기 버리기";
+"watch_resume_discard_training" = "미완료 훈련 버리기";
+"unit_hour" = "시간";
+"unit_minute" = "분";
+"unit_second" = "초";
+"today" = "오늘";
+"yesterday" = "어제";
+
+/* Sports setup */
+"watch_setup_start" = "시작";
+"watch_setup_sets" = "세트";
+"watch_setup_points_per_set" = "세트당 점수";
+"watch_setup_tennis_deuce" = "듀스 규칙";
+"watch_setup_tennis_advantage" = "어드밴티지";
+"watch_setup_tennis_no_ad" = "노애드";
+"watch_setup_target_score" = "목표 점수";
+"watch_setup_rally_scoring" = "랠리 득점";
+"watch_setup_target_racks" = "목표";
+"watch_setup_race_racks" = "선취";
+"watch_setup_race_racks_help" = "3 = 3프레임 선취";
+"watch_setup_handicap" = "핸디캡";
+"watch_setup_handicap_none" = "없음";
+"watch_setup_handicap_red_gives_blue" = "빨강 → 파랑";
+"watch_setup_handicap_blue_gives_red" = "파랑 → 빨강";
+"watch_setup_handicap_racks" = "핸디캡 랙";
+"watch_setup_frames" = "프레임";
+"watch_setup_custom_frames" = "프레임 수 지정";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "1~99를 입력하세요";
+"watch_setup_players" = "참가 인원";
+"watch_setup_archers" = "궁수";
+"watch_setup_player_number" = "플레이어 %d";
+"watch_setup_red_a" = "빨강 A";
+"watch_setup_red_b" = "빨강 B";
+"watch_setup_blue_a" = "파랑 A";
+"watch_setup_blue_b" = "파랑 B";
+"watch_setup_name_missing" = "이름을 모두 입력하거나 모두 비워 두세요";
+"watch_setup_select_players" = "참가 인원";
+"watch_setup_player_count" = "선수 %d명";
+"watch_common_names_select_player" = "선수 선택";
+"watch_common_names_no_records" = "저장한 이름 없음";
+"watch_common_names_title" = "저장한 이름";
+"watch_common_names_add" = "추가";
+"watch_common_names_edit" = "이름 수정";
+"watch_common_names_delete_title" = "이름을 삭제할까요?";
+"watch_common_names_error_title" = "업데이트 실패";
+"watch_common_names_players" = "참가 인원";
+"watch_common_names_teams" = "팀";
+"watch_common_names_empty" = "저장한 이름 없음";
+"watch_common_names_team_placeholder" = "팀 이름";
+"watch_common_names_player_placeholder" = "선수 이름";
+"watch_common_names_length_hint" = "최대 %d자";
+"watch_common_names_error_empty" = "이름은 비워둘 수 없습니다.";
+"watch_common_names_error_duplicate" = "이름이 이미 존재합니다.";
+"watch_common_names_error_missing" = "기록을 찾을 수 없습니다 · 재시도";
+"watch_common_names_error_generic" = "저장하지 못했습니다. 다시 시도해 주세요.";
+"watch_common_names_sync_now" = "지금 동기화";
+"watch_common_names_actions" = "저장한 이름";
+"watch_common_names_sync_requested" = "동기화 대기 중";
+"watch_common_names_sync_queued" = "폰이 연결되지 않음 · 동기화 대기 중";
+"watch_common_names_sync_inactive" = "폰이 연결되지 않음";
+"watch_common_names_sync_failed" = "연결 실패 · 재시도";
+"watch_common_names_sync_conflict" = "일부 변경사항이 동기화되지 않았어요";
+"watch_common_names_sync_pending" = "동기화 대기 중";
+"watch_common_names_sync_unavailable" = "폰이 연결되지 않음";
+"watch_common_names_sync_done" = "동기화 완료";
+"watch_common_names_pending_count" = "동기화 대기 중 · %d";
+"watch_common_names_never_synced" = "아직 동기화 안 됨";
+"watch_common_names_last_sync" = "마지막 동기화 %@";
+
+"watch_phone_link_title" = "워치 연결";
+"watch_phone_link_intro" = "폰에서 시작하고 워치에서 점수 기록";
+"watch_phone_link_support" = "배드민턴 · 축구 · 양궁 · 슛 연습…";
+"watch_phone_link_status" = "연결 상태";
+"watch_phone_link_steps" = "사용 방법";
+"watch_phone_link_step_1" = "폰에서 경기나 슛 훈련을 설정하세요.";
+"watch_phone_link_step_2" = "시작하기 · Apple Watch";
+"watch_phone_link_step_3" = "워치에서 점수를 기록하세요. 끝나면 기록이 동기화돼요.";
+"watch_phone_link_help" = "기기를 페어링하고 양쪽에 iScoreboard를 설치한 다음 폰에서 앱을 여세요.";
+"watch_phone_link_testing" = "테스트 중";
+"watch_phone_link_normal" = "연결됨";
+"watch_phone_link_failed" = "연결 실패";
+"watch_phone_link_reachable" = "연결됨";
+"watch_phone_link_waiting" = "폰 대기 중";
+"watch_phone_link_inactive" = "폰이 연결되지 않음";
+"watch_phone_link_testing_detail" = "폰 대기 중";
+"watch_phone_link_normal_detail" = "연결됨";
+"watch_phone_link_failed_detail" = "8초 안에 폰이 응답하지 않았어요.";
+"watch_phone_link_failed_inactive" = "폰이 연결되지 않음 · 재시도";
+"watch_phone_link_failed_unreachable" = "폰에서 iScoreboard를 열고 다시 시도하세요.";
+"watch_phone_link_failed_send" = "연결 실패 · 재시도";
+"watch_phone_link_reachable_detail" = "테스트";
+"watch_phone_link_waiting_detail" = "폰에서 iScoreboard를 열고 다시 시도하세요.";
+"watch_phone_link_test_waiting" = "테스트 중…";
+"watch_phone_link_test_retry" = "재시도";
+"watch_phone_link_test" = "테스트";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "마지막 연결 %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "훈련 모드";
+"watch_bb_1pt" = "1점";
+"watch_bb_2pt" = "2점";
+"watch_bb_3pt" = "3점";
+"watch_bb_free" = "자유";
+"watch_training_miss" = "실패";
+"watch_training_made" = "성공";
+"watch_training_point_value" = "%d점";
+"watch_training_breakdown" = "슛 내역";
+"watch_training_start" = "슛 연습 · 시작하기";
+"watch_training_rate_format" = "성공률 %d%%";
+"watch_training_action_format" = "%d점 · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "맨 위에 고정할까요?";
+"watch_home_pin_confirm" = "고정";
+"watch_home_unpin_title" = "고정 해제?";
+"watch_home_unpin_confirm" = "고정 해제";
+"watch_home_pin_full_title" = "고정 한도";
+"watch_home_pin_full_message" = "2개까지 고정할 수 있어요. 먼저 하나를 해제하세요.";
+"watch_home_pin_hint" = "길게 눌러 고정";
+"watch_home_pin_success" = "고정";
+"watch_home_unpin_success" = "고정이 해제됐어요";
+"multi_score_player_default_format" = "선수 %d";
+"nine_ball_big_gold" = "빅 골드";
+"nine_ball_small_gold" = "스몰 골드";
+"nine_ball_golden_nine" = "골든 9";
+"nine_ball_normal_win" = "일반 승리";
+"nine_ball_ball_in_hand" = "볼 인 핸드";
+"nine_ball_foul" = "파울";
+"watch_archery_set_rest" = "세트 사이 휴식";
+"watch_finish_confirm_title" = "경기 종료?";
+"watch_finish_confirm_message" = "경기를 종료하고 기록을 저장해요.";
+"watch_reset_confirm_title" = "경기를 다시 시작할까요?";
+"watch_reset_confirm_message" = "현재 점수가 초기화돼요.";
+"watch_side_exchange" = "자리 교대";
+"watch_winner_format" = "%@ 승리";
+"watch_finished_win_badge" = "승";
+"watch_finished_winner" = "승자";
+"watch_finished_home" = "홈";
+"watch_snooker_foul" = "파울";
+"watch_snooker_foul_selected_format" = "파울 +%d";
+"watch_snooker_foul_next_turn" = "차례 넘기기";
+"watch_snooker_foul_switch_turn" = "차례 넘기기";
+"watch_snooker_foul_continue" = "계속";
+"watch_action_snooker_foul_continue_format" = "%@· 파울 · 상대 +%d · 파울한 선수가 계속 진행";
+"watch_snooker_handover" = "차례 넘기기";
+"watch_snooker_settle_frame" = "프레임 정산";
+"watch_snooker_choose_frame_winner" = "프레임 승자 선택";
+"watch_snooker_frame_finished" = "라운드 종료";
+"watch_snooker_next_frame" = "다음 프레임";
+"watch_training_breakdown_format" = "%d점 · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "중심과의 거리가 같습니다. 슛오프를 계속하세요.";
+"edit" = "편집";
+"game_badminton_doubles" = "배드민턴 복식";
+"game_eight_ball" = "에이트볼";
+"game_nine_ball" = "9볼 점수전";
+"game_pickleball_doubles" = "피클볼 복식";
+"game_pingpong_doubles" = "탁구 복식";
+"game_snooker" = "스누커";
+"game_tennis_doubles" = "테니스 복식";
+"save" = "저장";
+"watch_action_adjust_score_format" = "%@· 점수 변경됨";
+"watch_action_archery_arrow_format" = "%@+%d점";
+"watch_action_archery_closest" = "슛오프 · 중심에 더 가까운 화살";
+"watch_action_archery_miss_format" = "%@· 빗나감";
+"watch_action_archery_set_ready" = "양궁 · 라운드 종료";
+"watch_action_ball_potted_format" = "%@ · 공 포켓 성공 %@";
+"watch_action_basketball_foul_format" = "%@· 파울";
+"watch_action_basketball_period_format" = "%d쿼터 · 시작하기";
+"watch_action_basketball_timeout_format" = "%@· 타임아웃";
+"watch_action_edit_name" = "업데이트됨";
+"watch_action_exchange_sides" = "진영 교대";
+"watch_action_exchange_sides_reminder" = "수동으로 진영을 바꿔 주세요";
+"watch_action_game_finished_format" = "%1$d세트 종료 · %2$@ 승리";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ 승리";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "%1$d세트 종료 · %2$@ 승리";
+"watch_action_shooter_format" = "%@ 사격 시작";
+"watch_action_side_out_format" = "서브 · %@";
+"watch_action_snooker_foul_format" = "%@· 파울 · 상대 +%d";
+"watch_action_snooker_frame_format" = "%1$d프레임 · %2$@ 승리";
+"watch_action_snooker_handover_format" = "차례 넘기기 · %@";
+"watch_action_snooker_miss_format" = "%@· 실패";
+"watch_action_snooker_next_frame_format" = "%d프레임 · 시작하기";
+"watch_action_snooker_pot_format" = "%@· 공 포켓 성공 +%d";
+"watch_record_actions_unavailable" = "기록 없음";
+"linked_score_error_title" = "연결 실패";
+"linked_score_persistence_failed" = "폰과 워치 연결 · 저장 실패: %@";
+"resume_persistence_error_title" = "저장 실패";
+"resume_persistence_failed" = "계속 진행 · 저장 실패: %@";
+"linked_score_control_timeout" = "제어권 가져오기 · 응답 시간 초과 · 재시도";
+"linked_score_sync_timeout" = "응답 시간 초과 · 동기화 대기 중";
+
+/* Football */
+"game_football" = "축구";
+"game_football_5v5" = "5×5 축구";
+"watch_setup_half_length" = "전후반 시간";
+"watch_setup_teams" = "팀";
+"football_first_half" = "전반전";
+"football_second_half" = "후반전";
+"football_extra_time_first" = "연장전 — 전반전";
+"football_extra_time_second" = "연장전 — 후반전";
+"football_first_half_over" = "전반전 종료";
+"football_switch_half" = "후반전";
+"football_switch_half_title" = "후반전을 시작할까요?";
+"football_switch_half_message" = "전반전을 종료하면 다시 시작할 수 없습니다.";
+"football_extra_time_first_over" = "연장전 — 전반전 · 라운드 종료";
+"football_switch_extra_time_half" = "연장전 — 후반전";
+"football_enter_extra_time_title" = "정규 시간 종료";
+"football_post_regulation_action" = "정규 시간 종료 후";
+"football_injury_title" = "추가 시간";
+"football_undo_stoppage" = "추가 시간 취소";
+"football_enter_extra_time" = "연장전 진행";
+"football_end_as_draw" = "무승부로 종료";
+"football_goal_hint" = "탭해서 골 추가";
+"watch_football_start" = "시작";
+"watch_football_pause" = "일시 정지";
+"watch_football_resume" = "재개";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "시작하기 · %@";
+"watch_action_football_stoppage_format" = "추가 시간 +%d초";
+"watch_action_football_clock_start" = "타이머가 시작되었습니다";
+"watch_action_football_clock_pause" = "타이머 일시 정지";
+"watch_record_sync_sent" = "동기화 완료";
+"watch_record_sync_pending" = "동기화 대기 중";
+"watch_record_sync_not_synced" = "iPhone과 동기화 안 됨";
+"watch_record_sync_action" = "iPhone과 동기화";
+"watch_settings_auto_sync_records" = "기록 자동 동기화";
+"game_shuttlecock" = "제기차기";
+"game_squash" = "스쿼시";
+"game_foosball" = "테이블 축구";
+
+"watch_setup_win_by_two" = "최종 세트 2점 차 승리";
+"watch_setup_score_cap" = "최대 점수";
+"watch_setup_serving_side" = "첫 서브권";
+"watch_setup_kickoff_side" = "첫 킥오프";
+"watch_setup_side_left" = "빨강";
+"watch_setup_side_right" = "파랑";
+
+"watch_about_us" = "회사 소개";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "버전 %@";
+"watch_wechat_group_title" = "위챗 그룹";
+"watch_wechat_group_scan_hint" = "WeChat · 코드를 스캔해 자세히 보기";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "브레이크";
+"watch_nine_ball_select_payer" = "지불 선수 선택";
+"watch_nine_ball_select_continue" = "다음 선수 선택";
+"watch_nine_ball_prev_player" = "이전";
+"watch_nine_ball_next_player" = "다음";
+"watch_nine_ball_continue_badge" = "치기";
+
+"watch_a11y_points_format" = "%d점";
+"watch_a11y_sets_format" = "%d 세트";
+"watch_a11y_serving" = "서브";
+
+"watch_phone_shared_link_intro" = "휴대폰에서 시작하고 어느 기기에서든 점수를 기록하세요.";
+"linked_score_simultaneous_edit" = "두 기기에서 모두 변경이 있었습니다. 점수를 확인하세요.";

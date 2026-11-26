@@ -28,18 +28,13 @@ struct WatchRecordDetailView: View {
                         participantsCard(participants)
                     }
                     actionsCard(record)
-                    // 计数器与篮球训练同为手表本地工具记录，不提供“同步到手机”
-                    // （手机端 mapGameType 虽能映射 counter，但鸿蒙/注释口径都是
-                    // 计数记录仅手表保存）。
-                    if record.gameType != .basketballTraining,
-                       record.gameType != .counter {
+                    if record.gameType != .counter {
                         syncCard(record)
                     }
                     deleteButton
                 } else {
-                    VStack(spacing: 8) {
-                        Text("❌")
-                            .font(.system(size: 32))
+                    VStack(spacing: 10) {
+                        WatchEmptyStateCourtIcon(size: 44)
                         Text(NSLocalizedString("record_not_found", comment: "Record not found"))
                             .font(.system(size: 14))
                             .foregroundColor(WatchTheme.secondaryText)
@@ -94,7 +89,10 @@ struct WatchRecordDetailView: View {
             scoreRow(record)
 
             if let winner = record.winner {
-                Text("\(winner)\(NSLocalizedString("wins_suffix", comment: " Wins suffix"))")
+                Text(String.localizedStringWithFormat(
+                    NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: "Match winner"),
+                    winner
+                ))
                     .font(.system(size: 11, weight: .medium))
                     .foregroundColor(WatchTheme.accent)
             }
@@ -151,10 +149,14 @@ struct WatchRecordDetailView: View {
     }
 
     private func basketballHitRate(_ record: WatchScoreboardRecord) -> String {
-        let shots = record.basketballTrainingDetails?.shots.count ?? record.team1FinalScore
-        let made = record.basketballTrainingDetails?.shots.lazy.filter(\.made).count ?? record.team2FinalScore
-        if shots <= 0 { return "0%" }
-        let pct = Int(round(Double(made) / Double(shots) * 100))
+        let details = record.basketballTrainingDetails
+        let made = details.map { details in
+            (1...3).reduce(0) { $0 + details.count(points: $1, made: true) }
+        } ?? record.team2FinalScore
+        let shots = details.map { details in
+            made + (1...3).reduce(0) { $0 + details.count(points: $1, made: false) }
+        } ?? (made + record.team1FinalScore)
+        let pct = shots == 0 ? 0 : Int((Double(made) / Double(shots) * 100).rounded())
         return "\(made)/\(shots) = \(pct)%"
     }
 
@@ -641,19 +643,14 @@ struct WatchRecordDetailView: View {
     }
 
     private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        let calendar = Calendar.current
-        if calendar.isDate(date, equalTo: Date(), toGranularity: .year) {
-            formatter.dateFormat = "MM-dd"
-        } else {
-            formatter.dateFormat = "yyyy-MM-dd"
+        let monthAndDay = Date.FormatStyle.dateTime.month(.defaultDigits).day()
+        if Calendar.current.isDate(date, equalTo: Date(), toGranularity: .year) {
+            return date.formatted(monthAndDay)
         }
-        return formatter.string(from: date)
+        return date.formatted(monthAndDay.year())
     }
 
     private func formatTime(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: date)
+        date.formatted(date: .omitted, time: .shortened)
     }
 }

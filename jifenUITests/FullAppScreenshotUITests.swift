@@ -53,7 +53,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         ("points_table", "积分表"),
         ("time", "翻页时钟"),
         ("aa_calculator", "AA计算器"),
-        ("ten_second", "十秒挑战"),
+        ("ten_second", "掐秒挑战"),
     ]
 
     override func setUpWithError() throws {
@@ -398,7 +398,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         continueAfterFailure = false
         let environment = ProcessInfo.processInfo.environment
         let pose = environment["DUO_POSE"] ?? environment["TEST_RUNNER_DUO_POSE"] ?? "current"
-        relaunch(extraArguments: ["-national_day_2026_10_autopopup_count", "99"], orientation: nil)
+        relaunch(orientation: nil)
         for (tab, name) in [
             ("首页", "home"), ("记录", "records"), ("计时", "timer"),
             ("我的", "me"), ("计分", "score")
@@ -424,7 +424,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         hierarchy.name = "duo_\(pose)_setup_hierarchy"
         hierarchy.lifetime = .keepAlways
         add(hierarchy)
-        relaunch(extraArguments: ["-UITestOpenTools", "-national_day_2026_10_autopopup_count", "99"], waitForTabBar: false, orientation: nil)
+        relaunch(extraArguments: ["-UITestOpenTools"], waitForTabBar: false, orientation: nil)
         XCTAssertTrue(app.navigationBars["工具"].waitForExistence(timeout: 8))
         snapFoldable("duo_\(pose)_tools")
     }
@@ -436,7 +436,7 @@ final class FullAppScreenshotUITests: XCTestCase {
             throw XCTSkip("Requires host-controlled fold/unfold checkpoints")
         }
         continueAfterFailure = false
-        relaunch(extraArguments: ["-national_day_2026_10_autopopup_count", "99"])
+        relaunch()
         XCTAssertTrue(selectTab("计分"))
         let badminton = app.descendants(matching: .any)["scoreboard_catalog_badminton"].firstMatch
         XCTAssertTrue(badminton.waitForExistence(timeout: 5))
@@ -1692,7 +1692,7 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     func testStyleAutoSwatchRemainsAutomaticWhenSelectedAgain() {
         XCTAssertTrue(openPriorityScoreboardSetup(id: "pingpong", label: "乒乓球",
-            extraArguments: ["-UITestSportsVoiceMissing", "-national_day_2026_10_autopopup_count", "99"]))
+            extraArguments: ["-UITestSportsVoiceMissing"]))
         XCTAssertTrue(tapStart())
         XCUIDevice.shared.orientation = .landscapeRight
         XCTAssertTrue(openPriorityScoreboardMenu())
@@ -1723,7 +1723,7 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     func testUnifiedStyleFontLayout() {
         XCTAssertTrue(openPriorityScoreboardSetup(id: "pingpong", label: "乒乓球",
-            extraArguments: ["-UITestSportsVoiceMissing", "-national_day_2026_10_autopopup_count", "99"]))
+            extraArguments: ["-UITestSportsVoiceMissing"]))
         XCTAssertTrue(tapStart())
         XCUIDevice.shared.orientation = .landscapeRight
         XCTAssertTrue(openPriorityScoreboardMenu())
@@ -1745,7 +1745,7 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     func testThemeWorkbenchBasketballAndThreeBasketball() {
         for (id, label) in [("basketball", "篮球"), ("three_basketball", "三人篮球")] {
-            XCTAssertTrue(openPriorityScoreboardSetup(id: id, label: label, extraArguments: ["-UITestSportsVoiceMissing", "-national_day_2026_10_autopopup_count", "99"]))
+            XCTAssertTrue(openPriorityScoreboardSetup(id: id, label: label, extraArguments: ["-UITestSportsVoiceMissing"]))
             XCTAssertTrue(tapStart())
             XCUIDevice.shared.orientation = .landscapeRight
             let left = app.staticTexts["basketball_score_left"].firstMatch
@@ -1789,7 +1789,7 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     func testThemeWorkbenchPhotoSinglesAndDoubles() {
         for doubles in [false, true] {
-            XCTAssertTrue(openPriorityScoreboardSetup(id: "pingpong", label: "乒乓球", extraArguments: ["-UITestSportsVoiceMissing", "-national_day_2026_10_autopopup_count", "99"]))
+            XCTAssertTrue(openPriorityScoreboardSetup(id: "pingpong", label: "乒乓球", extraArguments: ["-UITestSportsVoiceMissing"]))
             if doubles { XCTAssertTrue(selectSinglesDoublesMode(doubles: true)) }
             XCTAssertTrue(tapStart())
             XCUIDevice.shared.orientation = .landscapeRight
@@ -2387,6 +2387,83 @@ final class FullAppScreenshotUITests: XCTestCase {
 
     // MARK: - Launch
 
+    /// 手表联动介绍弹层的原版设备素材：真实乒乓球计分板（手机端）。
+    /// 三种语言各拍一张；截图保持设备原生分辨率，供与 Apple 原版机身边框合成，不做二次缩放。
+    func testCaptureWatchLinkIntroArtwork() throws {
+        let locales: [(String, UITestLocale.Configuration, String, String, String)] = [
+            ("en", UITestLocale.en, "Adam", "Bob", "Saved Names"),
+            ("zh-Hans", UITestLocale.zhHans, "刘备", "曹操", "常用名称"),
+            ("zh-Hant", UITestLocale.zhHant, "劉備", "曹操", "常用名稱")
+        ]
+        for (name, locale, leftName, rightName, pickerTitle) in locales {
+            let plistLeft = Self.openStepPlistString(leftName)
+            let plistRight = Self.openStepPlistString(rightName)
+            relaunch(
+                extraArguments: ["-commonPlayerNames", "(\(plistLeft), \(plistRight))"],
+                locale: locale
+            )
+            XCTAssertTrue(selectTab("计分"), "Score tab unreachable: \(name)")
+            scrollUntilExists(identifier: "scoreboard_catalog_pingpong")
+            let card = app.descendants(matching: .any)["scoreboard_catalog_pingpong"]
+            guard card.waitForExistence(timeout: 4), card.isHittable else {
+                XCTFail("Ping-pong catalog card missing: \(name)")
+                continue
+            }
+            card.tap()
+            if app.segmentedControls["singles_doubles_picker"].exists {
+                XCTAssertTrue(selectSinglesDoublesMode(doubles: false))
+            }
+
+            let pickers = app.buttons.matching(NSPredicate(format: "label == %@", pickerTitle))
+            XCTAssertTrue(pickers.element(boundBy: 0).waitForExistence(timeout: 4), "Left name picker missing: \(name)")
+            XCTAssertTrue(pickers.element(boundBy: 1).waitForExistence(timeout: 4), "Right name picker missing: \(name)")
+
+            pickers.element(boundBy: 0).tap()
+            let leftOption = app.buttons[leftName].firstMatch
+            XCTAssertTrue(leftOption.waitForExistence(timeout: 4), "Common name missing: \(leftName)")
+            leftOption.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+
+            pickers.element(boundBy: 1).tap()
+            let rightOption = app.buttons[rightName].firstMatch
+            XCTAssertTrue(rightOption.waitForExistence(timeout: 4), "Common name missing: \(rightName)")
+            rightOption.tap()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.3))
+
+            // zh-Hant 的开始按钮是「開始」，共享 tapStart 只认简/英，这里按语言显式匹配。
+            let startLabels = ["开始", "開始", "Start"]
+            let startButton = startLabels
+                .map { app.buttons[$0].firstMatch }
+                .first { $0.exists && $0.isHittable }
+            guard let startButton else {
+                XCTFail("Cannot start ping-pong: \(name)")
+                continue
+            }
+            startButton.tap()
+            XCTAssertTrue(
+                app.descendants(matching: .any)["scoreboard_back_button"].firstMatch.waitForExistence(timeout: 8),
+                "Scoreboard missing: \(name)"
+            )
+            // 首局中段比分 7:4，保留真实发球方与局分状态。
+            scoreRallySide(left: true, times: 7)
+            scoreRallySide(left: false, times: 4)
+            snap("watch_link_intro_board_" + name, settle: 1.2)
+        }
+    }
+
+    private static func openStepPlistString(_ value: String) -> String {
+        var result = "\""
+        for codeUnit in value.utf16 {
+            if codeUnit < 0x80, let scalar = UnicodeScalar(codeUnit), scalar != "\"", scalar != "\\" {
+                result.append(Character(scalar))
+            } else {
+                result += String(format: "\\U%04x", codeUnit)
+            }
+        }
+        result.append("\"")
+        return result
+    }
+
     private func relaunch(extraArguments: [String] = [], locale: UITestLocale.Configuration = UITestLocale.zhHans, waitForTabBar: Bool = true, orientation: UIDeviceOrientation? = .portrait) {
         testLocaleLanguage = locale.language
         if app != nil {
@@ -2403,7 +2480,7 @@ final class FullAppScreenshotUITests: XCTestCase {
         if isDuoWalkthrough {
             // Match the group/tool/timer walkthroughs: these runs validate UI,
             // and cold simulator speech-voice discovery can block app startup.
-            app.launchArguments += ["-national_day_2026_10_autopopup_count", "99", "-UITestSportsVoiceMissing"]
+            app.launchArguments += ["-UITestSportsVoiceMissing"]
         }
         XCTAssertTrue(launchAndWait(app), "Screenshot app failed to reach the foreground")
         // 夹具会把根视图换成详情页，此时没有 Tab Bar 可等

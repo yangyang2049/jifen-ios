@@ -87,7 +87,7 @@ extension WatchScoreboardRoute {
             self = isFiveAside
                 ? .football5v5(halfLengthSeconds: halfLengthSeconds)
                 : .football(halfLengthSeconds: halfLengthSeconds)
-        case .basketballTraining(let mode, _):
+        case .basketballTraining(let mode, _, _):
             self = .basketballTraining(mode: mode)
         }
     }
@@ -126,6 +126,9 @@ extension WatchScoreboardRoute {
             self = .nineBall
         case .snooker:
             self = .snooker
+        case .basketballTraining:
+            guard let state = linkedSetup.initialSnapshot?.basketballTrainingState else { return nil }
+            self = .basketballTraining(mode: WatchBasketballTrainingMode(linkedMode: state.mode))
         case .football:
             let halfLength = max(60, linkedSetup.initialSnapshot?.footballState?.timer.halfLengthSeconds ?? 45 * 60)
             self = .football(halfLengthSeconds: halfLength)

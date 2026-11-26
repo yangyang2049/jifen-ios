@@ -59,6 +59,53 @@ public enum LinkControlRole: String, Codable, Sendable {
     case phoneFollower
     case watchController
     case watchFollower
+    case shared
+}
+
+public struct LinkSharedEditTracker: Sendable {
+    private struct Edit: Sendable {
+        let handle: LinkedMatchHandle
+        let revision: UInt64
+        let baseRevision: UInt64
+        let sentAt: Int64
+    }
+
+    private var localEdit: Edit?
+    private var lastNoticedRevision: UInt64?
+
+    public init() {}
+
+    public mutating func recordLocalEdit(
+        handle: LinkedMatchHandle,
+        revision: UInt64,
+        baseRevision: UInt64,
+        sentAt: Int64
+    ) {
+        localEdit = Edit(handle: handle, revision: revision, baseRevision: baseRevision, sentAt: sentAt)
+        lastNoticedRevision = nil
+    }
+
+    public mutating func shouldShowNotice(
+        for envelope: LinkEnvelope<LinkedScoreboardSetup>,
+        now: Int64
+    ) -> Bool {
+        guard let localEdit, let baseRevision = envelope.baseSnapshotRevision,
+              localEdit.handle == envelope.handle,
+              envelope.sessionRevision > localEdit.baseRevision,
+              baseRevision < localEdit.revision,
+              lastNoticedRevision != localEdit.revision,
+              abs(Double(envelope.sentAtEpochMilliseconds) - Double(localEdit.sentAt)) <= 2_000,
+              abs(Double(now) - Double(envelope.sentAtEpochMilliseconds)) <= 2_000 else { return false }
+        lastNoticedRevision = localEdit.revision
+        return true
+    }
+}
+
+public enum LinkSharedRevision {
+    public static func writer(of revision: UInt64) -> LinkPeer? {
+        guard revision > 0 else { return nil }
+        return revision.isMultiple(of: 2) ? .watch : .phone
+    }
 }
 
 /// Manual score resync is intentionally one-way: the phone follower asks and
@@ -138,6 +185,7 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
     case nineBall(NineBallChaseState)
     case snooker(SnookerState)
     case football(LinkedFootballState)
+    case basketballTraining(LinkedShotTrainingState)
 
     private enum CodingKeys: String, CodingKey {
         case kind
@@ -148,6 +196,7 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         case nineBall
         case snooker
         case football
+        case basketballTraining
     }
 
     private enum Kind: String, Codable {
@@ -158,6 +207,7 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         case nineBall
         case snooker
         case football
+        case basketballTraining
     }
 
     public init(from decoder: Decoder) throws {
@@ -177,6 +227,8 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
             self = .snooker(try container.decode(SnookerState.self, forKey: .snooker))
         case .football:
             self = .football(try container.decode(LinkedFootballState.self, forKey: .football))
+        case .basketballTraining:
+            self = .basketballTraining(try container.decode(LinkedShotTrainingState.self, forKey: .basketballTraining))
         }
     }
 
@@ -204,6 +256,9 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         case .football(let state):
             try container.encode(Kind.football, forKey: .kind)
             try container.encode(state, forKey: .football)
+        case .basketballTraining(let state):
+            try container.encode(Kind.basketballTraining, forKey: .kind)
+            try container.encode(state, forKey: .basketballTraining)
         }
     }
 
@@ -242,10 +297,33 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         return state
     }
 
+    public var basketballTrainingState: LinkedShotTrainingState? {
+        guard case .basketballTraining(let state) = self else { return nil }
+        return state
+    }
+
     /// Whether the carried match state is finished. The finish flag is part of
     /// every synced state, so the phone can mirror the HarmonyOS behavior of
     /// treating any received finished snapshot as authoritative for the finish
     /// dialog regardless of delivery order or revision.
+    public func matches(gameType: GameType) -> Bool {
+        switch (gameType, self) {
+        case (.pingpong, .rally), (.pingpongDoubles, .rally),
+             (.badminton, .rally), (.badmintonDoubles, .rally),
+             (.pickleball, .rally), (.pickleballDoubles, .rally),
+             (.foosball, .rally), (.foosballDoubles, .rally),
+             (.squash, .rally), (.shuttlecock, .rally),
+             (.tennis, .tennis), (.tennisDoubles, .tennis),
+             (.archeryDual, .archery), (.eightBall, .eightBall),
+             (.nineBall, .nineBall), (.snooker, .snooker),
+             (.football, .football), (.football5v5, .football),
+             (.basketballTraining, .basketballTraining):
+            return true
+        default:
+            return false
+        }
+    }
+
     public var isFinished: Bool {
         switch self {
         case .rally(let state): return state.finished
@@ -255,6 +333,7 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         case .nineBall(let state): return state.finished
         case .snooker(let state): return state.finished
         case .football(let state): return state.finished
+        case .basketballTraining(let state): return state.finished
         }
     }
 }
@@ -493,6 +572,8 @@ public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
     public var detailedActions: [DetailedScoreAction]
     public var completedMatchIds: Set<UUID>
     public var pendingTerminalMessageIds: Set<UUID>
+    public var peerSupportsCompressedFinish: Bool?
+    public var finishedRecordId: String?
 
     public init(
         handle: LinkedMatchHandle,
@@ -503,7 +584,9 @@ public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
         latestAuthoritativeSnapshot: LinkedScoreboardSnapshot?,
         detailedActions: [DetailedScoreAction],
         completedMatchIds: Set<UUID>,
-        pendingTerminalMessageIds: Set<UUID>
+        pendingTerminalMessageIds: Set<UUID>,
+        finishedRecordId: String? = nil,
+        peerSupportsCompressedFinish: Bool? = nil
     ) {
         self.handle = handle
         self.setup = setup
@@ -514,6 +597,8 @@ public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
         self.detailedActions = detailedActions
         self.completedMatchIds = completedMatchIds
         self.pendingTerminalMessageIds = pendingTerminalMessageIds
+        self.peerSupportsCompressedFinish = peerSupportsCompressedFinish
+        self.finishedRecordId = finishedRecordId
     }
 }
 
@@ -527,6 +612,7 @@ public struct WatchLinkResumeContext: Codable, Equatable, Sendable {
     public var detailedActions: [DetailedScoreAction]
     public var completedMatchIds: Set<UUID>
     public var pendingTerminalMessageIds: Set<UUID>
+    public var peerSupportsCompressedFinish: Bool?
 
     public init(
         handle: LinkedMatchHandle,
@@ -537,7 +623,8 @@ public struct WatchLinkResumeContext: Codable, Equatable, Sendable {
         latestAuthoritativeSnapshot: LinkedScoreboardSnapshot?,
         detailedActions: [DetailedScoreAction],
         completedMatchIds: Set<UUID>,
-        pendingTerminalMessageIds: Set<UUID>
+        pendingTerminalMessageIds: Set<UUID>,
+        peerSupportsCompressedFinish: Bool? = nil
     ) {
         self.handle = handle
         self.setup = setup
@@ -548,6 +635,7 @@ public struct WatchLinkResumeContext: Codable, Equatable, Sendable {
         self.detailedActions = detailedActions
         self.completedMatchIds = completedMatchIds
         self.pendingTerminalMessageIds = pendingTerminalMessageIds
+        self.peerSupportsCompressedFinish = peerSupportsCompressedFinish
     }
 }
 
@@ -641,25 +729,38 @@ public struct LinkControlRetryQueue: Equatable, Sendable {
 /// message id and retain their match identity so one match can never overwrite
 /// another match in the same linked session.
 public struct LinkDurableOutbox: Codable, Equatable, Sendable {
+    public struct LocalRecord: Codable, Equatable, Sendable {
+        public let gameType: GameType
+        public let payload: LinkMatchFinishedPayload
+
+        public init(gameType: GameType, payload: LinkMatchFinishedPayload) {
+            self.gameType = gameType
+            self.payload = payload
+        }
+    }
+
     public struct Item: Codable, Equatable, Sendable {
         public let messageId: UUID
         public let handle: LinkedMatchHandle
         public var data: Data
         public var attempts: Int
         public var lastSentAtEpochMilliseconds: Int64
+        public var pendingLocalRecord: LocalRecord?
 
         public init(
             messageId: UUID,
             handle: LinkedMatchHandle,
             data: Data,
             attempts: Int = 0,
-            lastSentAtEpochMilliseconds: Int64
+            lastSentAtEpochMilliseconds: Int64,
+            pendingLocalRecord: LocalRecord? = nil
         ) {
             self.messageId = messageId
             self.handle = handle
             self.data = data
             self.attempts = attempts
             self.lastSentAtEpochMilliseconds = lastSentAtEpochMilliseconds
+            self.pendingLocalRecord = pendingLocalRecord
         }
     }
 
@@ -679,6 +780,11 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
         } else {
             items.append(item)
         }
+    }
+
+    public mutating func markLocalRecordSaved(messageId: UUID) {
+        guard let index = items.firstIndex(where: { $0.messageId == messageId }) else { return }
+        items[index].pendingLocalRecord = nil
     }
 
     @discardableResult
@@ -711,6 +817,100 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
 
     public mutating func removeAll(sessionId: UUID) {
         items.removeAll { $0.handle.sessionId == sessionId }
+    }
+}
+
+/// The record metadata needed after the live session has been replaced.
+public struct LinkRecordSession: Codable, Sendable {
+    public let handle: LinkedMatchHandle
+    public let gameType: GameType
+    public let authorityEpoch: UInt64
+    public fileprivate(set) var completedMatchIds: Set<UUID>
+    public let allowsPeerNextMatch: Bool?
+
+    public init(
+        handle: LinkedMatchHandle,
+        gameType: GameType,
+        authorityEpoch: UInt64,
+        completedMatchIds: Set<UUID>,
+        allowsPeerNextMatch: Bool? = nil
+    ) {
+        self.handle = handle
+        self.gameType = gameType
+        self.authorityEpoch = authorityEpoch
+        self.completedMatchIds = completedMatchIds
+        self.allowsPeerNextMatch = allowsPeerNextMatch
+    }
+
+    public func accepts(handle incoming: LinkedMatchHandle, authorityEpoch incomingEpoch: UInt64) -> Bool {
+        guard incoming.sessionId == handle.sessionId else { return false }
+        if incoming.matchGeneration < handle.matchGeneration { return true }
+        if incoming.matchGeneration > handle.matchGeneration {
+            return allowsPeerNextMatch == true && incomingEpoch == authorityEpoch
+        }
+        return incoming == handle && incomingEpoch >= authorityEpoch
+    }
+}
+
+/// Terminal retries can outlive both the live session and the app process.
+public struct LinkRetiredRecordSessions: Sendable {
+    private static let key = "link_retired_record_sessions"
+    private let store: any LinkDataStore
+    private var sessions: [UUID: LinkRecordSession]
+
+    public init(store: any LinkDataStore) {
+        self.store = store
+        sessions = store.data(forKey: Self.key).flatMap {
+            try? JSONDecoder().decode([UUID: LinkRecordSession].self, from: $0)
+        } ?? [:]
+    }
+
+    public subscript(sessionId: UUID) -> LinkRecordSession? { sessions[sessionId] }
+
+    public mutating func retire(_ session: LinkRecordSession) {
+        let id = session.handle.sessionId
+        var retained = session
+        if let existing = sessions[id] {
+            if existing.handle.matchGeneration > session.handle.matchGeneration
+                || (existing.handle == session.handle && existing.authorityEpoch > session.authorityEpoch) {
+                retained = existing
+            }
+            retained.completedMatchIds.formUnion(existing.completedMatchIds)
+            retained.completedMatchIds.formUnion(session.completedMatchIds)
+        }
+        sessions[id] = retained
+        persist()
+    }
+
+    public mutating func markFinished(_ handle: LinkedMatchHandle) {
+        guard var session = sessions[handle.sessionId] else { return }
+        session.completedMatchIds.insert(handle.matchId)
+        if handle.matchGeneration > session.handle.matchGeneration {
+            session = LinkRecordSession(
+                handle: handle, gameType: session.gameType, authorityEpoch: session.authorityEpoch,
+                completedMatchIds: session.completedMatchIds, allowsPeerNextMatch: session.allowsPeerNextMatch
+            )
+        }
+        sessions[handle.sessionId] = session
+        persist()
+    }
+
+    public mutating func removeConfirmedSession(handle: LinkedMatchHandle, authorityEpoch: UInt64) {
+        guard let session = sessions[handle.sessionId], session.handle == handle,
+              authorityEpoch >= session.authorityEpoch else { return }
+        sessions.removeValue(forKey: handle.sessionId)
+        persist()
+    }
+
+    public mutating func clear() {
+        sessions.removeAll()
+        store.removeObject(forKey: Self.key)
+    }
+
+    private func persist() {
+        if let data = try? JSONEncoder().encode(sessions) {
+            store.set(data, forKey: Self.key)
+        }
     }
 }
 
@@ -763,6 +963,9 @@ public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {
 public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
     public let protocolVersion: Int
     public let capabilities: Set<LinkCapability>
+    public let supportsCompressedFinish: Bool?
+    public let supportsSharedEditing: Bool?
+    public let baseSnapshotRevision: UInt64?
     public let messageId: UUID
     public let correlationId: UUID?
     public let sessionId: UUID
@@ -779,6 +982,9 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
     public init(
         protocolVersion: Int = LinkProtocol.currentVersion,
         capabilities: Set<LinkCapability> = LinkProtocol.capabilities,
+        supportsCompressedFinish: Bool? = nil,
+        supportsSharedEditing: Bool? = nil,
+        baseSnapshotRevision: UInt64? = nil,
         messageId: UUID = UUID(),
         correlationId: UUID? = nil,
         sessionId: UUID,
@@ -794,6 +1000,9 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
     ) {
         self.protocolVersion = protocolVersion
         self.capabilities = capabilities
+        self.supportsCompressedFinish = supportsCompressedFinish
+        self.supportsSharedEditing = supportsSharedEditing
+        self.baseSnapshotRevision = baseSnapshotRevision
         self.messageId = messageId
         self.correlationId = correlationId
         self.sessionId = sessionId
@@ -1125,8 +1334,15 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
     }
 
     @discardableResult
-    public mutating func advanceRevision() -> UInt64 {
-        revision += 1
+    public mutating func advanceRevision(sender: LinkPeer? = nil) -> UInt64 {
+        if role == .shared, let sender {
+            // Each edit advances the logical round. Same-round edits have a
+            // stable order on both peers without relying on device clocks.
+            let round = revision / 2 + revision % 2
+            revision = round * 2 + (sender == .phone ? 1 : 2)
+        } else {
+            revision += 1
+        }
         return revision
     }
 
@@ -1453,6 +1669,16 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     }
 
     public var status: WatchConnectivityStatus {
+        let isSupported = WCSession.isSupported()
+        guard isSupported, session.activationState == .activated else {
+            return WatchConnectivityStatus(
+                isSupported: isSupported,
+                isActivated: false,
+                isPaired: false,
+                isWatchAppInstalled: false,
+                isReachable: false
+            )
+        }
         #if os(iOS)
         let isPaired = session.isPaired
         let isWatchAppInstalled = session.isWatchAppInstalled
@@ -1461,8 +1687,8 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
         let isWatchAppInstalled = true
         #endif
         return WatchConnectivityStatus(
-            isSupported: WCSession.isSupported(),
-            isActivated: session.activationState == .activated,
+            isSupported: isSupported,
+            isActivated: true,
             isPaired: isPaired,
             isWatchAppInstalled: isWatchAppInstalled,
             isReachable: session.isReachable
@@ -1471,7 +1697,8 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
 
     /// Current application context received from the peer (may be empty).
     public var receivedApplicationContext: [String: Any] {
-        session.receivedApplicationContext
+        guard session.activationState == .activated else { return [:] }
+        return session.receivedApplicationContext
     }
 
     public var isReachable: Bool {
@@ -1508,6 +1735,9 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
             throw WatchConnectivityTransportError.sessionNotActivated
         }
         try Self.ensurePayloadFits(data)
+        guard !session.outstandingUserInfoTransfers.contains(where: {
+            $0.userInfo[Self.durableLinkPayloadKey] as? Data == data
+        }) else { return }
         session.transferUserInfo([Self.durableLinkPayloadKey: data])
     }
 
@@ -1573,7 +1803,7 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
         #endif
         guard session.activationState == .activated, session.isReachable else {
             #if DEBUG
-            print("[LinkCore] requestPendingWatchRecords skipped: activated=\(session.activationState.rawValue) reachable=\(session.isReachable)")
+            print("[LinkCore] requestPendingWatchRecords skipped: peer unavailable, state=\(session.activationState.rawValue)")
             #endif
             return
         }
@@ -1592,7 +1822,7 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
         #endif
         guard session.activationState == .activated, session.isReachable else {
             #if DEBUG
-            print("[LinkCore] sendPendingWatchRecords skipped: activated=\(session.activationState.rawValue) reachable=\(session.isReachable)")
+            print("[LinkCore] sendPendingWatchRecords skipped: peer unavailable, state=\(session.activationState.rawValue)")
             #endif
             return
         }
@@ -1622,19 +1852,18 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
 
     /// Phone side: tell the watch to drop the given pending ids after the phone ingested them.
     public func clearPendingWatchRecords(ids: [String]) {
-        #if DEBUG
-        print("[LinkCore] clearPendingWatchRecords ids=\(ids) (phone → watch)")
-        #endif
-        guard session.activationState == .activated, session.isReachable else {
-            #if DEBUG
-            print("[LinkCore] clearPendingWatchRecords skipped: activated=\(session.activationState.rawValue) reachable=\(session.isReachable)")
-            #endif
+        guard !ids.isEmpty, session.activationState == .activated else { return }
+        let acknowledgement = [Self.clearPendingMessageKey: ids]
+        guard session.isReachable else {
+            session.transferUserInfo(acknowledgement)
             return
         }
-        session.sendMessage([Self.clearPendingMessageKey: ids], replyHandler: nil) { error in
+        session.sendMessage(acknowledgement, replyHandler: nil) { [weak self] error in
             #if DEBUG
             print("[LinkCore] clearPendingWatchRecords send failed: \(error.localizedDescription)")
             #endif
+            guard let self, self.session.activationState == .activated else { return }
+            self.session.transferUserInfo(acknowledgement)
         }
     }
 
@@ -1643,7 +1872,7 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     }
 
     private func deliverApplicationContextIfNeeded() {
-        let context = session.receivedApplicationContext
+        let context = receivedApplicationContext
         guard !context.isEmpty else { return }
         if let data = context[Self.latestLinkSnapshotContextKey] as? Data {
             onReceive?(data)
@@ -1654,25 +1883,20 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
 
 extension WatchConnectivityTransport: WCSessionDelegate {
     public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        let currentStatus = status
         #if DEBUG
-        #if !os(watchOS)
-        let paired = session.isPaired
-        let installed = session.isWatchAppInstalled
-        #else
-        let paired = "n/a"
-        let installed = "n/a"
+        print("[LinkCore] activationDidComplete state=\(activationState.rawValue) paired=\(currentStatus.isPaired) reachable=\(currentStatus.isReachable) installed=\(currentStatus.isWatchAppInstalled) error=\(error?.localizedDescription ?? "nil")")
         #endif
-        print("[LinkCore] activationDidComplete state=\(activationState.rawValue) paired=\(paired) reachable=\(session.isReachable) installed=\(installed) error=\(error?.localizedDescription ?? "nil")")
-        #endif
-        reportStatus()
+        onStatusChange?(currentStatus)
         deliverApplicationContextIfNeeded()
     }
 
     public func sessionReachabilityDidChange(_ session: WCSession) {
+        let currentStatus = status
         #if DEBUG
-        print("[LinkCore] reachabilityDidChange reachable=\(session.isReachable)")
+        print("[LinkCore] reachabilityDidChange reachable=\(currentStatus.isReachable)")
         #endif
-        reportStatus()
+        onStatusChange?(currentStatus)
     }
 
     public func session(_ session: WCSession, didReceiveMessageData messageData: Data) {
@@ -1701,6 +1925,10 @@ extension WatchConnectivityTransport: WCSessionDelegate {
         #if DEBUG
         print("[LinkCore] didReceiveUserInfo keys=\(userInfo.keys.map { String(describing: $0) })")
         #endif
+        if let ids = userInfo[Self.clearPendingMessageKey] as? [String] {
+            onClearPendingRequest?(ids)
+            return
+        }
         if let mutationsData = userInfo[Self.commonNameMutationsUserInfoKey] as? Data {
             onCommonNameMutationsData?(mutationsData)
             return
@@ -1736,7 +1964,9 @@ extension WatchConnectivityTransport: WCSessionDelegate {
         reportStatus()
     }
 
-    public func sessionDidBecomeInactive(_ session: WCSession) {}
+    public func sessionDidBecomeInactive(_ session: WCSession) {
+        reportStatus()
+    }
 
     public func sessionDidDeactivate(_ session: WCSession) {
         session.activate()

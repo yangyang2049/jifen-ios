@@ -802,7 +802,7 @@ struct MenuDialog: View {
 
                 Text(item.title)
                     .font(.system(size: labelSize(size), weight: size == .large ? .medium : .regular))
-                    .foregroundColor(size == .large ? .white : secondaryText)
+                    .foregroundColor(size == .large || item.confirming ? .white : secondaryText)
                     .lineLimit(1)
                     .minimumScaleFactor(0.75)
             }

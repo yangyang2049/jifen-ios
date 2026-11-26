@@ -1,0 +1,422 @@
+/* Watch App - cs */
+
+/* Tab Bar */
+"tab_score" = "Skóre";
+"tab_tools" = "Nástroje";
+"tab_timer" = "Časovač";
+
+/* Game Types */
+"game_badminton" = "Badminton";
+"game_pingpong" = "Stolní tenis";
+"game_tennis" = "Tenis";
+"game_pickleball" = "Pickleball";
+"game_archery" = "Lukostřelba";
+"tool_basketball_training" = "Trénink střelby";
+
+/* Tools */
+"tool_flip_coin" = "Hod mincí";
+"tool_random_number" = "Náhodné číslo";
+"tool_ten_second" = "Zastav čas";
+"game_counter" = "Počítadlo";
+"press_again_to_reset" = "Dalším klepnutím vynulujete skóre";
+
+/* Records */
+"records" = "Záznamy";
+"loading" = "Načítání";
+"no_records" = "Žádné záznamy";
+"record_not_found" = "Záznam nenalezen";
+"match_details" = "Podrobnosti zápasu";
+"match_record" = "Záznam zápasu";
+"delete_record" = "Smazat záznam";
+"confirm_deletion" = "Potvrďte smazání";
+"cannot_be_recovered_after_deletion" = "Tuto akci nelze vrátit zpět";
+"date" = "Datum";
+"time" = "Čas";
+"duration" = "Trvání";
+
+/* Common */
+"cancel" = "Zrušit";
+"confirm" = "Potvrďte";
+"delete" = "Smazat";
+"setup" = "Nastavení";
+"vibration" = "Vibrace";
+"sound" = "Zvuk";
+"watch_scoreboard_keep_screen_on" = "Nechte obrazovku zapnutou";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Návod";
+"usage_prompt_message" = "Klepněte na stranu pro bod\nTažením dolů vrátíte akci\nPodržením otevřete nabídku";
+"got_it" = "Rozumím";
+
+/* Privacy */
+"privacy_policy" = "Zásady ochrany osobních údajů";
+"scan_to_view_details" = "Naskenujte kód pro podrobnosti";
+
+/* Settings / About */
+"version" = "Verze";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Zpětná vazba";
+"watch_contact_us" = "Kontakt";
+
+/* Scoreboard menu */
+"menu_undo" = "Vrátit zpět";
+"menu_reset" = "Resetovat";
+"watch_continue" = "Pokračujte";
+"watch_end_match" = "Dokončit";
+"watch_layout_vertical" = "Svisle";
+"watch_layout_horizontal" = "Vodorovně";
+"watch_settings_layout_title" = "Rozložení";
+"watch_reset_toast" = "Resetovat";
+"watch_undo_toast" = "Vráceno zpět";
+"watch_play_again" = "Hrát znovu";
+"watch_exit" = "Konec";
+"exit" = "Konec";
+"watch_team_red" = "Červená";
+"watch_team_blue" = "Modrá";
+"team_a" = "Tým A";
+"team_b" = "Tým B";
+"team_home" = "Domácí";
+"team_away" = "Hosté";
+"player_a" = "Hráč A";
+"player_b" = "Hráč B";
+"archer_a" = "Lukostřelec A";
+"archer_b" = "Lukostřelec B";
+"linked_score_confirm_title" = "Propojení hodinek?";
+"linked_score_phone_started_scoreboard" = "Propojení hodinek · Hra začala";
+"linked_score_accept" = "Přijmout";
+"linked_score_reject" = "Odmítnout";
+"linked_score_watch_reclaim" = "Převzít";
+"linked_score_setup_rules" = "%1$d setů · %2$d bodů";
+"linked_score_setup_rules_sets" = "%d setů";
+"linked_score_setup_race_to" = "Cíl %d";
+"linked_score_sport_badminton" = "Badminton dvouhra";
+"linked_score_sport_badminton_doubles" = "Badmintonová čtyřhra";
+"linked_score_sport_pingpong" = "Stolní tenis dvouhra";
+"linked_score_sport_pingpong_doubles" = "Stolní tenis čtyřhra";
+"linked_score_sport_tennis" = "Tenisové dvouhry";
+"linked_score_sport_tennis_doubles" = "Tenisová čtyřhra";
+"linked_score_sport_pickleball" = "Pickleballová dvouhra";
+"linked_score_sport_pickleball_doubles" = "Pickleballová čtyřhra";
+"game_basketball" = "Basketbal";
+"game_three_basketball" = "Basketbal 3x3";
+"linked_score_sport_archery" = "Lukostřelba";
+"linked_score_sport_eight_ball" = "Osmikoule";
+"linked_score_sport_nine_ball" = "Devítka – bodová honička";
+"linked_score_sport_snooker" = "Snooker";
+"linked_score_sport_shuttlecock" = "Jianzi";
+"linked_score_sport_squash" = "Squash";
+"linked_score_sport_foosball" = "Stolní fotbal";
+"linked_score_sport_football" = "Fotbal";
+"linked_score_sport_football_5v5" = "Fotbal 5×5";
+"watch_menu_end_match" = "Ukončit zápas";
+"watch_menu_restart" = "Restartujte";
+"watch_bball_overtime" = "Prodloužení";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d hráčů";
+"archery_closest_title" = "Rozstřel · Nejblíže středu";
+"archery_closest_message" = "Remíza při %d bodech – vyberte šíp blíže středu";
+"watch_set_end_format" = "Set %d dokončen";
+"watch_match_start" = "Hra začala";
+"watch_match_finished" = "Zápas dokončen";
+"watch_bb_hit_rate" = "Úspěšnost";
+"watch_bb_end_training" = "Ukončit trénink";
+"watch_training_finish_confirm_title" = "Ukončit trénink?";
+"watch_training_finish_confirm_message" = "Trénink skončí a uloží se.";
+"watch_counter_finish_confirm_title" = "Ukončit počítání?";
+"watch_counter_finish_confirm_message" = "Počet se uloží a začne se znovu od nuly.";
+"watch_bb_restart" = "Restartujte";
+
+/* Records */
+"clear_all_records" = "Vymazat všechny záznamy";
+"clear_all_records_message" = "Všechny záznamy se trvale smažou.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Hlava";
+"watch_coin_tails" = "Orel";
+"watch_archery_miss" = "Mimo";
+"watch_flip_coin_hint" = "Klepnutím hoďte mincí";
+"watch_ten_second_challenge" = "Zastav čas";
+"watch_ten_second_usage" = "Klepnutím spusťte čas. Klepněte znovu v cílovém čase.";
+"watch_mid_game_rest" = "Přestávka uprostřed setu";
+"watch_rest_between_sets" = "Přestávka mezi sety";
+"watch_official_timeout" = "Oddechový čas";
+"watch_medical_break" = "Lékařské";
+"watch_score_event_set_title" = "Set %d dokončen";
+"watch_score_event_set_detail" = "%1$@ Vyhrává %2$d:%3$d · Sety %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Set %d · Přestávka uprostřed setu";
+"watch_score_event_mid_game_detail" = "%1$@ Vede %2$d:%3$d · Sety %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Set %d dokončen";
+"watch_score_event_tennis_game_detail" = "%1$@ Vyhrává · Gemy %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Set %d dokončen";
+"watch_score_event_tennis_set_detail" = "%1$@ Vyhrává %2$d:%3$d · Sety %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "Tiebreak do 7 bodů";
+"watch_tiebreak_indicator_10" = "Tiebreak do 10 bodů";
+"watch_continue_match" = "Obnovit";
+"watch_continue_scoring" = "Obnovit";
+"watch_resume_discard" = "Zahodit rozehranou hru";
+"watch_resume_discard_training" = "Zahodit nedokončený trénink";
+"unit_hour" = "h";
+"unit_minute" = "min";
+"unit_second" = "s";
+"today" = "Dnes";
+"yesterday" = "Včera";
+
+/* Sports setup */
+"watch_setup_start" = "Start";
+"watch_setup_sets" = "Sety";
+"watch_setup_points_per_set" = "Body na set";
+"watch_setup_tennis_deuce" = "Pravidlo při shodě";
+"watch_setup_tennis_advantage" = "Výhoda";
+"watch_setup_tennis_no_ad" = "Bez výhody";
+"watch_setup_target_score" = "Cílové skóre";
+"watch_setup_rally_scoring" = "Bod za každou výměnu";
+"watch_setup_target_racks" = "Cíl";
+"watch_setup_race_racks" = "Závod do";
+"watch_setup_race_racks_help" = "3 = první do 3 framů";
+"watch_setup_handicap" = "Hendikep";
+"watch_setup_handicap_none" = "Žádné";
+"watch_setup_handicap_red_gives_blue" = "Červená → Modrá";
+"watch_setup_handicap_blue_gives_red" = "Modrá → Červená";
+"watch_setup_handicap_racks" = "Hendikepové hry";
+"watch_setup_frames" = "Framy";
+"watch_setup_custom_frames" = "Vlastní počet framů";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Zadejte 1-99";
+"watch_setup_players" = "Hráči";
+"watch_setup_archers" = "Lukostřelci";
+"watch_setup_player_number" = "Hráč %d";
+"watch_setup_red_a" = "Červená A";
+"watch_setup_red_b" = "Červená B";
+"watch_setup_blue_a" = "Modrá A";
+"watch_setup_blue_b" = "Modrá B";
+"watch_setup_name_missing" = "Vyplňte všechna jména, nebo je všechna nechte prázdná";
+"watch_setup_select_players" = "Hráči";
+"watch_setup_player_count" = "%d hráčů";
+"watch_common_names_select_player" = "Vyberte hráče";
+"watch_common_names_no_records" = "Žádné uložené názvy";
+"watch_common_names_title" = "Uložené názvy";
+"watch_common_names_add" = "Přidat";
+"watch_common_names_edit" = "Upravit název";
+"watch_common_names_delete_title" = "Smazat jméno?";
+"watch_common_names_error_title" = "Aktualizace se nezdařila";
+"watch_common_names_players" = "Hráči";
+"watch_common_names_teams" = "týmy";
+"watch_common_names_empty" = "Žádné uložené názvy";
+"watch_common_names_team_placeholder" = "Název týmu";
+"watch_common_names_player_placeholder" = "Jméno hráče";
+"watch_common_names_length_hint" = "Až %d znaků";
+"watch_common_names_error_empty" = "Název nemůže být prázdný";
+"watch_common_names_error_duplicate" = "Název již existuje";
+"watch_common_names_error_missing" = "Záznam nenalezen · Zkuste to znovu";
+"watch_common_names_error_generic" = "Nelze uložit. Zkuste to prosím znovu.";
+"watch_common_names_sync_now" = "Synchronizovat nyní";
+"watch_common_names_actions" = "Uložené názvy";
+"watch_common_names_sync_requested" = "Čeká na synchronizaci";
+"watch_common_names_sync_queued" = "Telefon není připojen · Čeká na synchronizaci";
+"watch_common_names_sync_inactive" = "Telefon není připojen";
+"watch_common_names_sync_failed" = "Připojení selhalo · Zkuste to znovu";
+"watch_common_names_sync_conflict" = "Některé změny se nesynchronizovaly";
+"watch_common_names_sync_pending" = "Čeká na synchronizaci";
+"watch_common_names_sync_unavailable" = "Telefon není připojen";
+"watch_common_names_sync_done" = "Synchronizováno";
+"watch_common_names_pending_count" = "Čeká na synchronizaci · %d";
+"watch_common_names_never_synced" = "Zatím nesynchronizováno";
+"watch_common_names_last_sync" = "Poslední synchronizace %@";
+
+"watch_phone_link_title" = "Hodinky";
+"watch_phone_link_intro" = "Začněte na telefonu, skórujte na hodinkách";
+"watch_phone_link_support" = "Badminton · Fotbal · Lukostřelba · Trénink střelby…";
+"watch_phone_link_status" = "Stav připojení";
+"watch_phone_link_steps" = "Jak používat";
+"watch_phone_link_step_1" = "Nastavte v telefonu zápas nebo trénink střelby.";
+"watch_phone_link_step_2" = "Začátek · Apple Watch";
+"watch_phone_link_step_3" = "Skórujte na hodinkách. Po skončení se záznam synchronizuje.";
+"watch_phone_link_help" = "Spárujte obě zařízení, nainstalujte na ně iScoreboard a otevřete jej v telefonu.";
+"watch_phone_link_testing" = "Probíhá test";
+"watch_phone_link_normal" = "Připojeno";
+"watch_phone_link_failed" = "Připojení selhalo";
+"watch_phone_link_reachable" = "Připojeno";
+"watch_phone_link_waiting" = "Čeká se na telefon";
+"watch_phone_link_inactive" = "Telefon není připojen";
+"watch_phone_link_testing_detail" = "Čeká se na telefon";
+"watch_phone_link_normal_detail" = "Připojeno";
+"watch_phone_link_failed_detail" = "Telefon neodpověděl do 8 sekund.";
+"watch_phone_link_failed_inactive" = "Telefon není připojen · Zkuste to znovu";
+"watch_phone_link_failed_unreachable" = "Otevřete v telefonu iScoreboard a zkuste to znovu.";
+"watch_phone_link_failed_send" = "Připojení selhalo · Zkuste to znovu";
+"watch_phone_link_reachable_detail" = "Test";
+"watch_phone_link_waiting_detail" = "Otevřete v telefonu iScoreboard a zkuste to znovu.";
+"watch_phone_link_test_waiting" = "Probíhá test…";
+"watch_phone_link_test_retry" = "Zkuste to znovu";
+"watch_phone_link_test" = "Test";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Poslední spojení %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Režim tréninku";
+"watch_bb_1pt" = "1 bod";
+"watch_bb_2pt" = "2 body";
+"watch_bb_3pt" = "3 body";
+"watch_bb_free" = "Volný režim";
+"watch_training_miss" = "Netrefeno";
+"watch_training_made" = "Trefeno";
+"watch_training_point_value" = "%d bodů";
+"watch_training_breakdown" = "Přehled střel";
+"watch_training_start" = "Trénink střelby · Začátek";
+"watch_training_rate_format" = "Úspěšnost %d%%";
+"watch_training_action_format" = "%d bodů · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Připnout nahoru?";
+"watch_home_pin_confirm" = "Připnout";
+"watch_home_unpin_title" = "Odepnout?";
+"watch_home_unpin_confirm" = "Odepnout";
+"watch_home_pin_full_title" = "Limit připnutí";
+"watch_home_pin_full_message" = "Můžete připnout 2 položky. Nejdřív jednu odepněte.";
+"watch_home_pin_hint" = "Podržením připnete";
+"watch_home_pin_success" = "Připnuto";
+"watch_home_unpin_success" = "Odepnuto";
+"multi_score_player_default_format" = "Hráč %d";
+"nine_ball_big_gold" = "Velké zlato";
+"nine_ball_small_gold" = "Malé zlato";
+"nine_ball_golden_nine" = "Zlatá 9";
+"nine_ball_normal_win" = "Běžná výhra";
+"nine_ball_ball_in_hand" = "Míč v ruce";
+"nine_ball_foul" = "Faul";
+"watch_archery_set_rest" = "Přestávka mezi sety";
+"watch_finish_confirm_title" = "Ukončit zápas?";
+"watch_finish_confirm_message" = "Zápas skončí a uloží se.";
+"watch_reset_confirm_title" = "Restartovat zápas?";
+"watch_reset_confirm_message" = "Aktuální skóre se vynuluje.";
+"watch_side_exchange" = "Vyměnit strany";
+"watch_winner_format" = "%@ Vyhrává";
+"watch_finished_win_badge" = "V";
+"watch_finished_winner" = "Vítěz";
+"watch_finished_home" = "Domů";
+"watch_snooker_foul" = "Faul";
+"watch_snooker_foul_selected_format" = "Faul +%d";
+"watch_snooker_foul_next_turn" = "Vystřídat hráče";
+"watch_snooker_foul_switch_turn" = "Vystřídat hráče";
+"watch_snooker_foul_continue" = "Pokračujte";
+"watch_action_snooker_foul_continue_format" = "%@· Faul · Soupeř +%d · Pachatel pokračuje";
+"watch_snooker_handover" = "Vystřídat hráče";
+"watch_snooker_settle_frame" = "Uzavřít frame";
+"watch_snooker_choose_frame_winner" = "Vyberte vítěze framu";
+"watch_snooker_frame_finished" = "Kolo skončilo";
+"watch_snooker_next_frame" = "Další frame";
+"watch_training_breakdown_format" = "%d bodů · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Stejná vzdálenost. Pokračujte v rozstřelu.";
+"edit" = "Upravit";
+"game_badminton_doubles" = "Badmintonová čtyřhra";
+"game_eight_ball" = "Osmikoule";
+"game_nine_ball" = "Devítka – bodová honička";
+"game_pickleball_doubles" = "Pickleballová čtyřhra";
+"game_pingpong_doubles" = "Stolní tenis čtyřhra";
+"game_snooker" = "Snooker";
+"game_tennis_doubles" = "Tenisová čtyřhra";
+"save" = "Uložit";
+"watch_action_adjust_score_format" = "%@· Skóre změněno";
+"watch_action_archery_arrow_format" = "%@+%d bodů";
+"watch_action_archery_closest" = "Rozstřel · Nejblíže středu";
+"watch_action_archery_miss_format" = "%@· Mimo";
+"watch_action_archery_set_ready" = "Lukostřelba · Kolo skončilo";
+"watch_action_ball_potted_format" = "%@ · Potopení koule %@";
+"watch_action_basketball_foul_format" = "%@· Faul";
+"watch_action_basketball_period_format" = "Část %d · Začátek";
+"watch_action_basketball_timeout_format" = "%@· Oddechový čas";
+"watch_action_edit_name" = "Aktualizováno";
+"watch_action_exchange_sides" = "Změnit strany";
+"watch_action_exchange_sides_reminder" = "Změňte strany ručně";
+"watch_action_game_finished_format" = "Set %1$d dokončen · %2$@ Vyhrává";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ Vyhrává";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Set %1$d dokončen · %2$@ Vyhrává";
+"watch_action_shooter_format" = "%@ začíná střílet";
+"watch_action_side_out_format" = "Podání · %@";
+"watch_action_snooker_foul_format" = "%@· Faul · Soupeř +%d";
+"watch_action_snooker_frame_format" = "Frame %1$d · %2$@ Vyhrává";
+"watch_action_snooker_handover_format" = "Vystřídat hráče · %@";
+"watch_action_snooker_miss_format" = "%@· Netrefeno";
+"watch_action_snooker_next_frame_format" = "Frame %d · Začátek";
+"watch_action_snooker_pot_format" = "%@· Potopení koule +%d";
+"watch_record_actions_unavailable" = "Žádné záznamy";
+"linked_score_error_title" = "Připojení selhalo";
+"linked_score_persistence_failed" = "Propojení hodinek · Uložení se nezdařilo: %@";
+"resume_persistence_error_title" = "Nepodařilo se uložit";
+"resume_persistence_failed" = "Pokračovat v zápase · Uložení se nezdařilo: %@";
+"linked_score_control_timeout" = "Převzít · Časový limit vypršel · Zkuste to znovu";
+"linked_score_sync_timeout" = "Časový limit vypršel · Čeká na synchronizaci";
+
+/* Football */
+"game_football" = "Fotbal";
+"game_football_5v5" = "Fotbal 5×5";
+"watch_setup_half_length" = "Délka poločasu";
+"watch_setup_teams" = "týmy";
+"football_first_half" = "První poločas";
+"football_second_half" = "Druhý poločas";
+"football_extra_time_first" = "Prodloužení – první poločas";
+"football_extra_time_second" = "Prodloužení – druhý poločas";
+"football_first_half_over" = "První poločas skončil";
+"football_switch_half" = "Druhý poločas";
+"football_switch_half_title" = "Začít druhý poločas?";
+"football_switch_half_message" = "První poločas bude pozastaven a nelze jej znovu otevřít.";
+"football_extra_time_first_over" = "Prodloužení – první poločas · Kolo skončilo";
+"football_switch_extra_time_half" = "Prodloužení – druhý poločas";
+"football_enter_extra_time_title" = "Základní hrací doba skončila";
+"football_post_regulation_action" = "Po základní hrací době";
+"football_injury_title" = "Nastavený čas";
+"football_undo_stoppage" = "Vrátit nastavený čas zpět";
+"football_enter_extra_time" = "Zahájit prodloužení";
+"football_end_as_draw" = "Konec jako remíza";
+"football_goal_hint" = "Klepnutím přidejte gól";
+"watch_football_start" = "Start";
+"watch_football_pause" = "Pozastavit";
+"watch_football_resume" = "Obnovit";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Začátek · %@";
+"watch_action_football_stoppage_format" = "Nastavený čas +%d s";
+"watch_action_football_clock_start" = "Časovač spuštěn";
+"watch_action_football_clock_pause" = "Časovač pozastaven";
+"watch_record_sync_sent" = "Synchronizováno";
+"watch_record_sync_pending" = "Čeká na synchronizaci";
+"watch_record_sync_not_synced" = "Nesynchronizováno s iPhonem";
+"watch_record_sync_action" = "Synchronizovat s iPhonem";
+"watch_settings_auto_sync_records" = "Automatická synchronizace";
+"game_shuttlecock" = "Jianzi";
+"game_squash" = "Squash";
+"game_foosball" = "Stolní fotbal";
+
+"watch_setup_win_by_two" = "Rozhodující set s náskokem 2 bodů";
+"watch_setup_score_cap" = "Horní hranice skóre";
+"watch_setup_serving_side" = "První podávající";
+"watch_setup_kickoff_side" = "První výkop";
+"watch_setup_side_left" = "Červená";
+"watch_setup_side_right" = "Modrá";
+
+"watch_about_us" = "O nás";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Verze %@";
+"watch_wechat_group_title" = "Skupina WeChat";
+"watch_wechat_group_scan_hint" = "Naskenujte kód ve WeChatu a připojte se ke skupině";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Rozstřel";
+"watch_nine_ball_select_payer" = "Vyberte plátce";
+"watch_nine_ball_select_continue" = "Vyberte dalšího hráče";
+"watch_nine_ball_prev_player" = "Předchozí";
+"watch_nine_ball_next_player" = "Další";
+"watch_nine_ball_continue_badge" = "Hrát";
+
+"watch_a11y_points_format" = "%d bodů";
+"watch_a11y_sets_format" = "%d setů";
+"watch_a11y_serving" = "Podání";
+
+"watch_phone_shared_link_intro" = "Začněte na telefonu a zapisujte skóre na kterémkoli zařízení.";
+"linked_score_simultaneous_edit" = "Skóre se měnilo na obou zařízeních. Zkontrolujte ho.";

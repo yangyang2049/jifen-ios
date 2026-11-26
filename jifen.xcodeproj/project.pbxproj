@@ -27,6 +27,9 @@
 		BC2026102500000000000002 /* PersonalRecordsTransportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102500000000000001 /* PersonalRecordsTransportTests.swift */; };
 		BC2026102500000000000004 /* ParticipantIdentityUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102500000000000003 /* ParticipantIdentityUITests.swift */; };
 		BC2026102500000000000006 /* PersonalRecordAccessPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102500000000000005 /* PersonalRecordAccessPolicyTests.swift */; };
+		BC20261100000000000000A2 /* GroupMatchSetupRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261100000000000000A1 /* GroupMatchSetupRulesTests.swift */; };
+		BC20261100000000000000B2 /* GroupMatchSetupUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261100000000000000B1 /* GroupMatchSetupUITests.swift */; };
+		BC20261200000000000000C2 /* WatchLinkIntroLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */; };
 		C0D320261002000000000002 /* APIClientSessionIsolationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */; };
 		C10000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000001 /* ScoreCore */; };
 		C10000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000002 /* SessionCore */; };
@@ -68,7 +71,6 @@
 		F50000000000000000000002 /* ScoreboardMenuConfirmStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */; };
 		F530CC64174A44D0981AE32E /* GroupPreviewDecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68621CE31D5740DBAF6A4FDF /* GroupPreviewDecodingTests.swift */; };
 		F60000000000000000000002 /* AppReviewPromptTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F60000000000000000000001 /* AppReviewPromptTests.swift */; };
-		F6A000000000000000000002 /* NationalDayCampaignTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A000000000000000000001 /* NationalDayCampaignTests.swift */; };
 		F70000000000000000000002 /* ScreenshotSaveCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F70000000000000000000001 /* ScreenshotSaveCoordinatorTests.swift */; };
 		F80000000000000000000002 /* AppAnalyticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80000000000000000000001 /* AppAnalyticsTests.swift */; };
 		F8A5B36AA1FD4D438E85097C /* GroupPushAPNsProbeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28F3A5C0DD0A45F09AFA5204 /* GroupPushAPNsProbeTests.swift */; };
@@ -170,6 +172,9 @@
 		BC2026102500000000000001 /* PersonalRecordsTransportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRecordsTransportTests.swift; sourceTree = "<group>"; };
 		BC2026102500000000000003 /* ParticipantIdentityUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ParticipantIdentityUITests.swift; sourceTree = "<group>"; };
 		BC2026102500000000000005 /* PersonalRecordAccessPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRecordAccessPolicyTests.swift; sourceTree = "<group>"; };
+		BC20261100000000000000A1 /* GroupMatchSetupRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMatchSetupRulesTests.swift; sourceTree = "<group>"; };
+		BC20261100000000000000B1 /* GroupMatchSetupUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMatchSetupUITests.swift; sourceTree = "<group>"; };
+		BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLinkIntroLaunchTests.swift; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
 		C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIClientSessionIsolationTests.swift; sourceTree = "<group>"; };
 		D20000000000000000000001 /* jifenWatch Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "jifenWatch Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -197,7 +202,6 @@
 		F40000000000000000000001 /* LocalScoreboardDisplayStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalScoreboardDisplayStateTests.swift; sourceTree = "<group>"; };
 		F50000000000000000000001 /* ScoreboardMenuConfirmStateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScoreboardMenuConfirmStateTests.swift; sourceTree = "<group>"; };
 		F60000000000000000000001 /* AppReviewPromptTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppReviewPromptTests.swift; sourceTree = "<group>"; };
-		F6A000000000000000000001 /* NationalDayCampaignTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NationalDayCampaignTests.swift; sourceTree = "<group>"; };
 		F70000000000000000000001 /* ScreenshotSaveCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ScreenshotSaveCoordinatorTests.swift; sourceTree = "<group>"; };
 		F80000000000000000000001 /* AppAnalyticsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppAnalyticsTests.swift; sourceTree = "<group>"; };
 		F90000000000000000000001 /* LocalizationIntegrityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LocalizationIntegrityTests.swift; sourceTree = "<group>"; };
@@ -359,6 +363,8 @@
 				D67019110000000000000001 /* ReportSheetContractTests.swift */,
 				28F3A5C0DD0A45F09AFA5204 /* GroupPushAPNsProbeTests.swift */,
 				911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */,
+				BC20261100000000000000A1 /* GroupMatchSetupRulesTests.swift */,
+				BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */,
 				AB1000000000000000000001 /* AccountPasswordLoginTests.swift */,
 				D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */,
 				PB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift */,
@@ -390,7 +396,6 @@
 				BC2026102500000000000005 /* PersonalRecordAccessPolicyTests.swift */,
 				BC2026102500000000000001 /* PersonalRecordsTransportTests.swift */,
 				FE1000000000000000000001 /* ScoreboardDisplayTests.swift */,
-				F6A000000000000000000001 /* NationalDayCampaignTests.swift */,
 				FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */,
 				FF2000000000000000000001 /* ActionForegroundTests.swift */,
 				BC2026102300000000000001 /* WechatBindingTests.swift */,
@@ -413,6 +418,7 @@
 				2D1273C47DF445F6918C0C49 /* GroupRedesignUITests.swift */,
 				BC2026102300000000000003 /* WechatBindingUITests.swift */,
 				D67019110000000000000003 /* GroupAlignedFormsUITests.swift */,
+				BC20261100000000000000B1 /* GroupMatchSetupUITests.swift */,
 				DF4CE2EEF5E63287FE52FB39 /* GroupBilliardsUITests.swift */,
 				D670D0010000000000000001 /* DuoGroupWalkthroughUITests.swift */,
 				D670D0020000000000000001 /* DuoToolsWalkthroughUITests.swift */,
@@ -764,6 +770,7 @@
 				04B923BF21624627AB1BCC66 /* GroupRedesignUITests.swift in Sources */,
 				BC2026102300000000000004 /* WechatBindingUITests.swift in Sources */,
 				D67019110000000000000004 /* GroupAlignedFormsUITests.swift in Sources */,
+				BC20261100000000000000B2 /* GroupMatchSetupUITests.swift in Sources */,
 				0F42FD18EEB118C9F7272AB9 /* GroupBilliardsUITests.swift in Sources */,
 				D670D0010000000000000002 /* DuoGroupWalkthroughUITests.swift in Sources */,
 				D670D0020000000000000002 /* DuoToolsWalkthroughUITests.swift in Sources */,
@@ -811,6 +818,8 @@
 				D67019110000000000000002 /* ReportSheetContractTests.swift in Sources */,
 				F8A5B36AA1FD4D438E85097C /* GroupPushAPNsProbeTests.swift in Sources */,
 				BB8112B0BEAB4E949E9E82DB /* GroupPortParityTests.swift in Sources */,
+				BC20261100000000000000A2 /* GroupMatchSetupRulesTests.swift in Sources */,
+				BC20261200000000000000C2 /* WatchLinkIntroLaunchTests.swift in Sources */,
 				AB1000000000000000000002 /* AccountPasswordLoginTests.swift in Sources */,
 				D42000000000000000000002 /* LocalDataResetCoordinatorTests.swift in Sources */,
 				PB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift in Sources */,
@@ -828,7 +837,6 @@
 				F40000000000000000000002 /* LocalScoreboardDisplayStateTests.swift in Sources */,
 				F50000000000000000000002 /* ScoreboardMenuConfirmStateTests.swift in Sources */,
 				F60000000000000000000002 /* AppReviewPromptTests.swift in Sources */,
-				F6A000000000000000000002 /* NationalDayCampaignTests.swift in Sources */,
 				FC90000000000000000000002 /* NetworkResilienceTests.swift in Sources */,
 				FEE320261003000000000002 /* FeedbackLanguageTests.swift in Sources */,
 				F70000000000000000000002 /* ScreenshotSaveCoordinatorTests.swift in Sources */,

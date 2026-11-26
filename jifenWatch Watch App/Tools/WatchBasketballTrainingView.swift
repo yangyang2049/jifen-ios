@@ -1,12 +1,23 @@
+import LinkCore
 import RecordCore
 import SwiftUI
 
 struct WatchBasketballTrainingView: View {
+    private enum PendingFinish {
+        case standalone
+        case linked(LinkedMatchHandle)
+    }
+
     @Environment(\.dismiss) private var dismiss
     @Environment(WatchResumeSessionStore.self) private var resumeStore
+    @Environment(WatchLinkService.self) private var linkService
 
     let mode: WatchBasketballTrainingMode
+    let linkedSessionId: UUID?
 
+    @State private var showRecordSaveFailure = false
+    @State private var pendingFinish: PendingFinish?
+    @State private var earlierCounts: ShotTrainingCounts
     @State private var history: [WatchBasketballTrainingShot] = []
     @State private var startTime = Date()
     @State private var savedRecordID: String?
@@ -21,10 +32,14 @@ struct WatchBasketballTrainingView: View {
 
     init(
         mode: WatchBasketballTrainingMode,
+        linkedSessionId: UUID? = nil,
         resumedHistory: [WatchBasketballTrainingShot] = [],
-        resumedStartTime: Date? = nil
+        resumedStartTime: Date? = nil,
+        resumedEarlierCounts: ShotTrainingCounts = .init()
     ) {
         self.mode = mode
+        self.linkedSessionId = linkedSessionId
+        _earlierCounts = State(initialValue: resumedEarlierCounts)
         _history = State(initialValue: resumedHistory)
         _startTime = State(initialValue: resumedStartTime ?? Date())
     }
@@ -32,31 +47,6 @@ struct WatchBasketballTrainingView: View {
     var body: some View {
         ZStack {
             board
-                .contentShape(Rectangle())
-                .simultaneousGesture(
-                    LongPressGesture(minimumDuration: WatchTiming.longPressThreshold)
-                        .onEnded { _ in
-                            guard !showMenu, !showEndDialog, confirmation == nil else { return }
-                            suppressTapAfterLongPress = true
-                            WatchHaptics.shared.play(.strong)
-                            showMenu = true
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                                suppressTapAfterLongPress = false
-                            }
-                        }
-                )
-                .simultaneousGesture(
-                    DragGesture(minimumDistance: 30)
-                        .onEnded { value in
-                            guard !showMenu, !showEndDialog, confirmation == nil else { return }
-                            if value.translation.width > 55,
-                               abs(value.translation.height) < 50 {
-                                dismiss()
-                            } else if value.translation.height > 40 {
-                                undo()
-                            }
-                        }
-                )
 
             if showMenu {
                 trainingMenuOverlay
@@ -98,7 +88,23 @@ struct WatchBasketballTrainingView: View {
         }
         .background(.black)
         .ignoresSafeArea()
+        .watchScoreboardGestures(
+            suppressTapAfterLongPress: $suppressTapAfterLongPress,
+            enabled: !showMenu && !showEndDialog && confirmation == nil,
+            onMenu: { showMenu = true },
+            onUndo: undo,
+            onExit: exitBoard
+        )
+        .watchFinishSaveFailure(
+            isPresented: $showRecordSaveFailure,
+            onCancel: cancelFinishTraining,
+            retry: finishTraining
+        )
         .onAppear {
+            if isLinked,
+               let state = linkService.resumeContext?.latestAuthoritativeSnapshot?.basketballTrainingState {
+                applyLinkedState(state)
+            }
             scoreboardLayout = WatchPreferences.shared.scoreboardLayout
             if mode == .free {
                 showFreeGuide = true
@@ -118,6 +124,82 @@ struct WatchBasketballTrainingView: View {
         .onDisappear {
             persistResumeSession()
         }
+        .onChange(of: linkService.incomingSnapshot, initial: true) { _, update in
+            guard isLinked, let update, update.sessionId == linkedSessionId,
+                  let state = update.snapshot.basketballTrainingState else { return }
+            applyLinkedState(state)
+        }
+        .onChange(of: linkService.publishedFinishedMatchIds) { _, _ in
+            applyRecoveredLinkedFinish()
+        }
+        .onChange(of: linkService.pendingReclaimAcceptance, initial: true) { _, pending in
+            guard isLinked, let pending, pending.sessionId == linkedSessionId,
+                  let state = pending.snapshot.basketballTrainingState else { return }
+            applyLinkedState(state)
+            linkService.completeReclaimAcceptance(messageId: pending.messageId)
+        }
+    }
+
+    private var isLinked: Bool {
+        linkedSessionId != nil && linkedSessionId == linkService.activeSessionId
+    }
+
+    private var scoringLocked: Bool {
+        linkedSessionId != nil && (!isLinked || !linkService.canEditLinkedMatch)
+    }
+
+    private func linkedSnapshot(finished: Bool = false) -> LinkedScoreboardSnapshot {
+        .basketballTraining(.init(
+            mode: mode.linkedMode,
+            startTime: startTime,
+            shots: history.map(\.linkedShot),
+            earlierCounts: earlierCounts,
+            finished: finished || showEndDialog
+        ))
+    }
+
+    private func applyLinkedState(_ state: LinkedShotTrainingState) {
+        history = state.shots.map(WatchBasketballTrainingShot.init(linkedShot:))
+        earlierCounts = state.earlierCounts
+        startTime = state.startTime
+        showEndDialog = state.finished
+        savedRecordID = state.finished ? linkService.activeHandle.map { "w_\($0.matchId.uuidString)" } : nil
+        confirmation = nil
+        recentShotID = nil
+        persistResumeSession()
+    }
+
+    private func publishLinkedTraining() {
+        guard isLinked, linkService.canEditLinkedMatch else { return }
+        linkService.publishSnapshot(linkedSnapshot())
+    }
+
+    private func cancelFinishTraining() {
+        applyRecoveredLinkedFinish()
+        switch pendingFinish {
+        case .linked(let handle):
+            linkService.cancelPendingTrainingFinish(handle: handle)
+        case .standalone:
+            resumeStore.cancelPendingTrainingFinish(startedAt: startTime)
+        case nil:
+            return
+        }
+        pendingFinish = nil
+    }
+
+    private func applyRecoveredLinkedFinish() {
+        guard isLinked, case .linked(let handle) = pendingFinish, handle == linkService.activeHandle,
+              linkService.publishedFinishedMatchIds.contains(handle.matchId),
+              let state = linkService.latestSnapshot?.snapshot.basketballTrainingState, state.finished else { return }
+        pendingFinish = nil
+        showRecordSaveFailure = false
+        applyLinkedState(state)
+    }
+
+    private func exitBoard() {
+        if let linkedSessionId { linkService.exitScoreboard(sessionId: linkedSessionId) }
+        persistResumeSession()
+        dismiss()
     }
 
     @ViewBuilder
@@ -136,32 +218,42 @@ struct WatchBasketballTrainingView: View {
                 .onTapGesture { showMenu = false }
 
             VStack(spacing: WatchLayout.isCompactScreen ? 5 : 6) {
-                LazyVGrid(
-                    columns: [GridItem(.flexible()), GridItem(.flexible())],
-                    spacing: WatchLayout.isCompactScreen ? 5 : 6
-                ) {
+                if scoringLocked {
                     WatchMenuGridButton(
-                        title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
-                        systemImage: "arrow.uturn.backward"
+                        title: NSLocalizedString("linked_score_watch_reclaim", value: "手表接管", comment: ""),
+                        systemImage: "applewatch"
                     ) {
                         showMenu = false
-                        undo()
+                        linkService.requestReclaim()
+                    }
+                } else {
+                    LazyVGrid(
+                        columns: [GridItem(.flexible()), GridItem(.flexible())],
+                        spacing: WatchLayout.isCompactScreen ? 5 : 6
+                    ) {
+                        WatchMenuGridButton(
+                            title: NSLocalizedString("menu_undo", value: "撤销", comment: ""),
+                            systemImage: "arrow.uturn.backward"
+                        ) {
+                            showMenu = false
+                            undo()
+                        }
+                        WatchMenuGridButton(
+                            title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
+                            systemImage: "arrow.counterclockwise"
+                        ) {
+                            showMenu = false
+                            confirmation = .reset
+                        }
                     }
                     WatchMenuGridButton(
-                        title: NSLocalizedString("watch_menu_restart", value: "重新开始", comment: ""),
-                        systemImage: "arrow.counterclockwise"
+                        title: NSLocalizedString("watch_bb_end_training", value: "结束训练", comment: ""),
+                        systemImage: "flag.checkered",
+                        background: WatchTheme.dangerRed
                     ) {
                         showMenu = false
-                        confirmation = .reset
+                        confirmation = .finish
                     }
-                }
-                WatchMenuGridButton(
-                    title: NSLocalizedString("watch_bb_end_training", value: "结束训练", comment: ""),
-                    systemImage: "flag.checkered",
-                    background: WatchTheme.dangerRed
-                ) {
-                    showMenu = false
-                    confirmation = .finish
                 }
                 WatchMenuCloseButton { showMenu = false }
             }
@@ -198,7 +290,8 @@ struct WatchBasketballTrainingView: View {
                         trainingCell(
                             points: points,
                             made: false,
-                            size: CGSize(width: fullWidth, height: fullHeight / 2)
+                            size: CGSize(width: fullWidth, height: fullHeight / 2),
+                            verticalTopCell: true
                         )
                         trainingCell(
                             points: points,
@@ -210,7 +303,7 @@ struct WatchBasketballTrainingView: View {
             }
             .frame(width: fullWidth, height: fullHeight)
             .offset(x: -proxy.safeAreaInsets.leading, y: -proxy.safeAreaInsets.top)
-            .overlay(alignment: .top) {
+            .overlay(alignment: scoreboardLayout == "vertical" ? .topLeading : .top) {
                 if !showMenu && !showEndDialog {
                     Text(
                         String.localizedStringWithFormat(
@@ -224,12 +317,18 @@ struct WatchBasketballTrainingView: View {
                     .padding(.vertical, 5)
                     .background(WatchTheme.panelScrim)
                     .clipShape(Capsule())
-                    .padding(.top, 6)
+                    .padding(
+                        .top,
+                        scoreboardLayout == "vertical"
+                            ? max(6, (fullHeight / 2 - 27) / 2)  // 顶半格垂直居中：27pt ≈ 胶囊高度
+                            : 6
+                    )
+                    .padding(.leading, scoreboardLayout == "vertical" ? 10 : 0)
                     .allowsHitTesting(false)
                 }
             }
             .overlay(alignment: .bottom) {
-                if !showMenu && !showEndDialog && confirmation == nil {
+                if !scoringLocked && !showMenu && !showEndDialog && confirmation == nil {
                     Button {
                         WatchHaptics.shared.play(.light)
                         confirmation = .finish
@@ -300,46 +399,63 @@ struct WatchBasketballTrainingView: View {
     private func trainingCell(
         points: Int,
         made: Bool,
-        size: CGSize
+        size: CGSize,
+        verticalTopCell: Bool = false
     ) -> some View {
         let count = shotCount(points: points, made: made)
         let isRecent = history.last?.id == recentShotID
             && history.last?.points == points
             && history.last?.made == made
-        return VStack(spacing: 1) {
-            if mode != .free {
-                Text(
-                    made
-                        ? NSLocalizedString("watch_training_made", value: "命中", comment: "")
-                        : NSLocalizedString("watch_training_miss", value: "未中", comment: "")
-                )
-                .font(.system(size: 14, weight: .medium))
-                .foregroundStyle(.white.opacity(0.82))
-            }
-
-            Text("\(count)")
-                .font(WatchScoreTypography.primaryScore(size: mode == .free ? 30 : 64))
-                .foregroundStyle(.white)
-        }
-        .frame(width: size.width, height: size.height)
-        .background(made ? WatchTheme.successGreen : Color(hex: 0xD84343))
-        .overlay {
-            if isRecent {
-                Color.white.opacity(0.14)
-            }
-        }
-        .contentShape(Rectangle())
-        .onTapGesture {
+        let outcome = made
+            ? NSLocalizedString("watch_training_made", value: "命中", comment: "")
+            : NSLocalizedString("watch_training_miss", value: "未中", comment: "")
+        let pointsLabel = String.localizedStringWithFormat(
+            NSLocalizedString("watch_training_point_value", value: "%d分", comment: ""),
+            points
+        )
+        return Button {
             guard !showMenu, !showEndDialog, confirmation == nil,
                   !suppressTapAfterLongPress else { return }
             addShot(points: points, made: made)
+        } label: {
+            // 竖板顶格：标签与大分数靠右，给左上角的「N分」胶囊让位，两者共用一条顶部中心线。
+            VStack(spacing: 1) {
+                if mode != .free {
+                    Text(outcome)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.82))
+                }
+                Text("\(count)")
+                    .font(WatchScoreTypography.primaryScore(size: mode == .free ? 30 : 64))
+                    .foregroundStyle(.white)
+            }
+            .padding(.trailing, verticalTopCell ? 6 : 0)
+            .padding(.leading, verticalTopCell ? 74 : 0)
+            .offset(y: verticalTopCell ? 16 : 0)
+            .frame(
+                width: size.width,
+                height: size.height,
+                alignment: verticalTopCell ? .trailing : .center
+            )
+            .background(made ? WatchTheme.successGreen : Color(hex: 0xD84343))
+            .overlay {
+                if isRecent {
+                    Color.white.opacity(0.14)
+                        .allowsHitTesting(false)
+                }
+            }
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
+        .disabled(scoringLocked)
+        .accessibilityLabel(mode == .free ? "\(pointsLabel) \(outcome)" : outcome)
+        .accessibilityValue(String(count))
+        .accessibilityIdentifier("watch_training_\(made ? "made" : "miss")_\(points)")
     }
 
     private var endOverlay: some View {
         let compact = WatchLayout.isCompactScreen
-        return ZStack {
-            Color.black.opacity(0.40).ignoresSafeArea()
+        return WatchFullScreenOverlay(scrim: Color.black.opacity(0.76)) { _, _ in
             VStack(spacing: compact ? 5 : 8) {
                 Text(NSLocalizedString("watch_bb_hit_rate", value: "命中率", comment: ""))
                     .font(.system(size: compact ? 12 : 14))
@@ -383,8 +499,9 @@ struct WatchBasketballTrainingView: View {
                     .buttonStyle(.plain)
                     .background(WatchTheme.successGreen)
                     .clipShape(Capsule())
+                    .disabled(scoringLocked)
                     Button {
-                        dismiss()
+                        exitBoard()
                     } label: {
                         Text(NSLocalizedString("exit", value: "退出", comment: ""))
                             .font(.system(size: compact ? 13 : 15, weight: .medium))
@@ -401,21 +518,17 @@ struct WatchBasketballTrainingView: View {
                 .padding(.top, compact ? 4 : 8)
             }
             .padding(.horizontal, compact ? 10 : 12)
-            .padding(.top, compact ? 14 : 20)
+            .padding(.top, compact ? 22 : 28)
             .padding(.bottom, compact ? 8 : 12)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(WatchTheme.panelScrim)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 
     private var totalAttempts: Int {
-        history.count
+        earlierCounts.attempts + history.count
     }
 
     private var totalMade: Int {
-        history.lazy.filter(\.made).count
+        earlierCounts.made + history.lazy.filter(\.made).count
     }
 
     private var hitRateText: String {
@@ -425,12 +538,15 @@ struct WatchBasketballTrainingView: View {
     }
 
     private func shotCount(points: Int, made: Bool) -> Int {
-        history.lazy.filter { $0.points == points && $0.made == made }.count
+        earlierCounts.count(points: points, made: made)
+            + history.lazy.filter { $0.points == points && $0.made == made }.count
     }
 
     private func addShot(points: Int, made: Bool) {
+        guard !scoringLocked, pendingFinish == nil, !showEndDialog else { return }
         let shot = WatchBasketballTrainingShot(points: points, made: made)
         history.append(shot)
+        publishLinkedTraining()
         recentShotID = shot.id
         WatchHaptics.shared.play(made ? .score : .strong)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -441,25 +557,34 @@ struct WatchBasketballTrainingView: View {
     }
 
     private func undo() {
-        guard history.popLast() != nil else { return }
+        guard !scoringLocked, pendingFinish == nil, !showEndDialog, history.popLast() != nil else { return }
+        publishLinkedTraining()
         recentShotID = nil
         WatchHaptics.shared.play(.undo)
         showToast(NSLocalizedString("watch_undo_toast", value: "已撤销", comment: ""))
     }
 
     private func reset() {
+        guard !scoringLocked, pendingFinish == nil, !showEndDialog else { return }
         resumeStore.clear()
         history = []
+        earlierCounts = .init()
         recentShotID = nil
+        publishLinkedTraining()
     }
 
     private func restartAfterFinish() {
+        guard !scoringLocked else { return }
         resumeStore.clear()
         history = []
+        earlierCounts = .init()
         startTime = Date()
         savedRecordID = nil
         recentShotID = nil
         showEndDialog = false
+        if isLinked {
+            linkService.startNextMatch(snapshot: linkedSnapshot())
+        }
     }
 
     private func showToast(_ text: String) {
@@ -472,14 +597,38 @@ struct WatchBasketballTrainingView: View {
     }
 
     private func finishTraining() {
+        guard !scoringLocked else { return }
         guard savedRecordID == nil else {
             showEndDialog = true
             return
         }
         let endTime = Date()
+        if isLinked {
+            guard linkService.canEditLinkedMatch, let handle = linkService.activeHandle else { return }
+            pendingFinish = .linked(handle)
+            let recordID = "w_\(handle.matchId.uuidString)"
+            guard linkService.publishMatchFinished(
+                snapshot: linkedSnapshot(finished: true),
+                recordId: recordID,
+                winnerSide: nil,
+                manualEnd: true,
+                startTime: startTime,
+                endTime: endTime,
+                totalScoreChanges: totalAttempts
+            ) else {
+                showRecordSaveFailure = true
+                return
+            }
+            pendingFinish = nil
+            savedRecordID = recordID
+            showEndDialog = true
+            resumeStore.clear()
+            return
+        }
+        pendingFinish = .standalone
         let modeName = mode.fixedPoints.map(String.init) ?? "free"
-        var misses = 0
-        var made = 0
+        var misses = earlierCounts.missed
+        var made = earlierCounts.made
         var actions = [
             WatchScoreAction(
                 actionType: .gameStart,
@@ -507,9 +656,9 @@ struct WatchBasketballTrainingView: View {
                 timestamp: shot.timestamp
             )
         })
-        let percentage = history.isEmpty
+        let percentage = totalAttempts == 0
             ? 0
-            : Int((Double(made) / Double(history.count) * 100).rounded())
+            : Int((Double(made) / Double(totalAttempts) * 100).rounded())
         actions.append(
             WatchScoreAction(
                 actionType: .gameEnd,
@@ -545,18 +694,27 @@ struct WatchBasketballTrainingView: View {
             team2SetScore: 0,
             winner: nil,
             actions: actions,
-            totalScoreChanges: history.count,
+            totalScoreChanges: totalAttempts,
             projectConfiguration: projectConfiguration,
-            basketballTrainingDetails: WatchBasketballTrainingDetails(mode: mode, shots: history)
+            basketballTrainingDetails: WatchBasketballTrainingDetails(
+                mode: mode,
+                shots: history,
+                totals: history.reduce(into: earlierCounts) { $0.add($1.linkedShot) }
+            )
         )
-        WatchRecordManager.shared.saveRecord(record)
+        guard resumeStore.saveFinishedRecord(record) else {
+            showRecordSaveFailure = true
+            return
+        }
         resumeStore.clear()
+        pendingFinish = nil
         savedRecordID = recordID
         showEndDialog = true
     }
 
     private func persistResumeSession() {
-        guard savedRecordID == nil, !history.isEmpty else {
+        guard linkedSessionId == nil || isLinked else { return }
+        guard !showEndDialog, savedRecordID == nil, totalAttempts > 0 else {
             resumeStore.clear()
             return
         }
@@ -566,8 +724,10 @@ struct WatchBasketballTrainingView: View {
             emoji: "🏀",
             payload: .basketballTraining(
                 mode: mode,
-                history: history
-            )
+                history: history,
+                earlierCounts: earlierCounts
+            ),
+            link: isLinked ? linkService.resumeContext : nil
         ))
     }
 

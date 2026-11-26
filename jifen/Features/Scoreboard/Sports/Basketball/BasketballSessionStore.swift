@@ -21,6 +21,7 @@ final class BasketballSessionStore {
     private var timeoutClockAnchorNanoseconds: UInt64?
 
     private(set) var state: BasketballMatchState
+    private(set) var mainClockExpirationCount = 0
     private(set) var basketballClockStarted: Bool
     var actionTimeline: [DetailedScoreAction] { recordContext.detailedActions }
     let sessionId: UUID
@@ -170,6 +171,9 @@ final class BasketballSessionStore {
                 await core.dispatchNonUndoable(actorId: "phone", intent: intent, at: now)
             }
             guard case .accepted(let session, _) = result, let self else { return }
+            if Self.mainClockExpires(from: self.state, with: intent) {
+                self.mainClockExpirationCount += 1
+            }
             self.state = session.state
             self.synchronizeClockAnchors()
             if session.status == .live {
@@ -202,6 +206,13 @@ final class BasketballSessionStore {
                 )
             }
         }
+    }
+
+    // A tied fourth quarter resets the clock to overtime in the same reducer tick.
+    static func mainClockExpires(from state: BasketballMatchState, with intent: BasketballMatchIntent) -> Bool {
+        intent == .tickClock && state.gameRunning && state.gameTimeSeconds == 1
+            && !state.periodEnded && !state.finished
+            && !(state.gameMode == .threeXThree && state.isOvertime)
     }
 
     func undo(completion: ((Bool) -> Void)? = nil) {

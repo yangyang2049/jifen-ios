@@ -1,11 +1,25 @@
 import ScoreCore
 import SwiftUI
 
+/// 匹克球「计分方式」的控件形态。
+enum PickleballScoringControl {
+    /// 本机 Setup：一个开关。
+    case toggle
+    /// 小组活动开赛（定稿）：发球方得分／每球得分两枚并列选项。
+    case choices
+}
+
 struct SportsSetupSettingsSection: View {
     let gameType: GameType
     @Binding var draft: SportsSetupDraft
+    /// 小组活动开赛复用同一套赛制/内联控件，但不渲染本机「比赛功能」卡片。
+    var showsMatchFeatures = true
+    var groupPointPresets: [Int]? = nil
+    /// 匹克球「计分方式」的呈现：本机 Setup 用开关，小组活动开赛按定稿用两枚并列选项。
+    var pickleballScoringControl: PickleballScoringControl = .toggle
     var onCustomFieldFocus: (String?) -> Void = { _ in }
     @State private var completionModeExpanded = false
+    @State private var eightBallRaceTipVisible = false
     @State private var requestedCustomField: CustomField?
     @State private var customFieldSelections: [CustomField: TextSelection] = [:]
     @FocusState private var focusedCustomField: CustomField?
@@ -27,7 +41,9 @@ struct SportsSetupSettingsSection: View {
         VStack(alignment: .leading, spacing: 16) {
             buildSettingsSection()
             // 「比赛功能」区：对齐安卓功能卡片矩阵，所有计分项目统一渲染。
-            SportsSetupMatchFeaturesSection(gameType: gameType, draft: $draft)
+            if showsMatchFeatures {
+                SportsSetupMatchFeaturesSection(gameType: gameType, draft: $draft)
+            }
         }
         .onChange(of: focusedCustomField) { oldField, newField in
             if let oldField, oldField != newField, requestedCustomField == oldField {
@@ -452,7 +468,39 @@ struct SportsSetupSettingsSection: View {
                 }
             }
         }
-        settingsToggle("pickleball_rally_scoring", fallback: "每球得分", value: $draft.pickleballUseRallyScoring)
+        if pickleballScoringControl == .choices {
+            pickleballScoringChoices()
+        } else {
+            settingsToggle("pickleball_rally_scoring", fallback: "每球得分", value: $draft.pickleballUseRallyScoring)
+        }
+    }
+
+    /// 定稿的「发球方得分／每球得分」两枚选项；状态与本机 Setup 的开关同源。
+    private func pickleballScoringChoices() -> some View {
+        HStack(spacing: 8) {
+            ForEach([false, true], id: \.self) { rally in
+                let selected = draft.pickleballUseRallyScoring == rally
+                Button {
+                    dismissCustomFocus()
+                    draft.pickleballUseRallyScoring = rally
+                } label: {
+                    Text(rally
+                         ? NSLocalizedString("pickleball_rally_scoring", value: "每球得分", comment: "Rally scoring")
+                         : GroupMatchSetupBridge.serverScoringText)
+                        .font(.system(size: 14, weight: selected ? .medium : .regular))
+                        .foregroundStyle(getChipTextColor(selected: selected))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 40)
+                        .background(getChipBackgroundColor(selected: selected))
+                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(selected ? .isSelected : [])
+                .accessibilityIdentifier(rally ? "setup_pickleball_rally_scoring" : "setup_pickleball_server_scoring")
+            }
+        }
     }
 
     @ViewBuilder
@@ -508,10 +556,40 @@ struct SportsSetupSettingsSection: View {
 
     @ViewBuilder
     private func buildEightBallSettings() -> some View {
-        buildSetCountSettings(
-            title: NSLocalizedString("eight_ball_frames", value: "局数", comment: ""),
-            presets: [1, 3, 5, 7, 9, 11]
-        )
+        // 反馈 cmwwtql5d0dlxv5idphmd6zqg：档位按台球口语叫「抢局」，数字即 race-to 目标
+        // （引擎 finished = points >= targetPoints，本来就是先赢 N 局获胜）。
+        // 档位只显示纯数字，几局几胜/让局上限等解释收进问号说明，外文界面无需翻译「抢」字。
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 6) {
+                Text(NSLocalizedString("eight_ball_race_to", value: "抢局", comment: "Eight-ball race target label"))
+                    .settingsLabelStyle()
+                Button {
+                    eightBallRaceTipVisible.toggle()
+                } label: {
+                    Image(systemName: "questionmark.circle")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(eightBallRaceTipVisible ? Theme.primary : Theme.textSecondary)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(NSLocalizedString("eight_ball_race_help_detail", value: "选 3 就是台球常说的「抢3」：先赢 3 局获胜（5局3胜）。", comment: "Race target explanation"))
+            }
+            customNumberChipGrid(
+                presets: [3, 5, 7, 13],
+                selection: $draft.selectedMaxSets,
+                text: $draft.customMaxSetsText,
+                maxValue: 99,
+                field: .sets
+            )
+            if eightBallRaceTipVisible {
+                Text(NSLocalizedString(
+                    "eight_ball_race_help_detail",
+                    value: "选 3 就是台球常说的「抢3」：先赢 3 局获胜（5局3胜）。",
+                    comment: "Eight-ball race target explanation shown under the chips"
+                ))
+                .font(.system(size: 12))
+                .foregroundStyle(Theme.textSecondary)
+            }
+        }
         if draft.selectedMaxSets > 1 {
             VStack(alignment: .leading, spacing: 8) {
                 Text(NSLocalizedString("eight_ball_handicap", value: "让局", comment: ""))
@@ -607,7 +685,7 @@ struct SportsSetupSettingsSection: View {
     }
 
     private var pointPresets: [Int] {
-        draft.pointPresets(for: gameType)
+        groupPointPresets ?? draft.pointPresets(for: gameType)
     }
 
     private func chipRow(
@@ -654,6 +732,7 @@ struct SportsSetupSettingsSection: View {
                 .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
     @ViewBuilder
@@ -723,6 +802,7 @@ struct SportsSetupSettingsSection: View {
                 .clipShape(RoundedRectangle(cornerRadius: numberChipCornerRadius, style: .continuous))
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(selection.wrappedValue == value ? .isSelected : [])
     }
 
     @ViewBuilder

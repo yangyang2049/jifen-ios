@@ -29,13 +29,13 @@ struct WatchPhoneLinkView: View {
             Image(systemName: "iphone.and.arrow.forward")
                 .font(.system(size: 28, weight: .medium))
                 .foregroundStyle(WatchTheme.accent)
-            Text(NSLocalizedString("watch_phone_link_intro", value: "由手机发起，手表主控计分", comment: ""))
+            Text(NSLocalizedString("watch_phone_shared_link_intro", value: "Start on your phone and score on either device.", comment: ""))
                 .font(.system(size: 15, weight: .bold))
                 .foregroundStyle(WatchTheme.primaryText)
                 .multilineTextAlignment(.center)
             Text(NSLocalizedString(
                 "watch_phone_link_support",
-                value: "支持四类球拍项目的单打与双打，以及射箭、黑八、追分和斯诺克。",
+                value: "支持球拍项目、足球、射箭、台球和投篮训练等项目。",
                 comment: ""
             ))
             .font(.system(size: 10))
@@ -64,11 +64,11 @@ struct WatchPhoneLinkView: View {
             Text(statusDetail)
                 .font(.system(size: 10))
                 .foregroundStyle(WatchTheme.secondaryText)
-                .lineLimit(3)
+                .fixedSize(horizontal: false, vertical: true)
             Text(lastCommunicationText)
                 .font(.system(size: 10))
                 .foregroundStyle(WatchTheme.secondaryText.opacity(0.85))
-                .lineLimit(1)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(WatchLayout.cardContentPadding)
@@ -81,9 +81,9 @@ struct WatchPhoneLinkView: View {
             Text(NSLocalizedString("watch_phone_link_steps", value: "使用步骤", comment: ""))
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(WatchTheme.primaryText)
-            step("1", NSLocalizedString("watch_phone_link_step_1", value: "在手机选择比赛并完成设置", comment: ""))
+            step("1", NSLocalizedString("watch_phone_link_step_1", value: "在手机选择计分项目或投篮训练，并完成设置", comment: ""))
             step("2", NSLocalizedString("watch_phone_link_step_2", value: "点击“在手表开始”", comment: ""))
-            step("3", NSLocalizedString("watch_phone_link_step_3", value: "在手表确认后开始计分", comment: ""))
+            step("3", NSLocalizedString("watch_phone_link_step_3", value: "在手表确认并计分，结束后记录自动回传到手机", comment: ""))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(WatchLayout.cardContentPadding)
@@ -127,6 +127,10 @@ struct WatchPhoneLinkView: View {
             Text(testButtonTitle)
                 .font(.system(size: 14, weight: .semibold))
                 .foregroundStyle(Color.white)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .minimumScaleFactor(0.8)
+                .padding(.horizontal, 8)
                 .frame(maxWidth: .infinity)
                 .frame(height: 42)
                 .background(WatchTheme.accent.opacity(linkService.phoneLinkTestState == .testing ? 0.55 : 1))

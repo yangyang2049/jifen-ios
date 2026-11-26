@@ -1,0 +1,422 @@
+/* Watch App - hu */
+
+/* Tab Bar */
+"tab_score" = "Pontszám";
+"tab_tools" = "Eszközök";
+"tab_timer" = "Időzítő";
+
+/* Game Types */
+"game_badminton" = "Tollaslabda";
+"game_pingpong" = "Asztalitenisz";
+"game_tennis" = "Tenisz";
+"game_pickleball" = "Pickleball";
+"game_archery" = "Íjászat";
+"tool_basketball_training" = "Dobóedzés";
+
+/* Tools */
+"tool_flip_coin" = "Pénzfeldobás";
+"tool_random_number" = "Véletlen szám";
+"tool_ten_second" = "Állítsd meg az órát";
+"game_counter" = "Számláló";
+"press_again_to_reset" = "Koppints újra a visszaállításhoz";
+
+/* Records */
+"records" = "Előzmények";
+"loading" = "Betöltés";
+"no_records" = "Nincsenek előzmények";
+"record_not_found" = "A bejegyzés nem található";
+"match_details" = "Mérkőzés részletei";
+"match_record" = "Mérkőzés-előzmény";
+"delete_record" = "Bejegyzés törlése";
+"confirm_deletion" = "Erősítse meg a törlést";
+"cannot_be_recovered_after_deletion" = "Ez nem vonható vissza";
+"date" = "Dátum";
+"time" = "Idő";
+"duration" = "Időtartam";
+
+/* Common */
+"cancel" = "Mégse";
+"confirm" = "Erősítse meg";
+"delete" = "Törlés";
+"setup" = "Beállítás";
+"vibration" = "Rezgés";
+"sound" = "Hang";
+"watch_scoreboard_keep_screen_on" = "Tartsa bekapcsolva a képernyőt";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Súgó";
+"usage_prompt_message" = "Pontért koppints a megfelelő oldalra\nA visszavonáshoz húzd le\nA menühöz tartsd nyomva";
+"got_it" = "Megvan";
+
+/* Privacy */
+"privacy_policy" = "Adatvédelmi szabályzat";
+"scan_to_view_details" = "A részletekért olvasd be a kódot";
+
+/* Settings / About */
+"version" = "Verzió";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Visszajelzés";
+"watch_contact_us" = "Kapcsolat";
+
+/* Scoreboard menu */
+"menu_undo" = "Visszavonás";
+"menu_reset" = "Visszaállítás";
+"watch_continue" = "Folytatás";
+"watch_end_match" = "Befejezés";
+"watch_layout_vertical" = "Függőleges";
+"watch_layout_horizontal" = "Vízszintes";
+"watch_settings_layout_title" = "Elrendezés";
+"watch_reset_toast" = "Visszaállítás";
+"watch_undo_toast" = "Visszavonva";
+"watch_play_again" = "Játssz újra";
+"watch_exit" = "Kilépés";
+"exit" = "Kilépés";
+"watch_team_red" = "Piros";
+"watch_team_blue" = "Kék";
+"team_a" = "A csapat";
+"team_b" = "B csapat";
+"team_home" = "Hazai";
+"team_away" = "Vendég";
+"player_a" = "A játékos";
+"player_b" = "B játékos";
+"archer_a" = "Íjász A";
+"archer_b" = "Íjász B";
+"linked_score_confirm_title" = "Telefon–óra kapcsolat?";
+"linked_score_phone_started_scoreboard" = "Telefon–óra kapcsolat · A játék elindult";
+"linked_score_accept" = "Elfogadás";
+"linked_score_reject" = "Elutasítás";
+"linked_score_watch_reclaim" = "Átvétel";
+"linked_score_setup_rules" = "%1$d játszma · %2$d pont";
+"linked_score_setup_rules_sets" = "%d játszma";
+"linked_score_setup_race_to" = "Cél %d";
+"linked_score_sport_badminton" = "Tollaslabda egyes";
+"linked_score_sport_badminton_doubles" = "Tollaslabda páros";
+"linked_score_sport_pingpong" = "Asztalitenisz egyes";
+"linked_score_sport_pingpong_doubles" = "Asztalitenisz páros";
+"linked_score_sport_tennis" = "Tenisz egyes";
+"linked_score_sport_tennis_doubles" = "Tenisz páros";
+"linked_score_sport_pickleball" = "Pickleball egyes";
+"linked_score_sport_pickleball_doubles" = "Pickleball páros";
+"game_basketball" = "Kosárlabda";
+"game_three_basketball" = "3x3 kosárlabda";
+"linked_score_sport_archery" = "Íjászat";
+"linked_score_sport_eight_ball" = "Nyolcgolyós";
+"linked_score_sport_nine_ball" = "9-ball chase";
+"linked_score_sport_snooker" = "Snooker";
+"linked_score_sport_shuttlecock" = "Jianzi";
+"linked_score_sport_squash" = "Squash";
+"linked_score_sport_foosball" = "Csocsó";
+"linked_score_sport_football" = "Labdarúgás";
+"linked_score_sport_football_5v5" = "5×5 futball";
+"watch_menu_end_match" = "Mérkőzés befejezése";
+"watch_menu_restart" = "Indítsa újra";
+"watch_bball_overtime" = "Hosszabbítás";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d játékos";
+"archery_closest_title" = "Szétlövés · Középponthoz legközelebb";
+"archery_closest_message" = "Döntetlen %d pontnál — válassza a középponthoz közelebbi nyilat";
+"watch_set_end_format" = "%d. játszma befejezve";
+"watch_match_start" = "A játék elindult";
+"watch_match_finished" = "A mérkőzés befejeződött";
+"watch_bb_hit_rate" = "Találati arány";
+"watch_bb_end_training" = "Edzés befejezése";
+"watch_training_finish_confirm_title" = "Befejezed az edzést?";
+"watch_training_finish_confirm_message" = "Az edzés véget ér és mentésre kerül.";
+"watch_counter_finish_confirm_title" = "Befejezed a számlálást?";
+"watch_counter_finish_confirm_message" = "A szám mentésre kerül, és a számláló nulláról indul.";
+"watch_bb_restart" = "Indítsa újra";
+
+/* Records */
+"clear_all_records" = "Összes előzmény törlése";
+"clear_all_records_message" = "Minden rekord végleg törlődik.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Fej";
+"watch_coin_tails" = "Írás";
+"watch_archery_miss" = "Mellé";
+"watch_flip_coin_hint" = "Érintsd meg az érmefeldobáshoz";
+"watch_ten_second_challenge" = "Állítsd meg az órát";
+"watch_ten_second_usage" = "Koppints az indításhoz, majd újra a célidőnél.";
+"watch_mid_game_rest" = "Szünet a játszma közepén";
+"watch_rest_between_sets" = "Szünet a játszmák között";
+"watch_official_timeout" = "Időkérés";
+"watch_medical_break" = "Orvosi";
+"watch_score_event_set_title" = "%d. játszma befejezve";
+"watch_score_event_set_detail" = "%1$@ Nyer %2$d:%3$d · Játszmák %4$d:%5$d";
+"watch_score_event_mid_game_title" = "%d. játszma · Szünet a játszma közepén";
+"watch_score_event_mid_game_detail" = "%1$@ Vezet %2$d:%3$d · Játszmák %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "%d. játszma befejezve";
+"watch_score_event_tennis_game_detail" = "%1$@ Nyer · Játékok %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "%d. játszma befejezve";
+"watch_score_event_tennis_set_detail" = "%1$@ Nyer %2$d:%3$d · Játszmák %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "Rövidítés 7 pontig";
+"watch_tiebreak_indicator_10" = "Rövidítés 10 pontig";
+"watch_continue_match" = "Folytatás";
+"watch_continue_scoring" = "Folytatás";
+"watch_resume_discard" = "Félbehagyott meccs elvetése";
+"watch_resume_discard_training" = "Félbehagyott edzés elvetése";
+"unit_hour" = "ó";
+"unit_minute" = "p";
+"unit_second" = "mp";
+"today" = "Ma";
+"yesterday" = "Tegnap";
+
+/* Sports setup */
+"watch_setup_start" = "Indítás";
+"watch_setup_sets" = "Játszmák";
+"watch_setup_points_per_set" = "Pontok játszmánként";
+"watch_setup_tennis_deuce" = "Egyenlő állás szabálya";
+"watch_setup_tennis_advantage" = "Előny";
+"watch_setup_tennis_no_ad" = "Előny nélkül";
+"watch_setup_target_score" = "Célpontszám";
+"watch_setup_rally_scoring" = "Minden labdamenetért pont";
+"watch_setup_target_racks" = "Cél";
+"watch_setup_race_racks" = "Győzelemig";
+"watch_setup_race_racks_help" = "3 = elsőként 3 frame";
+"watch_setup_handicap" = "Hendikep";
+"watch_setup_handicap_none" = "Nincs";
+"watch_setup_handicap_red_gives_blue" = "Piros → Kék";
+"watch_setup_handicap_blue_gives_red" = "Kék → Piros";
+"watch_setup_handicap_racks" = "Hendikepjátékok";
+"watch_setup_frames" = "Fréme-ek";
+"watch_setup_custom_frames" = "Egyéni játszmaszám";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Írja be az 1-99 értéket";
+"watch_setup_players" = "Játékosok";
+"watch_setup_archers" = "Íjászok";
+"watch_setup_player_number" = "Játékos %d";
+"watch_setup_red_a" = "Piros A";
+"watch_setup_red_b" = "Piros B";
+"watch_setup_blue_a" = "Kék A";
+"watch_setup_blue_b" = "Kék B";
+"watch_setup_name_missing" = "Tölts ki minden nevet, vagy hagyd mindet üresen";
+"watch_setup_select_players" = "Játékosok";
+"watch_setup_player_count" = "%d játékos";
+"watch_common_names_select_player" = "Játékos kiválasztása";
+"watch_common_names_no_records" = "Nincsenek mentett nevek";
+"watch_common_names_title" = "Mentett nevek";
+"watch_common_names_add" = "Hozzáadás";
+"watch_common_names_edit" = "Név szerkesztése";
+"watch_common_names_delete_title" = "Törlöd a nevet?";
+"watch_common_names_error_title" = "Nem sikerült frissíteni";
+"watch_common_names_players" = "Játékosok";
+"watch_common_names_teams" = "csapatok";
+"watch_common_names_empty" = "Nincsenek mentett nevek";
+"watch_common_names_team_placeholder" = "Csapat neve";
+"watch_common_names_player_placeholder" = "Játékos neve";
+"watch_common_names_length_hint" = "Legfeljebb %d karakter";
+"watch_common_names_error_empty" = "A név nem lehet üres";
+"watch_common_names_error_duplicate" = "A név már létezik";
+"watch_common_names_error_missing" = "A bejegyzés nem található · Próbáld újra";
+"watch_common_names_error_generic" = "Nem sikerült menteni. Kérjük, próbálja újra.";
+"watch_common_names_sync_now" = "Szinkronizálás most";
+"watch_common_names_actions" = "Mentett nevek";
+"watch_common_names_sync_requested" = "Szinkronizálásra vár";
+"watch_common_names_sync_queued" = "A telefon nincs csatlakoztatva · Szinkronizálásra vár";
+"watch_common_names_sync_inactive" = "A telefon nincs csatlakoztatva";
+"watch_common_names_sync_failed" = "Sikertelen kapcsolódás · Próbáld újra";
+"watch_common_names_sync_conflict" = "Néhány módosítás nem szinkronizálódott";
+"watch_common_names_sync_pending" = "Szinkronizálásra vár";
+"watch_common_names_sync_unavailable" = "A telefon nincs csatlakoztatva";
+"watch_common_names_sync_done" = "Szinkronizálva";
+"watch_common_names_pending_count" = "Szinkronizálásra vár · %d";
+"watch_common_names_never_synced" = "Még nem szinkronizált";
+"watch_common_names_last_sync" = "Utolsó szinkronizálás %@";
+
+"watch_phone_link_title" = "Órakapcsolat";
+"watch_phone_link_intro" = "Indítsd el a telefonon, pontozz az órán";
+"watch_phone_link_support" = "Tollaslabda · Labdarúgás · Íjászat · Dobóedzés…";
+"watch_phone_link_status" = "Kapcsolat állapota";
+"watch_phone_link_steps" = "Hogyan kell használni";
+"watch_phone_link_step_1" = "Állíts be meccset vagy dobógyakorlatot a telefonon.";
+"watch_phone_link_step_2" = "Kezdés · Apple Watch";
+"watch_phone_link_step_3" = "Pontozz az órán. A rekord a végén szinkronizálódik.";
+"watch_phone_link_help" = "Párosítsd az eszközöket, telepítsd az iScoreboardot mindkettőre, majd nyisd meg a telefonon.";
+"watch_phone_link_testing" = "Tesztelés";
+"watch_phone_link_normal" = "Csatlakoztatva";
+"watch_phone_link_failed" = "Sikertelen kapcsolódás";
+"watch_phone_link_reachable" = "Csatlakoztatva";
+"watch_phone_link_waiting" = "Várakozás a telefonra";
+"watch_phone_link_inactive" = "A telefon nincs csatlakoztatva";
+"watch_phone_link_testing_detail" = "Várakozás a telefonra";
+"watch_phone_link_normal_detail" = "Csatlakoztatva";
+"watch_phone_link_failed_detail" = "A telefon 8 másodpercig nem válaszolt.";
+"watch_phone_link_failed_inactive" = "A telefon nincs csatlakoztatva · Próbáld újra";
+"watch_phone_link_failed_unreachable" = "Nyisd meg az iScoreboardot a telefonon, majd próbáld újra.";
+"watch_phone_link_failed_send" = "Sikertelen kapcsolódás · Próbáld újra";
+"watch_phone_link_reachable_detail" = "Teszt";
+"watch_phone_link_waiting_detail" = "Nyisd meg az iScoreboardot a telefonon, majd próbáld újra.";
+"watch_phone_link_test_waiting" = "Tesztelés…";
+"watch_phone_link_test_retry" = "Próbáld újra";
+"watch_phone_link_test" = "Teszt";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Utolsó kapcsolat %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Edzésmód";
+"watch_bb_1pt" = "1 pont";
+"watch_bb_2pt" = "2 pont";
+"watch_bb_3pt" = "3 pont";
+"watch_bb_free" = "Szabad";
+"watch_training_miss" = "Rontott";
+"watch_training_made" = "Talált";
+"watch_training_point_value" = "%d pont";
+"watch_training_breakdown" = "Dobások részletei";
+"watch_training_start" = "Dobóedzés · Kezdés";
+"watch_training_rate_format" = "Találati arány %d%%";
+"watch_training_action_format" = "%d pont · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Rögzíted felülre?";
+"watch_home_pin_confirm" = "Rögzítés";
+"watch_home_unpin_title" = "Rögzítés feloldása?";
+"watch_home_unpin_confirm" = "Rögzítés feloldása";
+"watch_home_pin_full_title" = "Rögzítési korlát";
+"watch_home_pin_full_message" = "Legfeljebb 2 elem rögzíthető. Előbb oldj fel egyet.";
+"watch_home_pin_hint" = "Rögzítés hosszú nyomással";
+"watch_home_pin_success" = "Rögzített";
+"watch_home_unpin_success" = "Rögzítés feloldva";
+"multi_score_player_default_format" = "Játékos %d";
+"nine_ball_big_gold" = "Nagy arany";
+"nine_ball_small_gold" = "Kis arany";
+"nine_ball_golden_nine" = "Arany 9";
+"nine_ball_normal_win" = "Sima győzelem";
+"nine_ball_ball_in_hand" = "Labda a kézben";
+"nine_ball_foul" = "Szabálytalanság";
+"watch_archery_set_rest" = "Játszmaszünet";
+"watch_finish_confirm_title" = "Mérkőzés befejezése?";
+"watch_finish_confirm_message" = "A meccs véget ér és mentésre kerül.";
+"watch_reset_confirm_title" = "Újrakezded a meccset?";
+"watch_reset_confirm_message" = "A jelenlegi eredmény törlődik.";
+"watch_side_exchange" = "Térfélcsere";
+"watch_winner_format" = "%@ Nyer";
+"watch_finished_win_badge" = "Gy";
+"watch_finished_winner" = "Győztes";
+"watch_finished_home" = "Kezdőlap";
+"watch_snooker_foul" = "Szabálytalanság";
+"watch_snooker_foul_selected_format" = "Szabálytalanság +%d";
+"watch_snooker_foul_next_turn" = "Következő játékos";
+"watch_snooker_foul_switch_turn" = "Következő játékos";
+"watch_snooker_foul_continue" = "Folytatás";
+"watch_action_snooker_foul_continue_format" = "%@· Szabálytalanság · Ellenfél +%d · A szabálytalankodó folytatja";
+"watch_snooker_handover" = "Következő játékos";
+"watch_snooker_settle_frame" = "Frém lezárása";
+"watch_snooker_choose_frame_winner" = "Frém győztesének kiválasztása";
+"watch_snooker_frame_finished" = "A kör befejeződött";
+"watch_snooker_next_frame" = "Következő frém";
+"watch_training_breakdown_format" = "%d pont · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Azonos távolság. Folytassa a szétlövést.";
+"edit" = "Szerkesztés";
+"game_badminton_doubles" = "Tollaslabda páros";
+"game_eight_ball" = "Nyolcgolyós";
+"game_nine_ball" = "9-ball chase";
+"game_pickleball_doubles" = "Pickleball páros";
+"game_pingpong_doubles" = "Asztalitenisz páros";
+"game_snooker" = "Snooker";
+"game_tennis_doubles" = "Tenisz páros";
+"save" = "Mentés";
+"watch_action_adjust_score_format" = "%@· A pontszám megváltozott";
+"watch_action_archery_arrow_format" = "%@+%d pont";
+"watch_action_archery_closest" = "Szétlövés · Középponthoz legközelebb";
+"watch_action_archery_miss_format" = "%@· Mellé";
+"watch_action_archery_set_ready" = "Íjászat · A kör befejeződött";
+"watch_action_ball_potted_format" = "%@ · Begurított golyó %@";
+"watch_action_basketball_foul_format" = "%@· Szabálytalanság";
+"watch_action_basketball_period_format" = "%d időszak · Kezdés";
+"watch_action_basketball_timeout_format" = "%@· Időkérés";
+"watch_action_edit_name" = "Frissítve";
+"watch_action_exchange_sides" = "Térfélcsere";
+"watch_action_exchange_sides_reminder" = "Kérjük, cseréljenek térfelet kézzel";
+"watch_action_game_finished_format" = "%1$d. játszma befejezve · %2$@ Nyer";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ Nyer";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "%1$d. játszma befejezve · %2$@ Nyer";
+"watch_action_shooter_format" = "%@ kezdi a lövést";
+"watch_action_side_out_format" = "Adogatás · %@";
+"watch_action_snooker_foul_format" = "%@· Szabálytalanság · Ellenfél +%d";
+"watch_action_snooker_frame_format" = "%1$d. frém · %2$@ Nyer";
+"watch_action_snooker_handover_format" = "Következő játékos · %@";
+"watch_action_snooker_miss_format" = "%@· Rontott";
+"watch_action_snooker_next_frame_format" = "%d. frém · Kezdés";
+"watch_action_snooker_pot_format" = "%@· Begurított golyó +%d";
+"watch_record_actions_unavailable" = "Nincsenek előzmények";
+"linked_score_error_title" = "Sikertelen kapcsolódás";
+"linked_score_persistence_failed" = "Telefon–óra kapcsolat · Sikertelen mentés: %@";
+"resume_persistence_error_title" = "Nem sikerült menteni";
+"resume_persistence_failed" = "Meccs folytatása · Sikertelen mentés: %@";
+"linked_score_control_timeout" = "Átvétel · Időtúllépés · Próbáld újra";
+"linked_score_sync_timeout" = "Időtúllépés · Szinkronizálásra vár";
+
+/* Football */
+"game_football" = "Labdarúgás";
+"game_football_5v5" = "5×5 futball";
+"watch_setup_half_length" = "Félidő hossza";
+"watch_setup_teams" = "csapatok";
+"football_first_half" = "Első félidő";
+"football_second_half" = "Második félidő";
+"football_extra_time_first" = "Hosszabbítás – első félidő";
+"football_extra_time_second" = "Hosszabbítás – második félidő";
+"football_first_half_over" = "Az első félidő véget ért";
+"football_switch_half" = "Második félidő";
+"football_switch_half_title" = "Elkezdi a második félidőt?";
+"football_switch_half_message" = "Az első félidő szünetel, és nem nyitható újra.";
+"football_extra_time_first_over" = "Hosszabbítás – első félidő · A kör befejeződött";
+"football_switch_extra_time_half" = "Hosszabbítás – második félidő";
+"football_enter_extra_time_title" = "A rendes játékidő véget ért";
+"football_post_regulation_action" = "Rendes játékidő után";
+"football_injury_title" = "Ráadás";
+"football_undo_stoppage" = "Ráadás visszavonása";
+"football_enter_extra_time" = "Hosszabbítás indítása";
+"football_end_as_draw" = "Vége döntetlenként";
+"football_goal_hint" = "Érintsd meg egy gólhoz";
+"watch_football_start" = "Indítás";
+"watch_football_pause" = "Szünet";
+"watch_football_resume" = "Folytatás";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Kezdés · %@";
+"watch_action_football_stoppage_format" = "Ráadás +%d mp";
+"watch_action_football_clock_start" = "Az időzítő elindult";
+"watch_action_football_clock_pause" = "Az időzítő szünetel";
+"watch_record_sync_sent" = "Szinkronizálva";
+"watch_record_sync_pending" = "Szinkronizálásra vár";
+"watch_record_sync_not_synced" = "Nincs szinkronizálva az iPhone-nal";
+"watch_record_sync_action" = "Szinkronizálás iPhone-nal";
+"watch_settings_auto_sync_records" = "Automatikus szinkron";
+"game_shuttlecock" = "Jianzi";
+"game_squash" = "Squash";
+"game_foosball" = "Csocsó";
+
+"watch_setup_win_by_two" = "Döntő játszma megnyerése 2 ponttal";
+"watch_setup_score_cap" = "Pontszám felső határa";
+"watch_setup_serving_side" = "Első adogató";
+"watch_setup_kickoff_side" = "Első kezdőrúgás";
+"watch_setup_side_left" = "Piros";
+"watch_setup_side_right" = "Kék";
+
+"watch_about_us" = "Rólunk";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "%@ verzió";
+"watch_wechat_group_title" = "WeChat csoport";
+"watch_wechat_group_scan_hint" = "WeChat · A részletekért olvasd be a kódot";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Kezdőlökés";
+"watch_nine_ball_select_payer" = "Fizető játékos";
+"watch_nine_ball_select_continue" = "Következő játékos";
+"watch_nine_ball_prev_player" = "Előző";
+"watch_nine_ball_next_player" = "Következő";
+"watch_nine_ball_continue_badge" = "Játszás";
+
+"watch_a11y_points_format" = "%d pont";
+"watch_a11y_sets_format" = "%d játszma";
+"watch_a11y_serving" = "Adogatás";
+
+"watch_phone_shared_link_intro" = "Indítsd a telefonon, és rögzítsd a pontokat bármelyik eszközön.";
+"linked_score_simultaneous_edit" = "Mindkét eszközön történt módosítás. Ellenőrizd az állást.";

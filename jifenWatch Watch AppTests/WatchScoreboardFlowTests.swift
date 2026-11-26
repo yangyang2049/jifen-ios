@@ -283,4 +283,83 @@ final class WatchScoreboardFlowTests: XCTestCase {
 
         XCTAssertEqual(WatchSupportLink.wechatGroup, "https://c.weixin.com/g/n1ltxDV-Ogi46YYG")
     }
+
+    // MARK: - 联动确认页按表盘尺寸自适应
+
+    func testLinkedSetupConfirmationLayoutScalesAcrossWatchSizes() {
+        let compact40 = WatchLinkedSetupConfirmationLayout.resolve(screenSize: CGSize(width: 162, height: 197))
+        let medium44 = WatchLinkedSetupConfirmationLayout.resolve(screenSize: CGSize(width: 184, height: 224))
+        let large46 = WatchLinkedSetupConfirmationLayout.resolve(screenSize: CGSize(width: 208, height: 248))
+        let ultra49 = WatchLinkedSetupConfirmationLayout.resolve(screenSize: CGSize(width: 205, height: 251))
+
+        XCTAssertEqual(compact40.tier, .compact)
+        XCTAssertEqual(medium44.tier, .medium)
+        XCTAssertEqual(large46.tier, .large)
+        XCTAssertEqual(ultra49.tier, .large)
+
+        XCTAssertLessThan(compact40.iconSize, medium44.iconSize)
+        XCTAssertLessThan(medium44.iconSize, ultra49.iconSize)
+        XCTAssertLessThan(compact40.summaryFontSize, medium44.summaryFontSize)
+        XCTAssertLessThan(medium44.summaryFontSize, ultra49.summaryFontSize)
+        XCTAssertLessThan(compact40.nameFontSize, ultra49.nameFontSize)
+        XCTAssertLessThan(compact40.sectionSpacing, ultra49.sectionSpacing)
+        XCTAssertLessThan(compact40.actionDiameter, ultra49.actionDiameter)
+    }
+
+    // MARK: - 休息状态与 OfficialBreakState 双向映射
+
+    func testWatchRestStateMapsToAndFromOfficialBreakState() {
+        let started = Date(timeIntervalSince1970: 1_735_000_000)
+        let midGame = WatchRestState(
+            kind: .midGame,
+            title: "局中休息",
+            durationSeconds: 60,
+            startedAt: started,
+            triggerID: "badminton-mid-1-11"
+        )
+        let mappedMid = midGame.officialBreakState(for: .badminton)
+        XCTAssertEqual(mappedMid?.sport, .badminton)
+        XCTAssertEqual(mappedMid?.kind, .midGame)
+        XCTAssertEqual(mappedMid?.durationSeconds, 60)
+        XCTAssertEqual(mappedMid?.startedWallClockMilliseconds, 1_735_000_000_000)
+        XCTAssertTrue(mappedMid?.isRunning == true)
+
+        let betweenSets = WatchRestState(
+            kind: .betweenSets,
+            title: "局间休息",
+            durationSeconds: 120,
+            startedAt: started,
+            triggerID: "set-1"
+        )
+        let mappedBadmintonSet = betweenSets.officialBreakState(for: .badmintonDoubles)
+        XCTAssertEqual(mappedBadmintonSet?.sport, .badminton)
+        XCTAssertEqual(mappedBadmintonSet?.kind, .gameBreak)
+        XCTAssertEqual(mappedBadmintonSet?.durationSeconds, 120)
+
+        let mappedTennisSet = betweenSets.officialBreakState(for: .tennisDoubles)
+        XCTAssertEqual(mappedTennisSet?.sport, .tennis)
+        XCTAssertEqual(mappedTennisSet?.kind, .setBreak)
+        XCTAssertEqual(mappedTennisSet?.durationSeconds, 120)
+
+        let restoredMid = WatchRestState.fromOfficialBreak(mappedMid, now: started.addingTimeInterval(10))
+        XCTAssertEqual(restoredMid?.kind, .midGame)
+        XCTAssertEqual(restoredMid?.durationSeconds, 60)
+        XCTAssertEqual(restoredMid?.remainingSeconds(at: started.addingTimeInterval(10)), 50)
+
+        let medical = OfficialBreakState(
+            sport: .badminton,
+            kind: .medical,
+            durationSeconds: 0,
+            nowMilliseconds: 1_735_000_000_000,
+            countUp: true
+        )
+        let restoredMedical = WatchRestState.fromOfficialBreak(medical, now: started.addingTimeInterval(90))
+        XCTAssertEqual(restoredMedical?.countUp, true)
+        XCTAssertEqual(restoredMedical?.elapsedSeconds(at: started.addingTimeInterval(90)), 90)
+
+        var stopped = mappedMid
+        stopped?.isRunning = false
+        XCTAssertNil(WatchRestState.fromOfficialBreak(stopped, now: started))
+        XCTAssertNil(WatchRestState.fromOfficialBreak(nil, now: started))
+    }
 }

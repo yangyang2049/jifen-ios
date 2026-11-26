@@ -17,6 +17,8 @@ struct GroupMatchEditor: View {
     @State private var ids = ["", "", "", ""]
     @State private var servingSide = "left"
     @State private var setup = SportsSetupResult(team1Name: "", team2Name: "")
+    /// 活动开赛的赛制草稿：与本机 Setup 共用同一套控件与预设。
+    @State private var setupDraft = SportsSetupDraft()
     @State private var presentedAccountID: String?
     @State private var frozenRules: GroupMatchRules?
     @State private var frozenLoading = false
@@ -37,15 +39,30 @@ struct GroupMatchEditor: View {
     private var seatIDs: [String] { format == .singles ? [ids[0],ids[2]] : ids }
     private var ready: Bool { seatIDs.allSatisfy { !$0.isEmpty } && Set(seatIDs).count == seatIDs.count }
     private var validManualResult: Bool { !manual || (playedAt <= Date() && resultDraft.isValid(currentRules)) }
+    /// 小组默认值：赛制草稿只覆盖本场可变字段，其余开关继续沿用小组配置。
+    private var sportCapability: GroupSportCapability? { store.capabilities?.sport(detail.group.sport) }
+    private var serverDefaultRules: GroupMatchRules? { sportCapability?.defaultRules }
+    private var defaultRules: GroupMatchRules {
+        if let serverDefaultRules { return serverDefaultRules }
+        return GroupMatchRules(sport: detail.group.sport, setup: setup)
+    }
+    /// 活动排阵后的开赛复用本机 Setup 定稿样式；补记结果、训练和历史记录仍走原有入口。
+    private var usesSharedSetup: Bool {
+        !manual && GroupSport.racketSports.contains(detail.group.sport) && editableRules
+            && (activity != nil || activitySession != nil)
+    }
     private var currentRules: GroupMatchRules {
         if let frozenRules { return frozenRules }
         if let capability = store.capabilities?.sport(detail.group.sport), capability.supportsCustomRules == false, let defaults = capability.defaultRules { return defaults }
+        if usesSharedSetup { return GroupMatchSetupBridge.rules(from: setupDraft, sport: detail.group.sport, base: defaultRules) }
         return GroupMatchRules(sport: detail.group.sport, setup: setup)
     }
     private var seats: [GroupSeat] { seatIDs.enumerated().map { i,id in .init(memberId: id, side: i < format.seatsPerSide ? "A" : "B", seat: i % format.seatsPerSide, displayName: frozenSeats?.first(where: { $0.memberId == id })?.displayName ?? activitySession?.seats.first(where: { $0.memberId == id })?.displayName ?? trainingSession?.seats.first(where: { $0.memberId == id })?.displayName ?? choices.first { $0.id == id }?.displayName) } }
     private var rosterFrozen: Bool { trainingSession != nil || activitySession != nil || frozenRules != nil }
     private var editableRules: Bool {
-        !rosterFrozen && !frozenLoading && !frozenLoadFailed &&
+        // 排定活动锁定席位，未开赛的场次仍可选规则。
+        boundGameID == nil && frozenRules == nil && !frozenLoading && !frozenLoadFailed &&
+        trainingSession == nil && (activitySession == nil || (!manual && activitySession?.frozen == false)) &&
         store.capabilities?.sport(detail.group.sport) != nil &&
         store.capabilities?.sport(detail.group.sport)?.supportsCustomRules != false
     }
@@ -54,6 +71,14 @@ struct GroupMatchEditor: View {
     }
     private var canSubmit: Bool {
         ready && validManualResult && !busy && store.enabled && currentDetail.group.isActive && !frozenLoading && !frozenLoadFailed
+    }
+
+    private var matchContext: String {
+        let orderNo = activitySession?.orderNo ?? trainingSession?.orderNo
+        let matchNumber = orderNo.map { String(format: groupText("activity_lineup_session", "Match %d"), $0) }
+        let title = matchNumber ?? activity?.title ?? ""
+        let court = activitySession?.court ?? trainingSession?.court ?? ""
+        return [title, court, format.title].filter { !$0.isEmpty }.joined(separator: " · ")
     }
 
     var body: some View {
@@ -96,7 +121,9 @@ struct GroupMatchEditor: View {
     private var editorContent: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.lg) {
-                if activity == nil && trainingSession == nil {
+                if !manual && (rosterFrozen || activity != nil) {
+                    Text(matchContext).font(GroupTypography.body).foregroundStyle(Theme.textSecondary)
+                } else if activity == nil && trainingSession == nil {
                     GroupMatchFormatChoices(format: $format)
                         .disabled(rosterFrozen || frozenLoading || frozenLoadFailed)
                         .accessibilityIdentifier("group_match_format")
@@ -109,6 +136,7 @@ struct GroupMatchEditor: View {
                 }
                 GroupInlineMatchRoster(format: format, ids: $ids, members: choices, frozen: rosterFrozen,
                                        frozenSeats: frozenSeats ?? activitySession?.seats ?? trainingSession?.seats ?? [],
+                                       showSeatBorders: manual || !rosterFrozen,
                                        opensPicker: !manual,
                                        rosterGroupID: activity == nil && trainingSession == nil && frozenRules == nil ? detail.group.id : nil)
                     .disabled(frozenLoading || frozenLoadFailed)
@@ -129,24 +157,34 @@ struct GroupMatchEditor: View {
                         .accessibilityLabel(groupText("played_at", "Played at"))
                         .accessibilityIdentifier("group_result_played_at")
                 }
-                Text(manual ? groupText("score_and_rules", "Score and rules") : groupText("match_rules", "Match rules"))
-                    .font(.system(size: Theme.fontBody1, weight: .medium)).foregroundStyle(Theme.textPrimary)
-                VStack(alignment: .leading, spacing: Theme.sm) {
-                    if manual { Text(groupText("match_rules", "Match rules")).font(.system(size: Theme.fontBody2, weight: .medium)) }
-                    GroupMatchRuleSummary(rules: currentRules, expanded: rulesExpanded, editable: editableRules) {
-                        rulesExpanded.toggle()
+                if usesSharedSetup {
+                    // 赛制区本身不设容器标识：SwiftUI 会把容器标识盖到每个子控件上。
+                    GroupMatchSetupSection(
+                        rules: currentRules, sport: detail.group.sport, draft: $setupDraft,
+                        pointPresets: sportCapability?.ruleOptions?.pointsToWinSet
+                    )
+                        .padding(Theme.padding).frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 12))
+                } else {
+                    Text(manual ? groupText("score_and_rules", "Score and rules") : groupText("match_rules", "Match rules"))
+                        .font(.system(size: Theme.fontBody1, weight: .medium)).foregroundStyle(Theme.textPrimary)
+                    VStack(alignment: .leading, spacing: Theme.sm) {
+                        if manual { Text(groupText("match_rules", "Match rules")).font(.system(size: Theme.fontBody2, weight: .medium)) }
+                        GroupMatchRuleSummary(rules: currentRules, expanded: rulesExpanded, editable: editableRules) {
+                            rulesExpanded.toggle()
+                        }
+                        if rulesExpanded && editableRules {
+                            GroupRulesFields(rules: rulesBinding, capability: store.capabilities?.sport(detail.group.sport))
+                        }
+                        if manual {
+                            Divider().padding(.vertical, Theme.sm)
+                            Text(groupText("match_score", "Match score")).font(.system(size: Theme.fontBody2, weight: .medium))
+                            GroupResultScoreControls(draft: $resultDraft, rules: currentRules)
+                        }
                     }
-                    if rulesExpanded && editableRules {
-                        GroupRulesFields(rules: rulesBinding, capability: store.capabilities?.sport(detail.group.sport))
-                    }
-                    if manual {
-                        Divider().padding(.vertical, Theme.sm)
-                        Text(groupText("match_score", "Match score")).font(.system(size: Theme.fontBody2, weight: .medium))
-                        GroupResultScoreControls(draft: $resultDraft, rules: currentRules)
-                    }
+                    .padding(Theme.padding).frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 12))
                 }
-                .padding(Theme.padding).frame(maxWidth: .infinity, alignment: .leading)
-                .background(Theme.cardBackground, in: RoundedRectangle(cornerRadius: 12))
                 if let error { GroupNotice(text: error) }
                 if frozenLoadFailed {
                     Button(groupText("retry", "Retry")) { Task { await loadFrozenGame() } }.disabled(frozenLoading)
@@ -178,14 +216,25 @@ struct GroupMatchEditor: View {
         }
         .onChange(of: store.identityRevision) { _, _ in dismiss() }
         .task { await initialize() }
+        .onChange(of: serverDefaultRules) { previous, current in
+            guard initialized, previous == nil, let current, frozenRules == nil,
+                  boundGameID == nil, setup.groupMatchRules == nil else { return }
+            setup = current.setup(format: format)
+            setupDraft = GroupMatchSetupBridge.draft(
+                from: current, format: format, pointPresets: sportCapability?.ruleOptions?.pointsToWinSet
+            )
+        }
         .onChange(of: resultDraft.detailsExpanded) { _, value in if value { resultDraft.reconcileDetails(currentRules) } }
         .onChange(of: resultDraft.total) { _, _ in resultDraft.reconcileDetails(currentRules) }
     }
     private func initialize() async {
         guard !initialized else { return }; initialized = true; presentedAccountID = store.accountID
         format = activitySession?.format ?? trainingSession?.format ?? activity?.format ?? .singles
-        if let defaults = store.capabilities?.sport(detail.group.sport)?.defaultRules { setup = defaults.setup(format: format) }
+        if let serverDefaultRules { setup = serverDefaultRules.setup(format: format) }
         else { setup.maxSets = detail.group.sport == .tableTennis ? 5 : 3 }
+        setupDraft = GroupMatchSetupBridge.draft(
+            from: defaultRules, format: format, pointPresets: sportCapability?.ruleOptions?.pointsToWinSet
+        )
         let fixed = activitySession?.seats ?? trainingSession?.seats
         if let fixed { for seat in fixed where (0..<2).contains(seat.seat) { ids[(seat.side == "A" ? 0 : 2) + seat.seat] = seat.memberId } }
         playedAt = min(Date(), activitySession?.date ?? trainingSession?.date ?? activity?.date ?? Date())

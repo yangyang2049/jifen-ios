@@ -39,6 +39,7 @@ struct WatchSnookerScoreView: View {
     @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let linkedSessionId: UUID?
+    @State private var showRecordSaveFailure = false
     @State private var leftName: String
     @State private var rightName: String
     @State private var state: SnookerState
@@ -143,15 +144,15 @@ struct WatchSnookerScoreView: View {
                 WatchFinishedOverlay(
                     title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
                     scoreItems: [
-                        WatchFinishedScoreItem(name: leftName, score: String(state.leftFrames)),
-                        WatchFinishedScoreItem(name: rightName, score: String(state.rightFrames))
+                        WatchFinishedScoreItem(name: leftName, score: state.maxFrames == 1 ? state.leftScore : state.leftFrames),
+                        WatchFinishedScoreItem(name: rightName, score: state.maxFrames == 1 ? state.rightScore : state.rightFrames)
                     ],
-                    winnerText: snookerWinnerText,
                     undoAvailable: finishUndoAvailable,
+                    canPlayAgain: !scoringLocked,
                     onUndo: undoFinishedSnooker,
                     onPlayAgain: restartMatch,
                     onExit: {
-                        finalizeSnooker()
+                        guard finalizeSnooker() else { return }
                         exitSnooker()
                     }
                 )
@@ -164,15 +165,20 @@ struct WatchSnookerScoreView: View {
                 )
             }
         }
+        .watchFinishSaveFailure(isPresented: $showRecordSaveFailure) { finalizeSnooker() }
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
-        .onChange(of: linkService.latestSnapshot) { _, update in
-            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
+        .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
+            guard linkService.incomingSnapshot != nil, let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let remote = update.snapshot.snookerState else { return }
+            if linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+                matchStartTime = Date()
+                actionLog.reset(at: matchStartTime)
+            }
             applyAuthoritativeSnooker(remote, detailedActions: update.detailedActions)
         }
         .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
@@ -295,9 +301,7 @@ struct WatchSnookerScoreView: View {
 
     private func snookerScoringPanel(for side: MatchSide) -> some View {
         let compact = WatchLayout.isCompactScreen
-        return ZStack {
-            WatchTheme.overlayCard
-                .ignoresSafeArea()
+        return WatchFullScreenOverlay(scrim: WatchTheme.overlayCard) { _, _ in
             VStack(spacing: 0) {
                 ScrollView {
                     VStack(spacing: compact ? 8 : 10) {
@@ -322,8 +326,7 @@ struct WatchSnookerScoreView: View {
                                         Text("\(ball.rawValue)")
                                             .font(.system(
                                                 size: compact ? 14 : 16,
-                                                weight: .bold,
-                                                design: .rounded
+                                                weight: .bold
                                             ))
                                             .foregroundStyle(snookerBallTextColor(ball))
                                     }
@@ -390,61 +393,65 @@ struct WatchSnookerScoreView: View {
 
                 WatchMenuCloseButton { scoringSide = nil }
                     .padding(.top, 4)
-                    .padding(.bottom, compact ? 4 : 6)
+                    .padding(.bottom, compact ? 6 : 8)
                     .frame(maxWidth: .infinity)
                     .background(WatchTheme.overlayCard)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 
     private func snookerFoulTurnPanel(_ foul: PendingSnookerFoul) -> some View {
-        ZStack(alignment: .bottom) {
-            WatchTheme.overlayCard
-                .ignoresSafeArea()
+        let compact = WatchLayout.isCompactScreen
+        return WatchFullScreenOverlay(scrim: WatchTheme.overlayCard) { _, _ in
+            ZStack(alignment: .bottom) {
+                VStack(spacing: compact ? 6 : 8) {
+                    Text(String.localizedStringWithFormat(
+                        NSLocalizedString("watch_snooker_foul_selected_format", value: "犯规 +%d", comment: ""),
+                        foul.points
+                    ))
+                    .font(.headline)
+                    .foregroundStyle(.white)
 
-            VStack(spacing: WatchLayout.isCompactScreen ? 6 : 8) {
-                Text(String.localizedStringWithFormat(
-                    NSLocalizedString("watch_snooker_foul_selected_format", value: "犯规 +%d", comment: ""),
-                    foul.points
-                ))
-                .font(.headline)
-                .foregroundStyle(.white)
+                    Text(NSLocalizedString("watch_snooker_foul_next_turn", value: "下一杆", comment: ""))
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.72))
 
-                Text(NSLocalizedString("watch_snooker_foul_next_turn", value: "下一杆", comment: ""))
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.72))
+                    Button {
+                        commitFoul(foul, switchTurn: true)
+                    } label: {
+                        Text(NSLocalizedString("watch_snooker_foul_switch_turn", value: "换手", comment: ""))
+                            .font(.system(size: compact ? 13 : 15, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: compact ? 36 : 40)
+                            .background(WatchTheme.dangerRed, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: WatchLayout.overlayActionButtonWidth)
 
-                Button {
-                    commitFoul(foul, switchTurn: true)
-                } label: {
-                    Text(NSLocalizedString("watch_snooker_foul_switch_turn", value: "换手", comment: ""))
-                        .frame(maxWidth: .infinity, minHeight: WatchLayout.isCompactScreen ? 36 : 42)
+                    Button {
+                        commitFoul(foul, switchTurn: false)
+                    } label: {
+                        Text(NSLocalizedString("watch_snooker_foul_continue", value: "继续击球", comment: ""))
+                            .font(.system(size: compact ? 13 : 15, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: compact ? 36 : 40)
+                            .background(WatchTheme.card, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .frame(width: WatchLayout.overlayActionButtonWidth)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(WatchTheme.dangerRed)
-                .frame(width: WatchLayout.overlayActionButtonWidth)
+                .padding(.horizontal, 8)
+                .padding(.top, compact ? 22 : 28)
+                .padding(.bottom, WatchLayout.overlayCloseButtonSize + 10)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                Button {
-                    commitFoul(foul, switchTurn: false)
-                } label: {
-                    Text(NSLocalizedString("watch_snooker_foul_continue", value: "继续击球", comment: ""))
-                        .frame(maxWidth: .infinity, minHeight: WatchLayout.isCompactScreen ? 36 : 42)
-                }
-                .buttonStyle(.bordered)
-                .frame(width: WatchLayout.overlayActionButtonWidth)
+                WatchMenuCloseButton { pendingFoul = nil }
+                    .padding(.bottom, compact ? 6 : 8)
             }
-            .padding(.horizontal, 8)
-            .padding(.bottom, WatchLayout.overlayCloseButtonSize + 8)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            WatchMenuCloseButton { pendingFoul = nil }
-                .padding(.bottom, WatchLayout.isCompactScreen ? 4 : 6)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 
     private func commitFoul(_ foul: PendingSnookerFoul, switchTurn: Bool) {
@@ -460,10 +467,7 @@ struct WatchSnookerScoreView: View {
 
     private var snookerFrameSettlementPanel: some View {
         let compact = WatchLayout.isCompactScreen
-        return ZStack {
-            WatchTheme.overlayCard
-                .ignoresSafeArea()
-
+        return WatchFullScreenOverlay(scrim: WatchTheme.overlayCard) { _, _ in
             VStack(spacing: 0) {
                 Spacer(minLength: compact ? 30 : 38)
 
@@ -512,19 +516,16 @@ struct WatchSnookerScoreView: View {
 
                 WatchMenuCloseButton { showFrameSettlement = false }
                     .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
-                    .padding(.bottom, compact ? 4 : 8)
+                    .padding(.bottom, compact ? 6 : 10)
             }
             .padding(.horizontal, 12)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 
     private var snookerNextFramePanel: some View {
         let compact = WatchLayout.isCompactScreen
-        return ZStack {
-            Color.black.opacity(0.86).ignoresSafeArea()
+        return WatchFullScreenOverlay(scrim: WatchTheme.overlayCard) { _, _ in
             VStack(spacing: compact ? 8 : 11) {
                 Text(NSLocalizedString("watch_snooker_frame_finished", value: "本局结束", comment: ""))
                     .font(.headline)
@@ -534,27 +535,35 @@ struct WatchSnookerScoreView: View {
                     .monospacedDigit()
                     .foregroundStyle(.white)
                     .padding(.bottom, compact ? 2 : 6)
-                Button(NSLocalizedString("watch_snooker_next_frame", value: "下一局", comment: "")) {
+                Button {
                     apply(.confirmNextFrame)
+                } label: {
+                    Text(NSLocalizedString("watch_snooker_next_frame", value: "下一局", comment: ""))
+                        .font(.system(size: compact ? 14 : 15, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: compact ? 36 : 40)
+                        .background(WatchTheme.successGreen, in: Capsule())
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(WatchTheme.successGreen)
-                .foregroundStyle(.white)
+                .buttonStyle(.plain)
                 .frame(width: WatchLayout.overlayActionButtonWidth)
-                Button(NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: "")) {
+                Button {
                     confirmation = .finish
+                } label: {
+                    Text(NSLocalizedString("watch_menu_end_match", value: "结束比赛", comment: ""))
+                        .font(.system(size: compact ? 14 : 15, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: compact ? 36 : 40)
+                        .background(WatchTheme.card, in: Capsule())
                 }
-                .buttonStyle(.bordered)
+                .buttonStyle(.plain)
                 .frame(width: WatchLayout.overlayActionButtonWidth)
             }
             .padding(.horizontal, 14)
-            .padding(.top, compact ? 18 : 22)
+            .padding(.top, compact ? 24 : 30)
             .padding(.bottom, 12)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(WatchTheme.overlayCard)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 
     private func snookerBallColor(_ ball: SnookerBall) -> Color {
@@ -620,7 +629,7 @@ struct WatchSnookerScoreView: View {
     }
 
     private func publish() {
-        guard linkedSessionId != nil, linkService.isController else { return }
+        guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
         linkService.publishSnapshot(
             .snooker(state),
             detailedActions: actionLog.detailedActions,
@@ -628,10 +637,9 @@ struct WatchSnookerScoreView: View {
         )
     }
 
-    private func saveLocalRecordIfNeeded() {
-        guard linkedSessionId == nil, !didSaveFinishedRecord else { return }
-        guard state.finished || state.leftScore + state.rightScore + state.leftFrames + state.rightFrames > 0 else { return }
-        didSaveFinishedRecord = true
+    private func saveLocalRecordIfNeeded() -> Bool {
+        guard linkedSessionId == nil, !didSaveFinishedRecord else { return true }
+        guard state.finished || state.leftScore + state.rightScore + state.leftFrames + state.rightFrames > 0 else { return true }
         let end = Date()
         let winnerName: String? = {
             if state.leftFrames != state.rightFrames {
@@ -657,7 +665,7 @@ struct WatchSnookerScoreView: View {
             totalScoreChanges: actionLog.scoreChangeCount,
             projectConfiguration: ["maxFrames": String(state.maxFrames)]
         )
-        WatchRecordManager.shared.saveRecord(record)
+        return resumeStore.saveFinishedRecord(record)
     }
 
     private func normalizedLayout(_ raw: String) -> String {
@@ -678,7 +686,7 @@ struct WatchSnookerScoreView: View {
     }
 
     private func restartMatch() {
-        guard !scoringLocked else { return }
+        guard !scoringLocked, finalizeSnooker() else { return }
         resumeStore.clear()
         finishTask?.cancel()
         undoStack.removeAll()
@@ -740,15 +748,6 @@ struct WatchSnookerScoreView: View {
         }
     }
 
-    private var snookerWinnerText: String? {
-        guard state.leftFrames != state.rightFrames else { return nil }
-        let winner = state.leftFrames > state.rightFrames ? leftName : rightName
-        return String.localizedStringWithFormat(
-            NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: ""),
-            winner
-        )
-    }
-
     private func confirmSnooker(_ value: WatchScoreboardConfirmation) {
         confirmation = nil
         switch value {
@@ -789,11 +788,13 @@ struct WatchSnookerScoreView: View {
         }
     }
 
-    private func finalizeSnooker(manualEnd: Bool = false) {
-        guard state.finished, !didSaveFinishedRecord else { return }
-        resumeStore.clear()
-        if linkedSessionId != nil, linkService.isController {
-            linkService.publishMatchFinished(
+    @discardableResult
+    private func finalizeSnooker(manualEnd: Bool = false) -> Bool {
+        guard state.finished, !didSaveFinishedRecord, !scoringLocked else { return true }
+        finishUndoAvailable = false
+        let saved: Bool
+        if linkedSessionId != nil {
+            saved = linkService.publishMatchFinished(
                 snapshot: .snooker(state),
                 recordId: "w_\(UUID().uuidString)",
                 winnerSide: state.leftFrames == state.rightFrames
@@ -806,10 +807,16 @@ struct WatchSnookerScoreView: View {
                 detailedActions: actionLog.detailedActions,
                 participantNames: [leftName, rightName]
             )
-            didSaveFinishedRecord = true
         } else {
-            saveLocalRecordIfNeeded()
+            saved = saveLocalRecordIfNeeded()
         }
+        guard saved else {
+            showRecordSaveFailure = true
+            return false
+        }
+        didSaveFinishedRecord = true
+        resumeStore.clear()
+        return true
     }
 
     private func undoFinishedSnooker() {
@@ -830,16 +837,17 @@ struct WatchSnookerScoreView: View {
     }
 
     private func exitSnooker() {
-        if linkedSessionId != nil {
-            linkService.exitScoreboardToHome()
-        }
+        if let linkedSessionId { linkService.exitScoreboard(sessionId: linkedSessionId) }
         persistResumeSession()
         dismiss()
     }
 
     private func persistResumeSession() {
-        guard !state.finished,
-              state.leftScore != 0 || state.rightScore != 0
+        if state.finished {
+            if didSaveFinishedRecord { resumeStore.clear() }
+            return
+        }
+        guard state.leftScore != 0 || state.rightScore != 0
                 || state.leftFrames != 0 || state.rightFrames != 0
                 || state.currentFrame > 1 || !undoStack.isEmpty else {
             resumeStore.clear()

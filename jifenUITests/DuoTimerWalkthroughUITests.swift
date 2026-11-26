@@ -205,9 +205,7 @@ final class DuoTimerWalkthroughUITests: XCTestCase {
         app.launchArguments = [
             "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
             "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints",
-            "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestOpenTimer",
-            "-national_day_2026_10_autopopup_count", "99",
-            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)
+            "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestOpenTimer"
         ]
         application = app
         app.launch()

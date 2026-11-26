@@ -265,7 +265,9 @@ struct GroupRulesFields: View {
         VStack(alignment: .leading, spacing: Theme.padding) {
             if let options = capability?.ruleOptions {
                 GroupRuleChoices(title: groupText("completion_mode", "Match completion"), values: options.matchCompletionModes ?? [rules.matchCompletionMode], selection: $rules.matchCompletionMode, label: { mode in var value = rules; value.matchCompletionMode = mode; return value.formatTitle })
-                GroupRuleChoices(title: groupText("max_sets", "Games per match"), values: options.maxSets ?? [rules.maxSets], selection: $rules.maxSets, label: { String($0) })
+                let setOptions = options.maxSets ?? [rules.maxSets]
+                let sets = setOptions.contains(rules.maxSets) ? setOptions : (setOptions + [rules.maxSets]).sorted()
+                GroupRuleChoices(title: groupText("max_sets", "Games per match"), values: sets, selection: $rules.maxSets, label: { String($0) })
                 if capability?.supportsCustomRules == true {
                     GroupRuleNumberStepper(title: groupText("max_sets", "Games per match"), value: $rules.maxSets, range: 1...99)
                 }
@@ -276,7 +278,9 @@ struct GroupRulesFields: View {
                     ruleToggle(groupText("no_ad", "No-ad scoring"), selection: $rules.usesNoAdScoring)
                         .disabled(Set(options.usesNoAdScoring ?? []).count < 2)
                 } else {
-                    GroupRuleChoices(title: groupText("target_points", "Points to win"), values: options.pointsToWinSet ?? [rules.pointsToWinSet], selection: $rules.pointsToWinSet, label: { String($0) })
+                    let presets = options.pointsToWinSet ?? [rules.pointsToWinSet]
+                    let values = presets.contains(rules.pointsToWinSet) ? presets : (presets + [rules.pointsToWinSet]).sorted()
+                    GroupRuleChoices(title: groupText("target_points", "Points to win"), values: values, selection: $rules.pointsToWinSet, label: { String($0) })
                     if capability?.supportsCustomRules == true {
                         GroupRuleNumberStepper(title: groupText("target_points", "Points to win"), value: $rules.pointsToWinSet, range: 1...999)
                     }

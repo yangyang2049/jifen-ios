@@ -788,6 +788,12 @@ extension GroupStore {
         accountID = "ui-test-user"; enabled = true; cached = false; error = nil
         let now = Int64(Date().timeIntervalSince1970 * 1000)
         var group = ScoreGroup(id: "ui-group", groupNo: "12345678", name: "球友小组", description: "一起打球，积累共同战绩", sport: .badminton, status: "active", joinPolicy: "approval", ownerMemberId: "ui-a", memberLimit: 100, createdAt: now, updatedAt: now, revision: 1, memberCount: 4, myRole: "owner", currentMonthMatchCount: 1, activeMemberCount30d: 4)
+        // 活动开赛的赛制验收要覆盖四个球类：夹具允许只切换小组项目，不动席位与排阵。
+        if let index = ProcessInfo.processInfo.arguments.firstIndex(of: "-UITestMatchSetupSport"),
+           index + 1 < ProcessInfo.processInfo.arguments.count,
+           let sport = GroupSport(rawValue: ProcessInfo.processInfo.arguments[index + 1]) {
+            group.sport = sport
+        }
         var members = ["甲", "乙", "丙", "丁"].enumerated().map { i,name in GroupMember(id: "ui-" + String(UnicodeScalar(97 + i)!), groupId: group.id, kind: i == 0 ? "account" : "temporary", role: i == 0 ? "owner" : "member", status: "active", displayName: name, accountId: i == 0 ? "ui-test-user" : "", joinedAt: now) }
         let activity = GroupActivity(id: "ui-activity", groupId: group.id, title: "周末羽毛球", startsAt: now + 86400000, place: "体育馆", capacity: 8, note: "欢迎报名", format: .doubles, status: "recruiting", creatorMemberId: "ui-a", registeredMemberIds: members.map(\.id), gameId: "", createdAt: now, revision: 1)
         let rules = GroupMatchRules(sport: .badminton, maxSets: 2, matchCompletionMode: "play_all", pointsToWinSet: 21, pointCap: 30, winByTwo: true, useRallyScoring: false, gamesPerSet: 6, tieBreakPoints: 7, setScoringMode: "regular", usesNoAdScoring: false)
@@ -798,9 +804,30 @@ extension GroupStore {
             capabilities?.allowedActions = ["create_group", "join_group", "start_game", "submit_result", "confirm_result", "void_result", "manage_group", "manage_members", "register_activity"]
         }
         capabilities?.sports = GroupSport.racketSports.map { sport in
-            var value = rules; value.sport = sport; value.maxSets = sport == .tableTennis ? 5 : 3; value.matchCompletionMode = "best_of"
-            value.pointsToWinSet = sport == .badminton ? 21 : sport == .tennis ? 6 : 11
-            return .init(sport: sport, defaultRules: value, ruleOptions: .init(maxSets: [1,3,5], matchCompletionModes: ["best_of", "play_all"], pointsToWinSet: [7,11,15,21], winByTwo: [true,false], useRallyScoring: [true,false], gamesPerSet: [4,6], tieBreakPoints: [7,10], setScoringModes: ["regular", "tiebreak_only"], usesNoAdScoring: [false,true]), supportsCustomRules: true)
+            // 四个项目各用自己的默认值（对齐后台 capabilities 夹具），不再从羽毛球规则复制。
+            var value = rules
+            value.sport = sport
+            value.matchCompletionMode = "best_of"
+            value.maxSets = sport == .tableTennis ? 5 : 3
+            value.winByTwo = true
+            value.useRallyScoring = sport != .tennis
+            value.gamesPerSet = 6
+            value.tieBreakPoints = 7
+            switch sport {
+            case .badminton: value.pointsToWinSet = 21; value.pointCap = 30
+            case .tableTennis: value.pointsToWinSet = 11; value.pointCap = nil
+            case .tennis: value.pointsToWinSet = 6; value.pointCap = nil
+            case .pickleball: value.pointsToWinSet = 11; value.pointCap = 15
+            case .billiards, .unsupported: value.pointsToWinSet = 11; value.pointCap = nil
+            }
+            let pointOptions: [Int]
+            switch sport {
+            case .badminton: pointOptions = [11, 15, 21]
+            case .tableTennis: pointOptions = [7, 9, 11, 15]
+            case .tennis: pointOptions = [4, 6]
+            default: pointOptions = [7, 11, 15, 21]
+            }
+            return .init(sport: sport, defaultRules: value, ruleOptions: .init(maxSets: [1,3,5], matchCompletionModes: ["best_of", "play_all"], pointsToWinSet: pointOptions, winByTwo: [true,false], useRallyScoring: [true,false], gamesPerSet: [4,6], tieBreakPoints: [7,10], setScoringModes: ["regular", "tiebreak_only"], usesNoAdScoring: [false,true]), supportsCustomRules: true)
         }
         capabilities?.sports?.append(.init(sport:.billiards,defaultRules:nil,ruleOptions:nil,supportsCustomRules:true))
         notices = [.init(id: "ui-notice", groupId: group.id, groupName: group.name, kind: "activity_changed", resourceId: activity.id, title: "周末羽毛球已改期", reason: "场馆调整", createdAt: now, seenAt: nil)]; unreadCount = 1
@@ -818,6 +845,15 @@ extension GroupStore {
             var multi = activity; multi.matchMode = "multi"; multi.sessionCount = 1
             cache.details[group.id]?.activities = [multi]
             var session = GroupActivitySession(id: "ui-activity-session", activityId: multi.id, groupId: group.id, orderNo: 1, court: "1 号场", startsAt: multi.startsAt, endsAt: multi.startsAt + 1800000, format: .doubles, status: "scheduled", seats: members.enumerated().map { i, m in .init(memberId: m.id, side: i < 2 ? "A" : "B", seat: i % 2, displayName: m.displayName) }, resultId: "", startedGameId: "", frozenGameId: "", mySide: "A", needsLineup: false, isFrozen: false, canCorrectResult: false)
+            if ProcessInfo.processInfo.arguments.contains("-UITestGroupsScheduledSingles") {
+                multi.activityType = "direct"
+                session.format = .singles
+                session.seats = [
+                    .init(memberId: "ui-a", side: "A", seat: 0, displayName: "甲"),
+                    .init(memberId: "ui-b", side: "B", seat: 0, displayName: "乙")
+                ]
+                cache.details[group.id]?.activities = [multi]
+            }
             if ProcessInfo.processInfo.arguments.contains("-UITestGroupsMissingLineup") {
                 session.seats.removeLast(); session.needsLineup = true
                 multi.registeredMemberIds.removeLast(); cache.details[group.id]?.activities = [multi]

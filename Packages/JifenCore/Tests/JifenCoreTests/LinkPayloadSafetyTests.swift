@@ -22,6 +22,43 @@ struct LinkPayloadSafetyTests {
         )
     }
 
+    @Test func compressedTerminalsPreserveHistoryAndReadLegacyJSON() throws {
+        let start = Date(timeIntervalSince1970: 1_700_000_000)
+        let shots: [LinkedShotTrainingShot] = (0..<2_048).map { index in
+            .init(points: index % 3 + 1, made: index % 4 != 0, timestamp: start.addingTimeInterval(Double(index) * 1.27))
+        }
+        let actions = (0..<600).map { _ in makeAction(id: UUID(), padding: 32) }
+        let training = LinkedShotTrainingState(mode: .free, startTime: start, shots: shots, finished: true)
+        let envelope = LinkEnvelope(
+            sessionId: UUID(), kind: .matchFinished, sender: .watch, senderSequence: 2,
+            sessionRevision: 4, sentAtEpochMilliseconds: 1_700_002_600_000,
+            payload: LinkMatchFinishedPayload(snapshot: .basketballTraining(training), recordId: "training",
+                                              totalScoreChanges: shots.count, detailedActions: actions)
+        )
+        let json = try JSONEncoder().encode(envelope)
+        let compressed = LinkFinishedEncoding.encode(envelope, compress: true)
+        let legacy = LinkFinishedEncoding.encode(envelope, compress: false)
+        var trainingOnly = envelope
+        trainingOnly.payload.detailedActions = []
+        let trainingJSON = try JSONEncoder().encode(trainingOnly)
+        let compressedTraining = LinkFinishedEncoding.encode(trainingOnly, compress: true)
+        print("Training snapshot bytes: JSON \(trainingJSON.count), LZFSE \(compressedTraining.count)")
+        #expect(compressedTraining.count < trainingJSON.count)
+        #expect(LinkFinishedEncoding.decode(compressedTraining)?.payload == trainingOnly.payload)
+        print("Terminal payload bytes: full JSON \(json.count), legacy trimmed JSON \(legacy.count), LZFSE \(compressed.count)")
+        #expect(json.count > LinkEnvelopeEncoding.defaultByteLimit)
+        #expect(compressed.count < legacy.count)
+        #expect(compressed.count < LinkEnvelopeEncoding.defaultByteLimit)
+        let decoded = try #require(LinkFinishedEncoding.decode(compressed))
+        #expect(decoded.handle == envelope.handle)
+        #expect(decoded.payload == envelope.payload)
+        #expect(LinkFinishedEncoding.decode(legacy)?.messageId == envelope.messageId)
+
+        var badLength = compressed
+        badLength[3] = 0xff
+        #expect(LinkFinishedEncoding.decode(badLength) == nil)
+    }
+
     @Test func envelopeEncodingPassesThroughWhenWithinLimit() throws {
         let actions = (0..<3).map { _ in makeAction(id: UUID(), padding: 10) }
         let envelope = LinkEnvelope(

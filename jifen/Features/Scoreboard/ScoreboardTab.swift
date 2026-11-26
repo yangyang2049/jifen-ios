@@ -174,6 +174,7 @@ struct ScoreboardTab: View {
         if sport.gameType == .basketballTraining {
             ShotTrainingSetupDialogView(
                 maxDialogHeight: maxDialogHeight,
+                allowsStartOnWatch: true,
                 onConfirm: onConfirm,
                 onCancel: onCancel
             )

@@ -61,10 +61,16 @@ final class GroupAlignedFormsUITests: XCTestCase {
         tap("group_overview_start", app)
         XCTAssertTrue(app.descendants(matching: .any)["group_seat_A1"].firstMatch.waitForExistence(timeout: 5))
         XCTAssertFalse(app.buttons["modal_close_button"].exists)
-        XCTAssertFalse(app.buttons["sports_setup_start"].isEnabled)
+        let start = app.buttons["sports_setup_start"]
+        let watchStart = app.buttons["sports_setup_watch_start"]
+        XCTAssertFalse(start.isEnabled)
+        XCTAssertFalse(watchStart.exists)
+        screenshot("04-start-page-empty-roster", app)
         tap("group_seat_A1", app); tap("group_member_pick_ui-a", app)
+        XCTAssertFalse(start.isEnabled)
         tap("group_seat_B1", app); tap("group_member_pick_ui-b", app)
-        XCTAssertTrue(app.buttons["sports_setup_start"].isEnabled)
+        XCTAssertTrue(start.isEnabled)
+        XCTAssertFalse(watchStart.exists)
         screenshot("04-start-page-inline-roster", app)
         app.buttons["取消"].tap()
         tap("group_overview_addResult", app)
@@ -104,7 +110,7 @@ final class GroupAlignedFormsUITests: XCTestCase {
 
     private func launch(_ extra: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestGroupsFixture", "-UITestGroupsFreshDrafts", "-national_day_2026_10_autopopup_count", "99"] + extra
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestGroupsFixture", "-UITestGroupsFreshDrafts"] + extra
         app.launch()
         XCTAssertTrue(app.buttons["group_create"].waitForExistence(timeout: 15))
         return app

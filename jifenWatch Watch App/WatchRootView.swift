@@ -36,6 +36,24 @@ struct WatchRootView: View {
             }
         }
         .accentColor(WatchTheme.accent)
+        .overlay(alignment: .bottom) {
+            if scoreboardRoute != nil, let linkedSessionId,
+               linkService.activeSessionId == linkedSessionId,
+               let notice = linkService.simultaneousEditNotice {
+                WatchToastView(message: NSLocalizedString(
+                    "linked_score_simultaneous_edit", value: "Both devices made changes. Check the score.", comment: ""
+                ))
+                .padding(.bottom, 8)
+                .accessibilityIdentifier("linked_score_simultaneous_edit")
+                .allowsHitTesting(false)
+                .task(id: notice) {
+                    do { try await Task.sleep(for: .seconds(2)) } catch { return }
+                    if linkService.simultaneousEditNotice == notice {
+                        linkService.simultaneousEditNotice = nil
+                    }
+                }
+            }
+        }
         .alert(
             NSLocalizedString("linked_score_error_title", value: "联动失败", comment: ""),
             isPresented: Binding(
@@ -63,11 +81,20 @@ struct WatchRootView: View {
             Text(resumeStore.lastErrorMessage ?? "")
         }
         .overlay {
-            if linkService.pendingConfirmRequest != nil {
-                linkConfirmOverlay
+            if let request = linkService.pendingConfirmRequest {
+                WatchLinkedSetupConfirmationView(
+                    setup: request.setup,
+                    deadline: confirmDeadline,
+                    timeout: Self.confirmTimeoutSeconds,
+                    onDecline: linkService.rejectPendingSetup,
+                    onAccept: linkService.acceptPendingSetup
+                )
+                .id(request.messageId)
             }
         }
-        .onChange(of: linkService.pendingConfirmRequest) { _, request in
+        // initial: true 覆盖「本次视图首次构建时请求就已经处于 pending」的情形
+        // （冷启动 / 悬浮层被 .id 重建），否则 confirmDeadline 会一直为 nil。
+        .onChange(of: linkService.pendingConfirmRequest, initial: true) { _, request in
             if request != nil {
                 confirmDeadline = Date().addingTimeInterval(Self.confirmTimeoutSeconds)
                 WKInterfaceDevice.current().play(.notification)
@@ -124,6 +151,7 @@ struct WatchRootView: View {
             }
         }
         .onAppear {
+            resumeStore.retryPendingFinishedRecords()
             restoreStoredLinkContextIfNeeded()
         }
     }
@@ -156,200 +184,6 @@ struct WatchRootView: View {
         linkService.restoreSuspendedSession(context)
         linkedSetup = context.setup
         linkedSessionId = context.sessionId
-    }
-
-    private var linkConfirmOverlay: some View {
-        TimelineView(.periodic(from: .now, by: 0.1)) { context in
-            let remaining = remainingConfirmSeconds(at: context.date)
-            let progress = remaining / Self.confirmTimeoutSeconds
-
-            ZStack {
-                WatchTheme.background.ignoresSafeArea()
-
-                // Rectangular timeout ring hugging the watch screen edges
-                // (Harmony uses a circle for round watches; Apple Watch is a rounded square).
-                GeometryReader { proxy in
-                    let lineWidth: CGFloat = 3
-                    let ringInset = lineWidth / 2
-                    // GeometryReader is bounded by safe area; add insets back so
-                    // the ring fills the full screen and hugs the edges.
-                    let width = proxy.size.width
-                        + proxy.safeAreaInsets.leading
-                        + proxy.safeAreaInsets.trailing
-                    let height = proxy.size.height
-                        + proxy.safeAreaInsets.top
-                        + proxy.safeAreaInsets.bottom
-                    let cornerRadius = min(width, height) * 0.28
-                    let ring = RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                        .inset(by: ringInset)
-                    let clampedProgress = max(0, min(1, progress))
-                    let trimStart = 0.25
-                    let trimEnd = trimStart + clampedProgress
-                    let progressStroke = StrokeStyle(
-                        lineWidth: lineWidth,
-                        lineCap: .round,
-                        lineJoin: .round
-                    )
-
-                    ZStack {
-                        ring
-                            .stroke(WatchTheme.subtleFill, lineWidth: lineWidth)
-                        ring
-                            .trim(from: trimStart, to: min(1, trimEnd))
-                            .stroke(
-                                WatchTheme.accent.opacity(0.82),
-                                style: progressStroke
-                            )
-
-                        if trimEnd > 1 {
-                            ring
-                                .trim(from: 0, to: trimEnd - 1)
-                                .stroke(
-                                    WatchTheme.accent.opacity(0.82),
-                                    style: progressStroke
-                                )
-                        }
-                    }
-                    .frame(width: width, height: height)
-                    .offset(
-                        x: -proxy.safeAreaInsets.leading,
-                        y: -proxy.safeAreaInsets.top
-                    )
-                    .animation(.linear(duration: 0.1), value: progress)
-                }
-                .ignoresSafeArea()
-                .allowsHitTesting(false)
-
-                let compact = WatchLayout.isCompactScreen
-                let actionSize: CGFloat = compact ? 42 : 50
-                VStack(spacing: 0) {
-                    VStack(spacing: compact ? 2 : 4) {
-                        Text(NSLocalizedString(
-                            "linked_score_phone_started_scoreboard",
-                            value: "手机已发起计分",
-                            comment: ""
-                        ))
-                        .font(.system(size: compact ? 11 : 12, weight: .medium))
-                        .foregroundStyle(WatchTheme.secondaryText)
-                        .multilineTextAlignment(.center)
-
-                        Text(confirmSportTitle)
-                            .font(.system(size: compact ? 16 : 18, weight: .bold))
-                            .foregroundStyle(WatchTheme.primaryText)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .multilineTextAlignment(.center)
-                    }
-
-                    VStack(spacing: compact ? 6 : 8) {
-                        HStack(spacing: 3) {
-                            confirmNameColumn(
-                                name: confirmLeftName,
-                                accent: Color(hex: 0xFF453A).opacity(0.72)
-                            )
-                            Text("vs")
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundStyle(WatchTheme.secondaryText)
-                                .frame(width: 24)
-                            confirmNameColumn(
-                                name: confirmRightName,
-                                accent: Color(hex: 0x0A84FF).opacity(0.72)
-                            )
-                        }
-
-                        if let rules = confirmRulesText {
-                            Text(rules)
-                                .font(.system(size: compact ? 11 : 12, weight: .medium))
-                                .foregroundStyle(WatchTheme.secondaryText)
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.8)
-                        }
-                    }
-                    .padding(.horizontal, compact ? 10 : 12)
-                    .padding(.vertical, compact ? 7 : 10)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.white.opacity(0.055))
-                    .clipShape(RoundedRectangle(cornerRadius: compact ? 18 : 24, style: .continuous))
-                    .padding(.top, compact ? 6 : 8)
-
-                    Spacer(minLength: compact ? 6 : 8)
-
-                    HStack(spacing: compact ? 18 : 22) {
-                        Button {
-                            linkService.rejectPendingSetup()
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: compact ? 16 : 18, weight: .bold))
-                                .foregroundStyle(WatchTheme.primaryText)
-                                .frame(width: actionSize, height: actionSize)
-                                .background(WatchTheme.listItemBackground)
-                                .clipShape(Circle())
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""))
-
-                        Button {
-                            linkService.acceptPendingSetup()
-                        } label: {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: compact ? 18 : 20, weight: .bold))
-                                .foregroundStyle(.white)
-                                .frame(width: actionSize, height: actionSize)
-                                .background(WatchTheme.accent)
-                                .clipShape(Circle())
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel(NSLocalizedString("linked_score_accept", value: "接受", comment: ""))
-                    }
-                }
-                .padding(.horizontal, compact ? 14 : 18)
-                .padding(.vertical, compact ? 14 : 22)
-            }
-            .onChange(of: remaining) { _, value in
-                if value <= 0, linkService.pendingConfirmRequest != nil {
-                    linkService.rejectPendingSetup()
-                }
-            }
-        }
-    }
-
-    private func remainingConfirmSeconds(at date: Date) -> TimeInterval {
-        guard let confirmDeadline else { return Self.confirmTimeoutSeconds }
-        return max(0, confirmDeadline.timeIntervalSince(date))
-    }
-
-    private var confirmSportTitle: String {
-        guard let gameType = linkService.pendingConfirmRequest?.setup.gameType else {
-            return NSLocalizedString("linked_score_confirm_title", value: "手机请求联动计分", comment: "")
-        }
-        return LinkedSetupConfirmCopy.sportTitle(for: gameType)
-    }
-
-    private var confirmLeftName: String {
-        LinkedSetupConfirmCopy.leftName(from: linkService.pendingConfirmRequest?.setup)
-    }
-
-    private var confirmRightName: String {
-        LinkedSetupConfirmCopy.rightName(from: linkService.pendingConfirmRequest?.setup)
-    }
-
-    private var confirmRulesText: String? {
-        LinkedSetupConfirmCopy.rulesText(from: linkService.pendingConfirmRequest?.setup)
-    }
-
-    private func confirmNameColumn(name: String, accent: Color) -> some View {
-        HStack(spacing: 4) {
-            RoundedRectangle(cornerRadius: 2, style: .continuous)
-                .fill(accent)
-                .frame(width: 3, height: 30)
-            Text(name)
-                .font(.system(size: 14, weight: .bold))
-                .foregroundStyle(WatchTheme.primaryText)
-                .lineLimit(1)
-                .minimumScaleFactor(0.7)
-                .frame(maxWidth: .infinity)
-        }
-        .frame(maxWidth: .infinity)
     }
 
     @ViewBuilder
@@ -471,8 +305,10 @@ struct WatchRootView: View {
             case .basketballTraining(let mode):
                 WatchBasketballTrainingView(
                     mode: mode,
+                    linkedSessionId: linkedSessionId,
                     resumedHistory: trainingResumeHistory(),
-                    resumedStartTime: activeResumeSession?.startedAt
+                    resumedStartTime: activeResumeSession?.startedAt,
+                    resumedEarlierCounts: trainingResumeEarlierCounts()
                 )
             case .eightBall:
                 WatchEightBallScoreView(
@@ -801,9 +637,15 @@ struct WatchRootView: View {
         return (left, right)
     }
 
+    private func trainingResumeEarlierCounts() -> ShotTrainingCounts {
+        guard let activeResumeSession,
+              case .basketballTraining(_, _, let totals) = activeResumeSession.payload else { return .init() }
+        return totals ?? .init()
+    }
+
     private func trainingResumeHistory() -> [WatchBasketballTrainingShot] {
         guard let activeResumeSession,
-              case .basketballTraining(_, let history) = activeResumeSession.payload else { return [] }
+              case .basketballTraining(_, let history, _) = activeResumeSession.payload else { return [] }
         return history
     }
 
@@ -933,43 +775,98 @@ struct WatchRootView: View {
     }
 }
 
-private enum LinkedSetupConfirmCopy {
+enum LinkedSetupConfirmCopy {
+    enum Participants: Equatable {
+        case none
+        case opponents(left: [String], right: [String])
+        case players([String])
+    }
+
+    static func participants(for setup: LinkedScoreboardSetup) -> Participants {
+        switch setup.initialSnapshot {
+        case .basketballTraining:
+            return .none
+        case .nineBall(let state) where state.playerCount > 2:
+            return .players((0..<state.playerCount).map { state.resolvedName(at: $0) })
+        case .rally(let state):
+            return opponents(from: setup, doublesNames: state.doubles?.playerNames)
+        case .tennis(let state):
+            return opponents(from: setup, doublesNames: state.doublesPlayerNames)
+        default:
+            return opponents(from: setup, doublesNames: nil)
+        }
+    }
+
+    private static func opponents(from setup: LinkedScoreboardSetup, doublesNames: [String]?) -> Participants {
+        let left = leftName(from: setup)
+        let right = rightName(from: setup)
+        guard let doublesNames, doublesNames.count == 4 else {
+            return .opponents(left: [left], right: [right])
+        }
+        return .opponents(
+            left: teamNames(doublesNames[0], doublesNames[2], fallback: left),
+            right: teamNames(doublesNames[1], doublesNames[3], fallback: right)
+        )
+    }
+
+    private static func teamNames(_ first: String, _ second: String, fallback: String) -> [String] {
+        let players = [first, second]
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        return players.isEmpty ? [fallback] : players
+    }
+
+    static func summary(for setup: LinkedScoreboardSetup) -> String {
+        let title = sportTitle(for: setup.gameType)
+        let mode: String?
+        switch setup.gameType {
+        case .foosball: mode = "1 × 1"
+        case .foosballDoubles: mode = "2 × 2"
+        default: mode = nil
+        }
+        return [title, mode, rulesText(from: setup)]
+            .compactMap { $0 }
+            .joined(separator: " · ")
+    }
+
     static func sportTitle(for gameType: GameType) -> String {
         switch gameType {
         case .badminton:
-            return NSLocalizedString("linked_score_sport_badminton", value: "🏸 羽毛球单打", comment: "")
+            return NSLocalizedString("linked_score_sport_badminton", value: "羽毛球单打", comment: "")
         case .badmintonDoubles:
-            return NSLocalizedString("linked_score_sport_badminton_doubles", value: "🏸 羽毛球双打", comment: "")
+            return NSLocalizedString("linked_score_sport_badminton_doubles", value: "羽毛球双打", comment: "")
         case .pingpong:
-            return NSLocalizedString("linked_score_sport_pingpong", value: "🏓 乒乓球单打", comment: "")
+            return NSLocalizedString("linked_score_sport_pingpong", value: "乒乓球单打", comment: "")
         case .pingpongDoubles:
-            return NSLocalizedString("linked_score_sport_pingpong_doubles", value: "🏓 乒乓球双打", comment: "")
+            return NSLocalizedString("linked_score_sport_pingpong_doubles", value: "乒乓球双打", comment: "")
         case .tennis:
-            return NSLocalizedString("linked_score_sport_tennis", value: "🎾 网球单打", comment: "")
+            return NSLocalizedString("linked_score_sport_tennis", value: "网球单打", comment: "")
         case .tennisDoubles:
-            return NSLocalizedString("linked_score_sport_tennis_doubles", value: "🎾 网球双打", comment: "")
+            return NSLocalizedString("linked_score_sport_tennis_doubles", value: "网球双打", comment: "")
         case .pickleball:
-            return NSLocalizedString("linked_score_sport_pickleball", value: "🏓 匹克球单打", comment: "")
+            return NSLocalizedString("linked_score_sport_pickleball", value: "匹克球单打", comment: "")
         case .pickleballDoubles:
-            return NSLocalizedString("linked_score_sport_pickleball_doubles", value: "🏓 匹克球双打", comment: "")
+            return NSLocalizedString("linked_score_sport_pickleball_doubles", value: "匹克球双打", comment: "")
         case .archeryDual:
-            return NSLocalizedString("linked_score_sport_archery", value: "🏹 射箭", comment: "")
+            return NSLocalizedString("linked_score_sport_archery", value: "射箭", comment: "")
         case .eightBall:
-            return NSLocalizedString("linked_score_sport_eight_ball", value: "🎱 黑八", comment: "")
+            return NSLocalizedString("linked_score_sport_eight_ball", value: "黑八", comment: "")
         case .nineBall:
-            return NSLocalizedString("linked_score_sport_nine_ball", value: "🎱 追分", comment: "")
+            return NSLocalizedString("linked_score_sport_nine_ball", value: "追分", comment: "")
         case .snooker:
-            return NSLocalizedString("linked_score_sport_snooker", value: "🎱 斯诺克", comment: "")
+            return NSLocalizedString("linked_score_sport_snooker", value: "斯诺克", comment: "")
         case .shuttlecock:
-            return NSLocalizedString("linked_score_sport_shuttlecock", value: "🏸 毽子", comment: "")
+            return NSLocalizedString("linked_score_sport_shuttlecock", value: "毽子", comment: "")
         case .squash:
-            return NSLocalizedString("linked_score_sport_squash", value: "🎾 壁球", comment: "")
+            return NSLocalizedString("linked_score_sport_squash", value: "壁球", comment: "")
         case .foosball, .foosballDoubles:
-            return NSLocalizedString("linked_score_sport_foosball", value: "⚽ 桌上足球", comment: "")
+            return NSLocalizedString("linked_score_sport_foosball", value: "桌上足球", comment: "")
+        case .basketballTraining:
+            return WatchGameType.basketballTraining.displayName
         case .football:
-            return NSLocalizedString("linked_score_sport_football", value: "⚽ 足球", comment: "")
+            return NSLocalizedString("linked_score_sport_football", value: "足球", comment: "")
         case .football5v5:
-            return NSLocalizedString("linked_score_sport_football_5v5", value: "⚽ 五人制足球", comment: "")
+            return NSLocalizedString("linked_score_sport_football_5v5", value: "五人制足球", comment: "")
         default:
             return gameType.rawValue
         }
@@ -981,6 +878,8 @@ private enum LinkedSetupConfirmCopy {
         }
         let defaults = WatchDefaultTeamNames.fallback(for: setup.gameType)
         switch setup.initialSnapshot {
+        case .basketballTraining:
+            return NSLocalizedString("watch_training_miss", value: "未中", comment: "")
         case .rally(let state):
             if let names = state.doubles?.playerNames, names.count >= 4,
                [.pingpongDoubles, .badmintonDoubles, .pickleballDoubles, .foosballDoubles, .shuttlecock].contains(setup.gameType) {
@@ -1029,6 +928,8 @@ private enum LinkedSetupConfirmCopy {
         }
         let defaults = WatchDefaultTeamNames.fallback(for: setup.gameType)
         switch setup.initialSnapshot {
+        case .basketballTraining:
+            return NSLocalizedString("watch_training_made", value: "命中", comment: "")
         case .rally(let state):
             if let names = state.doubles?.playerNames, names.count >= 4,
                [.pingpongDoubles, .badmintonDoubles, .pickleballDoubles, .foosballDoubles, .shuttlecock].contains(setup.gameType) {
@@ -1092,20 +993,41 @@ private enum LinkedSetupConfirmCopy {
         return name.isEmpty ? fallback : name
     }
 
-    static func rulesText(from setup: LinkedScoreboardSetup?) -> String? {
-        guard let setup else { return nil }
+    private static func rulesText(from setup: LinkedScoreboardSetup) -> String? {
         switch setup.initialSnapshot {
+        case .basketballTraining(let state):
+            if let points = state.mode.fixedPoints {
+                return String.localizedStringWithFormat(
+                    NSLocalizedString("watch_training_point_value", value: "%d分", comment: ""),
+                    points
+                )
+            }
+            return NSLocalizedString("watch_bb_free", value: "自由模式", comment: "")
         case .rally(let state):
             return String(
-                format: NSLocalizedString("linked_score_setup_rules", value: "%d局 | %d分", comment: ""),
+                format: NSLocalizedString("linked_score_setup_rules", value: "%d局 · %d分", comment: ""),
                 state.rules.maxSets,
                 state.rules.pointsToWinSet
             )
         case .tennis(let state):
-            return String(
-                format: NSLocalizedString("linked_score_setup_rules_sets", value: "%d盘", comment: ""),
+            if state.rules.setScoringMode == .tiebreakOnly {
+                return state.rules.tieBreakPoints == 10
+                    ? NSLocalizedString("watch_tiebreak_indicator_10", value: "抢十", comment: "")
+                    : NSLocalizedString("watch_tiebreak_indicator_7", value: "抢七", comment: "")
+            }
+            return String.localizedStringWithFormat(
+                NSLocalizedString("linked_score_setup_rules_sets", value: "%d盘", comment: ""),
                 state.rules.maxSets
             )
+        case .nineBall(let state):
+            return String.localizedStringWithFormat(
+                NSLocalizedString("watch_setup_player_count", value: "%d 人", comment: ""),
+                state.playerCount
+            )
+        case .eightBall(let state):
+            return raceToText(state.targetPoints)
+        case .snooker(let state):
+            return raceToText(SnookerState.framesToWin(state.maxFrames))
         default:
             if let maxSets = setup.maxSets {
                 return String(
@@ -1115,5 +1037,12 @@ private enum LinkedSetupConfirmCopy {
             }
             return nil
         }
+    }
+
+    private static func raceToText(_ target: Int) -> String {
+        String.localizedStringWithFormat(
+            NSLocalizedString("linked_score_setup_race_to", value: "抢%d局", comment: ""),
+            target
+        )
     }
 }

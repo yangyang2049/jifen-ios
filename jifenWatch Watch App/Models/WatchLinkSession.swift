@@ -96,7 +96,8 @@ extension WatchLinkService {
                 ?? setup.initialSnapshot,
             detailedActions: mergedDetailedActions,
             completedMatchIds: publishedFinishedMatchIds,
-            pendingTerminalMessageIds: Set(terminalOutbox.items.map(\.messageId))
+            pendingTerminalMessageIds: Set(terminalOutbox.items.map(\.messageId)),
+            peerSupportsCompressedFinish: peerSupportsCompressedFinish
         )
     }
 
@@ -127,18 +128,21 @@ extension WatchLinkService {
               machine.handle == request.handle,
               machine.resolveSetup(
                   correlationId: request.messageId,
-                  acceptedRole: .watchController
+                  acceptedRole: request.peerSupportsSharedEditing ? .shared : .watchController
               ) else { return }
         pendingConfirmRequest = nil
         sessionMachine = machine
         synchronizeSessionStateFromMachine()
         activeGameType = request.setup.gameType
         activeSetup = request.setup
+        peerSupportsCompressedFinish = request.peerSupportsCompressedFinish
         phoneTookOver = false
         acceptedSetup = request
         persistContext()
         sequence += 1
         let envelope = LinkEnvelope(
+            supportsCompressedFinish: true,
+            supportsSharedEditing: request.peerSupportsSharedEditing ? true : nil,
             correlationId: request.messageId,
             sessionId: request.sessionId,
             matchId: request.handle.matchId,
@@ -191,11 +195,14 @@ extension WatchLinkService {
         detailedActions: [DetailedScoreAction]? = nil,
         participantNames: [String]? = nil
     ) {
-        guard isController,
+        guard canEditLinkedMatch,
               let sessionId = activeSessionId,
               let gameType = activeGameType,
-              var machine = sessionMachine else { return }
-        _ = machine.advanceRevision()
+              var machine = sessionMachine,
+              !machine.completedMatchIds.contains(machine.handle.matchId) else { return }
+        let shared = machine.role == .shared
+        let baseRevision = machine.revision
+        _ = machine.advanceRevision(sender: .watch)
         sessionMachine = machine
         synchronizeSessionStateFromMachine()
         mergeDetailedActions(detailedActions)
@@ -209,6 +216,7 @@ extension WatchLinkService {
         latestSnapshot = .init(
             sessionId: sessionId,
             revision: activeRevision,
+            matchGeneration: machine.handle.matchGeneration,
             snapshot: snapshot,
             detailedActions: mergedDetailedActions
         )
@@ -216,6 +224,7 @@ extension WatchLinkService {
         sequence += 1
         let messageId = UUID()
         let envelope = LinkEnvelope(
+            baseSnapshotRevision: shared ? baseRevision : nil,
             messageId: messageId,
             sessionId: sessionId,
             matchId: activeHandle?.matchId,
@@ -234,14 +243,30 @@ extension WatchLinkService {
                 participantNames: activeSetup?.participantNames ?? []
             )
         )
+        if shared {
+            sharedEditTracker.recordLocalEdit(
+                handle: envelope.handle, revision: envelope.sessionRevision,
+                baseRevision: baseRevision, sentAt: envelope.sentAtEpochMilliseconds
+            )
+        }
         Task {
+            guard activeHandle == envelope.handle, canEditLinkedMatch else { return }
+            let isLatest = activeRevision == envelope.sessionRevision
+            let supersededByPhone = shared && LinkSharedRevision.writer(of: activeRevision) == .phone
+            guard isLatest || (supersededByPhone && transport.isReachable) else { return }
+            let data = LinkEnvelopeEncoding.data(
+                envelope,
+                actionsKeyPath: \LinkedScoreboardSetup.detailedActions
+            )
+            if !isLatest {
+                // The peer can detect a simultaneous edit without receiving
+                // the older score through the persistent snapshot channel.
+                try? await transport.sendRealtime(data)
+                return
+            }
             do {
                 // 实时快照携带的动作历史按 64KB 限额裁剪尾部；接收端按动作 id
                 // 并集合并，旧动作已在先前快照/开局 Setup 里，不丢状态。
-                let data = LinkEnvelopeEncoding.data(
-                    envelope,
-                    actionsKeyPath: \LinkedScoreboardSetup.detailedActions
-                )
                 if var machine = sessionMachine {
                     machine.registerPendingAcknowledgement(messageId)
                     sessionMachine = machine
@@ -249,7 +274,7 @@ extension WatchLinkService {
                 pendingAck.enqueue(.init(
                     messageId: messageId,
                     sessionId: sessionId,
-                    revision: activeRevision,
+                    revision: envelope.sessionRevision,
                     data: data,
                     lastSentAtEpochMilliseconds: nowMs()
                 ))
@@ -257,7 +282,9 @@ extension WatchLinkService {
                 try transport.publishLatestSnapshot(
                     LinkEnvelopeEncoding.applicationContextData(envelope)
                 )
-                try await transport.sendRealtime(data)
+                if transport.isReachable || !shared {
+                    try await transport.sendRealtime(data)
+                }
             } catch {
                 lastLinkErrorMessage = error.localizedDescription
             }
@@ -269,10 +296,13 @@ extension WatchLinkService {
         detailedActions: [DetailedScoreAction] = [],
         participantNames: [String]? = nil
     ) {
-        guard isController,
+        guard canEditLinkedMatch,
               let gameType = activeGameType,
               var machine = sessionMachine else { return }
         let nextHandle = machine.beginNextMatch()
+        pendingAck.clear()
+        pendingSessionEnds.removeAll { $0.handle.sessionId == nextHandle.sessionId }
+        persistPendingSessionEnds()
         sessionMachine = machine
         synchronizeSessionStateFromMachine()
         mergedDetailedActions = detailedActions
@@ -293,6 +323,7 @@ extension WatchLinkService {
         )
     }
 
+    @discardableResult
     func publishMatchFinished(
         snapshot: LinkedScoreboardSnapshot,
         recordId: String,
@@ -303,72 +334,118 @@ extension WatchLinkService {
         totalScoreChanges: Int? = nil,
         detailedActions: [DetailedScoreAction]? = nil,
         participantNames: [String]? = nil
-    ) {
-        guard let sessionId = activeSessionId,
-              let handle = activeHandle,
-              var machine = sessionMachine else { return }
-        if publishedFinishedMatchIds.contains(handle.matchId)
-            || terminalOutbox.contains(sessionId: sessionId, matchId: handle.matchId) { return }
-        let stableRecordId = recordId.isEmpty ? "w_\(UUID().uuidString)" : recordId
+    ) -> Bool {
+        guard canEditLinkedMatch, let handle = activeHandle, let gameType = activeGameType,
+              var machine = sessionMachine else { return false }
+        if peerFinishedSharedMatch || machine.completedMatchIds.contains(handle.matchId) {
+            return true
+        }
+        if let item = terminalOutbox.items.first(where: { $0.handle == handle }) {
+            guard item.pendingLocalRecord != nil else { return true }
+            return saveLocalFinishedRecordAndSend(item)
+        }
+        if publishedFinishedMatchIds.contains(handle.matchId) { return true }
+        let stableRecordId = recordId.isEmpty ? "w_\(handle.matchId.uuidString)" : recordId
         mergeDetailedActions(detailedActions)
-        _ = machine.markFinished(matchId: handle.matchId)
-        _ = machine.advanceRevision()
-        sessionMachine = machine
-        synchronizeSessionStateFromMachine()
+        let finishRevision = machine.advanceRevision(sender: .watch)
         sequence += 1
         let messageId = UUID()
         let end = endTime ?? Date()
         let start = startTime ?? end.addingTimeInterval(-60)
         let duration = max(1, end.timeIntervalSince(start))
+        let payload = LinkMatchFinishedPayload(
+            snapshot: snapshot,
+            recordId: stableRecordId,
+            winnerSide: winnerSide,
+            manualEnd: manualEnd,
+            startTimeEpochMilliseconds: Int64(start.timeIntervalSince1970 * 1000),
+            endTimeEpochMilliseconds: Int64(end.timeIntervalSince1970 * 1000),
+            durationSeconds: duration,
+            totalScoreChanges: totalScoreChanges ?? 0,
+            detailedActions: mergedDetailedActions,
+            participantNames: participantNames ?? activeSetup?.participantNames ?? []
+        )
         let envelope = LinkEnvelope(
             messageId: messageId,
-            sessionId: sessionId,
+            sessionId: handle.sessionId,
             matchId: handle.matchId,
             matchGeneration: handle.matchGeneration,
             authorityEpoch: authorityEpoch,
             kind: .matchFinished,
             sender: .watch,
             senderSequence: sequence,
-            sessionRevision: activeRevision,
+            sessionRevision: finishRevision,
             sentAtEpochMilliseconds: nowMs(),
-            payload: LinkMatchFinishedPayload(
-                snapshot: snapshot,
-                recordId: stableRecordId,
-                winnerSide: winnerSide,
-                manualEnd: manualEnd,
-                startTimeEpochMilliseconds: Int64(start.timeIntervalSince1970 * 1000),
-                endTimeEpochMilliseconds: Int64(end.timeIntervalSince1970 * 1000),
-                durationSeconds: duration,
-                totalScoreChanges: totalScoreChanges ?? 0,
-                detailedActions: mergedDetailedActions,
-                participantNames: participantNames ?? activeSetup?.participantNames ?? []
-            )
+            payload: payload
         )
+        let data = LinkFinishedEncoding.encode(envelope, compress: peerSupportsCompressedFinish)
+        guard !data.isEmpty, data.count <= LinkEnvelopeEncoding.defaultByteLimit else {
+            reportPersistenceError(CocoaError(.fileWriteUnknown))
+            return false
+        }
+        let item = LinkDurableOutbox.Item(
+            messageId: messageId,
+            handle: handle,
+            data: data,
+            lastSentAtEpochMilliseconds: nowMs(),
+            pendingLocalRecord: .init(gameType: gameType, payload: payload)
+        )
+        terminalOutbox.enqueue(item)
+        persistTerminalOutbox()
+        rescheduleRetryIfNeeded()
+        return saveLocalFinishedRecordAndSend(item)
+    }
+
+    private func saveLocalFinishedRecordAndSend(_ item: LinkDurableOutbox.Item) -> Bool {
+        guard prepareLocalFinishedRecord(item) else { return false }
         Task {
             do {
-                // 完赛消息也带全量动作历史；超限时保底裁剪，投递优先于保真。
-                let data = LinkEnvelopeEncoding.data(
-                    envelope,
-                    actionsKeyPath: \LinkMatchFinishedPayload.detailedActions
-                )
-                if var machine = sessionMachine {
-                    machine.registerPendingAcknowledgement(messageId)
-                    sessionMachine = machine
-                }
-                terminalOutbox.enqueue(.init(
-                    messageId: messageId,
-                    handle: handle,
-                    data: data,
-                    lastSentAtEpochMilliseconds: nowMs()
-                ))
-                persistTerminalOutbox()
-                persistContext()
-                rescheduleRetryIfNeeded()
-                try transport.enqueueDurable(data)
+                try transport.enqueueDurable(item.data)
             } catch {
                 lastLinkErrorMessage = error.localizedDescription
             }
+            if transport.isReachable {
+                try? await transport.sendRealtime(item.data)
+            }
         }
+        return true
+    }
+
+    func cancelPendingTrainingFinish(handle: LinkedMatchHandle) {
+        guard let item = terminalOutbox.items.first(where: {
+            $0.handle == handle && $0.pendingLocalRecord?.gameType == .basketballTraining
+        }) else { return }
+        // No terminal message is sent before its local record is saved.
+        terminalOutbox.acknowledge(messageId: item.messageId)
+        persistTerminalOutbox()
+        rescheduleRetryIfNeeded()
+    }
+
+    func prepareLocalFinishedRecord(_ item: LinkDurableOutbox.Item) -> Bool {
+        guard let local = item.pendingLocalRecord else { return true }
+        guard let envelope = LinkFinishedEncoding.decode(item.data),
+              recordSink.ingest(
+                  payload: local.payload, gameType: local.gameType, matchId: item.handle.matchId, syncState: .pending
+              ) != nil else {
+            reportPersistenceError(CocoaError(.fileWriteUnknown))
+            return false
+        }
+        if var machine = sessionMachine, machine.handle == item.handle {
+            _ = machine.accept(handle: item.handle, authorityEpoch: envelope.authorityEpoch, revision: envelope.sessionRevision)
+            _ = machine.markFinished(matchId: item.handle.matchId)
+            machine.registerPendingAcknowledgement(item.messageId)
+            sessionMachine = machine
+            synchronizeSessionStateFromMachine()
+            latestSnapshot = .init(
+                sessionId: item.handle.sessionId, revision: envelope.sessionRevision,
+                matchGeneration: item.handle.matchGeneration,
+                snapshot: local.payload.snapshot, detailedActions: local.payload.detailedActions
+            )
+        }
+        terminalOutbox.markLocalRecordSaved(messageId: item.messageId)
+        persistContext()
+        persistTerminalOutbox()
+        return true
     }
 
     func leaveSession() {
@@ -388,6 +465,15 @@ extension WatchLinkService {
         persistPendingSessionEnds()
         flushPendingSessionEnds()
         rescheduleRetryIfNeeded()
+    }
+
+    func exitScoreboard(sessionId: UUID) {
+        guard let handle = activeHandle, handle.sessionId == sessionId else { return }
+        if publishedFinishedMatchIds.contains(handle.matchId) {
+            leaveSession()
+        } else {
+            exitScoreboardToHome()
+        }
     }
 
     /// Keep the linked match alive while the watch returns to its home screen.
@@ -430,9 +516,13 @@ extension WatchLinkService {
         sendReportingError(envelope)
     }
 
-    /// Discard the watch resume entry and hand scoring control back to the phone.
+    /// Discard the watch resume entry. Legacy links also transfer scoring to the phone.
     func discardResumableSession(reason: LinkResumeDiscardReason) {
         guard let sessionId = activeSessionId else { return }
+        if controlRole == .shared {
+            leaveSession()
+            return
+        }
         sequence += 1
         let envelope = LinkEnvelope(
             sessionId: sessionId,
@@ -462,17 +552,22 @@ extension WatchLinkService {
     }
 
     func restoreSuspendedSession(_ context: WatchLinkResumeContext) {
+        if let session = activeRecordSession, session.handle.sessionId != context.sessionId {
+            retiredRecordSessions.retire(session)
+        }
         _ = revisionGate.beginMatch(context.handle, initialRevision: context.revision)
         installStateMachine(from: context)
         synchronizeSessionStateFromMachine()
         activeGameType = context.setup.gameType
         activeSetup = context.setup
+        peerSupportsCompressedFinish = context.peerSupportsCompressedFinish == true
         phoneTookOver = context.controlRole == .watchFollower
         mergedDetailedActions = context.detailedActions
         if let snapshot = context.latestAuthoritativeSnapshot {
             latestSnapshot = .init(
                 sessionId: context.sessionId,
                 revision: context.revision,
+                matchGeneration: context.handle.matchGeneration,
                 snapshot: snapshot,
                 detailedActions: context.detailedActions
             )
@@ -487,6 +582,7 @@ extension WatchLinkService {
     }
 
     func endLocalSession() {
+        if let session = activeRecordSession { retiredRecordSessions.retire(session) }
         sessionMachine?.endSession()
         if let id = revisionGate.activeSessionId {
             revisionGate.endSession(id)
@@ -497,10 +593,13 @@ extension WatchLinkService {
         activeRevision = 0
         activeGameType = nil
         activeSetup = nil
+        peerSupportsCompressedFinish = false
         controlRole = nil
         acceptedSetup = nil
         pendingConfirmRequest = nil
         latestSnapshot = nil
+        sharedEditTracker = LinkSharedEditTracker()
+        simultaneousEditNotice = nil
         mergedDetailedActions = []
         phoneTookOver = false
         publishedFinishedMatchIds.removeAll()
@@ -576,7 +675,7 @@ extension WatchLinkService {
             return state.doubles?.playerNames.count == 4
         case (.shuttlecock, .rally(let state)):
             return state.doubles == nil || state.doubles?.playerNames.count == 4
-        case (.football, .football), (.football5v5, .football):
+        case (.football, .football), (.football5v5, .football), (.basketballTraining, .basketballTraining):
             return true
         case (.tennis, .tennis(let state)):
             return state.doublesPlayerNames == nil

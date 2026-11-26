@@ -8,16 +8,30 @@
 import SwiftUI
 
 enum TenSecondChallengePolicy {
+    static let presetSeconds: [Int] = [1, 3, 5, 10]
+    static let defaultTargetSeconds: Int = 10
     static let targetMilliseconds: TimeInterval = 10_000
     static let automaticStopMilliseconds: TimeInterval = 59_990
 
-    static func absoluteDifference(milliseconds: TimeInterval) -> TimeInterval {
-        abs(max(0, milliseconds) - targetMilliseconds)
+    static func normalizedTargetSeconds(_ seconds: Int) -> Int {
+        presetSeconds.contains(seconds) ? seconds : defaultTargetSeconds
+    }
+
+    static func targetMilliseconds(for targetSeconds: Int) -> TimeInterval {
+        TimeInterval(normalizedTargetSeconds(targetSeconds)) * 1_000
+    }
+
+    static func absoluteDifference(
+        milliseconds: TimeInterval,
+        targetSeconds: Int = defaultTargetSeconds
+    ) -> TimeInterval {
+        abs(max(0, milliseconds) - targetMilliseconds(for: targetSeconds))
     }
 }
 
 struct TenSecondChallengeView: View {
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("ten_second_target_seconds") private var storedTargetSeconds: Int = TenSecondChallengePolicy.defaultTargetSeconds
     @State private var isRunning = false
     @State private var currentTime: TimeInterval = 0 // milliseconds
     @State private var showResult = false
@@ -28,42 +42,49 @@ struct TenSecondChallengeView: View {
     @State private var startTimestamp: Date?
     private let hintShownKey = "ten_second_hint_shown"
 
+    private var selectedTargetSeconds: Int {
+        TenSecondChallengePolicy.normalizedTargetSeconds(storedTargetSeconds)
+    }
+
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Theme.backgroundColor.ignoresSafeArea()
-                
-                // Main content area
+        ZStack {
+            Theme.backgroundColor.ignoresSafeArea()
+
+            // Main content area
+            VStack {
+                Spacer()
+
+                // Time display
+                buildTimeDisplay()
+
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // Hint text (only show once, at bottom)
+            if !isRunning && currentTime == 0 && showHint {
                 VStack {
                     Spacer()
-                    
-                    // Time display
-                    buildTimeDisplay()
-                    
-                    Spacer()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
-                // Hint text (only show once, at bottom)
-                if !isRunning && currentTime == 0 && showHint {
+
                     VStack(spacing: 12) {
-                        Text(NSLocalizedString("tap_to_start_stop", comment: "Tap to start, try to stop at 10 seconds"))
+                        Text(NSLocalizedString("tap_to_start_stop", comment: "Tap to start, try to stop right on target"))
                             .font(.system(size: 18))
                             .foregroundColor(Theme.textSecondary)
                             .multilineTextAlignment(.center)
 
-                        Text(NSLocalizedString("target_10_seconds", comment: "Target is 10.00 seconds"))
+                        Text(String(format: NSLocalizedString("target_10_seconds", comment: "Target time format"), selectedTargetSeconds))
                             .font(.system(size: 14))
                             .foregroundColor(Theme.textSecondary)
                             .multilineTextAlignment(.center)
                     }
                     .padding(.horizontal, 32)
+                    .padding(.bottom, 32)
                     .frame(maxWidth: .infinity)
-                    .position(x: geometry.size.width / 2, y: geometry.size.height - 120)
                 }
+                .allowsHitTesting(false)
             }
         }
-        .navigationTitle(NSLocalizedString("ten_second_title", comment: "Ten Second Challenge title"))
+        .navigationTitle(NSLocalizedString("ten_second_title", comment: "Stop the Clock title"))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             checkAndShowHint()
@@ -72,14 +93,53 @@ struct TenSecondChallengeView: View {
             stopTimerIfNeeded()
         }
     }
-    
+
+    private var targetPicker: some View {
+        let unit = NSLocalizedString("seconds_short", value: "秒", comment: "")
+        return HStack(spacing: 4) {
+            ForEach(TenSecondChallengePolicy.presetSeconds, id: \.self) { seconds in
+                let selected = selectedTargetSeconds == seconds
+                Button {
+                    selectTarget(seconds)
+                } label: {
+                    Text("\(seconds)\(unit)")
+                        .font(.system(size: 14, weight: .semibold))
+                        .monospacedDigit()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        .foregroundStyle(selected ? Theme.textOnPrimary : Theme.textSecondary)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 36)
+                        .background(selected ? Theme.primary : .clear, in: Capsule())
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(isRunning)
+                .accessibilityIdentifier("ten_second_target_\(seconds)")
+                .accessibilityAddTraits(selected ? .isSelected : [])
+            }
+        }
+        .padding(3)
+        .background(Theme.controlBackground, in: Capsule())
+        .frame(maxWidth: 300)
+        .padding(.horizontal, 24)
+        .opacity(isRunning ? 0.55 : 1.0)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("ten_second_target_picker")
+    }
+
     @ViewBuilder
     private func buildTimeDisplay() -> some View {
         VStack(spacing: 16) {
+            targetPicker
+                .padding(.bottom, 12)
+
             // Main timer display
             Text(formatTime(currentTime))
                 .font(.system(size: 100, weight: .bold, design: .monospaced))
                 .foregroundColor(Theme.primary)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
             
             // Result display
             if showResult {
@@ -147,6 +207,23 @@ struct TenSecondChallengeView: View {
         }
     }
     
+    private func selectTarget(_ seconds: Int) {
+        guard !isRunning && selectedTargetSeconds != seconds else { return }
+        VibrationManager.shared.vibrateLight()
+        withAnimation(.easeInOut(duration: 0.16)) {
+            storedTargetSeconds = seconds
+        }
+        currentTime = 0
+        showResult = false
+        lastDifference = 0
+        AppAnalytics.track(.toolAction, parameters: [
+            .itemID: .string("ten_second"),
+            .actionName: .string("setting_change"),
+            .settingName: .string("target_seconds"),
+            .settingValue: .string("\(seconds)")
+        ])
+    }
+
     private func startChallenge() {
         if isRunning {
             stopChallenge()
@@ -156,12 +233,13 @@ struct TenSecondChallengeView: View {
             showResult = false
             currentTime = 0
             isRunning = true
-            
+
             let startTime = Date()
             startTimestamp = startTime
             AppAnalytics.track(.toolAction, parameters: [
                 .itemID: .string("ten_second"),
-                .actionName: .string("start")
+                .actionName: .string("start"),
+                .durationMS: .int(Int(TenSecondChallengePolicy.targetMilliseconds(for: selectedTargetSeconds)))
             ])
             
             timer = Timer.scheduledTimer(withTimeInterval: 0.01, repeats: true) { [self] timer in
@@ -192,8 +270,12 @@ struct TenSecondChallengeView: View {
         isRunning = false
         let finalTime = currentTime
 
-        // Calculate difference from 10 seconds
-        let difference = TenSecondChallengePolicy.absoluteDifference(milliseconds: finalTime)
+        // Calculate difference from selected target
+        let targetSeconds = selectedTargetSeconds
+        let difference = TenSecondChallengePolicy.absoluteDifference(
+            milliseconds: finalTime,
+            targetSeconds: targetSeconds
+        )
         lastDifference = difference
 
         // Vibration feedback based on accuracy
@@ -211,6 +293,7 @@ struct TenSecondChallengeView: View {
             .actionName: .string("result"),
             .elapsedMS: .int(Int(finalTime)),
             .deltaMS: .int(Int(difference)),
+            .durationMS: .int(Int(TenSecondChallengePolicy.targetMilliseconds(for: targetSeconds))),
             .result: .string(AnalyticsResult.success.rawValue)
         ])
     }

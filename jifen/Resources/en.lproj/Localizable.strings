@@ -277,7 +277,7 @@
 /* Messages */
 "duplicate_names_warning" = "Duplicate Names";
 "undone" = "Undone";
-"change_sides" = "Change Sides";
+"change_sides" = "Change Ends";
 "please_change_sides_manually" = "Please change sides manually";
 "press_again_to_exit" = "Tap again to exit";
 "click_again_to_reset" = "Tap again to reset";
@@ -328,7 +328,7 @@
 "tool_red_yellow_card" = "Cards";
 "tool_time" = "Flip Clock";
 "tool_aa_calculator" = "Bill Splitter";
-"tool_ten_second" = "10s Challenge";
+"tool_ten_second" = "Stop the Clock";
 
 /* Whistle Tool */
 "short_whistle" = "Whistle";
@@ -391,9 +391,9 @@
 "add" = "Add";
 
 /* Ten Second Challenge */
-"ten_second_title" = "10s Challenge";
-"tap_to_start_stop" = "Tap to start, try to stop at 10 seconds";
-"target_10_seconds" = "Target is 10.00 seconds";
+"ten_second_title" = "Stop the Clock";
+"tap_to_start_stop" = "Tap to start, try to stop right on target";
+"target_10_seconds" = "Target: %d.00s";
 "error_label" = "Difference";
 "seconds" = "s";
 "start" = "Start";
@@ -716,6 +716,7 @@
 "schedule_tiebreak_summary" = "Tiebreak to %d";
 "tomorrow" = "Tomorrow";
 "unfinished_discard_button" = "Discard";
+"unfinished_discard_confirm_button" = "Discard";
 "unfinished_abandon_confirm" = "Tap again to discard the game";
 
 /* Record detail / Boxing */
@@ -946,7 +947,7 @@
 "nine_ball_big_gold" = "Big Gold";
 "nine_ball_small_gold" = "Small Gold";
 "nine_ball_golden_nine" = "Golden Nine";
-"nine_ball_normal_win" = "Normal Win";
+"nine_ball_normal_win" = "Win";
 "nine_ball_decrease_points" = "Decrease the point value for %@";
 "nine_ball_current_points" = "%@ current points: %d";
 "nine_ball_increase_points" = "Increase the point value for %@";
@@ -1201,7 +1202,7 @@
 "football_switch_half" = "Second Half";
 "football_switch_half_message" = "The first half will be paused and cannot be reopened.";
 "football_switch_half_title" = "Start second half?";
-"football_undo_stoppage" = "Undo stoppage time";
+"football_undo_stoppage" = "Undo Stoppage";
 "medical_timeout" = "Medical Timeout";
 "official_break" = "Official Break";
 "official_break_prepare" = "Get ready";
@@ -1896,6 +1897,9 @@
 "group_published" = "Published";
 "group_qr_direct_hint" = "Scan in iScoreboard to preview and join.";
 "group_quick_score" = "Overall set score";
+"group_score_cap_format" = "%d-point cap";
+"group_no_score_cap" = "No cap";
+"group_side_out_scoring" = "Server only";
 "group_rally_scoring" = "Rally Scoring";
 "group_read_notices" = "Read";
 "group_registration_closes" = "Registration Deadline";
@@ -2944,7 +2948,7 @@
 "linked_score_watch_start_guide_message" = "Tap the watch button on the right to send the match. The watch controls scoring; the phone follows and saves the record.";
 "linked_score_watch_rejected" = "The watch rejected the linked session.";
 "linked_score_watch_timeout" = "Timed out waiting for watch confirmation.";
-"linked_score_takeover" = "Take over scoring";
+"linked_score_takeover" = "Take Control";
 "linked_score_resync" = "Sync Score";
 "linked_score_end" = "End link";
 "linked_watch_backgrounded" = "⚠️ Watch backgrounded, take over?";
@@ -2973,21 +2977,21 @@
 "linked_score_sport_snooker" = "🎱 Snooker";
 "watch_link_title" = "Watch Link";
 "watch_link_help" = "In supported setup dialogs, choose “Start on Apple Watch” to score on the watch while the phone follows the match.";
-"watch_sync_hero_title" = "Phone–Watch Link";
-"watch_sync_hero_description" = "Live scoring between phone and watch; common names sync to the watch automatically; finished watch matches sync back to the phone (except basketball training).";
+"watch_sync_hero_title" = "Watch Link";
+"watch_sync_hero_description" = "Score live across phone and watch, sync common names, and automatically receive finished matches and shooting drills from the watch.";
 "watch_sync_action_refresh" = "Refresh";
 "watch_sync_usage_title" = "How to use";
 "watch_sync_usage_prerequisite" = "Make sure ScoreKeeper is installed on both phone and watch, and keep them paired.";
 "watch_sync_usage_tab_live_scoring" = "Live scoring";
 "watch_sync_usage_tab_common_names" = "Common names";
 "watch_sync_usage_tab_watch_records" = "Watch records";
-"watch_sync_usage_step_1" = "Choose a supported sport on the phone.";
+"watch_sync_usage_step_1" = "Choose a supported activity on the phone, such as Shot Training.";
 "watch_sync_usage_step_2" = "Send to the watch; after confirmation the watch controls scoring.";
-"watch_sync_usage_step_3" = "The phone follows live; finished matches sync back.";
+"watch_sync_usage_step_3" = "The phone shows live scores and saves the record when the match or drill ends.";
 "watch_sync_common_names_step_1" = "Manage common names on the phone.";
 "watch_sync_common_names_step_2" = "Names sync to the watch automatically — no manual step.";
 "watch_sync_common_names_step_3" = "Use synced names when starting on the watch.";
-"watch_sync_watch_records_step_1" = "Finished watch matches sync to the phone automatically (rally sports, archery, eight-ball / nine-ball / snooker; basketball training stays on watch).";
+"watch_sync_watch_records_step_1" = "With Auto-Sync Records on, finished matches and shooting drills sync from the watch to your phone.";
 "watch_sync_watch_records_step_2" = "Phone Records and Recent mark them as “Watch record synced”.";
 "watch_sync_watch_records_step_3" = "Keep phone and watch paired — no manual sync needed.";
 "watch_sync_device_apple_watch" = "Apple Watch";
@@ -3034,6 +3038,7 @@
 "foosball_default_red_doubles" = "Red A/Red B";
 "foosball_default_blue_doubles" = "Blue A/Blue B";
 "eight_ball_race_to" = "Race To";
+"eight_ball_race_help_detail" = "Pick 3 = race to 3: first to win 3 frames.";
 "eight_ball_team1_gets" = "Red Receives";
 "eight_ball_team2_gets" = "Blue Receives";
 "eight_ball_handicap_racks_format" = "%d-rack handicap";
@@ -3091,3 +3096,13 @@
 "record_note_more_actions" = "More note actions";
 "record_note_voice_play_failed" = "Voice note playback failed, please retry";
 "sync_display_waiting_message" = "Open a scoreboard on the other device and start scoring";
+"basketball_auto_buzzer" = "Auto Buzzer";
+"basketball_auto_buzzer_on" = "Auto buzzer on (sounds at 00:00)";
+"basketball_auto_buzzer_off" = "Auto buzzer off";
+"scoreboard_sound_disabled_hint" = "Sound effects are off. Enable them in Settings.";
+
+"linked_score_shared_mode" = "Score on both devices";
+"linked_score_shared_start_guide_message" = "Tap the watch button. Once accepted, you can score on either device.";
+"watch_sync_shared_usage_step_2" = "Send the match to your watch. Once accepted, you can score on either device.";
+"watch_sync_shared_usage_step_3" = "Scores update on both devices. The phone saves the record when you finish.";
+"linked_score_simultaneous_edit" = "Both devices made changes. Check the score.";

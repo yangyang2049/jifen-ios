@@ -38,7 +38,6 @@ final class GroupRedesignUITests: XCTestCase {
             "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestSportsVoiceMissing",
             "-UITestFakeSession", "-UITestGroupsFixture", "-UITestGroupScan",
             "-UITestQRScanPayload", "https://jifenqi.com/groups/join?groupNo=12345678",
-            "-national_day_2026_10_autopopup_count", "99"
         ] + extra
         app.launch()
         let groups = app.navigationBars["我的小组"]
@@ -157,7 +156,7 @@ final class GroupRedesignUITests: XCTestCase {
 
     private func openGuestJoin(_ extra: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestSportsVoiceMissing", "-UITestGroupsFixture", "-UITestGroupJoinAuth", "-UITestShowPasswordLogin", "-national_day_2026_10_autopopup_count", "99"] + extra
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestSportsVoiceMissing", "-UITestGroupsFixture", "-UITestGroupJoinAuth", "-UITestShowPasswordLogin"] + extra
         app.launch()
         XCTAssertTrue(app.buttons["group_join"].waitForExistence(timeout: 15))
         app.buttons["group_join"].tap()
@@ -221,7 +220,7 @@ final class GroupRedesignUITests: XCTestCase {
 
     func testEnglishGroupHeadingsAndHomeMemberCount() {
         let app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestGroupsFixture", "-UITestGroupsFreshDrafts", "-national_day_2026_10_autopopup_count", "99"]
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestGroupsFixture", "-UITestGroupsFreshDrafts"]
         app.launch()
         XCTAssertTrue(app.navigationBars["My Groups"].waitForExistence(timeout: 15))
         XCTAssertEqual(app.buttons["group_create"].label, "Create Group")
@@ -250,7 +249,7 @@ final class GroupRedesignUITests: XCTestCase {
 
     func testHomeGroupCardOpensDetailAndArrowOpensListWithoutRefresh() {
         let app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestGroupsFixture", "-national_day_2026_10_autopopup_count", "99"]
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestGroupsFixture"]
         app.launch()
         XCTAssertTrue(app.navigationBars["我的小组"].waitForExistence(timeout: 15))
         app.navigationBars["我的小组"].buttons.firstMatch.tap()
@@ -276,7 +275,7 @@ final class GroupRedesignUITests: XCTestCase {
 
     func testHomeBellOpensNoticesDirectlyWithUnreadReminder() {
         let app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestGroupsFixture", "-national_day_2026_10_autopopup_count", "99"]
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestGroupsFixture"]
         app.launch()
         XCTAssertTrue(app.navigationBars["我的小组"].waitForExistence(timeout: 15))
         app.navigationBars["我的小组"].buttons.firstMatch.tap()
@@ -465,7 +464,7 @@ final class GroupRedesignUITests: XCTestCase {
     func testBetaNoticeCollapsesAndCanExpandInPopulatedAndEmptyLists() {
         for empty in [false, true] {
             let app = XCUIApplication()
-            app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestGroupsFixture", "-national_day_2026_10_autopopup_count", "99"]
+            app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestGroupsFixture"]
             if empty { app.launchArguments.append("-UITestGroupsListEmpty") }
             app.launch()
             XCTAssertTrue(app.buttons["group_create"].waitForExistence(timeout: 15))
@@ -505,7 +504,7 @@ final class GroupRedesignUITests: XCTestCase {
 
     func testInvitationColdAndWarmOpenPrefillsJoinPage() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-national_day_2026_10_autopopup_count", "99"]
+        app.launchArguments = ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints"]
         app.open(try XCTUnwrap(URL(string: "https://jifenqi.com/groups/join?groupNo=72856000")))
         let number = app.textFields["group_number"]
         XCTAssertTrue(number.waitForExistence(timeout: 15))
@@ -533,7 +532,7 @@ final class GroupRedesignUITests: XCTestCase {
     override func tearDownWithError() throws { XCUIDevice.shared.orientation = .portrait }
     private func openGroup(_ extra: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestGroupsFixture", "-national_day_2026_10_autopopup_count", "99"] + extra
+        app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestGroupsFixture"] + extra
         app.launch()
         if extra.contains("-UITestGroupsArchived") {
             let archive = app.descendants(matching: .any)["group_archived_entry"].firstMatch
@@ -1061,7 +1060,7 @@ final class GroupCrossPlatformCaptureUITests: XCTestCase {
         for (language, locale, expected) in [("en", "en_US", "Open"), ("zh-Hant", "zh_TW", "可加入"), ("de", "de_DE", "Offen")] {
             for appearance in ["Light", "Dark"] {
                 let app = XCUIApplication()
-                app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", locale, "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-national_day_2026_10_autopopup_count", "99", "-UITestGroupsCrossPlatform", "-GroupCaptureScene", "join", "-GroupCaptureNow", "1791864000000", "-GroupCaptureDataHash", canonicalHash, "-GroupCaptureSourceHash", sourceHash, "-GroupCaptureLocale", locale, "-jifen-v2.appAppearanceMode", appearance.lowercased(), "-AppleInterfaceStyle", appearance, "-GroupCaptureAppearance", appearance]
+                app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", locale, "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestGroupsCrossPlatform", "-GroupCaptureScene", "join", "-GroupCaptureNow", "1791864000000", "-GroupCaptureDataHash", canonicalHash, "-GroupCaptureSourceHash", sourceHash, "-GroupCaptureLocale", locale, "-jifen-v2.appAppearanceMode", appearance.lowercased(), "-AppleInterfaceStyle", appearance, "-GroupCaptureAppearance", appearance]
                 app.launch()
                 defer { app.terminate() }
                 try tap("group_join", app); try require("group_number", app)
@@ -1098,7 +1097,7 @@ final class GroupCrossPlatformCaptureUITests: XCTestCase {
                 do {
                     app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", locale,
                         "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing",
-                        "-national_day_2026_10_autopopup_count", "99", "-UITestGroupsCrossPlatform", "-GroupCaptureScene", scene,
+                        "-UITestGroupsCrossPlatform", "-GroupCaptureScene", scene,
                         "-GroupCaptureNow", "1791864000000", "-GroupCaptureDataHash", canonicalHash, "-GroupCaptureSourceHash", sourceHash,
                         "-GroupCaptureLocale", locale, "-GroupCaptureAppearance", "Light", "-jifen-v2.appAppearanceMode", "light",
                         "-AppleInterfaceStyle", "Light", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
@@ -1176,7 +1175,7 @@ final class GroupCrossPlatformCaptureUITests: XCTestCase {
                 let app = XCUIApplication()
                 defer { app.terminate() }
                 do {
-                    app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-national_day_2026_10_autopopup_count", "99", "-UITestGroupsCrossPlatform", "-GroupCaptureScene", scene, "-GroupCaptureNow", "1791864000000", "-GroupCaptureDataHash", canonicalHash, "-GroupCaptureSourceHash", sourceHash, "-jifen-v2.appAppearanceMode", appearance.lowercased(), "-AppleInterfaceStyle", appearance, "-GroupCaptureAppearance", appearance, "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
+                    app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN", "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-UITestFakeSession", "-UITestSportsVoiceMissing", "-UITestGroupsCrossPlatform", "-GroupCaptureScene", scene, "-GroupCaptureNow", "1791864000000", "-GroupCaptureDataHash", canonicalHash, "-GroupCaptureSourceHash", sourceHash, "-jifen-v2.appAppearanceMode", appearance.lowercased(), "-AppleInterfaceStyle", appearance, "-GroupCaptureAppearance", appearance, "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryL"]
                     app.launchArguments += ["-GroupCaptureRealActivityNavigation", realActivityNavigation]
                     if ["activity-edit", "activity-registration", "registration-draft", "activity-conflict"].contains(reportAliases[scene] ?? scene) {
                         // Keep editable capture fixtures in the future as real policy uses the current device clock.

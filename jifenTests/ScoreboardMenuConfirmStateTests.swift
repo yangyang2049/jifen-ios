@@ -290,4 +290,109 @@ final class ScoreboardMenuConfirmStateTests: XCTestCase {
         XCTAssertFalse(NineBallUndoPolicy.isAllowed(finished: false, gameOverPresented: true))
         XCTAssertTrue(NineBallUndoPolicy.isAllowed(finished: false, gameOverPresented: false))
     }
+
+    func testBasketballMenuMovesSwapSidesToToolsRemovesWhistleAndAddsAutoBuzzer() throws {
+        let enabledItems = BasketballMenuItemPolicy.items(
+            resetConfirming: false,
+            exchangeConfirming: false,
+            finishConfirming: false,
+            autoBuzzerEnabled: true,
+            finished: false,
+            sharingActive: false
+        )
+        let orderedMatch = ScoreboardMenuItemBuilder.orderedMatchItems(
+            enabledItems.filter { $0.group == .match }
+        )
+        XCTAssertEqual(orderedMatch.map(\.action), ["undo", "reset", "endGame"])
+
+        let tools = enabledItems.filter { $0.group == .tools }
+        XCTAssertFalse(tools.contains { $0.action == "whistle" })
+
+        let exchange = try XCTUnwrap(tools.first { $0.action == ScoreboardMenuActionID.exchangeSide.rawValue })
+        XCTAssertTrue(exchange.enabled)
+        XCTAssertFalse(exchange.confirming)
+
+        let autoBuzzer = try XCTUnwrap(tools.first { $0.action == BasketballMenuItemPolicy.autoBuzzerActionID })
+        XCTAssertEqual(autoBuzzer.icon, "bell.fill")
+        XCTAssertNotNil(autoBuzzer.activeColor)
+        XCTAssertTrue(autoBuzzer.enabled)
+        XCTAssertTrue(autoBuzzer.keepDialogOpen)
+
+        let disabledFinishedItems = BasketballMenuItemPolicy.items(
+            resetConfirming: false,
+            exchangeConfirming: true,
+            finishConfirming: false,
+            autoBuzzerEnabled: false,
+            finished: true,
+            sharingActive: false
+        )
+        let disabledTools = disabledFinishedItems.filter { $0.group == .tools }
+        let disabledExchange = try XCTUnwrap(disabledTools.first { $0.action == ScoreboardMenuActionID.exchangeSide.rawValue })
+        XCTAssertFalse(disabledExchange.enabled)
+        XCTAssertTrue(disabledExchange.confirming)
+
+        let disabledAutoBuzzer = try XCTUnwrap(disabledTools.first { $0.action == BasketballMenuItemPolicy.autoBuzzerActionID })
+        XCTAssertEqual(disabledAutoBuzzer.icon, "bell.slash")
+        XCTAssertNil(disabledAutoBuzzer.activeColor)
+        XCTAssertTrue(disabledAutoBuzzer.enabled)
+    }
+
+    func testBasketballMainClockExpirationIncludesTiedFourthQuarterEnteringOvertime() {
+        var fiveVFive = BasketballMatchEngine.initial(leftName: "A", rightName: "B", gameMode: .fiveVFive)
+        fiveVFive.gameRunning = true
+        fiveVFive.shotRunning = true
+        fiveVFive.gameTimeSeconds = 1
+        XCTAssertTrue(BasketballSessionStore.mainClockExpires(from: fiveVFive, with: .tickClock))
+
+        fiveVFive.currentPeriod = 4
+        fiveVFive.leftScore = 10
+        fiveVFive.rightScore = 10
+        let enteredOvertime = BasketballMatchEngine.tickClock(fiveVFive)
+        XCTAssertTrue(enteredOvertime.isOvertime)
+        XCTAssertGreaterThan(enteredOvertime.gameTimeSeconds, 0)
+        XCTAssertTrue(BasketballSessionStore.mainClockExpires(from: fiveVFive, with: .tickClock))
+        XCTAssertFalse(BasketballSessionStore.mainClockExpires(from: fiveVFive, with: .enterOvertime))
+        XCTAssertFalse(BasketballSessionStore.mainClockExpires(from: fiveVFive, with: .finish))
+        XCTAssertFalse(BasketballSessionStore.mainClockExpires(from: fiveVFive, with: .reset))
+
+        var overtime = enteredOvertime
+        overtime.gameRunning = true
+        overtime.gameTimeSeconds = 1
+        XCTAssertTrue(BasketballSessionStore.mainClockExpires(from: overtime, with: .tickClock))
+        overtime.gameRunning = false
+        XCTAssertFalse(BasketballSessionStore.mainClockExpires(from: overtime, with: .tickClock))
+
+        fiveVFive.gameTimeSeconds = 100
+        fiveVFive.shotTimeSeconds = 1
+        XCTAssertFalse(BasketballSessionStore.mainClockExpires(from: fiveVFive, with: .tickClock))
+    }
+
+    func testBasketballMainClockExpirationExcludesThreeOnThreeOvertimeShotClock() {
+        var threeXThree = BasketballMatchEngine.initial(leftName: "A", rightName: "B", gameMode: .threeXThree)
+        threeXThree.gameRunning = true
+        threeXThree.shotRunning = true
+        threeXThree.gameTimeSeconds = 1
+        XCTAssertTrue(BasketballSessionStore.mainClockExpires(from: threeXThree, with: .tickClock))
+        var overtime = BasketballMatchEngine.tickClock(threeXThree)
+        XCTAssertTrue(overtime.isOvertime)
+        overtime.gameRunning = true
+        overtime.shotRunning = true
+        overtime.shotTimeSeconds = 1
+        XCTAssertFalse(BasketballSessionStore.mainClockExpires(from: overtime, with: .tickClock))
+    }
+
+    func testBasketballAutoBuzzerPreferenceDefaultsOnPersistsAndResets() throws {
+        let suite = "basketball-auto-buzzer-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+
+        let preferences = PreferencesManager(defaults: defaults)
+        XCTAssertTrue(preferences.basketballAutoBuzzerEnabled)
+
+        preferences.basketballAutoBuzzerEnabled = false
+        XCTAssertFalse(PreferencesManager(defaults: defaults).basketballAutoBuzzerEnabled)
+
+        preferences.resetToOfflineReleaseDefaults()
+        XCTAssertTrue(PreferencesManager(defaults: defaults).basketballAutoBuzzerEnabled)
+    }
 }

@@ -153,8 +153,8 @@ final class TennisSessionStore {
         self.init(resumeBundle: bundle)
     }
 
-    func makeFreshMatchStore() -> TennisSessionStore {
-        let resetState = TennisMatchReducer().reduce(
+    func makeFreshMatchStore(initialState: TennisMatchState? = nil) -> TennisSessionStore {
+        let resetState = initialState ?? TennisMatchReducer().reduce(
             state: state,
             intent: .reset,
             at: Int64(Date().timeIntervalSince1970 * 1_000)
@@ -346,16 +346,24 @@ final class TennisSessionStore {
                 lastAppliedRemoteRevision = nil
             }
         }
-        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
+        if revision == lastAppliedRemoteRevision {
+            mergeRemoteActions(incoming)
+            completedSetScores = Self.completedSetScores(from: detailedActions)
+            return false
+        }
+        if let lastAppliedRemoteRevision, revision < lastAppliedRemoteRevision {
             return false
         }
         lastAppliedRemoteRevision = revision
         _ = await operationTask?.value
         let session = await core.rebase(to: state, status: state.finished ? .finished : .live)
-        guard lastAppliedRemoteRevision == revision else { return false }
+        guard lastAppliedRemoteRevision == revision,
+              matchGeneration == nil || lastAppliedRemoteGeneration == matchGeneration else { return false }
         self.state = session.state
-        if session.status == .live || !persistFormalRecord {
+        if session.status == .live {
             hasPersistedFinishedRecord = false
+        } else if !persistFormalRecord {
+            hasPersistedFinishedRecord = true
         }
         mergeRemoteActions(incoming)
         completedSetScores = Self.completedSetScores(from: detailedActions)

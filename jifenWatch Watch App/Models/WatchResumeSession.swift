@@ -46,7 +46,8 @@ enum WatchResumePayload: Codable, Sendable {
     )
     case basketballTraining(
         mode: WatchBasketballTrainingMode,
-        history: [WatchBasketballTrainingShot]
+        history: [WatchBasketballTrainingShot],
+        earlierCounts: ShotTrainingCounts? = nil
     )
 
     /// Artwork lookup for the resume bar; nil when no sport artwork applies.
@@ -194,6 +195,7 @@ final class WatchResumeSessionStore {
     private let defaults: UserDefaults
     private let now: () -> Date
     private let storageKey = "watch_resume_session"
+    private let pendingFinishedRecordsKey = "watch_pending_local_finish_records"
     private let legacyCleanupMarkerKey = "watch_resume_legacy_cleanup_v1"
     /// 得分高频触发 persistResumeSession；把落盘合并为 750ms 防抖，
     /// 内存中的 session 立即更新（resume/clear 语义不受影响），
@@ -312,6 +314,56 @@ final class WatchResumeSessionStore {
         }
     }
 
+    /// Keep the exact record and ID across a failed write and a watch app restart.
+    func saveFinishedRecord(
+        _ record: WatchScoreboardRecord,
+        using save: @MainActor (WatchScoreboardRecord) -> Bool = { WatchRecordManager.shared.saveRecord($0) }
+    ) -> Bool {
+        var pending = pendingFinishedRecords
+        let candidate: WatchScoreboardRecord
+        if let staged = pending.first(where: {
+            $0.gameType == record.gameType && $0.startTime == record.startTime
+        }) {
+            candidate = staged
+        } else {
+            candidate = record
+            pending.append(candidate)
+            guard let data = try? JSONEncoder().encode(pending) else { return false }
+            defaults.set(data, forKey: pendingFinishedRecordsKey)
+        }
+        guard save(candidate) else {
+            flushPendingWrite()
+            return false
+        }
+        if session?.startedAt == candidate.startTime, session?.link == nil { clear() }
+        removePendingFinishedRecords { $0.id == candidate.id }
+        return true
+    }
+
+    func cancelPendingTrainingFinish(startedAt: Date) {
+        removePendingFinishedRecords { $0.gameType == .basketballTraining && $0.startTime == startedAt }
+    }
+
+    private func removePendingFinishedRecords(where shouldRemove: (WatchScoreboardRecord) -> Bool) {
+        let pending = pendingFinishedRecords.filter { !shouldRemove($0) }
+        if pending.isEmpty {
+            defaults.removeObject(forKey: pendingFinishedRecordsKey)
+        } else if let data = try? JSONEncoder().encode(pending) {
+            defaults.set(data, forKey: pendingFinishedRecordsKey)
+        }
+    }
+
+    func retryPendingFinishedRecords(
+        using save: @MainActor (WatchScoreboardRecord) -> Bool = { WatchRecordManager.shared.saveRecord($0) }
+    ) {
+        for record in pendingFinishedRecords { _ = saveFinishedRecord(record, using: save) }
+    }
+
+    private var pendingFinishedRecords: [WatchScoreboardRecord] {
+        guard let data = defaults.data(forKey: pendingFinishedRecordsKey) else { return [] }
+        return (try? JSONDecoder().decode([WatchScoreboardRecord].self, from: data)) ?? []
+    }
+
     private func scheduleWrite(_ data: Data, forKey key: String) {
         pendingWrite = (data, key)
         pendingWriteTask?.cancel()
@@ -359,8 +411,14 @@ final class WatchResumeSessionStore {
         guard let value = session, value.link?.sessionId == context.sessionId else { return }
 
         let updated: (payload: WatchResumePayload, scoreLine: String)?
+        let startedAt: Date
+        if let training = snapshot.basketballTrainingState {
+            startedAt = training.startTime
+        } else {
+            startedAt = value.startedAt
+        }
         switch (value.payload, snapshot) {
-        case (.rally(let gameType, let bundle, let restState), .rally(let state)):
+        case (.rally(let gameType, let bundle, _), .rally(let state)):
             let score = state.leftSets + state.rightSets > 0
                 ? "\(state.leftSets) - \(state.rightSets)"
                 : "\(state.leftPoints) : \(state.rightPoints)"
@@ -368,11 +426,11 @@ final class WatchResumeSessionStore {
                 .rally(
                     gameType: gameType,
                     bundle: replacingCurrentState(in: bundle, with: state),
-                    restState: restState
+                    restState: WatchRestState.fromOfficialBreak(state.officialBreakState)
                 ),
                 score
             )
-        case (.tennis(let isDoubles, let bundle, let restState), .tennis(let state)):
+        case (.tennis(let isDoubles, let bundle, _), .tennis(let state)):
             let score = state.rules.setScoringMode == .tiebreakOnly
                 ? "\(state.leftPoints) : \(state.rightPoints)"
                 : "\(state.leftSets) - \(state.rightSets)"
@@ -380,7 +438,7 @@ final class WatchResumeSessionStore {
                 .tennis(
                     isDoubles: isDoubles,
                     bundle: replacingCurrentState(in: bundle, with: state),
-                    restState: restState
+                    restState: WatchRestState.fromOfficialBreak(state.officialBreakState)
                 ),
                 score
             )
@@ -404,6 +462,16 @@ final class WatchResumeSessionStore {
             updated = (
                 .snooker(state: state, undoStates: [], leftName: leftName, rightName: rightName),
                 "\(state.leftFrames)-\(state.rightFrames) / \(state.leftScore):\(state.rightScore)"
+            )
+        case (.basketballTraining, .basketballTraining(let state)):
+            let counts = state.counts
+            updated = (
+                .basketballTraining(
+                    mode: WatchBasketballTrainingMode(linkedMode: state.mode),
+                    history: state.shots.map(WatchBasketballTrainingShot.init(linkedShot:)),
+                    earlierCounts: state.earlierCounts
+                ),
+                "\(counts.made)/\(counts.attempts) = \(counts.rate)%"
             )
         case (.football(let isFiveAside, _, _, let leftName, let rightName), .football(let state)):
             let footballState = WatchFootballState(
@@ -430,7 +498,7 @@ final class WatchResumeSessionStore {
         var actionLog = value.actionLog
         actionLog.merge(detailedActions: context.setup.detailedActions)
         save(WatchResumeSession(
-            startedAt: value.startedAt,
+            startedAt: startedAt,
             scoreLine: updated.scoreLine,
             emoji: value.emoji,
             payload: updated.payload,

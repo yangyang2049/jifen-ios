@@ -78,6 +78,7 @@ struct WatchNineBallScoreView: View {
     @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let linkedSessionId: UUID?
+    @State private var showRecordSaveFailure = false
     @State private var state: NineBallChaseState
     @State private var showMenu = false
     @State private var matchStartTime = Date()
@@ -162,14 +163,14 @@ struct WatchNineBallScoreView: View {
                 WatchFinishedOverlay(
                     title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
                     scoreItems: (0..<state.playerCount).map {
-                        WatchFinishedScoreItem(name: displayName(at: $0), score: String(playerPoints(at: $0)))
+                        WatchFinishedScoreItem(name: displayName(at: $0), score: playerPoints(at: $0))
                     },
-                    winnerText: nineBallWinnerText,
                     undoAvailable: finishUndoAvailable,
+                    canPlayAgain: !scoringLocked,
                     onUndo: undoFinishedNineBall,
                     onPlayAgain: restartMatch,
                     onExit: {
-                        finalizeNineBall()
+                        guard finalizeNineBall() else { return }
                         exitNineBall()
                     }
                 )
@@ -182,6 +183,7 @@ struct WatchNineBallScoreView: View {
                 )
             }
         }
+        .watchFinishSaveFailure(isPresented: $showRecordSaveFailure) { finalizeNineBall() }
         .onAppear {
             if state.playerCount < 4 {
                 scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
@@ -191,9 +193,13 @@ struct WatchNineBallScoreView: View {
             guard state.playerCount < 4 else { return }
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
-        .onChange(of: linkService.latestSnapshot) { _, update in
-            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
+        .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
+            guard linkService.incomingSnapshot != nil, let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let remote = update.snapshot.nineBallState else { return }
+            if linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+                matchStartTime = Date()
+                actionLog.reset(at: matchStartTime)
+            }
             applyAuthoritativeNineBall(remote, detailedActions: update.detailedActions)
         }
         .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
@@ -306,11 +312,11 @@ struct WatchNineBallScoreView: View {
         }
         return Group {
             if state.playerCount == 4 {
-                // Both rows use the same name inset in the vertical layout.
+                // Reuse the clock clearance in every quadrant to align both rows.
                 VStack(spacing: 0) {
                     nameRow
                         .padding(.horizontal, 4)
-                        .padding(.top, isHorizontal && index < 2 ? (WatchLayout.isCompactScreen ? 30 : 38) : 12)
+                        .padding(.top, WatchLayout.isCompactScreen ? 30 : 38)
                     Spacer(minLength: 2)
                     scoreLabel
                     Spacer(minLength: 4)
@@ -764,7 +770,7 @@ struct WatchNineBallScoreView: View {
     }
 
     private func publish() {
-        guard linkedSessionId != nil, linkService.isController else { return }
+        guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
         linkService.publishSnapshot(.nineBall(state), detailedActions: actionLog.detailedActions)
     }
 
@@ -776,10 +782,9 @@ struct WatchNineBallScoreView: View {
         return left > right ? .left : .right
     }
 
-    private func saveLocalRecordIfNeeded() {
-        guard linkedSessionId == nil, !didSaveFinishedRecord else { return }
-        guard hasNineBallProgress else { return }
-        didSaveFinishedRecord = true
+    private func saveLocalRecordIfNeeded() -> Bool {
+        guard linkedSessionId == nil, !didSaveFinishedRecord else { return true }
+        guard hasNineBallProgress else { return true }
         let end = Date()
         let leftName = displayName(at: 0)
         let rightName = state.playerCount > 1
@@ -815,7 +820,7 @@ struct WatchNineBallScoreView: View {
             },
             projectConfiguration: ["playerCount": String(state.playerCount)]
         )
-        WatchRecordManager.shared.saveRecord(record)
+        return resumeStore.saveFinishedRecord(record)
     }
 
     private func normalizedLayout(_ raw: String) -> String {
@@ -831,7 +836,7 @@ struct WatchNineBallScoreView: View {
     }
 
     private func restartMatch() {
-        guard !scoringLocked else { return }
+        guard !scoringLocked, finalizeNineBall() else { return }
         resumeStore.clear()
         finishTask?.cancel()
         let result = NineBallChaseReducer().reduce(state: state, intent: .resetScores, at: nowMs())
@@ -892,17 +897,6 @@ struct WatchNineBallScoreView: View {
 
     private var compactNineBallScore: String {
         (0..<state.playerCount).map { "\(playerPoints(at: $0))" }.joined(separator: " · ")
-    }
-
-    private var nineBallWinnerText: String? {
-        let scores = (0..<state.playerCount).map { playerPoints(at: $0) }
-        guard let maximum = scores.max(),
-              scores.filter({ $0 == maximum }).count == 1,
-              let index = scores.firstIndex(of: maximum) else { return nil }
-        return String.localizedStringWithFormat(
-            NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: ""),
-            displayName(at: index)
-        )
     }
 
     private func nineBallEventTitle(_ kind: NineBallChaseKind) -> String {
@@ -983,11 +977,13 @@ struct WatchNineBallScoreView: View {
         }
     }
 
-    private func finalizeNineBall(manualEnd: Bool = false) {
-        guard state.finished, !didSaveFinishedRecord else { return }
-        resumeStore.clear()
-        if linkedSessionId != nil, linkService.isController {
-            linkService.publishMatchFinished(
+    @discardableResult
+    private func finalizeNineBall(manualEnd: Bool = false) -> Bool {
+        guard state.finished, !didSaveFinishedRecord, !scoringLocked else { return true }
+        finishUndoAvailable = false
+        let saved: Bool
+        if linkedSessionId != nil {
+            saved = linkService.publishMatchFinished(
                 snapshot: .nineBall(state),
                 recordId: "w_\(UUID().uuidString)",
                 winnerSide: winnerSide(),
@@ -998,10 +994,16 @@ struct WatchNineBallScoreView: View {
                 detailedActions: actionLog.detailedActions,
                 participantNames: (0..<state.playerCount).map { displayName(at: $0) }
             )
-            didSaveFinishedRecord = true
         } else {
-            saveLocalRecordIfNeeded()
+            saved = saveLocalRecordIfNeeded()
         }
+        guard saved else {
+            showRecordSaveFailure = true
+            return false
+        }
+        didSaveFinishedRecord = true
+        resumeStore.clear()
+        return true
     }
 
     private func undoFinishedNineBall() {
@@ -1018,17 +1020,18 @@ struct WatchNineBallScoreView: View {
     }
 
     private func exitNineBall() {
-        if linkedSessionId != nil {
-            linkService.exitScoreboardToHome()
-        }
+        if let linkedSessionId { linkService.exitScoreboard(sessionId: linkedSessionId) }
         persistResumeSession()
         dismiss()
     }
 
     private func persistResumeSession() {
         let scores = Array(state.playerPoints.prefix(state.playerCount))
-        guard !state.finished,
-              scores.contains(where: { $0 != 0 }) || !undoStack.isEmpty else {
+        if state.finished {
+            if didSaveFinishedRecord { resumeStore.clear() }
+            return
+        }
+        guard scores.contains(where: { $0 != 0 }) || !undoStack.isEmpty else {
             resumeStore.clear()
             return
         }

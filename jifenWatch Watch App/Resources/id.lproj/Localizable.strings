@@ -1,0 +1,422 @@
+/* Watch App - id */
+
+/* Tab Bar */
+"tab_score" = "Skor";
+"tab_tools" = "Alat";
+"tab_timer" = "Pengatur waktu";
+
+/* Game Types */
+"game_badminton" = "Bulutangkis";
+"game_pingpong" = "Tenis Meja";
+"game_tennis" = "Tenis";
+"game_pickleball" = "Pickleball";
+"game_archery" = "Panahan";
+"tool_basketball_training" = "Latihan Tembakan";
+
+/* Tools */
+"tool_flip_coin" = "Lempar Koin";
+"tool_random_number" = "Angka acak";
+"tool_ten_second" = "Hentikan Waktu";
+"game_counter" = "Penghitung";
+"press_again_to_reset" = "Ketuk lagi untuk mereset";
+
+/* Records */
+"records" = "Catatan";
+"loading" = "Memuat";
+"no_records" = "Tidak Ada Catatan";
+"record_not_found" = "Catatan tidak ditemukan";
+"match_details" = "Detail Pertandingan";
+"match_record" = "Catatan Pertandingan";
+"delete_record" = "Hapus Catatan";
+"confirm_deletion" = "Konfirmasi Penghapusan";
+"cannot_be_recovered_after_deletion" = "Ini tidak dapat dibatalkan";
+"date" = "Tanggal";
+"time" = "Waktu";
+"duration" = "Durasi";
+
+/* Common */
+"cancel" = "Batal";
+"confirm" = "Konfirmasi";
+"delete" = "Hapus";
+"setup" = "Pengaturan";
+"vibration" = "Getaran";
+"sound" = "Suara";
+"watch_scoreboard_keep_screen_on" = "Tetap Aktifkan Layar";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Panduan";
+"usage_prompt_message" = "Ketuk sisi untuk menambah poin\nUsap ke bawah untuk membatalkan\nTekan lama untuk membuka menu";
+"got_it" = "Mengerti";
+
+/* Privacy */
+"privacy_policy" = "Kebijakan Privasi";
+"scan_to_view_details" = "Pindai kode untuk melihat detail";
+
+/* Settings / About */
+"version" = "Versi";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Umpan Balik";
+"watch_contact_us" = "Hubungi kami";
+
+/* Scoreboard menu */
+"menu_undo" = "Batalkan";
+"menu_reset" = "Setel ulang";
+"watch_continue" = "Lanjutkan";
+"watch_end_match" = "Selesai";
+"watch_layout_vertical" = "Vertikal";
+"watch_layout_horizontal" = "Horizontal";
+"watch_settings_layout_title" = "Tata letak";
+"watch_reset_toast" = "Atur Ulang";
+"watch_undo_toast" = "Dibatalkan";
+"watch_play_again" = "Mainkan Lagi";
+"watch_exit" = "Keluar";
+"exit" = "Keluar";
+"watch_team_red" = "Merah";
+"watch_team_blue" = "Biru";
+"team_a" = "Tim A";
+"team_b" = "Tim B";
+"team_home" = "Tuan Rumah";
+"team_away" = "Tandang";
+"player_a" = "Pemain A";
+"player_b" = "Pemain B";
+"archer_a" = "Pemanah A";
+"archer_b" = "Pemanah B";
+"linked_score_confirm_title" = "Tautan ponsel–jam?";
+"linked_score_phone_started_scoreboard" = "Tautan ponsel–jam · Permainan dimulai";
+"linked_score_accept" = "Terima";
+"linked_score_reject" = "Tolak";
+"linked_score_watch_reclaim" = "Ambil alih";
+"linked_score_setup_rules" = "%1$d set · %2$d poin";
+"linked_score_setup_rules_sets" = "%d set";
+"linked_score_setup_race_to" = "Target %d";
+"linked_score_sport_badminton" = "Tunggal Bulutangkis";
+"linked_score_sport_badminton_doubles" = "Bulu Tangkis Ganda";
+"linked_score_sport_pingpong" = "Tunggal Tenis Meja";
+"linked_score_sport_pingpong_doubles" = "Tenis Meja Ganda";
+"linked_score_sport_tennis" = "Tenis Tunggal";
+"linked_score_sport_tennis_doubles" = "Tenis Ganda";
+"linked_score_sport_pickleball" = "Tunggal Pickleball";
+"linked_score_sport_pickleball_doubles" = "Pickleball Ganda";
+"game_basketball" = "Bola Basket";
+"game_three_basketball" = "Bola Basket 3x3";
+"linked_score_sport_archery" = "Panahan";
+"linked_score_sport_eight_ball" = "Bola delapan";
+"linked_score_sport_nine_ball" = "Kejar 9 Bola";
+"linked_score_sport_snooker" = "Snooker";
+"linked_score_sport_shuttlecock" = "Jianzi";
+"linked_score_sport_squash" = "Squash";
+"linked_score_sport_foosball" = "Sepak Bola Meja";
+"linked_score_sport_football" = "Sepak bola";
+"linked_score_sport_football_5v5" = "Sepak Bola 5×5";
+"watch_menu_end_match" = "Akhiri Pertandingan";
+"watch_menu_restart" = "Mulai ulang";
+"watch_bball_overtime" = "Perpanjangan Waktu";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d Pemain";
+"archery_closest_title" = "Tembakan Penentu · Terdekat dengan Pusat";
+"archery_closest_message" = "Seri pada %d — pilih panah yang lebih dekat ke pusat";
+"watch_set_end_format" = "Set %d Selesai";
+"watch_match_start" = "Permainan dimulai";
+"watch_match_finished" = "Pertandingan Selesai";
+"watch_bb_hit_rate" = "Akurasi";
+"watch_bb_end_training" = "Akhiri Latihan";
+"watch_training_finish_confirm_title" = "Akhiri latihan?";
+"watch_training_finish_confirm_message" = "Latihan akan berakhir dan disimpan.";
+"watch_counter_finish_confirm_title" = "Akhiri hitungan?";
+"watch_counter_finish_confirm_message" = "Hitungan disimpan dan dimulai lagi dari nol.";
+"watch_bb_restart" = "Mulai ulang";
+
+/* Records */
+"clear_all_records" = "Hapus Semua Catatan";
+"clear_all_records_message" = "Semua rekaman akan dihapus permanen.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Kepala";
+"watch_coin_tails" = "Ekor";
+"watch_archery_miss" = "Meleset";
+"watch_flip_coin_hint" = "Ketuk untuk lempar koin";
+"watch_ten_second_challenge" = "Hentikan Waktu";
+"watch_ten_second_usage" = "Ketuk untuk mulai. Ketuk lagi tepat pada waktu target.";
+"watch_mid_game_rest" = "Istirahat di tengah gim";
+"watch_rest_between_sets" = "Istirahat antar gim";
+"watch_official_timeout" = "Time-out";
+"watch_medical_break" = "Medis";
+"watch_score_event_set_title" = "Set %d Selesai";
+"watch_score_event_set_detail" = "%1$@ Menang %2$d:%3$d · Set %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Set %d · Istirahat di tengah gim";
+"watch_score_event_mid_game_detail" = "%1$@ Unggul %2$d:%3$d · Set %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Set %d Selesai";
+"watch_score_event_tennis_game_detail" = "%1$@ Menang · Permainan %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Set %d Selesai";
+"watch_score_event_tennis_set_detail" = "%1$@ Menang %2$d:%3$d · Set %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "Tiebreak 7 Poin";
+"watch_tiebreak_indicator_10" = "Tiebreak 10 Poin";
+"watch_continue_match" = "Lanjutkan";
+"watch_continue_scoring" = "Lanjutkan";
+"watch_resume_discard" = "Buang pertandingan yang belum selesai";
+"watch_resume_discard_training" = "Buang latihan yang belum selesai";
+"unit_hour" = "j";
+"unit_minute" = "m";
+"unit_second" = "d";
+"today" = "Hari ini";
+"yesterday" = "Kemarin";
+
+/* Sports setup */
+"watch_setup_start" = "Mulai";
+"watch_setup_sets" = "Set";
+"watch_setup_points_per_set" = "Poin per Set";
+"watch_setup_tennis_deuce" = "Aturan Deuce";
+"watch_setup_tennis_advantage" = "Advantage";
+"watch_setup_tennis_no_ad" = "Tanpa Advantage";
+"watch_setup_target_score" = "Skor Sasaran";
+"watch_setup_rally_scoring" = "Skor Reli";
+"watch_setup_target_racks" = "Target";
+"watch_setup_race_racks" = "Balapan ke";
+"watch_setup_race_racks_help" = "3 = pertama ke 3 frame";
+"watch_setup_handicap" = "Handicap";
+"watch_setup_handicap_none" = "Tidak ada";
+"watch_setup_handicap_red_gives_blue" = "Merah → Biru";
+"watch_setup_handicap_blue_gives_red" = "Biru → Merah";
+"watch_setup_handicap_racks" = "Rak handicap";
+"watch_setup_frames" = "Frame";
+"watch_setup_custom_frames" = "Frame khusus";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Masukkan 1-99";
+"watch_setup_players" = "Pemain";
+"watch_setup_archers" = "Pemanah";
+"watch_setup_player_number" = "Pemain %d";
+"watch_setup_red_a" = "Merah A";
+"watch_setup_red_b" = "Merah B";
+"watch_setup_blue_a" = "Biru A";
+"watch_setup_blue_b" = "Biru B";
+"watch_setup_name_missing" = "Isi semua nama atau kosongkan semuanya";
+"watch_setup_select_players" = "Pemain";
+"watch_setup_player_count" = "%d Pemain";
+"watch_common_names_select_player" = "Pilih Pemain";
+"watch_common_names_no_records" = "Tidak ada nama tersimpan";
+"watch_common_names_title" = "Nama Tersimpan";
+"watch_common_names_add" = "Tambahkan";
+"watch_common_names_edit" = "Sunting Nama";
+"watch_common_names_delete_title" = "Hapus nama?";
+"watch_common_names_error_title" = "Gagal memperbarui";
+"watch_common_names_players" = "Pemain";
+"watch_common_names_teams" = "tim";
+"watch_common_names_empty" = "Tidak ada nama tersimpan";
+"watch_common_names_team_placeholder" = "Nama Tim";
+"watch_common_names_player_placeholder" = "Nama Pemain";
+"watch_common_names_length_hint" = "Maks. %d karakter";
+"watch_common_names_error_empty" = "Nama tidak boleh kosong";
+"watch_common_names_error_duplicate" = "Nama sudah ada";
+"watch_common_names_error_missing" = "Catatan tidak ditemukan · Coba lagi";
+"watch_common_names_error_generic" = "Tidak dapat menyimpan. Silakan coba lagi.";
+"watch_common_names_sync_now" = "Sinkronkan sekarang";
+"watch_common_names_actions" = "Nama Tersimpan";
+"watch_common_names_sync_requested" = "Menunggu sinkronisasi";
+"watch_common_names_sync_queued" = "Ponsel terputus · Menunggu sinkronisasi";
+"watch_common_names_sync_inactive" = "Ponsel terputus";
+"watch_common_names_sync_failed" = "Koneksi gagal · Coba lagi";
+"watch_common_names_sync_conflict" = "Beberapa perubahan belum tersinkron";
+"watch_common_names_sync_pending" = "Menunggu sinkronisasi";
+"watch_common_names_sync_unavailable" = "Ponsel terputus";
+"watch_common_names_sync_done" = "Tersinkron";
+"watch_common_names_pending_count" = "Menunggu sinkronisasi · %d";
+"watch_common_names_never_synced" = "Belum tersinkron";
+"watch_common_names_last_sync" = "Sinkron terakhir %@";
+
+"watch_phone_link_title" = "Tautan jam";
+"watch_phone_link_intro" = "Mulai di ponsel, catat skor di jam";
+"watch_phone_link_support" = "Bulutangkis · Sepak bola · Panahan · Latihan Tembakan…";
+"watch_phone_link_status" = "Status koneksi";
+"watch_phone_link_steps" = "Cara Menggunakan";
+"watch_phone_link_step_1" = "Siapkan pertandingan atau latihan tembakan di ponsel.";
+"watch_phone_link_step_2" = "Mulai · Apple Watch";
+"watch_phone_link_step_3" = "Catat skor di jam. Rekaman disinkronkan setelah selesai.";
+"watch_phone_link_help" = "Pasangkan kedua perangkat, instal iScoreboard di keduanya, lalu buka di ponsel.";
+"watch_phone_link_testing" = "Menguji";
+"watch_phone_link_normal" = "Terhubung";
+"watch_phone_link_failed" = "Koneksi gagal";
+"watch_phone_link_reachable" = "Terhubung";
+"watch_phone_link_waiting" = "Menunggu ponsel";
+"watch_phone_link_inactive" = "Ponsel terputus";
+"watch_phone_link_testing_detail" = "Menunggu ponsel";
+"watch_phone_link_normal_detail" = "Terhubung";
+"watch_phone_link_failed_detail" = "Ponsel tidak merespons dalam 8 detik.";
+"watch_phone_link_failed_inactive" = "Ponsel terputus · Coba lagi";
+"watch_phone_link_failed_unreachable" = "Buka iScoreboard di ponsel lalu coba lagi.";
+"watch_phone_link_failed_send" = "Koneksi gagal · Coba lagi";
+"watch_phone_link_reachable_detail" = "Uji";
+"watch_phone_link_waiting_detail" = "Buka iScoreboard di ponsel lalu coba lagi.";
+"watch_phone_link_test_waiting" = "Menguji…";
+"watch_phone_link_test_retry" = "Coba lagi";
+"watch_phone_link_test" = "Uji";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Koneksi terakhir %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Mode latihan";
+"watch_bb_1pt" = "1 poin";
+"watch_bb_2pt" = "2 poin";
+"watch_bb_3pt" = "3 poin";
+"watch_bb_free" = "Bebas";
+"watch_training_miss" = "Meleset";
+"watch_training_made" = "Masuk";
+"watch_training_point_value" = "%d poin";
+"watch_training_breakdown" = "Rincian tembakan";
+"watch_training_start" = "Latihan Tembakan · Mulai";
+"watch_training_rate_format" = "Akurasi %d%%";
+"watch_training_action_format" = "%d poin · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Sematkan di atas?";
+"watch_home_pin_confirm" = "Sematkan";
+"watch_home_unpin_title" = "Lepas sematan?";
+"watch_home_unpin_confirm" = "Lepas sematan";
+"watch_home_pin_full_title" = "Batas sematan";
+"watch_home_pin_full_message" = "Maksimal 2 sematan. Lepas satu terlebih dahulu.";
+"watch_home_pin_hint" = "Tekan lama untuk menyematkan";
+"watch_home_pin_success" = "Disematkan";
+"watch_home_unpin_success" = "Sematan dilepas";
+"multi_score_player_default_format" = "Pemain %d";
+"nine_ball_big_gold" = "Emas Besar";
+"nine_ball_small_gold" = "Emas Kecil";
+"nine_ball_golden_nine" = "9 emas";
+"nine_ball_normal_win" = "Menang biasa";
+"nine_ball_ball_in_hand" = "Bola di Tangan";
+"nine_ball_foul" = "Pelanggaran";
+"watch_archery_set_rest" = "Jeda Set";
+"watch_finish_confirm_title" = "Akhiri Pertandingan?";
+"watch_finish_confirm_message" = "Pertandingan akan berakhir dan disimpan.";
+"watch_reset_confirm_title" = "Mulai ulang pertandingan?";
+"watch_reset_confirm_message" = "Skor saat ini akan dihapus.";
+"watch_side_exchange" = "Tukar sisi";
+"watch_winner_format" = "%@ Menang";
+"watch_finished_win_badge" = "W";
+"watch_finished_winner" = "Pemenang";
+"watch_finished_home" = "Beranda";
+"watch_snooker_foul" = "Pelanggaran";
+"watch_snooker_foul_selected_format" = "Pelanggaran +%d";
+"watch_snooker_foul_next_turn" = "Ganti Giliran";
+"watch_snooker_foul_switch_turn" = "Ganti Giliran";
+"watch_snooker_foul_continue" = "Lanjutkan";
+"watch_action_snooker_foul_continue_format" = "%@· Pelanggaran · Lawan +%d · Pelaku terus berlanjut";
+"watch_snooker_handover" = "Ganti Giliran";
+"watch_snooker_settle_frame" = "Selesaikan Frame";
+"watch_snooker_choose_frame_winner" = "Pilih Pemenang Frame";
+"watch_snooker_frame_finished" = "Putaran selesai";
+"watch_snooker_next_frame" = "Frame Berikutnya";
+"watch_training_breakdown_format" = "%d poin · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Jarak sama. Lanjutkan tembakan penentu.";
+"edit" = "Sunting";
+"game_badminton_doubles" = "Bulu Tangkis Ganda";
+"game_eight_ball" = "Bola delapan";
+"game_nine_ball" = "Kejar 9 Bola";
+"game_pickleball_doubles" = "Pickleball Ganda";
+"game_pingpong_doubles" = "Tenis Meja Ganda";
+"game_snooker" = "Snooker";
+"game_tennis_doubles" = "Tenis Ganda";
+"save" = "Simpan";
+"watch_action_adjust_score_format" = "%@· Skor berubah";
+"watch_action_archery_arrow_format" = "%@+%d poin";
+"watch_action_archery_closest" = "Tembakan Penentu · Terdekat dengan Pusat";
+"watch_action_archery_miss_format" = "%@· Meleset";
+"watch_action_archery_set_ready" = "Panahan · Putaran selesai";
+"watch_action_ball_potted_format" = "%@ · Bola masuk %@";
+"watch_action_basketball_foul_format" = "%@· Pelanggaran";
+"watch_action_basketball_period_format" = "Periode %d · Mulai";
+"watch_action_basketball_timeout_format" = "%@· Time-out";
+"watch_action_edit_name" = "Diperbarui";
+"watch_action_exchange_sides" = "Ganti Sisi";
+"watch_action_exchange_sides_reminder" = "Silakan ganti sisi secara manual";
+"watch_action_game_finished_format" = "Set %1$d Selesai · %2$@ Menang";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ Menang";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Set %1$d Selesai · %2$@ Menang";
+"watch_action_shooter_format" = "%@ mulai memanah";
+"watch_action_side_out_format" = "Servis · %@";
+"watch_action_snooker_foul_format" = "%@· Pelanggaran · Lawan +%d";
+"watch_action_snooker_frame_format" = "Frame %1$d · %2$@ Menang";
+"watch_action_snooker_handover_format" = "Ganti Giliran · %@";
+"watch_action_snooker_miss_format" = "%@· Meleset";
+"watch_action_snooker_next_frame_format" = "Frame %d · Mulai";
+"watch_action_snooker_pot_format" = "%@· Bola masuk +%d";
+"watch_record_actions_unavailable" = "Tidak Ada Catatan";
+"linked_score_error_title" = "Koneksi gagal";
+"linked_score_persistence_failed" = "Tautan ponsel–jam · Gagal menyimpan: %@";
+"resume_persistence_error_title" = "Gagal menyimpan";
+"resume_persistence_failed" = "Lanjutkan pertandingan · Gagal menyimpan: %@";
+"linked_score_control_timeout" = "Ambil alih · Waktu tunggu habis · Coba lagi";
+"linked_score_sync_timeout" = "Waktu tunggu habis · Menunggu sinkronisasi";
+
+/* Football */
+"game_football" = "Sepak bola";
+"game_football_5v5" = "Sepak Bola 5×5";
+"watch_setup_half_length" = "Durasi per Babak";
+"watch_setup_teams" = "tim";
+"football_first_half" = "Babak Pertama";
+"football_second_half" = "Babak Kedua";
+"football_extra_time_first" = "Perpanjangan waktu — babak pertama";
+"football_extra_time_second" = "Perpanjangan waktu — babak kedua";
+"football_first_half_over" = "Babak pertama berakhir";
+"football_switch_half" = "Babak Kedua";
+"football_switch_half_title" = "Mulai babak kedua?";
+"football_switch_half_message" = "Babak pertama akan dijeda dan tidak dapat dibuka kembali.";
+"football_extra_time_first_over" = "Perpanjangan waktu — babak pertama · Putaran selesai";
+"football_switch_extra_time_half" = "Perpanjangan waktu — babak kedua";
+"football_enter_extra_time_title" = "Waktu regulasi berakhir";
+"football_post_regulation_action" = "Setelah Regulasi";
+"football_injury_title" = "Waktu Tambahan Cedera";
+"football_undo_stoppage" = "Batalkan Waktu Tambahan Cedera";
+"football_enter_extra_time" = "Mulai Perpanjangan Waktu";
+"football_end_as_draw" = "Berakhir sebagai seri";
+"football_goal_hint" = "Ketuk untuk tambah gol";
+"watch_football_start" = "Mulai";
+"watch_football_pause" = "Jeda";
+"watch_football_resume" = "Lanjutkan";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Mulai · %@";
+"watch_action_football_stoppage_format" = "Waktu Tambahan Cedera +%d d";
+"watch_action_football_clock_start" = "Pengatur waktu dimulai";
+"watch_action_football_clock_pause" = "Pengatur waktu dijeda";
+"watch_record_sync_sent" = "Tersinkron";
+"watch_record_sync_pending" = "Menunggu sinkronisasi";
+"watch_record_sync_not_synced" = "Belum tersinkron ke iPhone";
+"watch_record_sync_action" = "Sinkronkan ke iPhone";
+"watch_settings_auto_sync_records" = "Sinkron otomatis";
+"game_shuttlecock" = "Jianzi";
+"game_squash" = "Squash";
+"game_foosball" = "Sepak Bola Meja";
+
+"watch_setup_win_by_two" = "Menang Set Terakhir dengan Selisih 2";
+"watch_setup_score_cap" = "Batas Skor";
+"watch_setup_serving_side" = "Pihak yang Servis Pertama";
+"watch_setup_kickoff_side" = "Kick-off pertama";
+"watch_setup_side_left" = "Merah";
+"watch_setup_side_right" = "Biru";
+
+"watch_about_us" = "Tentang Kami";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Versi %@";
+"watch_wechat_group_title" = "Grup WeChat";
+"watch_wechat_group_scan_hint" = "WeChat · Pindai kode untuk melihat detail";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Break";
+"watch_nine_ball_select_payer" = "Pilih pembayar";
+"watch_nine_ball_select_continue" = "Pilih pemain berikut";
+"watch_nine_ball_prev_player" = "Sebelumnya";
+"watch_nine_ball_next_player" = "Berikutnya";
+"watch_nine_ball_continue_badge" = "Main";
+
+"watch_a11y_points_format" = "%d poin";
+"watch_a11y_sets_format" = "%d set";
+"watch_a11y_serving" = "Servis";
+
+"watch_phone_shared_link_intro" = "Mulai di ponsel dan catat skor di salah satu perangkat.";
+"linked_score_simultaneous_edit" = "Kedua perangkat membuat perubahan. Periksa skor.";

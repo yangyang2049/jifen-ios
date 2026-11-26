@@ -2,14 +2,56 @@ import UIKit
 import XCTest
 
 @MainActor
+final class WatchLinkIntroUITests: XCTestCase {
+    func testWatchLinkIntroTakesPriorityAndIsShownOnlyOnce() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        let arguments = [
+            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent", "-UITestWatchLinkIntro", "-PreviewWechatBindingPrompt",
+            // A previously paired test device can still hold a live match.
+            "-phone_link_context", "UITest"
+        ]
+        app.launchArguments = arguments + ["-watch_link_intro_seen_3.4.4", "NO"]
+        app.launch()
+        defer { app.terminate() }
+
+        let title = app.staticTexts["watch_link_intro_title"]
+        let done = app.buttons["watch_link_intro_done"]
+        let bindingPrompt = app.staticTexts["wechat_binding_prompt_title"]
+        XCTAssertTrue(title.waitForExistence(timeout: 12))
+        XCTAssertEqual(title.label, "手机手表，双端计分")
+        XCTAssertTrue(done.isHittable)
+        XCTAssertEqual(done.label, "知道了")
+        XCTAssertFalse(bindingPrompt.exists)
+
+        let preview = XCTAttachment(screenshot: app.screenshot())
+        preview.name = "watch-link-intro-native"
+        preview.lifetime = .keepAlways
+        add(preview)
+
+        done.tap()
+        XCTAssertTrue(title.waitForNonExistence(timeout: 5))
+        XCTAssertFalse(bindingPrompt.exists)
+        XCTAssertFalse(app.alerts.firstMatch.exists)
+
+        app.terminate()
+        app.launchArguments = arguments
+        app.launch()
+
+        XCTAssertTrue(bindingPrompt.waitForExistence(timeout: 12))
+        XCTAssertFalse(title.exists)
+    }
+}
+
+@MainActor
 final class WechatBindingPromptUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
     func testBindingButtonInSignedOutPreviewOpensLoginAfterPromptCloses() {
         let app = XCUIApplication()
         app.launchArguments = ["-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
-            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-PreviewWechatBindingPrompt",
-            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-PreviewWechatBindingPrompt"]
         app.launch()
         defer { app.terminate() }
         let bind = app.buttons["wechat_binding_prompt_bind"]
@@ -27,8 +69,7 @@ final class WechatBindingPromptUITests: XCTestCase {
         ] {
             let app = XCUIApplication()
             app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleLocale", "zh_CN",
-                "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-PreviewWechatBindingPrompt",
-                "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
+                "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints", "-PreviewWechatBindingPrompt"]
             app.launch()
             let heading = app.staticTexts["wechat_binding_prompt_title"]
             XCTAssertTrue(heading.waitForExistence(timeout: 12))
@@ -65,8 +106,7 @@ final class WechatLoginEntryUITests: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = [
             "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
-            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints",
-            "-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints"
         ]
         app.launch()
         let me = app.tabBars.buttons["我的"]
@@ -170,11 +210,6 @@ final class MainFlowUITests: XCTestCase {
             guard app.wait(for: .notRunning, timeout: 5) else { return false }
         }
         RunLoop.current.run(until: Date().addingTimeInterval(0.2))
-        if !app.launchArguments.contains("-national_day_2026_last_shown_at") {
-            // Suppress the date-based campaign through the argument domain;
-            // it must not obscure unrelated flows or alter saved preferences.
-            app.launchArguments += ["-national_day_2026_last_shown_at", String(Date().timeIntervalSince1970)]
-        }
         app.launch()
         return app.wait(for: .runningForeground, timeout: timeout)
     }

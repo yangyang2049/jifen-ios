@@ -8,6 +8,7 @@ struct GroupInlineMatchRoster: View {
     var frozen = false
     var frozenSeats: [GroupSeat] = []
     var showSeatLabels = true
+    var showSeatBorders = true
     var prominentText = false
     var opensPicker = false
     var rosterGroupID: String?
@@ -115,7 +116,9 @@ struct GroupInlineMatchRoster: View {
                                 .frame(width: 22, height: 22)
                                 .background(Theme.primary.opacity(0.12), in: Circle())
                         }
+                        // 名称用主文本色：冻结席位只锁交互，必须仍是纯黑（Theme.textPrimary）。
                         Text(name(at: index)).font(.system(size: prominentText ? prominentNameSize : nameSize))
+                            .foregroundStyle(Theme.textPrimary)
                             .multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         if showSeatLabels { Text(badge(index)).font(.system(size: badgeSize)).foregroundStyle(Theme.textSecondary) }
@@ -124,9 +127,15 @@ struct GroupInlineMatchRoster: View {
                     .foregroundStyle(Theme.textPrimary)
                     .background(!frozen && activeSeat == index ? Theme.primary.opacity(0.12) : GroupEditorColors.input,
                                 in: RoundedRectangle(cornerRadius: 8))
-                    .overlay(RoundedRectangle(cornerRadius: 8).strokeBorder(!frozen && activeSeat == index ? Theme.primary : Color(uiColor: .separator), lineWidth: !frozen && activeSeat == index ? 1.5 : 1))
+                    .overlay {
+                        if showSeatBorders {
+                            RoundedRectangle(cornerRadius: 8)
+                                .strokeBorder(!frozen && activeSeat == index ? Theme.primary : Color(uiColor: .separator),
+                                              lineWidth: !frozen && activeSeat == index ? 1.5 : 1)
+                        }
+                    }
                 }
-                .buttonStyle(.plain).disabled(frozen)
+                .buttonStyle(GroupSeatButtonStyle()).disabled(frozen)
                 .accessibilityIdentifier("group_seat_" + badge(index))
                 .accessibilityLabel(badge(index)).accessibilityValue(name(at: index))
                 .accessibilityAddTraits(activeSeat == index && !frozen ? .isSelected : [])
@@ -166,6 +175,14 @@ struct GroupInlineMatchRoster: View {
             self.activeSeat = indices.first { next[$0].isEmpty }
         } else { return }
         ids = next
+    }
+}
+
+/// 席位的按压反馈自己实现：`.plain` 在 disabled 时会把整行名称压暗成灰色，
+/// 而活动排阵锁定的席位仍要按主文本色显示。
+private struct GroupSeatButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label.opacity(configuration.isPressed ? 0.7 : 1)
     }
 }
 

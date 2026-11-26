@@ -7,6 +7,72 @@ private struct SetupFieldScrollTarget: Equatable {
     let viewportHeight: CGFloat
 }
 
+
+extension View {
+    /// 「在手表开始」的首次使用引导：延迟出现、定时收起、只提示一次。
+    /// 通用 Setup 弹层与投篮训练弹层共用同一份实现，避免两处逻辑各自漂移。
+    ///   - isEligible: 当前是否允许手表主控（决定是否尝试弹出）。
+    ///   - dismissWhen: 变为 true 时立刻收起（例如已经发起握手）。
+    func linkedScoreWatchStartGuide(isEligible: Bool, dismissWhen: Bool = false) -> some View {
+        modifier(
+            LinkedScoreWatchStartGuideModifier(
+                isEligible: isEligible,
+                dismissWhen: dismissWhen
+            )
+        )
+    }
+}
+
+private struct LinkedScoreWatchStartGuideModifier: ViewModifier {
+    let isEligible: Bool
+    let dismissWhen: Bool
+
+    @State private var isVisible = false
+
+    func body(content: Content) -> some View {
+        content
+            .popover(
+                isPresented: $isVisible,
+                attachmentAnchor: .rect(.bounds),
+                arrowEdge: .bottom
+            ) {
+                LinkedScoreWatchStartGuidePopover { hide() }
+            }
+            .onChange(of: dismissWhen) { _, shouldDismiss in
+                if shouldDismiss { hide() }
+            }
+            .task(id: isEligible) { await presentIfNeeded() }
+    }
+
+    private func hide() {
+        isVisible = false
+        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
+    }
+
+    @MainActor
+    private func presentIfNeeded() async {
+        guard !isVisible else { return }
+        guard isEligible, !PreferencesManager.shared.linkedScoreWatchStartGuideShown else { return }
+        do {
+            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.showDelay)
+        } catch {
+            return
+        }
+        guard !Task.isCancelled,
+              isEligible,
+              !PreferencesManager.shared.linkedScoreWatchStartGuideShown else { return }
+
+        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
+        isVisible = true
+
+        do {
+            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.visibleDuration)
+        } catch {
+            return
+        }
+        isVisible = false
+    }
+}
 enum LinkedScoreWatchStartGuidePolicy {
     static let showDelay: Duration = .milliseconds(120)
     static let visibleDuration: Duration = .milliseconds(4_800)
@@ -23,8 +89,8 @@ struct LinkedScoreWatchStartGuidePopover: View {
                     .foregroundStyle(Theme.textPrimary)
 
                 Text(NSLocalizedString(
-                    "linked_score_watch_start_guide_title",
-                    value: "手表主控计分",
+                    "linked_score_shared_mode",
+                    value: "Score on both devices",
                     comment: ""
                 ))
                 .font(.system(size: 13, weight: .semibold))
@@ -49,8 +115,8 @@ struct LinkedScoreWatchStartGuidePopover: View {
             }
 
             Text(NSLocalizedString(
-                "linked_score_watch_start_guide_message",
-                value: "点右侧手表按钮发送到手表，由手表主控；手机同步显示并保存记录。",
+                "linked_score_shared_start_guide_message",
+                value: "Tap the watch button. Once accepted, you can score on either device.",
                 comment: ""
             ))
             .font(.system(size: 12))
@@ -90,7 +156,6 @@ struct SportsSetupDialogView: View {
     @State private var setupToastDismissTask: Task<Void, Never>?
     @State private var showExitWhileSendingConfirm = false
     @State private var showWatchNotForegroundAlert = false
-    @State private var showWatchStartGuide = false
 
     // Managers
     private let commonNamesManager = CommonNamesManager.shared
@@ -157,9 +222,6 @@ struct SportsSetupDialogView: View {
         .animation(.easeInOut(duration: 0.2), value: setupToastMessage)
         .onAppear {
             initializeView()
-        }
-        .task(id: canStartOnWatch) {
-            await presentWatchStartGuideIfNeeded()
         }
         .onChange(of: draft.isSingles) { _, newValue in
             guard shouldShowSinglesDoublesAtTop() else { return }
@@ -228,7 +290,6 @@ struct SportsSetupDialogView: View {
                             ))
 
                         Button {
-                            dismissWatchStartGuide()
                             Task { await confirmSetup(startOnWatch: true) }
                         } label: {
                             Group {
@@ -241,11 +302,12 @@ struct SportsSetupDialogView: View {
                                 }
                             }
                             .frame(width: 50, height: 44)
-                            .foregroundStyle(.white)
-                            .background(Theme.primary.opacity(0.78))
+                            .foregroundStyle(isStartBlockedByGroup ? Theme.textSecondary : Theme.textOnPrimary)
+                            .background(isStartBlockedByGroup ? Theme.dialogControlBackground : Theme.primary.opacity(0.78))
                         }
                         .buttonStyle(.plain)
-                        .disabled(isSendingSetupToWatch)
+                        .disabled(isStartBlockedByGroup || isSendingSetupToWatch)
+                        .accessibilityIdentifier("sports_setup_watch_start")
                         .clipShape(UnevenRoundedRectangle(
                             topLeadingRadius: 0,
                             bottomLeadingRadius: 0,
@@ -257,15 +319,10 @@ struct SportsSetupDialogView: View {
                             value: "在手表开始",
                             comment: "Start scoreboard on watch"
                         ))
-                        .popover(
-                            isPresented: $showWatchStartGuide,
-                            attachmentAnchor: .rect(.bounds),
-                            arrowEdge: .bottom
-                        ) {
-                            LinkedScoreWatchStartGuidePopover(
-                                onDismiss: dismissWatchStartGuide
-                            )
-                        }
+                        .linkedScoreWatchStartGuide(
+                            isEligible: canStartOnWatch,
+                            dismissWhen: isSendingSetupToWatch
+                        )
                     }
                     .frame(maxWidth: .infinity)
                     .clipShape(Capsule())
@@ -309,41 +366,6 @@ struct SportsSetupDialogView: View {
         }
     }
 
-    private func dismissWatchStartGuide() {
-        showWatchStartGuide = false
-        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
-    }
-
-    @MainActor
-    private func presentWatchStartGuideIfNeeded() async {
-        guard canStartOnWatch else {
-            showWatchStartGuide = false
-            return
-        }
-        guard !PreferencesManager.shared.linkedScoreWatchStartGuideShown else {
-            showWatchStartGuide = false
-            return
-        }
-
-        do {
-            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.showDelay)
-        } catch {
-            return
-        }
-        guard !Task.isCancelled,
-              canStartOnWatch,
-              !PreferencesManager.shared.linkedScoreWatchStartGuideShown else { return }
-
-        PreferencesManager.shared.linkedScoreWatchStartGuideShown = true
-        showWatchStartGuide = true
-
-        do {
-            try await Task.sleep(for: LinkedScoreWatchStartGuidePolicy.visibleDuration)
-        } catch {
-            return
-        }
-        showWatchStartGuide = false
-    }
 
     private func startButton(startOnWatch: Bool) -> some View {
         Button {
@@ -351,15 +373,18 @@ struct SportsSetupDialogView: View {
         } label: {
             Text(NSLocalizedString("start_game", comment: "Start Game button"))
                 .font(.system(size: 16, weight: .medium))
-                .foregroundStyle(Theme.textOnPrimary)
+                .foregroundStyle(isStartBlockedByGroup ? Theme.textSecondary : Theme.textOnPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
-                .background(Theme.primary)
+                .background(isStartBlockedByGroup ? Theme.dialogControlBackground : Theme.primary)
         }
         .buttonStyle(.plain)
-        .disabled(groupSelection?.ready(groupSeatIndices) == false || isSendingSetupToWatch)
-        .opacity(groupSelection?.ready(groupSeatIndices) == false ? 0.4 : (isSendingSetupToWatch ? 0.7 : 1))
-        .accessibilityIdentifier("sports_setup_start")    }
+        .disabled(isStartBlockedByGroup || isSendingSetupToWatch)
+        .opacity(isSendingSetupToWatch ? 0.7 : 1)
+        .accessibilityIdentifier("sports_setup_start")
+    }
+
+    private var isStartBlockedByGroup: Bool { groupSelection?.ready(groupSeatIndices) == false }
 
     private var groupSeatIndices: [Int] { shouldUseDoublesPlayerInputs() ? [0, 1, 2, 3] : [0, 2] }
 
@@ -411,7 +436,8 @@ struct SportsSetupDialogView: View {
     }
 
     private var canStartOnWatch: Bool {
-        AppFeatureFlags.watchLinkEntryEnabled
+        groupSelection == nil
+            && AppFeatureFlags.watchLinkEntryEnabled
             && AppFeatureFlags.isWatchLinkSupportedOnCurrentDevice
             && supportsWatchProject
     }

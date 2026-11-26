@@ -16,7 +16,7 @@
 /* Tools */
 "tool_flip_coin" = "抛硬币";
 "tool_random_number" = "随机数字";
-"tool_ten_second" = "十秒挑战";
+"tool_ten_second" = "掐秒挑战";
 "game_counter" = "计数器";
 "press_again_to_reset" = "再次点击以确认重置";
 
@@ -30,19 +30,18 @@
 "delete_record" = "删除记录";
 "confirm_deletion" = "确认删除";
 "cannot_be_recovered_after_deletion" = "删除后无法恢复。";
-"wins_suffix" = " 获胜";
 "date" = "日期";
 "time" = "时间";
-"duration" = "时长";
+"duration" = "持续时间";
 
 /* Common */
 "cancel" = "取消";
-"confirm" = "确定";
+"confirm" = "确认";
 "delete" = "删除";
 "setup" = "设置";
 "vibration" = "振动";
 "sound" = "声音";
-"watch_scoreboard_keep_screen_on" = "计分时常亮";
+"watch_scoreboard_keep_screen_on" = "屏幕常亮";
 
 /* Ping Pong / Tennis Sets */
 
@@ -69,7 +68,7 @@
 "watch_layout_vertical" = "上下";
 "watch_layout_horizontal" = "左右";
 "watch_settings_layout_title" = "布局";
-"watch_reset_toast" = "已重置";
+"watch_reset_toast" = "重置";
 "watch_undo_toast" = "已撤销";
 "watch_play_again" = "再来一场";
 "watch_exit" = "退出";
@@ -89,27 +88,28 @@
 "linked_score_accept" = "接受";
 "linked_score_reject" = "拒绝";
 "linked_score_watch_reclaim" = "手表接管";
-"linked_score_setup_rules" = "%d局 | %d分";
+"linked_score_setup_rules" = "%d局 · %d分";
 "linked_score_setup_rules_sets" = "%d盘";
-"linked_score_sport_badminton" = "🏸 羽毛球单打";
-"linked_score_sport_badminton_doubles" = "🏸 羽毛球双打";
-"linked_score_sport_pingpong" = "🏓 乒乓球单打";
-"linked_score_sport_pingpong_doubles" = "🏓 乒乓球双打";
-"linked_score_sport_tennis" = "🎾 网球单打";
-"linked_score_sport_tennis_doubles" = "🎾 网球双打";
-"linked_score_sport_pickleball" = "🏓 匹克球单打";
-"linked_score_sport_pickleball_doubles" = "🏓 匹克球双打";
+"linked_score_setup_race_to" = "抢%d局";
+"linked_score_sport_badminton" = "羽毛球单打";
+"linked_score_sport_badminton_doubles" = "羽毛球双打";
+"linked_score_sport_pingpong" = "乒乓球单打";
+"linked_score_sport_pingpong_doubles" = "乒乓球双打";
+"linked_score_sport_tennis" = "网球单打";
+"linked_score_sport_tennis_doubles" = "网球双打";
+"linked_score_sport_pickleball" = "匹克球单打";
+"linked_score_sport_pickleball_doubles" = "匹克球双打";
 "game_basketball" = "篮球";
 "game_three_basketball" = "三人篮球";
-"linked_score_sport_archery" = "🏹 射箭";
-"linked_score_sport_eight_ball" = "🎱 黑八";
-"linked_score_sport_nine_ball" = "🎱 追分";
-"linked_score_sport_snooker" = "🎱 斯诺克";
-"linked_score_sport_shuttlecock" = "🏸 毽子";
-"linked_score_sport_squash" = "🎾 壁球";
-"linked_score_sport_foosball" = "⚽ 桌上足球";
-"linked_score_sport_football" = "⚽ 足球";
-"linked_score_sport_football_5v5" = "⚽ 五人制足球";
+"linked_score_sport_archery" = "射箭";
+"linked_score_sport_eight_ball" = "八球";
+"linked_score_sport_nine_ball" = "九球追分";
+"linked_score_sport_snooker" = "斯诺克";
+"linked_score_sport_shuttlecock" = "毽球";
+"linked_score_sport_squash" = "壁球";
+"linked_score_sport_foosball" = "桌上足球";
+"linked_score_sport_football" = "足球";
+"linked_score_sport_football_5v5" = "五人制足球";
 "watch_menu_end_match" = "结束比赛";
 "watch_menu_restart" = "重新开始";
 "watch_bball_overtime" = "加时";
@@ -124,24 +124,25 @@
 "watch_training_finish_confirm_title" = "结束训练？";
 "watch_training_finish_confirm_message" = "将结束并保存本次训练。";
 "watch_counter_finish_confirm_title" = "结束计数？";
-"watch_counter_finish_confirm_message" = "将结束并保存本次计数。";
-"watch_bb_restart" = "再来一次";
+"watch_counter_finish_confirm_message" = "将结束并保存本次计数，然后从 0 重新开始。";
+"watch_bb_restart" = "重新开始";
 
 /* Records */
-"clear_all_records" = "清除全部记录";
+"clear_all_records" = "删除全部记录";
 "clear_all_records_message" = "将删除所有记录，此操作无法撤销。";
-"minutes_ago" = "%d分钟前";
-"hours_ago" = "%d小时前";
-"days_ago" = "%d天前";
 
 /* Tools extras */
 "watch_coin_heads_text" = "666";
-"watch_archery_miss" = "M";
+"watch_coin_heads" = "正面";
+"watch_coin_tails" = "反面";
+"watch_archery_miss" = "脱靶";
 "watch_flip_coin_hint" = "点击抛硬币";
-"watch_ten_second_challenge" = "十秒挑战";
-"watch_ten_second_usage" = "点击开始计时，再次点击停止，目标是 10.00 秒";
+"watch_ten_second_challenge" = "掐秒挑战";
+"watch_ten_second_usage" = "选择 1/3/5/10 秒目标，点击开始计时，再次点击尽量准时停止";
 "watch_mid_game_rest" = "局中休息";
 "watch_rest_between_sets" = "局间休息";
+"watch_official_timeout" = "暂停";
+"watch_medical_break" = "医疗中断";
 "watch_score_event_set_title" = "第%d局结束";
 "watch_score_event_set_detail" = "%@胜 %d:%d · 局分 %d:%d";
 "watch_score_event_mid_game_title" = "第%d局 · 局中间歇";
@@ -156,13 +157,11 @@
 "watch_continue_scoring" = "继续计分";
 "watch_resume_discard" = "放弃未完成比赛";
 "watch_resume_discard_training" = "放弃未完成训练";
-"watch_resume_confirm_discard" = "确认放弃";
 "unit_hour" = "时";
 "unit_minute" = "分";
 "unit_second" = "秒";
 "today" = "今天";
 "yesterday" = "昨天";
-"month_day_format" = "%d月%d日";
 
 /* Sports setup */
 "watch_setup_start" = "开始";
@@ -174,6 +173,8 @@
 "watch_setup_target_score" = "目标分";
 "watch_setup_rally_scoring" = "每球得分";
 "watch_setup_target_racks" = "目标局数";
+"watch_setup_race_racks" = "抢局";
+"watch_setup_race_racks_help" = "选 3 = 抢3：先赢 3 局";
 "watch_setup_handicap" = "让局";
 "watch_setup_handicap_none" = "不让局";
 "watch_setup_handicap_red_gives_blue" = "红让蓝";
@@ -185,7 +186,7 @@
 "watch_setup_custom_frames_invalid" = "请输入 1–99 的局数";
 "watch_setup_players" = "选手";
 "watch_setup_archers" = "射手";
-"watch_setup_player_number" = "选手 %d";
+"watch_setup_player_number" = "玩家 %d";
 "watch_setup_red_a" = "红A";
 "watch_setup_red_b" = "红B";
 "watch_setup_blue_a" = "蓝A";
@@ -203,14 +204,14 @@
 "watch_common_names_players" = "选手";
 "watch_common_names_teams" = "队伍";
 "watch_common_names_empty" = "暂无常用名称";
-"watch_common_names_team_placeholder" = "输入队伍名称";
-"watch_common_names_player_placeholder" = "输入选手名称";
+"watch_common_names_team_placeholder" = "队名";
+"watch_common_names_player_placeholder" = "玩家名称";
 "watch_common_names_length_hint" = "最多 %d 个字符";
 "watch_common_names_error_empty" = "名称不能为空";
 "watch_common_names_error_duplicate" = "该名称已存在或属于默认名称";
 "watch_common_names_error_missing" = "原名称已不存在，请刷新后重试";
 "watch_common_names_error_generic" = "保存失败，请重试";
-"watch_common_names_sync_now" = "立即同步";
+"watch_common_names_sync_now" = "同步赛果";
 "watch_common_names_actions" = "名称操作";
 "watch_common_names_sync_requested" = "已发起同步";
 "watch_common_names_sync_queued" = "手机未连接，连接后自动同步";
@@ -224,17 +225,17 @@
 "watch_common_names_never_synced" = "尚未与手机同步";
 "watch_common_names_last_sync" = "最近同步 %@";
 
-"watch_phone_link_title" = "手机联动";
+"watch_phone_link_title" = "手表联动";
 "watch_phone_link_intro" = "由手机发起，手表主控计分";
-"watch_phone_link_support" = "支持羽毛球、乒乓球、网球、匹克球的单打与双打，以及射箭、黑八、追分和斯诺克。";
+"watch_phone_link_support" = "项目由手机端发起后，手表即可同步计分。";
 "watch_phone_link_status" = "连接状态";
-"watch_phone_link_steps" = "使用步骤";
-"watch_phone_link_step_1" = "在手机选择比赛并完成设置";
+"watch_phone_link_steps" = "使用说明";
+"watch_phone_link_step_1" = "在手机设置比赛或投篮训练。";
 "watch_phone_link_step_2" = "点击“在手表开始”";
-"watch_phone_link_step_3" = "在手表确认后开始计分";
-"watch_phone_link_help" = "连接失败时，请确认手机和手表已配对、两端应用均已安装，并在测试时打开手机端全能计分器。";
+"watch_phone_link_step_3" = "在手表计分，结束后自动同步记录。";
+"watch_phone_link_help" = "请配对设备，在两端安装全能计分器，并打开手机端应用。";
 "watch_phone_link_testing" = "正在测试";
-"watch_phone_link_normal" = "连接正常";
+"watch_phone_link_normal" = "已连接";
 "watch_phone_link_failed" = "连接失败";
 "watch_phone_link_reachable" = "手机可达";
 "watch_phone_link_waiting" = "等待手机";
@@ -248,7 +249,7 @@
 "watch_phone_link_reachable_detail" = "可点击下方按钮验证手机应用是否响应。";
 "watch_phone_link_waiting_detail" = "请打开手机端全能计分器后重试。";
 "watch_phone_link_test_waiting" = "等待手机…";
-"watch_phone_link_test_retry" = "重新测试";
+"watch_phone_link_test_retry" = "重试";
 "watch_phone_link_test" = "测试连接";
 "watch_phone_link_last_empty" = "暂无通信记录";
 "watch_phone_link_last_time" = "最近通信 %@";
@@ -269,10 +270,8 @@
 
 /* 首页置顶 */
 "watch_home_pin_title" = "置顶项目？";
-"watch_home_pin_message" = "将这个项目置顶到首页列表顶部？";
 "watch_home_pin_confirm" = "置顶";
 "watch_home_unpin_title" = "取消置顶？";
-"watch_home_unpin_message" = "将这个项目从置顶项目中移除？";
 "watch_home_unpin_confirm" = "移除";
 "watch_home_pin_full_title" = "置顶已满";
 "watch_home_pin_full_message" = "最多置顶 2 个项目，请先取消一个。";
@@ -293,15 +292,18 @@
 "watch_reset_confirm_message" = "当前比分将被清空。";
 "watch_side_exchange" = "交换场地";
 "watch_winner_format" = "%@ 获胜";
+"watch_finished_win_badge" = "胜";
+"watch_finished_winner" = "胜方";
+"watch_finished_home" = "首页";
 "watch_snooker_foul" = "犯规";
 "watch_snooker_foul_selected_format" = "犯规 +%d";
 "watch_snooker_foul_next_turn" = "下一杆";
 "watch_snooker_foul_switch_turn" = "换手";
-"watch_snooker_foul_continue" = "继续击球";
+"watch_snooker_foul_continue" = "继续";
 "watch_action_snooker_foul_continue_format" = "%@犯规，对手 +%d，继续击球";
 "watch_snooker_handover" = "换手";
 "watch_snooker_settle_frame" = "结算本局";
-"watch_snooker_choose_frame_winner" = "选择本局胜者";
+"watch_snooker_choose_frame_winner" = "选择本局胜方";
 "watch_snooker_frame_finished" = "本局结束";
 "watch_snooker_next_frame" = "下一局";
 "watch_training_breakdown_format" = "%d分  %d/%d";
@@ -310,8 +312,8 @@
 "archery_repeat_shoot_off" = "距离相同，继续加赛";
 "edit" = "编辑";
 "game_badminton_doubles" = "羽毛球双打";
-"game_eight_ball" = "黑八";
-"game_nine_ball" = "追分";
+"game_eight_ball" = "八球";
+"game_nine_ball" = "九球追分";
 "game_pickleball_doubles" = "匹克球双打";
 "game_pingpong_doubles" = "乒乓球双打";
 "game_snooker" = "斯诺克";
@@ -385,12 +387,12 @@
 "watch_record_sync_not_synced" = "未同步到手机";
 "watch_record_sync_action" = "同步到手机";
 "watch_settings_auto_sync_records" = "自动同步记录";
-"game_shuttlecock" = "毽子";
+"game_shuttlecock" = "毽球";
 "game_squash" = "壁球";
 "game_foosball" = "桌上足球";
 
 "watch_setup_win_by_two" = "决胜局净胜 2 分";
-"watch_setup_score_cap" = "封顶分";
+"watch_setup_score_cap" = "最高分上限";
 "watch_setup_serving_side" = "发球方";
 "watch_setup_kickoff_side" = "开球方";
 "watch_setup_side_left" = "红方";
@@ -399,7 +401,7 @@
 "watch_about_us" = "关于我们";
 "watch_about_app_name" = "全能计分器";
 "watch_about_version" = "版本 %@";
-"watch_wechat_group_title" = "用户微信群";
+"watch_wechat_group_title" = "微信群";
 "watch_wechat_group_scan_hint" = "使用微信扫码加入用户群";
 
 "nine_ball_handoff" = "让杆";
@@ -409,9 +411,12 @@
 "watch_nine_ball_select_payer" = "选择付分人";
 "watch_nine_ball_select_continue" = "选择继续击球人";
 "watch_nine_ball_prev_player" = "上家";
-"watch_nine_ball_next_player" = "下家";
+"watch_nine_ball_next_player" = "下一页";
 "watch_nine_ball_continue_badge" = "接杆";
 
 "watch_a11y_points_format" = "%d 分";
 "watch_a11y_sets_format" = "%d 局";
 "watch_a11y_serving" = "发球中";
+
+"watch_phone_shared_link_intro" = "手机发起，两端都能计分";
+"linked_score_simultaneous_edit" = "两端刚刚都改了比分，请核对";

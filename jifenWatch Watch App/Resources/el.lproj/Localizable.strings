@@ -1,0 +1,422 @@
+/* Watch App - el */
+
+/* Tab Bar */
+"tab_score" = "Σκορ";
+"tab_tools" = "Εργαλεία";
+"tab_timer" = "Χρόνος";
+
+/* Game Types */
+"game_badminton" = "Μπάντμιντον";
+"game_pingpong" = "Πινγκ πονγκ";
+"game_tennis" = "Τένις";
+"game_pickleball" = "Πίκλμπολ";
+"game_archery" = "Τοξοβολία";
+"tool_basketball_training" = "Προπόνηση σουτ";
+
+/* Tools */
+"tool_flip_coin" = "Ρίψη νομίσματος";
+"tool_random_number" = "Τυχαίος αριθμός";
+"tool_ten_second" = "Σταμάτα το ρολόι";
+"game_counter" = "Μετρητής";
+"press_again_to_reset" = "Πάτησε ξανά για επαναφορά";
+
+/* Records */
+"records" = "Ιστορικό";
+"loading" = "Φόρτωση";
+"no_records" = "Δεν υπάρχει ιστορικό";
+"record_not_found" = "Η εγγραφή δεν βρέθηκε";
+"match_details" = "Λεπτομέρειες αγώνα";
+"match_record" = "Καταγραφή αγώνα";
+"delete_record" = "Διαγραφή εγγραφής";
+"confirm_deletion" = "Επιβεβαίωση διαγραφής";
+"cannot_be_recovered_after_deletion" = "Αυτό δεν μπορεί να αναιρεθεί";
+"date" = "Ημερομηνία";
+"time" = "Ώρα";
+"duration" = "Διάρκεια";
+
+/* Common */
+"cancel" = "Ακύρωση";
+"confirm" = "Επιβεβαίωση";
+"delete" = "Διαγραφή";
+"setup" = "Ρύθμιση";
+"vibration" = "Δόνηση";
+"sound" = "Ήχος";
+"watch_scoreboard_keep_screen_on" = "Διατήρηση της οθόνης ενεργή";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Οδηγός";
+"usage_prompt_message" = "Πάτησε μια πλευρά για πόντο\nΣύρε κάτω για αναίρεση\nΠάτησε παρατεταμένα για το μενού";
+"got_it" = "Κατάλαβα";
+
+/* Privacy */
+"privacy_policy" = "Πολιτική απορρήτου";
+"scan_to_view_details" = "Σάρωσε τον κωδικό για λεπτομέρειες";
+
+/* Settings / About */
+"version" = "Έκδοση";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Σχόλια";
+"watch_contact_us" = "Επικοινωνία";
+
+/* Scoreboard menu */
+"menu_undo" = "Αναίρεση";
+"menu_reset" = "Επαναφορά";
+"watch_continue" = "Συνέχεια";
+"watch_end_match" = "Τέλος";
+"watch_layout_vertical" = "Κατακόρυφα";
+"watch_layout_horizontal" = "Οριζόντια";
+"watch_settings_layout_title" = "Διάταξη";
+"watch_reset_toast" = "Επαναφορά";
+"watch_undo_toast" = "Αναιρέθηκε";
+"watch_play_again" = "Παίξτε ξανά";
+"watch_exit" = "Έξοδος";
+"exit" = "Έξοδος";
+"watch_team_red" = "Κόκκινο";
+"watch_team_blue" = "Μπλε";
+"team_a" = "Ομάδα Α";
+"team_b" = "Ομάδα Β";
+"team_home" = "Γηπεδούχοι";
+"team_away" = "Φιλοξενούμενοι";
+"player_a" = "Παίκτης Α";
+"player_b" = "Παίκτης Β";
+"archer_a" = "Τοξότης Α";
+"archer_b" = "Τοξότης Β";
+"linked_score_confirm_title" = "Σύνδεση ρολογιού;";
+"linked_score_phone_started_scoreboard" = "Σύνδεση ρολογιού · Το παιχνίδι ξεκίνησε";
+"linked_score_accept" = "Αποδοχή";
+"linked_score_reject" = "Απόρριψη";
+"linked_score_watch_reclaim" = "Ανάληψη";
+"linked_score_setup_rules" = "%1$d σετ · %2$d πόντοι";
+"linked_score_setup_rules_sets" = "%d σετ";
+"linked_score_setup_race_to" = "Στόχος %d";
+"linked_score_sport_badminton" = "Μονά μπάντμιντον";
+"linked_score_sport_badminton_doubles" = "Διπλά Μπάντμιντον";
+"linked_score_sport_pingpong" = "Πινγκ πονγκ Μονά";
+"linked_score_sport_pingpong_doubles" = "Πινγκ πονγκ διπλό";
+"linked_score_sport_tennis" = "Μονό τένις";
+"linked_score_sport_tennis_doubles" = "Διπλό τένις";
+"linked_score_sport_pickleball" = "Μονά Pickleball";
+"linked_score_sport_pickleball_doubles" = "Διπλό Pickleball";
+"game_basketball" = "Μπάσκετ";
+"game_three_basketball" = "Μπάσκετ 3x3";
+"linked_score_sport_archery" = "Τοξοβολία";
+"linked_score_sport_eight_ball" = "8-ball";
+"linked_score_sport_nine_ball" = "9-ball chase";
+"linked_score_sport_snooker" = "Σνούκερ";
+"linked_score_sport_shuttlecock" = "Τζιάνζι";
+"linked_score_sport_squash" = "Σκουός";
+"linked_score_sport_foosball" = "Επιτραπέζιο ποδόσφαιρο";
+"linked_score_sport_football" = "Ποδόσφαιρο";
+"linked_score_sport_football_5v5" = "Ποδόσφαιρο 5×5";
+"watch_menu_end_match" = "Τέλος αγώνα";
+"watch_menu_restart" = "Επανεκκίνηση";
+"watch_bball_overtime" = "Παράταση";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d Παίκτες";
+"archery_closest_title" = "Βολή ισοπαλίας · Πιο κοντά στο κέντρο";
+"archery_closest_message" = "Ισοπαλία στους %d πόντους — επιλέξτε το βέλος πιο κοντά στο κέντρο";
+"watch_set_end_format" = "Το σετ %d ολοκληρώθηκε";
+"watch_match_start" = "Το παιχνίδι ξεκίνησε";
+"watch_match_finished" = "Ο αγώνας ολοκληρώθηκε";
+"watch_bb_hit_rate" = "Ευστοχία";
+"watch_bb_end_training" = "Τελειώστε την προπόνηση";
+"watch_training_finish_confirm_title" = "Τέλος προπόνησης;";
+"watch_training_finish_confirm_message" = "Η προπόνηση τελειώνει και αποθηκεύεται.";
+"watch_counter_finish_confirm_title" = "Τέλος μέτρησης;";
+"watch_counter_finish_confirm_message" = "Η μέτρηση αποθηκεύεται και ξεκινά πάλι από το μηδέν.";
+"watch_bb_restart" = "Επανεκκίνηση";
+
+/* Records */
+"clear_all_records" = "Διαγραφή όλου του ιστορικού";
+"clear_all_records_message" = "Όλες οι καταγραφές θα διαγραφούν οριστικά.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Κορώνα";
+"watch_coin_tails" = "Γράμματα";
+"watch_archery_miss" = "Αστοχία";
+"watch_flip_coin_hint" = "Πάτησε για ρίψη νομίσματος";
+"watch_ten_second_challenge" = "Σταμάτα το ρολόι";
+"watch_ten_second_usage" = "Πάτησε για έναρξη. Πάτησε πάλι στον χρόνο-στόχο.";
+"watch_mid_game_rest" = "Διάλειμμα στη μέση του σετ";
+"watch_rest_between_sets" = "Διάλειμμα μεταξύ σετ";
+"watch_official_timeout" = "Τάιμ άουτ";
+"watch_medical_break" = "Ιατρική";
+"watch_score_event_set_title" = "Το σετ %d ολοκληρώθηκε";
+"watch_score_event_set_detail" = "%1$@ Κερδίζει %2$d:%3$d · Σετ %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Σετ %d · Διάλειμμα στη μέση του σετ";
+"watch_score_event_mid_game_detail" = "%1$@ Προηγείται %2$d:%3$d · Σετ %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Το σετ %d ολοκληρώθηκε";
+"watch_score_event_tennis_game_detail" = "%1$@ Κερδίζει · Παιχνίδια %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Το σετ %d ολοκληρώθηκε";
+"watch_score_event_tennis_set_detail" = "%1$@ Κερδίζει %2$d:%3$d · Σετ %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "Τάι μπρέικ στους 7 πόντους";
+"watch_tiebreak_indicator_10" = "Τάι μπρέικ στους 10 πόντους";
+"watch_continue_match" = "Συνέχιση";
+"watch_continue_scoring" = "Συνέχιση";
+"watch_resume_discard" = "Απόρριψη ημιτελούς αγώνα";
+"watch_resume_discard_training" = "Απόρριψη ημιτελούς προπόνησης";
+"unit_hour" = "ώ";
+"unit_minute" = "λ";
+"unit_second" = "δ";
+"today" = "Σήμερα";
+"yesterday" = "Χθες";
+
+/* Sports setup */
+"watch_setup_start" = "Έναρξη";
+"watch_setup_sets" = "Σετ";
+"watch_setup_points_per_set" = "Πόντοι ανά σετ";
+"watch_setup_tennis_deuce" = "Κανόνας ισοπαλίας";
+"watch_setup_tennis_advantage" = "Πλεονέκτημα";
+"watch_setup_tennis_no_ad" = "Χωρίς πλεονέκτημα";
+"watch_setup_target_score" = "Βαθμολογία στόχου";
+"watch_setup_rally_scoring" = "Πόντος σε κάθε φάση";
+"watch_setup_target_racks" = "Στόχος";
+"watch_setup_race_racks" = "Αγώνας έως";
+"watch_setup_race_racks_help" = "3 = πρώτος στα 3 frames";
+"watch_setup_handicap" = "Χάντικαπ";
+"watch_setup_handicap_none" = "Κανένα";
+"watch_setup_handicap_red_gives_blue" = "Κόκκινο → Μπλε";
+"watch_setup_handicap_blue_gives_red" = "Μπλε → Κόκκινο";
+"watch_setup_handicap_racks" = "Παιχνίδια χάντικαπ";
+"watch_setup_frames" = "Φρέιμ";
+"watch_setup_custom_frames" = "Προσαρμοσμένα φρέιμ";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Πληκτρολογήστε 1-99";
+"watch_setup_players" = "Παίκτες";
+"watch_setup_archers" = "Τοξότες";
+"watch_setup_player_number" = "Παίκτης %d";
+"watch_setup_red_a" = "Κόκκινο Α";
+"watch_setup_red_b" = "Κόκκινο Β";
+"watch_setup_blue_a" = "Μπλε Α";
+"watch_setup_blue_b" = "Μπλε Β";
+"watch_setup_name_missing" = "Συμπλήρωσε όλα τα ονόματα ή άφησέ τα όλα κενά";
+"watch_setup_select_players" = "Παίκτες";
+"watch_setup_player_count" = "%d Παίκτες";
+"watch_common_names_select_player" = "Επιλέξτε παίκτη";
+"watch_common_names_no_records" = "Δεν υπάρχουν αποθηκευμένα ονόματα";
+"watch_common_names_title" = "Αποθηκευμένα ονόματα";
+"watch_common_names_add" = "Προσθήκη";
+"watch_common_names_edit" = "Επεξεργασία ονόματος";
+"watch_common_names_delete_title" = "Διαγραφή ονόματος;";
+"watch_common_names_error_title" = "Η ενημέρωση απέτυχε";
+"watch_common_names_players" = "Παίκτες";
+"watch_common_names_teams" = "ομάδες";
+"watch_common_names_empty" = "Δεν υπάρχουν αποθηκευμένα ονόματα";
+"watch_common_names_team_placeholder" = "Όνομα ομάδας";
+"watch_common_names_player_placeholder" = "Όνομα παίκτη";
+"watch_common_names_length_hint" = "Έως %d χαρακτήρες";
+"watch_common_names_error_empty" = "Το όνομα δεν μπορεί να είναι κενό";
+"watch_common_names_error_duplicate" = "Το όνομα υπάρχει ήδη";
+"watch_common_names_error_missing" = "Η εγγραφή δεν βρέθηκε · Δοκιμάστε ξανά";
+"watch_common_names_error_generic" = "Δεν ήταν δυνατή η αποθήκευση. Δοκιμάστε ξανά.";
+"watch_common_names_sync_now" = "Συγχρονισμός τώρα";
+"watch_common_names_actions" = "Αποθηκευμένα ονόματα";
+"watch_common_names_sync_requested" = "Αναμονή συγχρονισμού";
+"watch_common_names_sync_queued" = "Το τηλέφωνο δεν συνδέθηκε · Αναμονή συγχρονισμού";
+"watch_common_names_sync_inactive" = "Το τηλέφωνο δεν συνδέθηκε";
+"watch_common_names_sync_failed" = "Αποτυχία σύνδεσης · Δοκιμάστε ξανά";
+"watch_common_names_sync_conflict" = "Κάποιες αλλαγές δεν συγχρονίστηκαν";
+"watch_common_names_sync_pending" = "Αναμονή συγχρονισμού";
+"watch_common_names_sync_unavailable" = "Το τηλέφωνο δεν συνδέθηκε";
+"watch_common_names_sync_done" = "Συγχρονίστηκε";
+"watch_common_names_pending_count" = "Αναμονή συγχρονισμού · %d";
+"watch_common_names_never_synced" = "Δεν έχει συγχρονιστεί ακόμα";
+"watch_common_names_last_sync" = "Τελευταίος συγχρονισμός %@";
+
+"watch_phone_link_title" = "Ρολόι";
+"watch_phone_link_intro" = "Ξεκίνα στο τηλέφωνο, κράτα σκορ στο ρολόι";
+"watch_phone_link_support" = "Μπάντμιντον · Ποδόσφαιρο · Τοξοβολία · Προπόνηση σουτ…";
+"watch_phone_link_status" = "Κατάσταση σύνδεσης";
+"watch_phone_link_steps" = "Τρόπος χρήσης";
+"watch_phone_link_step_1" = "Ρύθμισε έναν αγώνα ή προπόνηση σουτ στο τηλέφωνο.";
+"watch_phone_link_step_2" = "Ξεκινήστε · Apple Watch";
+"watch_phone_link_step_3" = "Κράτα σκορ στο ρολόι. Η καταγραφή συγχρονίζεται στο τέλος.";
+"watch_phone_link_help" = "Σύζευξε τις συσκευές, εγκατέστησε το iScoreboard και στις δύο και άνοιξέ το στο τηλέφωνο.";
+"watch_phone_link_testing" = "Δοκιμή σε εξέλιξη";
+"watch_phone_link_normal" = "Συνδέθηκε";
+"watch_phone_link_failed" = "Αποτυχία σύνδεσης";
+"watch_phone_link_reachable" = "Συνδέθηκε";
+"watch_phone_link_waiting" = "Αναμονή τηλεφώνου";
+"watch_phone_link_inactive" = "Το τηλέφωνο δεν συνδέθηκε";
+"watch_phone_link_testing_detail" = "Αναμονή τηλεφώνου";
+"watch_phone_link_normal_detail" = "Συνδέθηκε";
+"watch_phone_link_failed_detail" = "Το τηλέφωνο δεν απάντησε εντός 8 δευτερολέπτων.";
+"watch_phone_link_failed_inactive" = "Το τηλέφωνο δεν συνδέθηκε · Δοκιμάστε ξανά";
+"watch_phone_link_failed_unreachable" = "Άνοιξε το iScoreboard στο τηλέφωνο και δοκίμασε ξανά.";
+"watch_phone_link_failed_send" = "Αποτυχία σύνδεσης · Δοκιμάστε ξανά";
+"watch_phone_link_reachable_detail" = "Δοκιμή";
+"watch_phone_link_waiting_detail" = "Άνοιξε το iScoreboard στο τηλέφωνο και δοκίμασε ξανά.";
+"watch_phone_link_test_waiting" = "Δοκιμή σε εξέλιξη…";
+"watch_phone_link_test_retry" = "Δοκιμάστε ξανά";
+"watch_phone_link_test" = "Δοκιμή";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Τελευταία σύνδεση %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Λειτουργία προπόνησης";
+"watch_bb_1pt" = "1 πόντος";
+"watch_bb_2pt" = "2 πόντοι";
+"watch_bb_3pt" = "3 πόντοι";
+"watch_bb_free" = "Ελεύθερη";
+"watch_training_miss" = "Άστοχο";
+"watch_training_made" = "Εύστοχο";
+"watch_training_point_value" = "%d πόντοι";
+"watch_training_breakdown" = "Στοιχεία σουτ";
+"watch_training_start" = "Προπόνηση σουτ · Ξεκινήστε";
+"watch_training_rate_format" = "Ευστοχία %d%%";
+"watch_training_action_format" = "%d πόντοι · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Καρφίτσωμα στην κορυφή;";
+"watch_home_pin_confirm" = "Καρφίτσωμα";
+"watch_home_unpin_title" = "Ξεκαρφίτσωμα;";
+"watch_home_unpin_confirm" = "Ξεκαρφίτσωμα";
+"watch_home_pin_full_title" = "Όριο καρφιτσώματος";
+"watch_home_pin_full_message" = "Καρφίτσωσε έως 2. Ξεκαρφίτσωσε πρώτα ένα.";
+"watch_home_pin_hint" = "Παρατεταμένο πάτημα για καρφίτσωμα";
+"watch_home_pin_success" = "Καρφιτσωμένο";
+"watch_home_unpin_success" = "Ξεκαρφιτσώθηκε";
+"multi_score_player_default_format" = "Παίκτης %d";
+"nine_ball_big_gold" = "Μεγάλος χρυσός";
+"nine_ball_small_gold" = "Μικρός χρυσός";
+"nine_ball_golden_nine" = "Χρυσό 9";
+"nine_ball_normal_win" = "Κανονική νίκη";
+"nine_ball_ball_in_hand" = "Μπάλα στο χέρι";
+"nine_ball_foul" = "Φάουλ";
+"watch_archery_set_rest" = "Διάλειμμα σετ";
+"watch_finish_confirm_title" = "Τέλος αγώνα?";
+"watch_finish_confirm_message" = "Ο αγώνας τελειώνει και αποθηκεύεται.";
+"watch_reset_confirm_title" = "Επανεκκίνηση αγώνα;";
+"watch_reset_confirm_message" = "Το τρέχον σκορ θα μηδενιστεί.";
+"watch_side_exchange" = "Αλλαγή πλευράς";
+"watch_winner_format" = "%@ Κερδίζει";
+"watch_finished_win_badge" = "Ν";
+"watch_finished_winner" = "Νικητής";
+"watch_finished_home" = "Αρχική";
+"watch_snooker_foul" = "Φάουλ";
+"watch_snooker_foul_selected_format" = "Φάουλ +%d";
+"watch_snooker_foul_next_turn" = "Αλλαγή σειράς";
+"watch_snooker_foul_switch_turn" = "Αλλαγή σειράς";
+"watch_snooker_foul_continue" = "Συνέχεια";
+"watch_action_snooker_foul_continue_format" = "%@· Φάουλ · Αντίπ. +%d · Ο παίκτης που έκανε φάουλ συνεχίζει";
+"watch_snooker_handover" = "Αλλαγή σειράς";
+"watch_snooker_settle_frame" = "Ολοκλήρωση φρέιμ";
+"watch_snooker_choose_frame_winner" = "Επιλέξτε νικητή φρέιμ";
+"watch_snooker_frame_finished" = "Ο γύρος ολοκληρώθηκε";
+"watch_snooker_next_frame" = "Επόμενο φρέιμ";
+"watch_training_breakdown_format" = "%d πόντοι · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Ίδια απόσταση. Συνεχίστε τις βολές ισοπαλίας.";
+"edit" = "Επεξεργασία";
+"game_badminton_doubles" = "Διπλά Μπάντμιντον";
+"game_eight_ball" = "8-ball";
+"game_nine_ball" = "9-ball chase";
+"game_pickleball_doubles" = "Διπλό Pickleball";
+"game_pingpong_doubles" = "Πινγκ πονγκ διπλό";
+"game_snooker" = "Σνούκερ";
+"game_tennis_doubles" = "Διπλό τένις";
+"save" = "Αποθήκευση";
+"watch_action_adjust_score_format" = "%@· Η βαθμολογία άλλαξε";
+"watch_action_archery_arrow_format" = "%@+%d πόντοι";
+"watch_action_archery_closest" = "Βολή ισοπαλίας · Πιο κοντά στο κέντρο";
+"watch_action_archery_miss_format" = "%@· Αστοχία";
+"watch_action_archery_set_ready" = "Τοξοβολία · Ο γύρος ολοκληρώθηκε";
+"watch_action_ball_potted_format" = "%@ · Μπήκε η μπάλα %@";
+"watch_action_basketball_foul_format" = "%@· Φάουλ";
+"watch_action_basketball_period_format" = "Περίοδος %d · Ξεκινήστε";
+"watch_action_basketball_timeout_format" = "%@· Τάιμ άουτ";
+"watch_action_edit_name" = "Ενημερώθηκε";
+"watch_action_exchange_sides" = "Αλλαγή πλευρών";
+"watch_action_exchange_sides_reminder" = "Αλλάξτε τις πλευρές με μη αυτόματο τρόπο";
+"watch_action_game_finished_format" = "Το σετ %1$d ολοκληρώθηκε · %2$@ Κερδίζει";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ Κερδίζει";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Το σετ %1$d ολοκληρώθηκε · %2$@ Κερδίζει";
+"watch_action_shooter_format" = "Ο/Η %@ ξεκινά τη βολή";
+"watch_action_side_out_format" = "Σερβίς · %@";
+"watch_action_snooker_foul_format" = "%@· Φάουλ · Αντίπ. +%d";
+"watch_action_snooker_frame_format" = "Φρέιμ %1$d · %2$@ Κερδίζει";
+"watch_action_snooker_handover_format" = "Αλλαγή σειράς · %@";
+"watch_action_snooker_miss_format" = "%@· Άστοχο";
+"watch_action_snooker_next_frame_format" = "Φρέιμ %d · Ξεκινήστε";
+"watch_action_snooker_pot_format" = "%@· Μπήκε η μπάλα +%d";
+"watch_record_actions_unavailable" = "Δεν υπάρχει ιστορικό";
+"linked_score_error_title" = "Αποτυχία σύνδεσης";
+"linked_score_persistence_failed" = "Σύνδεση ρολογιού · Η αποθήκευση απέτυχε: %@";
+"resume_persistence_error_title" = "Αποτυχία αποθήκευσης";
+"resume_persistence_failed" = "Συνέχεια αγώνα · Η αποθήκευση απέτυχε: %@";
+"linked_score_control_timeout" = "Ανάληψη · Έληξε ο χρόνος αναμονής · Δοκιμάστε ξανά";
+"linked_score_sync_timeout" = "Έληξε ο χρόνος αναμονής · Αναμονή συγχρονισμού";
+
+/* Football */
+"game_football" = "Ποδόσφαιρο";
+"game_football_5v5" = "Ποδόσφαιρο 5×5";
+"watch_setup_half_length" = "Διάρκεια ημιχρόνου";
+"watch_setup_teams" = "ομάδες";
+"football_first_half" = "Πρώτο ημίχρονο";
+"football_second_half" = "Δεύτερο ημίχρονο";
+"football_extra_time_first" = "Παράταση — πρώτο ημίχρονο";
+"football_extra_time_second" = "Παράταση — δεύτερο ημίχρονο";
+"football_first_half_over" = "Ολοκληρώθηκε το πρώτο ημίχρονο";
+"football_switch_half" = "Δεύτερο ημίχρονο";
+"football_switch_half_title" = "Έναρξη δεύτερου ημιχρόνου;";
+"football_switch_half_message" = "Το πρώτο ημίχρονο θα τεθεί σε παύση και δεν μπορεί να ανοίξει ξανά.";
+"football_extra_time_first_over" = "Παράταση — πρώτο ημίχρονο · Ο γύρος ολοκληρώθηκε";
+"football_switch_extra_time_half" = "Παράταση — δεύτερο ημίχρονο";
+"football_enter_extra_time_title" = "Η κανονική διάρκεια έληξε";
+"football_post_regulation_action" = "Μετά την κανονική διάρκεια";
+"football_injury_title" = "Καθυστερήσεις";
+"football_undo_stoppage" = "Αναίρεση καθυστερήσεων";
+"football_enter_extra_time" = "Έναρξη παράτασης";
+"football_end_as_draw" = "Τέλος ως ισοπαλία";
+"football_goal_hint" = "Πάτησε για να προσθέσεις γκολ";
+"watch_football_start" = "Έναρξη";
+"watch_football_pause" = "Παύση";
+"watch_football_resume" = "Συνέχιση";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Ξεκινήστε · %@";
+"watch_action_football_stoppage_format" = "Καθυστερήσεις +%d δ";
+"watch_action_football_clock_start" = "Ο χρονοδιακόπτης ξεκίνησε";
+"watch_action_football_clock_pause" = "Το χρονόμετρο σε παύση";
+"watch_record_sync_sent" = "Συγχρονίστηκε";
+"watch_record_sync_pending" = "Αναμονή συγχρονισμού";
+"watch_record_sync_not_synced" = "Δεν συγχρονίστηκε με iPhone";
+"watch_record_sync_action" = "Συγχρονισμός με iPhone";
+"watch_settings_auto_sync_records" = "Αυτόματος συγχρονισμός";
+"game_shuttlecock" = "Τζιάνζι";
+"game_squash" = "Σκουός";
+"game_foosball" = "Επιτραπέζιο ποδόσφαιρο";
+
+"watch_setup_win_by_two" = "Κερδίστε το τελικό σετ κατά 2";
+"watch_setup_score_cap" = "Ανώτατο όριο πόντων";
+"watch_setup_serving_side" = "Πρώτος σερβίρων";
+"watch_setup_kickoff_side" = "Πρώτη έναρξη";
+"watch_setup_side_left" = "Κόκκινο";
+"watch_setup_side_right" = "Μπλε";
+
+"watch_about_us" = "Σχετικά με εμάς";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Έκδοση %@";
+"watch_wechat_group_title" = "Ομάδα WeChat";
+"watch_wechat_group_scan_hint" = "WeChat · Σάρωσε τον κωδικό για λεπτομέρειες";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Σπάσιμο";
+"watch_nine_ball_select_payer" = "Επιλέξτε ποιος πληρώνει";
+"watch_nine_ball_select_continue" = "Επόμενος παίκτης";
+"watch_nine_ball_prev_player" = "Προηγούμενο";
+"watch_nine_ball_next_player" = "Επόμενο";
+"watch_nine_ball_continue_badge" = "Παίξε";
+
+"watch_a11y_points_format" = "%d πόντοι";
+"watch_a11y_sets_format" = "%d σετ";
+"watch_a11y_serving" = "Σερβίς";
+
+"watch_phone_shared_link_intro" = "Ξεκινήστε στο τηλέφωνο και καταγράψτε το σκορ σε οποιαδήποτε συσκευή.";
+"linked_score_simultaneous_edit" = "Έγιναν αλλαγές και στις δύο συσκευές. Ελέγξτε το σκορ.";

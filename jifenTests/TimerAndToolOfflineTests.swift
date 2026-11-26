@@ -55,6 +55,56 @@ final class TimerAndToolOfflineTests: XCTestCase {
         XCTAssertEqual(session.category, .ambient)
     }
 
+    @MainActor
+    func testSoundManagerPlayToggleAndStopOutcomes() {
+        let wasEnabled = PreferencesManager.shared.soundEnabled
+        defer {
+            SoundManager.shared.stopSound()
+            PreferencesManager.shared.soundEnabled = wasEnabled
+        }
+        PreferencesManager.shared.soundEnabled = true
+
+        XCTAssertEqual(SoundManager.shared.playSound("whistle"), .started)
+        XCTAssertEqual(SoundManager.shared.activeSoundName, "whistle")
+
+        XCTAssertEqual(SoundManager.shared.toggleSound("whistle"), .stopped)
+        XCTAssertNil(SoundManager.shared.activeSoundName)
+
+        XCTAssertEqual(SoundManager.shared.toggleSound("buzzer"), .started)
+        XCTAssertEqual(SoundManager.shared.activeSoundName, "buzzer")
+
+        XCTAssertEqual(SoundManager.shared.toggleSound("whistle"), .started)
+        XCTAssertEqual(SoundManager.shared.activeSoundName, "whistle")
+
+        SoundManager.shared.stopIfPlaying(["buzzer"])
+        XCTAssertEqual(SoundManager.shared.activeSoundName, "whistle")
+
+        SoundManager.shared.stopIfPlaying(["whistle", "buzzer"])
+        XCTAssertNil(SoundManager.shared.activeSoundName)
+    }
+
+    @MainActor
+    func testDisabledToggleSoundDoesNotActivatePlayback() throws {
+        let session = AVAudioSession.sharedInstance()
+        let original = (session.category, session.mode, session.categoryOptions)
+        let wasEnabled = PreferencesManager.shared.soundEnabled
+        defer {
+            SoundManager.shared.stopSound()
+            PreferencesManager.shared.soundEnabled = wasEnabled
+            try? session.setCategory(original.0, mode: original.1, options: original.2)
+        }
+        PreferencesManager.shared.soundEnabled = false
+        try session.setCategory(.ambient)
+
+        XCTAssertEqual(SoundManager.shared.toggleSound("whistle"), .disabledBySettings)
+        XCTAssertNil(SoundManager.shared.activeSoundName)
+        XCTAssertEqual(session.category, .ambient)
+
+        XCTAssertEqual(SoundManager.shared.toggleSound("buzzer"), .disabledBySettings)
+        XCTAssertNil(SoundManager.shared.activeSoundName)
+        XCTAssertEqual(session.category, .ambient)
+    }
+
     private var defaults: UserDefaults!
     private var suiteName: String!
 
@@ -152,11 +202,38 @@ final class TimerAndToolOfflineTests: XCTestCase {
     }
 
     func testTenSecondChallengeDifferencePolicy() {
+        XCTAssertEqual(TenSecondChallengePolicy.presetSeconds, [1, 3, 5, 10])
+        XCTAssertEqual(TenSecondChallengePolicy.defaultTargetSeconds, 10)
+        for preset in TenSecondChallengePolicy.presetSeconds {
+            XCTAssertEqual(TenSecondChallengePolicy.normalizedTargetSeconds(preset), preset)
+            XCTAssertEqual(
+                TenSecondChallengePolicy.targetMilliseconds(for: preset),
+                TimeInterval(preset * 1_000)
+            )
+        }
+        for invalid in [0, 2, 7, -5] {
+            XCTAssertEqual(TenSecondChallengePolicy.normalizedTargetSeconds(invalid), 10)
+            XCTAssertEqual(TenSecondChallengePolicy.targetMilliseconds(for: invalid), 10_000)
+        }
+
         XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 10_000), 0)
         XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 9_950), 50)
         XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 10_125), 125)
         XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: -10), 10_000)
         XCTAssertEqual(TenSecondChallengePolicy.automaticStopMilliseconds, 59_990)
+
+        XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 1_000, targetSeconds: 1), 0)
+        XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 920, targetSeconds: 1), 80)
+        XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 1_045, targetSeconds: 1), 45)
+        XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: -10, targetSeconds: 1), 1_000)
+
+        XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 3_000, targetSeconds: 3), 0)
+        XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 2_950, targetSeconds: 3), 50)
+        XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 3_110, targetSeconds: 3), 110)
+
+        XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 5_000, targetSeconds: 5), 0)
+        XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 4_880, targetSeconds: 5), 120)
+        XCTAssertEqual(TenSecondChallengePolicy.absoluteDifference(milliseconds: 5_060, targetSeconds: 5), 60)
     }
 
     func testCubeRequiresHalfSecondHoldAndDoesNotCreateHistory() {

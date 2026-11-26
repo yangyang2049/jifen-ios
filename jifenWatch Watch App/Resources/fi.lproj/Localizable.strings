@@ -1,0 +1,422 @@
+/* Watch App - fi */
+
+/* Tab Bar */
+"tab_score" = "Pisteet";
+"tab_tools" = "Työkalut";
+"tab_timer" = "Ajastin";
+
+/* Game Types */
+"game_badminton" = "Sulkapallo";
+"game_pingpong" = "Pöytätennis";
+"game_tennis" = "Tennis";
+"game_pickleball" = "Pickleball";
+"game_archery" = "Jousiammunta";
+"tool_basketball_training" = "Heittoharjoittelu";
+
+/* Tools */
+"tool_flip_coin" = "Heitä kolikkoa";
+"tool_random_number" = "Satunnaisluku";
+"tool_ten_second" = "Pysäytä kello";
+"game_counter" = "Laskuri";
+"press_again_to_reset" = "Nollaa napauttamalla uudelleen";
+
+/* Records */
+"records" = "Historia";
+"loading" = "Ladataan";
+"no_records" = "Ei tallenteita";
+"record_not_found" = "Tallennetta ei löydy";
+"match_details" = "Ottelun tiedot";
+"match_record" = "Ottelutallenne";
+"delete_record" = "Poista tallenne";
+"confirm_deletion" = "Vahvista poisto";
+"cannot_be_recovered_after_deletion" = "Tätä ei voi kumota";
+"date" = "Päivämäärä";
+"time" = "Aika";
+"duration" = "Kesto";
+
+/* Common */
+"cancel" = "Peruuta";
+"confirm" = "Vahvista";
+"delete" = "Poista";
+"setup" = "Asetukset";
+"vibration" = "Tärinä";
+"sound" = "Ääni";
+"watch_scoreboard_keep_screen_on" = "Pidä näyttö päällä";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Ohje";
+"usage_prompt_message" = "Lisää piste napauttamalla puolta\nKumoa pyyhkäisemällä alas\nAvaa valikko pitämällä painettuna";
+"got_it" = "Selvä";
+
+/* Privacy */
+"privacy_policy" = "Tietosuojakäytäntö";
+"scan_to_view_details" = "Skannaa koodi nähdäksesi tiedot";
+
+/* Settings / About */
+"version" = "Versio";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Palaute";
+"watch_contact_us" = "Yhteys";
+
+/* Scoreboard menu */
+"menu_undo" = "Kumoa";
+"menu_reset" = "Nollaa";
+"watch_continue" = "Jatka";
+"watch_end_match" = "Valmis";
+"watch_layout_vertical" = "Pysty";
+"watch_layout_horizontal" = "Vaaka";
+"watch_settings_layout_title" = "Asettelu";
+"watch_reset_toast" = "Nollaa";
+"watch_undo_toast" = "Kumottu";
+"watch_play_again" = "Pelaa uudelleen";
+"watch_exit" = "Poistu";
+"exit" = "Poistu";
+"watch_team_red" = "Punainen";
+"watch_team_blue" = "Sininen";
+"team_a" = "Joukkue A";
+"team_b" = "Joukkue B";
+"team_home" = "Koti";
+"team_away" = "Vieras";
+"player_a" = "Pelaaja A";
+"player_b" = "Pelaaja B";
+"archer_a" = "Jousiampuja A";
+"archer_b" = "Jousiampuja B";
+"linked_score_confirm_title" = "Puhelin–kello-yhteys?";
+"linked_score_phone_started_scoreboard" = "Puhelin–kello-yhteys · Peli aloitettu";
+"linked_score_accept" = "Hyväksy";
+"linked_score_reject" = "Hylkää";
+"linked_score_watch_reclaim" = "Ota ohjaus";
+"linked_score_setup_rules" = "%1$d erää · %2$d pistettä";
+"linked_score_setup_rules_sets" = "%d erää";
+"linked_score_setup_race_to" = "Tavoite %d";
+"linked_score_sport_badminton" = "Sulkapallo, kaksinpeli";
+"linked_score_sport_badminton_doubles" = "Sulkapallon nelinpeli";
+"linked_score_sport_pingpong" = "Pöytätennis, kaksinpeli";
+"linked_score_sport_pingpong_doubles" = "Pöytätennisnelinpelit";
+"linked_score_sport_tennis" = "Tennis, kaksinpeli";
+"linked_score_sport_tennis_doubles" = "Tennisnelinpelit";
+"linked_score_sport_pickleball" = "Pickleball, kaksinpeli";
+"linked_score_sport_pickleball_doubles" = "Pickleball-nelinpelit";
+"game_basketball" = "Koripallo";
+"game_three_basketball" = "3x3 koripallo";
+"linked_score_sport_archery" = "Jousiammunta";
+"linked_score_sport_eight_ball" = "8-pallo";
+"linked_score_sport_nine_ball" = "9-pallo chase";
+"linked_score_sport_snooker" = "Snooker";
+"linked_score_sport_shuttlecock" = "Jianzi";
+"linked_score_sport_squash" = "Squash";
+"linked_score_sport_foosball" = "Pöytäjalkapallo";
+"linked_score_sport_football" = "Jalkapallo";
+"linked_score_sport_football_5v5" = "5×5 jalkapallo";
+"watch_menu_end_match" = "Lopeta ottelu";
+"watch_menu_restart" = "Käynnistä uudelleen";
+"watch_bball_overtime" = "Jatkoaika";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d pelaajaa";
+"archery_closest_title" = "Ratkaisunuoli · Lähimpänä keskustaa";
+"archery_closest_message" = "Tasatilanne %d pisteessä — valitse keskustaa lähin nuoli";
+"watch_set_end_format" = "Erä %d päättynyt";
+"watch_match_start" = "Peli aloitettu";
+"watch_match_finished" = "Ottelu päättynyt";
+"watch_bb_hit_rate" = "Osumatarkkuus";
+"watch_bb_end_training" = "Lopeta harjoitus";
+"watch_training_finish_confirm_title" = "Lopetetaanko harjoitus?";
+"watch_training_finish_confirm_message" = "Harjoitus päättyy ja tallennetaan.";
+"watch_counter_finish_confirm_title" = "Lopetetaanko laskenta?";
+"watch_counter_finish_confirm_message" = "Lukema tallennetaan ja laskenta alkaa nollasta.";
+"watch_bb_restart" = "Käynnistä uudelleen";
+
+/* Records */
+"clear_all_records" = "Tyhjennä koko historia";
+"clear_all_records_message" = "Kaikki tietueet poistetaan pysyvästi.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Kruuna";
+"watch_coin_tails" = "Klaava";
+"watch_archery_miss" = "Ohi";
+"watch_flip_coin_hint" = "Heitä kolikkoa napauttamalla";
+"watch_ten_second_challenge" = "Pysäytä kello";
+"watch_ten_second_usage" = "Aloita napauttamalla. Napauta uudelleen tavoiteajassa.";
+"watch_mid_game_rest" = "Tauko erän puolivälissä";
+"watch_rest_between_sets" = "Tauko erien välissä";
+"watch_official_timeout" = "Aikalisä";
+"watch_medical_break" = "Lääketieteellinen";
+"watch_score_event_set_title" = "Erä %d päättynyt";
+"watch_score_event_set_detail" = "%1$@ Voittaa %2$d:%3$d · Erät %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Erä %d · Tauko erän puolivälissä";
+"watch_score_event_mid_game_detail" = "%1$@ Johtaa %2$d:%3$d · Erät %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Erä %d päättynyt";
+"watch_score_event_tennis_game_detail" = "%1$@ Voittaa · Pelit %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Erä %d päättynyt";
+"watch_score_event_tennis_set_detail" = "%1$@ Voittaa %2$d:%3$d · Erät %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "Tie-break 7 pisteeseen";
+"watch_tiebreak_indicator_10" = "Tie-break 10 pisteeseen";
+"watch_continue_match" = "Jatka";
+"watch_continue_scoring" = "Jatka";
+"watch_resume_discard" = "Hylkää kesken oleva peli";
+"watch_resume_discard_training" = "Hylkää kesken oleva harjoitus";
+"unit_hour" = "t";
+"unit_minute" = "min";
+"unit_second" = "s";
+"today" = "Tänään";
+"yesterday" = "Eilen";
+
+/* Sports setup */
+"watch_setup_start" = "Aloita";
+"watch_setup_sets" = "Erät";
+"watch_setup_points_per_set" = "Pisteitä erää kohden";
+"watch_setup_tennis_deuce" = "Tasatilanteen sääntö";
+"watch_setup_tennis_advantage" = "Etu";
+"watch_setup_tennis_no_ad" = "Ilman etua";
+"watch_setup_target_score" = "Tavoitepisteet";
+"watch_setup_rally_scoring" = "Piste jokaisesta pallosta";
+"watch_setup_target_racks" = "Tavoite";
+"watch_setup_race_racks" = "Voittoja";
+"watch_setup_race_racks_help" = "3 = ensin 3 kehää";
+"watch_setup_handicap" = "Tasoitus";
+"watch_setup_handicap_none" = "Ei mitään";
+"watch_setup_handicap_red_gives_blue" = "Punainen → Sininen";
+"watch_setup_handicap_blue_gives_red" = "Sininen → Punainen";
+"watch_setup_handicap_racks" = "Tasoituserät";
+"watch_setup_frames" = "Freimit";
+"watch_setup_custom_frames" = "Oma erämäärä";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Syötä 1-99";
+"watch_setup_players" = "Pelaajia";
+"watch_setup_archers" = "Jousiampujat";
+"watch_setup_player_number" = "Pelaaja %d";
+"watch_setup_red_a" = "Punainen A";
+"watch_setup_red_b" = "Punainen B";
+"watch_setup_blue_a" = "Sininen A";
+"watch_setup_blue_b" = "Sininen B";
+"watch_setup_name_missing" = "Täytä kaikki nimet tai jätä ne kaikki tyhjiksi";
+"watch_setup_select_players" = "Pelaajia";
+"watch_setup_player_count" = "%d pelaajaa";
+"watch_common_names_select_player" = "Valitse pelaaja";
+"watch_common_names_no_records" = "Ei tallennettuja nimiä";
+"watch_common_names_title" = "Tallennetut nimet";
+"watch_common_names_add" = "Lisää";
+"watch_common_names_edit" = "Muokkaa nimeä";
+"watch_common_names_delete_title" = "Poistetaanko nimi?";
+"watch_common_names_error_title" = "Päivitys epäonnistui";
+"watch_common_names_players" = "Pelaajia";
+"watch_common_names_teams" = "joukkueet";
+"watch_common_names_empty" = "Ei tallennettuja nimiä";
+"watch_common_names_team_placeholder" = "Joukkueen nimi";
+"watch_common_names_player_placeholder" = "Pelaajan nimi";
+"watch_common_names_length_hint" = "Enintään %d merkkiä";
+"watch_common_names_error_empty" = "Nimi ei voi olla tyhjä";
+"watch_common_names_error_duplicate" = "Nimi on jo olemassa";
+"watch_common_names_error_missing" = "Tallennetta ei löydy · Yritä uudelleen";
+"watch_common_names_error_generic" = "Ei voitu tallentaa. Yritä uudelleen.";
+"watch_common_names_sync_now" = "Synkronoi nyt";
+"watch_common_names_actions" = "Tallennetut nimet";
+"watch_common_names_sync_requested" = "Odottaa synkronointia";
+"watch_common_names_sync_queued" = "Puhelinta ei ole yhdistetty · Odottaa synkronointia";
+"watch_common_names_sync_inactive" = "Puhelinta ei ole yhdistetty";
+"watch_common_names_sync_failed" = "Yhteys epäonnistui · Yritä uudelleen";
+"watch_common_names_sync_conflict" = "Joitakin muutoksia ei synkronoitu";
+"watch_common_names_sync_pending" = "Odottaa synkronointia";
+"watch_common_names_sync_unavailable" = "Puhelinta ei ole yhdistetty";
+"watch_common_names_sync_done" = "Synkronoitu";
+"watch_common_names_pending_count" = "Odottaa synkronointia · %d";
+"watch_common_names_never_synced" = "Ei vielä synkronoitu";
+"watch_common_names_last_sync" = "Viimeksi synkronoitu %@";
+
+"watch_phone_link_title" = "Kelloyhteys";
+"watch_phone_link_intro" = "Aloita puhelimella, laske pisteet kellolla";
+"watch_phone_link_support" = "Sulkapallo · Jalkapallo · Jousiammunta · Heittoharjoittelu…";
+"watch_phone_link_status" = "Yhteyden tila";
+"watch_phone_link_steps" = "Kuinka käyttää";
+"watch_phone_link_step_1" = "Määritä ottelu tai heittoharjoitus puhelimella.";
+"watch_phone_link_step_2" = "Aloita · Apple Watch";
+"watch_phone_link_step_3" = "Laske pisteet kellolla. Tulos synkronoidaan lopuksi.";
+"watch_phone_link_help" = "Muodosta laitepari, asenna iScoreboard molempiin laitteisiin ja avaa se puhelimella.";
+"watch_phone_link_testing" = "Testataan";
+"watch_phone_link_normal" = "Yhdistetty";
+"watch_phone_link_failed" = "Yhteys epäonnistui";
+"watch_phone_link_reachable" = "Yhdistetty";
+"watch_phone_link_waiting" = "Odottaa puhelinta";
+"watch_phone_link_inactive" = "Puhelinta ei ole yhdistetty";
+"watch_phone_link_testing_detail" = "Odottaa puhelinta";
+"watch_phone_link_normal_detail" = "Yhdistetty";
+"watch_phone_link_failed_detail" = "Puhelin ei vastannut 8 sekunnissa.";
+"watch_phone_link_failed_inactive" = "Puhelinta ei ole yhdistetty · Yritä uudelleen";
+"watch_phone_link_failed_unreachable" = "Avaa iScoreboard puhelimella ja yritä uudelleen.";
+"watch_phone_link_failed_send" = "Yhteys epäonnistui · Yritä uudelleen";
+"watch_phone_link_reachable_detail" = "Testaa";
+"watch_phone_link_waiting_detail" = "Avaa iScoreboard puhelimella ja yritä uudelleen.";
+"watch_phone_link_test_waiting" = "Testataan…";
+"watch_phone_link_test_retry" = "Yritä uudelleen";
+"watch_phone_link_test" = "Testaa";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Viimeisin yhteys %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Harjoitustila";
+"watch_bb_1pt" = "1 piste";
+"watch_bb_2pt" = "2 pistettä";
+"watch_bb_3pt" = "3 pistettä";
+"watch_bb_free" = "Vapaa";
+"watch_training_miss" = "Ohi";
+"watch_training_made" = "Kori";
+"watch_training_point_value" = "%d pistettä";
+"watch_training_breakdown" = "Heitot";
+"watch_training_start" = "Heittoharjoittelu · Aloita";
+"watch_training_rate_format" = "Osumatarkkuus %d%%";
+"watch_training_action_format" = "%d pistettä · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Kiinnitetäänkö ylös?";
+"watch_home_pin_confirm" = "Kiinnitä";
+"watch_home_unpin_title" = "Irrota?";
+"watch_home_unpin_confirm" = "Irrota";
+"watch_home_pin_full_title" = "Kiinnitysraja";
+"watch_home_pin_full_message" = "Voit kiinnittää 2. Irrota ensin yksi.";
+"watch_home_pin_hint" = "Kiinnitä pitämällä painettuna";
+"watch_home_pin_success" = "Kiinnitetty";
+"watch_home_unpin_success" = "Irrotettu";
+"multi_score_player_default_format" = "Pelaaja %d";
+"nine_ball_big_gold" = "Iso kulta";
+"nine_ball_small_gold" = "Pieni kulta";
+"nine_ball_golden_nine" = "Kultainen 9";
+"nine_ball_normal_win" = "Tavallinen voitto";
+"nine_ball_ball_in_hand" = "Pallo kädessä";
+"nine_ball_foul" = "Virhe";
+"watch_archery_set_rest" = "Erätauko";
+"watch_finish_confirm_title" = "Lopeta ottelu?";
+"watch_finish_confirm_message" = "Ottelu päättyy ja tallennetaan.";
+"watch_reset_confirm_title" = "Aloitetaanko ottelu alusta?";
+"watch_reset_confirm_message" = "Nykyiset pisteet nollataan.";
+"watch_side_exchange" = "Vaihda puolet";
+"watch_winner_format" = "%@ Voittaa";
+"watch_finished_win_badge" = "V";
+"watch_finished_winner" = "Voittaja";
+"watch_finished_home" = "Etusivu";
+"watch_snooker_foul" = "Virhe";
+"watch_snooker_foul_selected_format" = "Virhe +%d";
+"watch_snooker_foul_next_turn" = "Vaihda vuoroa";
+"watch_snooker_foul_switch_turn" = "Vaihda vuoroa";
+"watch_snooker_foul_continue" = "Jatka";
+"watch_action_snooker_foul_continue_format" = "%@· Virhe · Vast. +%d · Virheen tehnyt pelaaja jatkaa";
+"watch_snooker_handover" = "Vaihda vuoroa";
+"watch_snooker_settle_frame" = "Päätä freimi";
+"watch_snooker_choose_frame_winner" = "Valitse freimin voittaja";
+"watch_snooker_frame_finished" = "Kierros päättynyt";
+"watch_snooker_next_frame" = "Seuraava freimi";
+"watch_training_breakdown_format" = "%d pistettä · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Sama etäisyys. Jatka ratkaisunuolilla.";
+"edit" = "Muokkaa";
+"game_badminton_doubles" = "Sulkapallon nelinpeli";
+"game_eight_ball" = "8-pallo";
+"game_nine_ball" = "9-pallo chase";
+"game_pickleball_doubles" = "Pickleball-nelinpelit";
+"game_pingpong_doubles" = "Pöytätennisnelinpelit";
+"game_snooker" = "Snooker";
+"game_tennis_doubles" = "Tennisnelinpelit";
+"save" = "Tallenna";
+"watch_action_adjust_score_format" = "%@· Pistemäärä muuttui";
+"watch_action_archery_arrow_format" = "%@+%d pistettä";
+"watch_action_archery_closest" = "Ratkaisunuoli · Lähimpänä keskustaa";
+"watch_action_archery_miss_format" = "%@· Ohi";
+"watch_action_archery_set_ready" = "Jousiammunta · Kierros päättynyt";
+"watch_action_ball_potted_format" = "%@ · Pallo pussitettu %@";
+"watch_action_basketball_foul_format" = "%@· Virhe";
+"watch_action_basketball_period_format" = "Jakso %d · Aloita";
+"watch_action_basketball_timeout_format" = "%@· Aikalisä";
+"watch_action_edit_name" = "Päivitetty";
+"watch_action_exchange_sides" = "Vaihda puolta";
+"watch_action_exchange_sides_reminder" = "Vaihda puolta itse";
+"watch_action_game_finished_format" = "Erä %1$d päättynyt · %2$@ Voittaa";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ Voittaa";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Erä %1$d päättynyt · %2$@ Voittaa";
+"watch_action_shooter_format" = "%@ aloittaa ampumisen";
+"watch_action_side_out_format" = "Syöttö · %@";
+"watch_action_snooker_foul_format" = "%@· Virhe · Vast. +%d";
+"watch_action_snooker_frame_format" = "Freimi %1$d · %2$@ Voittaa";
+"watch_action_snooker_handover_format" = "Vaihda vuoroa · %@";
+"watch_action_snooker_miss_format" = "%@· Ohi";
+"watch_action_snooker_next_frame_format" = "Freimi %d · Aloita";
+"watch_action_snooker_pot_format" = "%@· Pallo pussitettu +%d";
+"watch_record_actions_unavailable" = "Ei tallenteita";
+"linked_score_error_title" = "Yhteys epäonnistui";
+"linked_score_persistence_failed" = "Puhelin–kello-yhteys · Tallennus epäonnistui: %@";
+"resume_persistence_error_title" = "Tallennus epäonnistui";
+"resume_persistence_failed" = "Jatka ottelua · Tallennus epäonnistui: %@";
+"linked_score_control_timeout" = "Ota ohjaus · Aikakatkaisu · Yritä uudelleen";
+"linked_score_sync_timeout" = "Aikakatkaisu · Odottaa synkronointia";
+
+/* Football */
+"game_football" = "Jalkapallo";
+"game_football_5v5" = "5×5 jalkapallo";
+"watch_setup_half_length" = "Puoliajan kesto";
+"watch_setup_teams" = "joukkueet";
+"football_first_half" = "Ensimmäinen puoliaika";
+"football_second_half" = "Toinen puoliaika";
+"football_extra_time_first" = "Jatkoaika – ensimmäinen puoliaika";
+"football_extra_time_second" = "Jatkoaika – toinen puoliaika";
+"football_first_half_over" = "Ensimmäinen puoliaika päättyi";
+"football_switch_half" = "Toinen puoliaika";
+"football_switch_half_title" = "Aloitetaanko toinen puoliaika?";
+"football_switch_half_message" = "Ensimmäinen puolisko keskeytetään, eikä sitä voi avata uudelleen.";
+"football_extra_time_first_over" = "Jatkoaika – ensimmäinen puoliaika · Kierros päättynyt";
+"football_switch_extra_time_half" = "Jatkoaika – toinen puoliaika";
+"football_enter_extra_time_title" = "Varsinainen peliaika päättyi";
+"football_post_regulation_action" = "Varsinaisen peliajan jälkeen";
+"football_injury_title" = "Lisäaika";
+"football_undo_stoppage" = "Kumoa lisäaika";
+"football_enter_extra_time" = "Siirry jatkoajalle";
+"football_end_as_draw" = "Lopeta tasapeliin";
+"football_goal_hint" = "Lisää maali napauttamalla";
+"watch_football_start" = "Aloita";
+"watch_football_pause" = "Keskeytä";
+"watch_football_resume" = "Jatka";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Aloita · %@";
+"watch_action_football_stoppage_format" = "Lisäaika +%d s";
+"watch_action_football_clock_start" = "Ajastin aloitettu";
+"watch_action_football_clock_pause" = "Ajastin keskeytetty";
+"watch_record_sync_sent" = "Synkronoitu";
+"watch_record_sync_pending" = "Odottaa synkronointia";
+"watch_record_sync_not_synced" = "Ei synkronoitu iPhoneen";
+"watch_record_sync_action" = "Synkronoi iPhoneen";
+"watch_settings_auto_sync_records" = "Automaattinen synkronointi";
+"game_shuttlecock" = "Jianzi";
+"game_squash" = "Squash";
+"game_foosball" = "Pöytäjalkapallo";
+
+"watch_setup_win_by_two" = "Voita ratkaiseva erä 2 pisteen erolla";
+"watch_setup_score_cap" = "Pisteiden yläraja";
+"watch_setup_serving_side" = "Ensimmäinen syöttäjä";
+"watch_setup_kickoff_side" = "Ensimmäinen aloitus";
+"watch_setup_side_left" = "Punainen";
+"watch_setup_side_right" = "Sininen";
+
+"watch_about_us" = "Tietoja meistä";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Versio %@";
+"watch_wechat_group_title" = "WeChat-ryhmä";
+"watch_wechat_group_scan_hint" = "WeChat · Skannaa koodi nähdäksesi tiedot";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Aloitus";
+"watch_nine_ball_select_payer" = "Valitse maksaja";
+"watch_nine_ball_select_continue" = "Valitse seuraava";
+"watch_nine_ball_prev_player" = "Edellinen";
+"watch_nine_ball_next_player" = "Seuraava";
+"watch_nine_ball_continue_badge" = "Pelaa";
+
+"watch_a11y_points_format" = "%d pistettä";
+"watch_a11y_sets_format" = "%d erää";
+"watch_a11y_serving" = "Syöttö";
+
+"watch_phone_shared_link_intro" = "Aloita puhelimella ja kirjaa pisteitä kummalla tahansa laitteella.";
+"linked_score_simultaneous_edit" = "Molemmilla laitteilla tehtiin muutoksia. Tarkista pistetilanne.";

@@ -215,8 +215,6 @@ struct WatchHomeTabView: View {
                 }
             }
             Button(NSLocalizedString("cancel", comment: "Cancel"), role: .cancel) { }
-        } message: {
-            Text(pinDialogMessage)
         }
         .alert(
             NSLocalizedString(
@@ -272,21 +270,6 @@ struct WatchHomeTabView: View {
                 "watch_home_pin_title",
                 value: "置顶项目？",
                 comment: "Pin project confirmation title"
-            )
-    }
-
-    private var pinDialogMessage: String {
-        guard let item = pinDialogItem else { return "" }
-        return pinnedItems.contains(item)
-            ? NSLocalizedString(
-                "watch_home_unpin_message",
-                value: "将这个项目从置顶项目中移除？",
-                comment: "Unpin project confirmation message"
-            )
-            : NSLocalizedString(
-                "watch_home_pin_message",
-                value: "将这个项目置顶到首页列表顶部？",
-                comment: "Pin project confirmation message"
             )
     }
 
@@ -566,7 +549,7 @@ private struct WatchHomePillControl: View {
             icon: icon,
             iconAsset: iconAsset,
             title: title,
-            trailingIcon: isPinned ? "📌" : nil
+            trailingSystemImage: isPinned ? "pin.fill" : nil
         )
         .contentShape(Rectangle())
         .gesture(

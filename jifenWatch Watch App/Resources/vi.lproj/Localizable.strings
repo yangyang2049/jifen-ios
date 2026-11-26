@@ -1,0 +1,422 @@
+/* Watch App - vi */
+
+/* Tab Bar */
+"tab_score" = "Điểm";
+"tab_tools" = "Công cụ";
+"tab_timer" = "Hẹn giờ";
+
+/* Game Types */
+"game_badminton" = "Cầu lông";
+"game_pingpong" = "Bóng bàn";
+"game_tennis" = "Quần vợt";
+"game_pickleball" = "Pickleball";
+"game_archery" = "Bắn cung";
+"tool_basketball_training" = "Luyện ném rổ";
+
+/* Tools */
+"tool_flip_coin" = "Tung đồng xu";
+"tool_random_number" = "Số ngẫu nhiên";
+"tool_ten_second" = "Canh dừng đồng hồ";
+"game_counter" = "Bộ đếm";
+"press_again_to_reset" = "Chạm lại để đặt lại";
+
+/* Records */
+"records" = "Bản ghi";
+"loading" = "Đang tải";
+"no_records" = "Không có bản ghi";
+"record_not_found" = "Không tìm thấy bản ghi";
+"match_details" = "Chi tiết trận đấu";
+"match_record" = "Bản ghi trận đấu";
+"delete_record" = "Xóa bản ghi";
+"confirm_deletion" = "Xác nhận xóa";
+"cannot_be_recovered_after_deletion" = "Việc này không thể hoàn tác được";
+"date" = "Ngày";
+"time" = "Thời gian";
+"duration" = "Thời lượng";
+
+/* Common */
+"cancel" = "Hủy";
+"confirm" = "Xác nhận";
+"delete" = "Xóa";
+"setup" = "Thiết lập";
+"vibration" = "Rung";
+"sound" = "Âm thanh";
+"watch_scoreboard_keep_screen_on" = "Giữ màn hình luôn bật";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Hướng dẫn";
+"usage_prompt_message" = "Chạm vào một bên để cộng điểm\nVuốt xuống để hoàn tác\nNhấn giữ để mở menu";
+"got_it" = "Hiểu rồi";
+
+/* Privacy */
+"privacy_policy" = "Chính sách quyền riêng tư";
+"scan_to_view_details" = "Quét mã để xem chi tiết";
+
+/* Settings / About */
+"version" = "Phiên bản";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Phản hồi";
+"watch_contact_us" = "Liên hệ";
+
+/* Scoreboard menu */
+"menu_undo" = "Hoàn tác";
+"menu_reset" = "Đặt lại";
+"watch_continue" = "Tiếp tục";
+"watch_end_match" = "Kết thúc";
+"watch_layout_vertical" = "Dọc";
+"watch_layout_horizontal" = "Ngang";
+"watch_settings_layout_title" = "Bố cục";
+"watch_reset_toast" = "Đặt lại";
+"watch_undo_toast" = "Hoàn tác";
+"watch_play_again" = "Chơi lại";
+"watch_exit" = "Thoát";
+"exit" = "Thoát";
+"watch_team_red" = "Đỏ";
+"watch_team_blue" = "Màu xanh";
+"team_a" = "Đội A";
+"team_b" = "Đội B";
+"team_home" = "Chủ nhà";
+"team_away" = "Khách";
+"player_a" = "Người chơi A";
+"player_b" = "Người chơi B";
+"archer_a" = "Cung thủ A";
+"archer_b" = "Cung thủ B";
+"linked_score_confirm_title" = "Liên kết điện thoại–đồng hồ?";
+"linked_score_phone_started_scoreboard" = "Liên kết điện thoại–đồng hồ · Trò chơi đã bắt đầu";
+"linked_score_accept" = "Chấp nhận";
+"linked_score_reject" = "Từ chối";
+"linked_score_watch_reclaim" = "Tiếp quản";
+"linked_score_setup_rules" = "%1$d set · %2$d điểm";
+"linked_score_setup_rules_sets" = "%d set";
+"linked_score_setup_race_to" = "Chơi tới %d";
+"linked_score_sport_badminton" = "Cầu lông đơn";
+"linked_score_sport_badminton_doubles" = "Cầu lông đôi";
+"linked_score_sport_pingpong" = "Đơn bóng bàn";
+"linked_score_sport_pingpong_doubles" = "Đôi bóng bàn";
+"linked_score_sport_tennis" = "Đơn quần vợt";
+"linked_score_sport_tennis_doubles" = "Quần vợt đôi";
+"linked_score_sport_pickleball" = "Pickleball đơn";
+"linked_score_sport_pickleball_doubles" = "Pickleball đôi";
+"game_basketball" = "Bóng rổ";
+"game_three_basketball" = "Bóng rổ 3x3";
+"linked_score_sport_archery" = "Bắn cung";
+"linked_score_sport_eight_ball" = "Tám quả bóng";
+"linked_score_sport_nine_ball" = "Bida đuổi 9 bóng";
+"linked_score_sport_snooker" = "Snooker";
+"linked_score_sport_shuttlecock" = "Kiến Tử";
+"linked_score_sport_squash" = "Bóng quần";
+"linked_score_sport_foosball" = "Bóng đá bàn";
+"linked_score_sport_football" = "Bóng đá";
+"linked_score_sport_football_5v5" = "Bóng đá 5×5";
+"watch_menu_end_match" = "Kết thúc trận đấu";
+"watch_menu_restart" = "Khởi động lại";
+"watch_bball_overtime" = "Hiệp phụ";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d Người chơi";
+"archery_closest_title" = "Bắn phân thắng bại · Gần tâm nhất";
+"archery_closest_message" = "Hòa ở %d — chọn mũi tên gần tâm hơn";
+"watch_set_end_format" = "Set %d kết thúc";
+"watch_match_start" = "Trò chơi đã bắt đầu";
+"watch_match_finished" = "Trận đấu đã kết thúc";
+"watch_bb_hit_rate" = "Tỷ lệ trúng";
+"watch_bb_end_training" = "Kết thúc luyện tập";
+"watch_training_finish_confirm_title" = "Kết thúc buổi tập?";
+"watch_training_finish_confirm_message" = "Buổi tập sẽ kết thúc và được lưu.";
+"watch_counter_finish_confirm_title" = "Kết thúc đếm?";
+"watch_counter_finish_confirm_message" = "Số đếm sẽ được lưu rồi đếm lại từ 0.";
+"watch_bb_restart" = "Khởi động lại";
+
+/* Records */
+"clear_all_records" = "Xóa tất cả bản ghi";
+"clear_all_records_message" = "Mọi bản ghi sẽ bị xóa vĩnh viễn.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Đầu";
+"watch_coin_tails" = "Đuôi";
+"watch_archery_miss" = "Trượt";
+"watch_flip_coin_hint" = "Chạm để tung đồng xu";
+"watch_ten_second_challenge" = "Canh dừng đồng hồ";
+"watch_ten_second_usage" = "Chạm để bắt đầu. Chạm lại đúng thời gian mục tiêu.";
+"watch_mid_game_rest" = "Nghỉ giữa ván";
+"watch_rest_between_sets" = "Nghỉ giữa các ván";
+"watch_official_timeout" = "Hội ý";
+"watch_medical_break" = "Y tế";
+"watch_score_event_set_title" = "Set %d kết thúc";
+"watch_score_event_set_detail" = "%1$@ Thắng %2$d:%3$d · Set %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Set %d · Nghỉ giữa ván";
+"watch_score_event_mid_game_detail" = "%1$@ Dẫn trước %2$d:%3$d · Set %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Set %d kết thúc";
+"watch_score_event_tennis_game_detail" = "%1$@ Thắng · Trò chơi %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Set %d kết thúc";
+"watch_score_event_tennis_set_detail" = "%1$@ Thắng %2$d:%3$d · Set %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "Tie-break đến 7 điểm";
+"watch_tiebreak_indicator_10" = "Tie-break đến 10 điểm";
+"watch_continue_match" = "Tiếp tục";
+"watch_continue_scoring" = "Tiếp tục";
+"watch_resume_discard" = "Bỏ trận chưa xong";
+"watch_resume_discard_training" = "Bỏ buổi tập chưa xong";
+"unit_hour" = "g";
+"unit_minute" = "ph";
+"unit_second" = "s";
+"today" = "Hôm nay";
+"yesterday" = "Hôm qua";
+
+/* Sports setup */
+"watch_setup_start" = "Bắt đầu";
+"watch_setup_sets" = "Set";
+"watch_setup_points_per_set" = "Điểm mỗi set";
+"watch_setup_tennis_deuce" = "Quy tắc Deuce";
+"watch_setup_tennis_advantage" = "Lợi điểm";
+"watch_setup_tennis_no_ad" = "Không lợi điểm";
+"watch_setup_target_score" = "Điểm mục tiêu";
+"watch_setup_rally_scoring" = "Tính điểm mỗi lượt bóng";
+"watch_setup_target_racks" = "Chơi tới";
+"watch_setup_race_racks" = "Đua đến";
+"watch_setup_race_racks_help" = "3 = thắng 3 frame trước";
+"watch_setup_handicap" = "Chấp";
+"watch_setup_handicap_none" = "Không có";
+"watch_setup_handicap_red_gives_blue" = "Đỏ → Màu xanh";
+"watch_setup_handicap_blue_gives_red" = "Màu xanh → Đỏ";
+"watch_setup_handicap_racks" = "Số ván chấp";
+"watch_setup_frames" = "Frame";
+"watch_setup_custom_frames" = "Số ván tùy chọn";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Nhập 1-99";
+"watch_setup_players" = "Số người chơi";
+"watch_setup_archers" = "Cung thủ";
+"watch_setup_player_number" = "Người chơi %d";
+"watch_setup_red_a" = "Đỏ A";
+"watch_setup_red_b" = "Đỏ B";
+"watch_setup_blue_a" = "Màu xanh A";
+"watch_setup_blue_b" = "Xanh B";
+"watch_setup_name_missing" = "Điền tất cả tên hoặc để trống tất cả";
+"watch_setup_select_players" = "Số người chơi";
+"watch_setup_player_count" = "%d Người chơi";
+"watch_common_names_select_player" = "Chọn Người chơi";
+"watch_common_names_no_records" = "Không có tên đã lưu";
+"watch_common_names_title" = "Tên đã lưu";
+"watch_common_names_add" = "Thêm";
+"watch_common_names_edit" = "Chỉnh sửa tên";
+"watch_common_names_delete_title" = "Xóa tên?";
+"watch_common_names_error_title" = "Không cập nhật được";
+"watch_common_names_players" = "Số người chơi";
+"watch_common_names_teams" = "đội";
+"watch_common_names_empty" = "Không có tên đã lưu";
+"watch_common_names_team_placeholder" = "Tên đội";
+"watch_common_names_player_placeholder" = "Tên người chơi";
+"watch_common_names_length_hint" = "Tối đa %d ký tự";
+"watch_common_names_error_empty" = "Tên không được để trống";
+"watch_common_names_error_duplicate" = "Tên đã tồn tại";
+"watch_common_names_error_missing" = "Không tìm thấy bản ghi · Thử lại";
+"watch_common_names_error_generic" = "Không thể lưu. Vui lòng thử lại.";
+"watch_common_names_sync_now" = "Đồng bộ ngay";
+"watch_common_names_actions" = "Tên đã lưu";
+"watch_common_names_sync_requested" = "Chờ đồng bộ";
+"watch_common_names_sync_queued" = "Điện thoại đã ngắt kết nối · Chờ đồng bộ";
+"watch_common_names_sync_inactive" = "Điện thoại đã ngắt kết nối";
+"watch_common_names_sync_failed" = "Kết nối thất bại · Thử lại";
+"watch_common_names_sync_conflict" = "Một số thay đổi chưa được đồng bộ";
+"watch_common_names_sync_pending" = "Chờ đồng bộ";
+"watch_common_names_sync_unavailable" = "Điện thoại đã ngắt kết nối";
+"watch_common_names_sync_done" = "Đã đồng bộ";
+"watch_common_names_pending_count" = "Chờ đồng bộ · %d";
+"watch_common_names_never_synced" = "Chưa đồng bộ lần nào";
+"watch_common_names_last_sync" = "Lần đồng bộ cuối %@";
+
+"watch_phone_link_title" = "Link đồng hồ";
+"watch_phone_link_intro" = "Bắt đầu trên điện thoại, ghi điểm trên đồng hồ";
+"watch_phone_link_support" = "Cầu lông · Bóng đá · Bắn cung · Luyện ném rổ…";
+"watch_phone_link_status" = "Trạng thái kết nối";
+"watch_phone_link_steps" = "Cách sử dụng";
+"watch_phone_link_step_1" = "Thiết lập trận đấu hoặc bài tập ném rổ trên điện thoại.";
+"watch_phone_link_step_2" = "Bắt đầu · Apple Watch";
+"watch_phone_link_step_3" = "Ghi điểm trên đồng hồ. Kết quả sẽ đồng bộ khi kết thúc.";
+"watch_phone_link_help" = "Ghép đôi thiết bị, cài iScoreboard trên cả hai rồi mở ứng dụng trên điện thoại.";
+"watch_phone_link_testing" = "Đang kiểm tra";
+"watch_phone_link_normal" = "Đã kết nối";
+"watch_phone_link_failed" = "Kết nối thất bại";
+"watch_phone_link_reachable" = "Đã kết nối";
+"watch_phone_link_waiting" = "Đang chờ điện thoại";
+"watch_phone_link_inactive" = "Điện thoại đã ngắt kết nối";
+"watch_phone_link_testing_detail" = "Đang chờ điện thoại";
+"watch_phone_link_normal_detail" = "Đã kết nối";
+"watch_phone_link_failed_detail" = "Điện thoại không phản hồi trong 8 giây.";
+"watch_phone_link_failed_inactive" = "Điện thoại đã ngắt kết nối · Thử lại";
+"watch_phone_link_failed_unreachable" = "Mở iScoreboard trên điện thoại rồi thử lại.";
+"watch_phone_link_failed_send" = "Kết nối thất bại · Thử lại";
+"watch_phone_link_reachable_detail" = "Kiểm tra";
+"watch_phone_link_waiting_detail" = "Mở iScoreboard trên điện thoại rồi thử lại.";
+"watch_phone_link_test_waiting" = "Đang kiểm tra…";
+"watch_phone_link_test_retry" = "Thử lại";
+"watch_phone_link_test" = "Kiểm tra";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Lần kết nối cuối %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Chế độ tập";
+"watch_bb_1pt" = "1 điểm";
+"watch_bb_2pt" = "2 điểm";
+"watch_bb_3pt" = "3 điểm";
+"watch_bb_free" = "Tự do";
+"watch_training_miss" = "Trượt";
+"watch_training_made" = "Vào";
+"watch_training_point_value" = "%d điểm";
+"watch_training_breakdown" = "Chi tiết cú ném";
+"watch_training_start" = "Luyện ném rổ · Bắt đầu";
+"watch_training_rate_format" = "Tỷ lệ trúng %d%%";
+"watch_training_action_format" = "%d điểm · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Ghim lên đầu?";
+"watch_home_pin_confirm" = "Ghim";
+"watch_home_unpin_title" = "Bỏ ghim?";
+"watch_home_unpin_confirm" = "Bỏ ghim";
+"watch_home_pin_full_title" = "Giới hạn ghim";
+"watch_home_pin_full_message" = "Có thể ghim 2 mục. Hãy bỏ ghim một mục trước.";
+"watch_home_pin_hint" = "Nhấn giữ để ghim";
+"watch_home_pin_success" = "Đã ghim";
+"watch_home_unpin_success" = "Đã bỏ ghim";
+"multi_score_player_default_format" = "Người chơi %d";
+"nine_ball_big_gold" = "Vàng lớn";
+"nine_ball_small_gold" = "Vàng Nhỏ";
+"nine_ball_golden_nine" = "Bi 9 vàng";
+"nine_ball_normal_win" = "Thắng thường";
+"nine_ball_ball_in_hand" = "Bóng trong tay";
+"nine_ball_foul" = "Lỗi";
+"watch_archery_set_rest" = "Nghỉ giữa set";
+"watch_finish_confirm_title" = "Kết thúc trận đấu?";
+"watch_finish_confirm_message" = "Trận đấu sẽ kết thúc và được lưu.";
+"watch_reset_confirm_title" = "Bắt đầu lại trận đấu?";
+"watch_reset_confirm_message" = "Điểm hiện tại sẽ bị xóa.";
+"watch_side_exchange" = "Đổi sân";
+"watch_winner_format" = "%@ Thắng";
+"watch_finished_win_badge" = "T";
+"watch_finished_winner" = "Người chiến thắng";
+"watch_finished_home" = "Trang chủ";
+"watch_snooker_foul" = "Lỗi";
+"watch_snooker_foul_selected_format" = "Lỗi +%d";
+"watch_snooker_foul_next_turn" = "Chuyển lượt";
+"watch_snooker_foul_switch_turn" = "Chuyển lượt";
+"watch_snooker_foul_continue" = "Tiếp tục";
+"watch_action_snooker_foul_continue_format" = "%@· Lỗi · Đối thủ +%d · Kẻ phạm tội tiếp tục";
+"watch_snooker_handover" = "Chuyển lượt";
+"watch_snooker_settle_frame" = "Chốt kết quả frame";
+"watch_snooker_choose_frame_winner" = "Chọn người thắng frame";
+"watch_snooker_frame_finished" = "Vòng thi đã kết thúc";
+"watch_snooker_next_frame" = "Frame tiếp theo";
+"watch_training_breakdown_format" = "%d điểm · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Khoảng cách như nhau. Tiếp tục bắn phân thắng bại.";
+"edit" = "Chỉnh sửa";
+"game_badminton_doubles" = "Cầu lông đôi";
+"game_eight_ball" = "Tám quả bóng";
+"game_nine_ball" = "Bida đuổi 9 bóng";
+"game_pickleball_doubles" = "Pickleball đôi";
+"game_pingpong_doubles" = "Đôi bóng bàn";
+"game_snooker" = "Snooker";
+"game_tennis_doubles" = "Quần vợt đôi";
+"save" = "Lưu";
+"watch_action_adjust_score_format" = "%@· Điểm đã thay đổi";
+"watch_action_archery_arrow_format" = "%@+%d điểm";
+"watch_action_archery_closest" = "Bắn phân thắng bại · Gần tâm nhất";
+"watch_action_archery_miss_format" = "%@· Trượt";
+"watch_action_archery_set_ready" = "Bắn cung · Vòng thi đã kết thúc";
+"watch_action_ball_potted_format" = "%@ · Bi vào lỗ %@";
+"watch_action_basketball_foul_format" = "%@· Lỗi";
+"watch_action_basketball_period_format" = "Hiệp %d · Bắt đầu";
+"watch_action_basketball_timeout_format" = "%@· Hội ý";
+"watch_action_edit_name" = "Đã cập nhật";
+"watch_action_exchange_sides" = "Đổi bên";
+"watch_action_exchange_sides_reminder" = "Vui lòng đổi bên theo cách thủ công";
+"watch_action_game_finished_format" = "Set %1$d kết thúc · %2$@ Thắng";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ Thắng";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Set %1$d kết thúc · %2$@ Thắng";
+"watch_action_shooter_format" = "%@ bắt đầu bắn";
+"watch_action_side_out_format" = "Giao bóng · %@";
+"watch_action_snooker_foul_format" = "%@· Lỗi · Đối thủ +%d";
+"watch_action_snooker_frame_format" = "Frame %1$d · %2$@ Thắng";
+"watch_action_snooker_handover_format" = "Chuyển lượt · %@";
+"watch_action_snooker_miss_format" = "%@· Trượt";
+"watch_action_snooker_next_frame_format" = "Frame %d · Bắt đầu";
+"watch_action_snooker_pot_format" = "%@· Bi vào lỗ +%d";
+"watch_record_actions_unavailable" = "Không có bản ghi";
+"linked_score_error_title" = "Kết nối thất bại";
+"linked_score_persistence_failed" = "Liên kết điện thoại–đồng hồ · Lưu không thành công: %@";
+"resume_persistence_error_title" = "Không lưu được";
+"resume_persistence_failed" = "Tiếp tục trận · Lưu không thành công: %@";
+"linked_score_control_timeout" = "Tiếp quản · Đã hết thời gian chờ · Thử lại";
+"linked_score_sync_timeout" = "Đã hết thời gian chờ · Chờ đồng bộ";
+
+/* Football */
+"game_football" = "Bóng đá";
+"game_football_5v5" = "Bóng đá 5×5";
+"watch_setup_half_length" = "Thời lượng mỗi hiệp";
+"watch_setup_teams" = "đội";
+"football_first_half" = "Hiệp 1";
+"football_second_half" = "Hiệp hai";
+"football_extra_time_first" = "Hiệp phụ - hiệp một";
+"football_extra_time_second" = "Hiệp phụ - hiệp hai";
+"football_first_half_over" = "Hiệp 1 đã kết thúc";
+"football_switch_half" = "Hiệp hai";
+"football_switch_half_title" = "Bắt đầu hiệp hai?";
+"football_switch_half_message" = "Nửa đầu sẽ bị tạm dừng và không thể mở lại.";
+"football_extra_time_first_over" = "Hiệp phụ - hiệp một · Vòng thi đã kết thúc";
+"football_switch_extra_time_half" = "Hiệp phụ - hiệp hai";
+"football_enter_extra_time_title" = "Thời gian quy định đã kết thúc";
+"football_post_regulation_action" = "Sau thời gian chính thức";
+"football_injury_title" = "Bù giờ";
+"football_undo_stoppage" = "Hoàn tác bù giờ";
+"football_enter_extra_time" = "Vào hiệp phụ";
+"football_end_as_draw" = "Kết thúc hòa";
+"football_goal_hint" = "Chạm để thêm bàn thắng";
+"watch_football_start" = "Bắt đầu";
+"watch_football_pause" = "Tạm dừng";
+"watch_football_resume" = "Tiếp tục";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Bắt đầu · %@";
+"watch_action_football_stoppage_format" = "Bù giờ +%d s";
+"watch_action_football_clock_start" = "Đã bắt đầu hẹn giờ";
+"watch_action_football_clock_pause" = "Bộ hẹn giờ đã tạm dừng";
+"watch_record_sync_sent" = "Đã đồng bộ";
+"watch_record_sync_pending" = "Chờ đồng bộ";
+"watch_record_sync_not_synced" = "Chưa đồng bộ với iPhone";
+"watch_record_sync_action" = "Đồng bộ với iPhone";
+"watch_settings_auto_sync_records" = "Tự động đồng bộ";
+"game_shuttlecock" = "Kiến Tử";
+"game_squash" = "Bóng quần";
+"game_foosball" = "Bóng đá bàn";
+
+"watch_setup_win_by_two" = "Thắng set cuối với cách biệt 2 điểm";
+"watch_setup_score_cap" = "Giới hạn điểm";
+"watch_setup_serving_side" = "Bên giao bóng trước";
+"watch_setup_kickoff_side" = "Bên phát bóng trước";
+"watch_setup_side_left" = "Đỏ";
+"watch_setup_side_right" = "Màu xanh";
+
+"watch_about_us" = "Về chúng tôi";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Phiên bản %@";
+"watch_wechat_group_title" = "Nhóm WeChat";
+"watch_wechat_group_scan_hint" = "WeChat · Quét mã để xem chi tiết";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Phá bi";
+"watch_nine_ball_select_payer" = "Chọn người trả điểm";
+"watch_nine_ball_select_continue" = "Chọn người đánh tiếp";
+"watch_nine_ball_prev_player" = "Trước";
+"watch_nine_ball_next_player" = "Tiếp";
+"watch_nine_ball_continue_badge" = "Đánh";
+
+"watch_a11y_points_format" = "%d điểm";
+"watch_a11y_sets_format" = "%d set";
+"watch_a11y_serving" = "Giao bóng";
+
+"watch_phone_shared_link_intro" = "Bắt đầu trên điện thoại và ghi điểm trên một trong hai thiết bị.";
+"linked_score_simultaneous_edit" = "Cả hai thiết bị đều đã thay đổi. Hãy kiểm tra tỉ số.";

@@ -2062,6 +2062,29 @@ final class WatchSportsSetupTests: XCTestCase {
         }
     }
 
+    func testWatchTenSecondChallengePolicy() {
+        XCTAssertEqual(WatchTenSecondChallengePolicy.presetSeconds, [1, 3, 5, 10])
+        XCTAssertEqual(WatchTenSecondChallengePolicy.defaultTargetSeconds, 10)
+        for preset in WatchTenSecondChallengePolicy.presetSeconds {
+            XCTAssertEqual(WatchTenSecondChallengePolicy.normalizedTargetSeconds(preset), preset)
+        }
+        for invalid in [0, 2, 7, -3] {
+            XCTAssertEqual(WatchTenSecondChallengePolicy.normalizedTargetSeconds(invalid), 10)
+        }
+
+        XCTAssertEqual(WatchTenSecondChallengePolicy.difference(elapsed: 1.00, targetSeconds: 1), 0.0, accuracy: 0.0001)
+        XCTAssertEqual(WatchTenSecondChallengePolicy.difference(elapsed: 0.94, targetSeconds: 1), 0.06, accuracy: 0.0001)
+        XCTAssertEqual(WatchTenSecondChallengePolicy.difference(elapsed: 3.05, targetSeconds: 3), 0.05, accuracy: 0.0001)
+        XCTAssertEqual(WatchTenSecondChallengePolicy.difference(elapsed: 4.88, targetSeconds: 5), 0.12, accuracy: 0.0001)
+        XCTAssertEqual(WatchTenSecondChallengePolicy.difference(elapsed: 10.00, targetSeconds: 10), 0.0, accuracy: 0.0001)
+        XCTAssertEqual(WatchTenSecondChallengePolicy.difference(elapsed: -0.5, targetSeconds: 5), 5.0, accuracy: 0.0001)
+
+        XCTAssertEqual(WatchTenSecondChallengePolicy.hapticType(for: 0.0), .strong)
+        XCTAssertEqual(WatchTenSecondChallengePolicy.hapticType(for: 0.005), .strong)
+        XCTAssertEqual(WatchTenSecondChallengePolicy.hapticType(for: 0.05), .medium)
+        XCTAssertEqual(WatchTenSecondChallengePolicy.hapticType(for: 0.25), .light)
+    }
+
     private func assertDefaultParticipantPair(
         _ gameType: ScoreCore.GameType,
         _ leftKey: String,

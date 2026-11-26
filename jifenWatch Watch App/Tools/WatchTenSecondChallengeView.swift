@@ -1,14 +1,38 @@
 import SwiftUI
 
+enum WatchTenSecondChallengePolicy {
+    static let presetSeconds: [Int] = [1, 3, 5, 10]
+    static let defaultTargetSeconds: Int = 10
+
+    static func normalizedTargetSeconds(_ seconds: Int) -> Int {
+        presetSeconds.contains(seconds) ? seconds : defaultTargetSeconds
+    }
+
+    static func difference(elapsed: TimeInterval, targetSeconds: Int) -> TimeInterval {
+        abs(max(0, elapsed) - TimeInterval(normalizedTargetSeconds(targetSeconds)))
+    }
+
+    static func hapticType(for difference: TimeInterval) -> WatchHapticType {
+        if difference < 0.01 {
+            return .strong
+        } else if difference < 0.1 {
+            return .medium
+        } else {
+            return .light
+        }
+    }
+}
+
 /// A deliberately standalone Watch utility. The Watch target does not link
 /// TimerCore because it does not expose a generic count-up/countdown tool;
 /// this challenge owns only its short-lived local display timer.
 struct WatchTenSecondChallengeView: View {
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("watch_ten_second_target_seconds") private var storedTargetSeconds: Int = WatchTenSecondChallengePolicy.defaultTargetSeconds
     @State private var isRunning = false
     @State private var currentTime: TimeInterval = 0
     @State private var tapHintPulse: CGFloat = 1.0
-    @State private var history: [TimeInterval] = []
+    @State private var historyByTarget: [Int: [TimeInterval]] = [:]
     @State private var showHistoryOverlay = false
     @State private var showUsageAlert = false
     @State private var usagePromptShown = false
@@ -18,12 +42,20 @@ struct WatchTenSecondChallengeView: View {
 
     private let historyRowHeight: CGFloat = 34
 
+    private var selectedTargetSeconds: Int {
+        WatchTenSecondChallengePolicy.normalizedTargetSeconds(storedTargetSeconds)
+    }
+
+    private var currentHistory: [TimeInterval] {
+        historyByTarget[selectedTargetSeconds] ?? []
+    }
+
     var body: some View {
         ZStack {
             WatchTheme.background.ignoresSafeArea()
 
             VStack(spacing: 0) {
-                Color.clear
+                targetPicker
                     .frame(height: historyRowHeight)
 
                 Spacer()
@@ -39,9 +71,11 @@ struct WatchTenSecondChallengeView: View {
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
                 } else {
-                    Text("👆")
-                        .font(.system(size: 40))
+                    Image(systemName: "hand.tap.fill")
+                        .font(.system(size: 38, weight: .medium))
+                        .foregroundStyle(WatchTheme.accent)
                         .scaleEffect(tapHintPulse)
+                        .accessibilityHidden(true)
                 }
 
                 Spacer()
@@ -82,15 +116,15 @@ struct WatchTenSecondChallengeView: View {
             timer = nil
             isRunning = false
         }
-        .alert(NSLocalizedString("watch_ten_second_challenge", comment: "Ten Second Challenge"), isPresented: $showUsageAlert) {
+        .alert(NSLocalizedString("watch_ten_second_challenge", comment: "Stop the Clock"), isPresented: $showUsageAlert) {
             Button(NSLocalizedString("got_it", comment: "Got it"), role: .cancel) { }
         } message: {
-            Text(NSLocalizedString("watch_ten_second_usage", comment: "Ten second usage message"))
+            Text(NSLocalizedString("watch_ten_second_usage", comment: "Stop the Clock usage message"))
         }
         .navigationTitle(
             showHistoryOverlay
                 ? ""
-                : NSLocalizedString("tool_ten_second", comment: "10s Challenge")
+                : NSLocalizedString("tool_ten_second", comment: "Stop the Clock")
         )
         .navigationBarTitleDisplayMode(.inline)
         .gesture(
@@ -103,18 +137,64 @@ struct WatchTenSecondChallengeView: View {
         )
     }
 
+    private var targetPicker: some View {
+        let compact = WatchLayout.isCompactScreen
+        let unit = NSLocalizedString("unit_second", value: "s", comment: "Seconds unit")
+        return HStack(spacing: 2) {
+            ForEach(WatchTenSecondChallengePolicy.presetSeconds, id: \.self) { seconds in
+                targetOptionButton(seconds: seconds, compact: compact, unit: unit)
+            }
+        }
+        .padding(2)
+        .background(Color.white.opacity(0.10), in: Capsule())
+        .padding(.horizontal, WatchLayout.pageHorizontalPadding)
+        .opacity(isRunning ? 0.35 : 1.0)
+        .allowsHitTesting(!isRunning)
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("watch_ten_second_target")
+    }
+
+    private func targetOptionButton(seconds: Int, compact: Bool, unit: String) -> some View {
+        let selected = selectedTargetSeconds == seconds
+        return Button {
+            guard !isRunning, selectedTargetSeconds != seconds else { return }
+            withAnimation(.easeInOut(duration: 0.16)) {
+                storedTargetSeconds = seconds
+            }
+            currentTime = 0
+            WatchHaptics.shared.play(.light)
+        } label: {
+            Text("\(seconds)\(unit)")
+                .font(.system(size: compact ? 11 : 12, weight: selected ? .semibold : .medium))
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .foregroundStyle(selected ? Color.white : WatchTheme.secondaryText)
+                .frame(maxWidth: .infinity)
+                .frame(height: compact ? 22 : 24)
+                .background(
+                    selected ? Color.white.opacity(0.26) : Color.clear,
+                    in: Capsule()
+                )
+                .contentShape(Capsule())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("watch_ten_second_target_\(seconds)")
+        .accessibilityAddTraits(selected ? .isSelected : [])
+    }
+
     private var recentHistory: [TimeInterval] {
-        Array(history.suffix(2))
+        Array(currentHistory.suffix(2))
     }
 
     private var historyRow: some View {
         Group {
-            if !showHistoryOverlay, !history.isEmpty {
+            if !showHistoryOverlay, !currentHistory.isEmpty {
                 HStack(spacing: 8) {
                     ForEach(recentHistory.indices, id: \.self) { idx in
                         historyChip(formatShortTime(recentHistory[idx]))
                     }
-                    if history.count > 2 {
+                    if currentHistory.count > 2 {
                         historyChip("···")
                     }
                 }
@@ -161,10 +241,10 @@ struct WatchTenSecondChallengeView: View {
 
                 ScrollView {
                     VStack(spacing: 0) {
-                        ForEach(history.indices.reversed(), id: \.self) { idx in
-                            let time = history[idx]
+                        ForEach(currentHistory.indices.reversed(), id: \.self) { idx in
+                            let time = currentHistory[idx]
                             HStack {
-                                Text("#\(history.count - idx)")
+                                Text("#\(currentHistory.count - idx)")
                                     .font(.system(size: 12))
                                     .foregroundColor(WatchTheme.secondaryText)
                                     .frame(width: 38, alignment: .leading)
@@ -177,7 +257,7 @@ struct WatchTenSecondChallengeView: View {
                             .padding(.horizontal, 10)
                             .frame(height: compact ? 38 : 42)
 
-                            if idx != history.indices.first {
+                            if idx != currentHistory.indices.first {
                                 Rectangle()
                                     .fill(WatchTheme.subtleFill)
                                     .frame(height: 0.5)
@@ -231,19 +311,19 @@ struct WatchTenSecondChallengeView: View {
 
         WatchSoundManager.shared.playSound(named: "ten_second_end")
 
-        history.append(currentTime)
-        if history.count > 20 {
-            history = Array(history.suffix(20))
+        let targetSeconds = selectedTargetSeconds
+        var updatedHistory = historyByTarget[targetSeconds] ?? []
+        updatedHistory.append(currentTime)
+        if updatedHistory.count > 20 {
+            updatedHistory = Array(updatedHistory.suffix(20))
         }
+        historyByTarget[targetSeconds] = updatedHistory
 
-        let diff = abs(currentTime - 10.0)
-        if diff < 0.01 {
-            WatchHaptics.shared.play(.strong)
-        } else if diff < 0.1 {
-            WatchHaptics.shared.play(.medium)
-        } else {
-            WatchHaptics.shared.play(.light)
-        }
+        let diff = WatchTenSecondChallengePolicy.difference(
+            elapsed: currentTime,
+            targetSeconds: targetSeconds
+        )
+        WatchHaptics.shared.play(WatchTenSecondChallengePolicy.hapticType(for: diff))
     }
 
     private func formatTime(_ seconds: TimeInterval) -> String {

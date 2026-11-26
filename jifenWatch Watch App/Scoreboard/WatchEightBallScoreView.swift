@@ -21,6 +21,7 @@ struct WatchEightBallScoreView: View {
     @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let linkedSessionId: UUID?
+    @State private var showRecordSaveFailure = false
     @State private var leftName: String
     @State private var rightName: String
     @State private var state: EightBallState
@@ -106,15 +107,15 @@ struct WatchEightBallScoreView: View {
                 WatchFinishedOverlay(
                     title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
                     scoreItems: [
-                        WatchFinishedScoreItem(name: leftName, score: String(state.leftPoints)),
-                        WatchFinishedScoreItem(name: rightName, score: String(state.rightPoints))
+                        WatchFinishedScoreItem(name: leftName, score: state.leftPoints),
+                        WatchFinishedScoreItem(name: rightName, score: state.rightPoints)
                     ],
-                    winnerText: eightBallWinnerText,
                     undoAvailable: finishUndoAvailable,
+                    canPlayAgain: !scoringLocked,
                     onUndo: undoFinishedEightBall,
                     onPlayAgain: restartMatch,
                     onExit: {
-                        finalizeEightBall()
+                        guard finalizeEightBall() else { return }
                         exitEightBall()
                     }
                 )
@@ -127,15 +128,20 @@ struct WatchEightBallScoreView: View {
                 )
             }
         }
+        .watchFinishSaveFailure(isPresented: $showRecordSaveFailure) { finalizeEightBall() }
         .onAppear {
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
-        .onChange(of: linkService.latestSnapshot) { _, update in
-            guard let linkedSessionId, let update, update.sessionId == linkedSessionId,
+        .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
+            guard linkService.incomingSnapshot != nil, let linkedSessionId, let update, update.sessionId == linkedSessionId,
                   let remote = update.snapshot.eightBallState else { return }
+            if linkService.controlRole == .shared, update.beginsMatch(after: previous) {
+                matchStartTime = Date()
+                actionLog.reset(at: matchStartTime)
+            }
             applyAuthoritativeEightBall(remote, detailedActions: update.detailedActions)
         }
         .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
@@ -211,7 +217,7 @@ struct WatchEightBallScoreView: View {
     }
 
     private func publish(manualEnd: Bool) {
-        guard linkedSessionId != nil, linkService.isController else { return }
+        guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
         linkService.publishSnapshot(
             .eightBall(state),
             detailedActions: actionLog.detailedActions,
@@ -219,10 +225,9 @@ struct WatchEightBallScoreView: View {
         )
     }
 
-    private func saveLocalRecordIfNeeded() {
-        guard linkedSessionId == nil, !didSaveFinishedRecord else { return }
-        guard state.finished || state.leftPoints + state.rightPoints > 0 else { return }
-        didSaveFinishedRecord = true
+    private func saveLocalRecordIfNeeded() -> Bool {
+        guard linkedSessionId == nil, !didSaveFinishedRecord else { return true }
+        guard state.finished || state.leftPoints + state.rightPoints > 0 else { return true }
         let end = Date()
         let winnerName: String? = {
             if state.leftPoints == state.rightPoints { return nil }
@@ -249,7 +254,7 @@ struct WatchEightBallScoreView: View {
                 "handicapBeneficiary": state.handicapBeneficiary?.rawValue ?? "none"
             ]
         )
-        WatchRecordManager.shared.saveRecord(record)
+        return resumeStore.saveFinishedRecord(record)
     }
 
     @ViewBuilder
@@ -374,7 +379,7 @@ struct WatchEightBallScoreView: View {
     }
 
     private func restartMatch() {
-        guard !scoringLocked else { return }
+        guard !scoringLocked, finalizeEightBall() else { return }
         resumeStore.clear()
         finishTask?.cancel()
         let result = EightBallReducer().reduce(state: state, intent: .reset, at: nowMs())
@@ -428,15 +433,6 @@ struct WatchEightBallScoreView: View {
         }
     }
 
-    private var eightBallWinnerText: String? {
-        guard state.leftPoints != state.rightPoints else { return nil }
-        let winner = state.leftPoints > state.rightPoints ? leftName : rightName
-        return String.localizedStringWithFormat(
-            NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: ""),
-            winner
-        )
-    }
-
     private func handicapText(for side: MatchSide) -> String? {
         WatchEightBallScorePresentation.handicapText(state: state, side: side)
     }
@@ -480,11 +476,13 @@ struct WatchEightBallScoreView: View {
         }
     }
 
-    private func finalizeEightBall(manualEnd: Bool = false) {
-        guard state.finished, !didSaveFinishedRecord else { return }
-        resumeStore.clear()
-        if linkedSessionId != nil, linkService.isController {
-            linkService.publishMatchFinished(
+    @discardableResult
+    private func finalizeEightBall(manualEnd: Bool = false) -> Bool {
+        guard state.finished, !didSaveFinishedRecord, !scoringLocked else { return true }
+        finishUndoAvailable = false
+        let saved: Bool
+        if linkedSessionId != nil {
+            saved = linkService.publishMatchFinished(
                 snapshot: .eightBall(state),
                 recordId: "w_\(UUID().uuidString)",
                 winnerSide: state.leftPoints == state.rightPoints
@@ -497,10 +495,16 @@ struct WatchEightBallScoreView: View {
                 detailedActions: actionLog.detailedActions,
                 participantNames: [leftName, rightName]
             )
-            didSaveFinishedRecord = true
         } else {
-            saveLocalRecordIfNeeded()
+            saved = saveLocalRecordIfNeeded()
         }
+        guard saved else {
+            showRecordSaveFailure = true
+            return false
+        }
+        didSaveFinishedRecord = true
+        resumeStore.clear()
+        return true
     }
 
     private func undoFinishedEightBall() {
@@ -517,16 +521,17 @@ struct WatchEightBallScoreView: View {
     }
 
     private func exitEightBall() {
-        if linkedSessionId != nil {
-            linkService.exitScoreboardToHome()
-        }
+        if let linkedSessionId { linkService.exitScoreboard(sessionId: linkedSessionId) }
         persistResumeSession()
         dismiss()
     }
 
     private func persistResumeSession() {
-        guard !state.finished,
-              state.leftPoints != 0 || state.rightPoints != 0
+        if state.finished {
+            if didSaveFinishedRecord { resumeStore.clear() }
+            return
+        }
+        guard state.leftPoints != 0 || state.rightPoints != 0
                 || !undoStack.isEmpty else {
             resumeStore.clear()
             return

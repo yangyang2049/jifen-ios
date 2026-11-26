@@ -410,6 +410,7 @@ struct jifenApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @State private var appearance = AppAppearanceStore()
     @State private var watchLinkService = PhoneWatchLinkService()
+    @State private var watchLinkIntro = WatchLinkIntroPresentation()
     @State private var sessionStore = SessionStore.shared
     @State private var hasAcceptedLegal: Bool
     @State private var showPersistenceFailure = false
@@ -447,6 +448,7 @@ struct jifenApp: App {
             }
             .environment(appearance)
             .environment(watchLinkService)
+            .environment(watchLinkIntro)
             .environment(sessionStore)
             .preferredColorScheme(appearance.mode.preferredColorScheme)
             .task(id: hasAcceptedLegal) {
@@ -475,14 +477,14 @@ struct jifenApp: App {
                     }
                 }
             }
-            .alert(voiceDownloadTitle, isPresented: $showVoiceDownloadGuide) {
+            .alert(voiceDownloadTitle, isPresented: alertUnlessWatchLinkIntro($showVoiceDownloadGuide)) {
                 Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) { }
             } message: {
                 Text(voiceDownloadMessage).accessibilityIdentifier("sports_voice_download_guide")
             }
             .alert(
                 NSLocalizedString("save_failed", value: "保存失败", comment: ""),
-                isPresented: $showPersistenceFailure
+                isPresented: alertUnlessWatchLinkIntro($showPersistenceFailure)
             ) {
                 Button(NSLocalizedString("confirm", value: "确定", comment: ""), role: .cancel) { }
             } message: {
@@ -491,7 +493,7 @@ struct jifenApp: App {
             .alert(
                 NSLocalizedString("linked_score_force_takeover", value: "强制接管", comment: ""),
                 isPresented: Binding(
-                    get: { watchLinkService.forceTakeoverConfirmationSessionId != nil },
+                    get: { !watchLinkIntro.isCoveringHome && watchLinkService.forceTakeoverConfirmationSessionId != nil },
                     set: { if !$0 { watchLinkService.cancelForceTakeoverConfirmation() } }
                 )
             ) {
@@ -551,7 +553,14 @@ struct jifenApp: App {
         // v1: the First Launch Legal Screen is intentionally not shown (see init).
         // Re-add the consent gate below if App Store review later requires it.
         ContentView()
-            .requestsReviewOnEligibleLaunch()
+            .requestsReviewOnEligibleLaunch(suppressed: watchLinkIntro.hasLaunchPriority)
+    }
+
+    private func alertUnlessWatchLinkIntro(_ alert: Binding<Bool>) -> Binding<Bool> {
+        Binding(
+            get: { !watchLinkIntro.isCoveringHome && alert.wrappedValue },
+            set: { alert.wrappedValue = $0 }
+        )
     }
 
     private var shouldSkipLegalForUITests: Bool {

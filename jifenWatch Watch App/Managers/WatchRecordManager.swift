@@ -48,8 +48,9 @@ final class WatchRecordManager {
         queue.sync { cachedRecords = nil }
     }
 
-    func saveRecord(_ record: WatchScoreboardRecord, transferToPhone: Bool = true) {
-        let payload: WatchRecordTransferPayload? = queue.sync {
+    @discardableResult
+    func saveRecord(_ record: WatchScoreboardRecord, transferToPhone: Bool = true) -> Bool {
+        let persisted = queue.sync {
             var records = cachedRecords ?? loadFromDiskLocked()
             records.removeAll { $0.id == record.id }
             records.append(record)
@@ -57,13 +58,15 @@ final class WatchRecordManager {
             if records.count > maxRecords {
                 records = Array(records.prefix(maxRecords))
             }
-            persistToDiskLocked(records)
+            guard persistToDiskLocked(records) else { return false }
             cachedRecords = records
             pruneSyncStatesLocked(validIDs: Set(records.map(\.id)))
-            return transferPayload(for: record)
+            return true
         }
+        guard persisted else { return false }
 
-        if transferToPhone, WatchPreferences.shared.recordAutoSyncEnabled, let payload {
+        if transferToPhone, WatchPreferences.shared.recordAutoSyncEnabled,
+           let payload = transferPayload(for: record) {
             setSyncState(.pending, for: record.id)
             #if DEBUG
             print("[WatchRecord] autoTransferToPhone triggered: record=\(record.id) gameType=\(record.gameType.rawValue)")
@@ -71,6 +74,7 @@ final class WatchRecordManager {
             #endif
             recordTransferHandler?(payload)
         }
+        return true
     }
 
     // MARK: - Sync state
@@ -131,8 +135,16 @@ final class WatchRecordManager {
     }
 
     func transferPayload(for record: WatchScoreboardRecord) -> WatchRecordTransferPayload? {
-        // Basketball training / counter are local tool sessions — keep them watch-only.
-        guard record.gameType != .basketballTraining, record.gameType != .counter else { return nil }
+        guard record.gameType != .counter else { return nil }
+        let training = record.basketballTrainingDetails.map { details in
+            LinkedShotTrainingState(
+                mode: details.mode.linkedMode,
+                startTime: record.startTime,
+                shots: details.shots.map(\.linkedShot),
+                earlierCounts: trainingPrefixCounts(for: details),
+                finished: true
+            )
+        }
         return WatchRecordTransferPayload(
             id: record.id,
             gameType: record.gameType.rawValue,
@@ -146,13 +158,26 @@ final class WatchRecordManager {
             team1SetScore: record.team1SetScore,
             team2SetScore: record.team2SetScore,
             winner: record.winner,
-            actions: record.actions.map(\.description),
-            detailedActions: record.actions.map(\.detailedAction),
+            actions: training == nil ? record.actions.map(\.description) : [],
+            detailedActions: training == nil ? record.actions.map(\.detailedAction) : nil,
             totalScoreChanges: record.totalScoreChanges,
             participants: record.participants?.map {
                 WatchRecordParticipantPayload(name: $0.name, score: $0.score)
             },
-            projectConfiguration: record.projectConfiguration
+            projectConfiguration: record.projectConfiguration,
+            basketballTraining: training
+        )
+    }
+
+    private func trainingPrefixCounts(for details: WatchBasketballTrainingDetails) -> ShotTrainingCounts {
+        let shots = details.shots.reduce(into: ShotTrainingCounts()) { $0.add($1.linkedShot) }
+        return ShotTrainingCounts(
+            oneMade: details.count(points: 1, made: true) - shots.oneMade,
+            oneMiss: details.count(points: 1, made: false) - shots.oneMiss,
+            twoMade: details.count(points: 2, made: true) - shots.twoMade,
+            twoMiss: details.count(points: 2, made: false) - shots.twoMiss,
+            threeMade: details.count(points: 3, made: true) - shots.threeMade,
+            threeMiss: details.count(points: 3, made: false) - shots.threeMiss
         )
     }
 

@@ -1,0 +1,422 @@
+/* Watch App - he */
+
+/* Tab Bar */
+"tab_score" = "ניקוד";
+"tab_tools" = "כלים";
+"tab_timer" = "טיימר";
+
+/* Game Types */
+"game_badminton" = "בדמינטון";
+"game_pingpong" = "טניס שולחן";
+"game_tennis" = "טניס";
+"game_pickleball" = "פיקלבול";
+"game_archery" = "חץ וקשת";
+"tool_basketball_training" = "אימון קליעות";
+
+/* Tools */
+"tool_flip_coin" = "הטלת מטבע";
+"tool_random_number" = "מספר אקראי";
+"tool_ten_second" = "עצור את השעון";
+"game_counter" = "מונה";
+"press_again_to_reset" = "נגיעה נוספת לאיפוס";
+
+/* Records */
+"records" = "רשומות";
+"loading" = "טוען";
+"no_records" = "אין רשומות";
+"record_not_found" = "הרשומה לא נמצאה";
+"match_details" = "פרטי משחק";
+"match_record" = "רשומת משחק";
+"delete_record" = "מחק רשומה";
+"confirm_deletion" = "אשר את המחיקה";
+"cannot_be_recovered_after_deletion" = "לא ניתן לבטל זאת";
+"date" = "תאריך";
+"time" = "זמן";
+"duration" = "משך";
+
+/* Common */
+"cancel" = "בטל";
+"confirm" = "אשר";
+"delete" = "מחק";
+"setup" = "הגדרה";
+"vibration" = "רטט";
+"sound" = "צליל";
+"watch_scoreboard_keep_screen_on" = "השאר את המסך מופעל";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "מדריך";
+"usage_prompt_message" = "נגיעה בצד מוסיפה נקודה\nהחלקה מטה מבטלת פעולה\nלחיצה ארוכה פותחת תפריט";
+"got_it" = "הבנתי";
+
+/* Privacy */
+"privacy_policy" = "מדיניות פרטיות";
+"scan_to_view_details" = "סרקו את הקוד לפרטים נוספים";
+
+/* Settings / About */
+"version" = "גרסה";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "משוב";
+"watch_contact_us" = "יצירת קשר";
+
+/* Scoreboard menu */
+"menu_undo" = "בטל";
+"menu_reset" = "איפוס";
+"watch_continue" = "המשך";
+"watch_end_match" = "סיום";
+"watch_layout_vertical" = "אנכי";
+"watch_layout_horizontal" = "אופקי";
+"watch_settings_layout_title" = "פריסה";
+"watch_reset_toast" = "איפוס";
+"watch_undo_toast" = "בוטלה";
+"watch_play_again" = "שחק שוב";
+"watch_exit" = "יציאה";
+"exit" = "יציאה";
+"watch_team_red" = "אדום";
+"watch_team_blue" = "כחול";
+"team_a" = "קבוצה א׳";
+"team_b" = "קבוצה ב׳";
+"team_home" = "בית";
+"team_away" = "חוץ";
+"player_a" = "שחקן א";
+"player_b" = "שחקן ב";
+"archer_a" = "קשת א׳";
+"archer_b" = "קשת ב׳";
+"linked_score_confirm_title" = "קישור טלפון ושעון?";
+"linked_score_phone_started_scoreboard" = "קישור טלפון ושעון · המשחק התחיל";
+"linked_score_accept" = "אישור";
+"linked_score_reject" = "דחה";
+"linked_score_watch_reclaim" = "לקיחת שליטה";
+"linked_score_setup_rules" = "%1$d מערכות · %2$d נקודות";
+"linked_score_setup_rules_sets" = "%d מערכות";
+"linked_score_setup_race_to" = "יעד %d";
+"linked_score_sport_badminton" = "בדמינטון יחידים";
+"linked_score_sport_badminton_doubles" = "זוגות בדמינטון";
+"linked_score_sport_pingpong" = "טניס שולחן יחידים";
+"linked_score_sport_pingpong_doubles" = "זוגות טניס שולחן";
+"linked_score_sport_tennis" = "טניס יחידים";
+"linked_score_sport_tennis_doubles" = "זוגות טניס";
+"linked_score_sport_pickleball" = "פיקלבול יחידים";
+"linked_score_sport_pickleball_doubles" = "זוגות פיקלבול";
+"game_basketball" = "כדורסל";
+"game_three_basketball" = "כדורסל 3x3";
+"linked_score_sport_archery" = "חץ וקשת";
+"linked_score_sport_eight_ball" = "כדור 8";
+"linked_score_sport_nine_ball" = "כדור 9 בנקודות";
+"linked_score_sport_snooker" = "סנוקר";
+"linked_score_sport_shuttlecock" = "ג׳יאנזי";
+"linked_score_sport_squash" = "סקווש";
+"linked_score_sport_foosball" = "כדורגל שולחן";
+"linked_score_sport_football" = "כדורגל";
+"linked_score_sport_football_5v5" = "5×5 כדורגל";
+"watch_menu_end_match" = "משחק סיום";
+"watch_menu_restart" = "התחלה מחדש";
+"watch_bball_overtime" = "הארכה";
+"watch_nine_ball_players_format" = "Nine-ball chase · %1$d שחקנים";
+"archery_closest_title" = "דו-קרב הכרעה · הקרוב ביותר למרכז";
+"archery_closest_message" = "שוויון ב-%d — יש לבחור את החץ הקרוב יותר";
+"watch_set_end_format" = "סט %d הסתיים";
+"watch_match_start" = "המשחק התחיל";
+"watch_match_finished" = "המשחק הסתיים";
+"watch_bb_hit_rate" = "אחוז קליעה";
+"watch_bb_end_training" = "סיים אימון";
+"watch_training_finish_confirm_title" = "לסיים את האימון?";
+"watch_training_finish_confirm_message" = "האימון יסתיים ויישמר.";
+"watch_counter_finish_confirm_title" = "לסיים את הספירה?";
+"watch_counter_finish_confirm_message" = "הספירה תישמר ותתחיל שוב מאפס.";
+"watch_bb_restart" = "התחלה מחדש";
+
+/* Records */
+"clear_all_records" = "נקה את כל הרשומות";
+"clear_all_records_message" = "כל הרשומות יימחקו לצמיתות.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "עץ";
+"watch_coin_tails" = "פלי";
+"watch_archery_miss" = "החטאה";
+"watch_flip_coin_hint" = "מגע להטלת המטבע";
+"watch_ten_second_challenge" = "עצור את השעון";
+"watch_ten_second_usage" = "נוגעים כדי להתחיל, ונוגעים שוב בזמן היעד.";
+"watch_mid_game_rest" = "הפסקה באמצע המערכה";
+"watch_rest_between_sets" = "הפסקה בין מערכות";
+"watch_official_timeout" = "פסק זמן";
+"watch_medical_break" = "רפואי";
+"watch_score_event_set_title" = "סט %d הסתיים";
+"watch_score_event_set_detail" = "%1$@ ניצח %2$d:%3$d · סטים %4$d:%5$d";
+"watch_score_event_mid_game_title" = "מערכה %d · הפסקה באמצע המערכה";
+"watch_score_event_mid_game_detail" = "%1$@ מוביל %2$d:%3$d · סטים %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "סט %d הסתיים";
+"watch_score_event_tennis_game_detail" = "%1$@ ניצח · משחקים %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "סט %d הסתיים";
+"watch_score_event_tennis_set_detail" = "%1$@ ניצח %2$d:%3$d · סטים %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "שובר שוויון של 7 נקודות";
+"watch_tiebreak_indicator_10" = "שובר שוויון של 10 נקודות";
+"watch_continue_match" = "המשך";
+"watch_continue_scoring" = "המשך";
+"watch_resume_discard" = "מחיקת משחק שלא הסתיים";
+"watch_resume_discard_training" = "מחיקת אימון שלא הסתיים";
+"unit_hour" = "ש׳";
+"unit_minute" = "דק׳";
+"unit_second" = "שנ׳";
+"today" = "היום";
+"yesterday" = "אתמול";
+
+/* Sports setup */
+"watch_setup_start" = "התחל";
+"watch_setup_sets" = "סטים";
+"watch_setup_points_per_set" = "נקודות לכל סט";
+"watch_setup_tennis_deuce" = "כלל שוויון";
+"watch_setup_tennis_advantage" = "יתרון";
+"watch_setup_tennis_no_ad" = "ללא יתרון";
+"watch_setup_target_score" = "תוצאת יעד";
+"watch_setup_rally_scoring" = "ניקוד בכל מהלך";
+"watch_setup_target_racks" = "יעד";
+"watch_setup_race_racks" = "מרוץ ל־";
+"watch_setup_race_racks_help" = "3 = ראשון ל־3 משחקונים";
+"watch_setup_handicap" = "יתרון";
+"watch_setup_handicap_none" = "אין";
+"watch_setup_handicap_red_gives_blue" = "אדום נותן לכחול";
+"watch_setup_handicap_blue_gives_red" = "כחול נותן לאדום";
+"watch_setup_handicap_racks" = "משחקוני הנדיקפ";
+"watch_setup_frames" = "משחקונים";
+"watch_setup_custom_frames" = "מס׳ סיבובים מותאם";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "יש להזין מספר בין 1 ל-99";
+"watch_setup_players" = "שחקנים";
+"watch_setup_archers" = "קשתים";
+"watch_setup_player_number" = "שחקן %d";
+"watch_setup_red_a" = "אדום א׳";
+"watch_setup_red_b" = "אדום ב׳";
+"watch_setup_blue_a" = "כחול א׳";
+"watch_setup_blue_b" = "כחול ב׳";
+"watch_setup_name_missing" = "ממלאים את כל השמות או משאירים את כולם ריקים";
+"watch_setup_select_players" = "שחקנים";
+"watch_setup_player_count" = "%d שחקנים";
+"watch_common_names_select_player" = "בחירת שחקן";
+"watch_common_names_no_records" = "אין שמות שמורים";
+"watch_common_names_title" = "שמות שמורים";
+"watch_common_names_add" = "הוסף";
+"watch_common_names_edit" = "ערוך שם";
+"watch_common_names_delete_title" = "למחוק את השם?";
+"watch_common_names_error_title" = "העדכון נכשל";
+"watch_common_names_players" = "שחקנים";
+"watch_common_names_teams" = "קבוצות";
+"watch_common_names_empty" = "אין שמות שמורים";
+"watch_common_names_team_placeholder" = "שם הצוות";
+"watch_common_names_player_placeholder" = "שם שחקן";
+"watch_common_names_length_hint" = "עד %d תווים";
+"watch_common_names_error_empty" = "השם לא יכול להיות ריק";
+"watch_common_names_error_duplicate" = "השם כבר קיים";
+"watch_common_names_error_missing" = "הרשומה לא נמצאה · נסה שוב";
+"watch_common_names_error_generic" = "לא ניתן לשמור. יש לנסות שוב.";
+"watch_common_names_sync_now" = "סנכרון עכשיו";
+"watch_common_names_actions" = "שמות שמורים";
+"watch_common_names_sync_requested" = "ממתין לסנכרון";
+"watch_common_names_sync_queued" = "הטלפון מנותק · ממתין לסנכרון";
+"watch_common_names_sync_inactive" = "הטלפון מנותק";
+"watch_common_names_sync_failed" = "כשל בחיבור · נסה שוב";
+"watch_common_names_sync_conflict" = "חלק מהשינויים לא סונכרנו";
+"watch_common_names_sync_pending" = "ממתין לסנכרון";
+"watch_common_names_sync_unavailable" = "הטלפון מנותק";
+"watch_common_names_sync_done" = "סונכרן";
+"watch_common_names_pending_count" = "ממתין לסנכרון · %d";
+"watch_common_names_never_synced" = "טרם סונכרן";
+"watch_common_names_last_sync" = "סנכרון אחרון %@";
+
+"watch_phone_link_title" = "קישור לשעון";
+"watch_phone_link_intro" = "מתחילים בטלפון, מנקדים בשעון";
+"watch_phone_link_support" = "בדמינטון · כדורגל · חץ וקשת · אימון קליעות…";
+"watch_phone_link_status" = "מצב חיבור";
+"watch_phone_link_steps" = "כיצד להשתמש";
+"watch_phone_link_step_1" = "מגדירים משחק או אימון קליעה בטלפון.";
+"watch_phone_link_step_2" = "התחל · Apple Watch";
+"watch_phone_link_step_3" = "מנקדים בשעון. הרשומה מסתנכרנת בסיום.";
+"watch_phone_link_help" = "מקשרים את המכשירים, מתקינים iScoreboard בשניהם ופותחים את האפליקציה בטלפון.";
+"watch_phone_link_testing" = "בודק";
+"watch_phone_link_normal" = "מחובר";
+"watch_phone_link_failed" = "כשל בחיבור";
+"watch_phone_link_reachable" = "מחובר";
+"watch_phone_link_waiting" = "ממתין לטלפון";
+"watch_phone_link_inactive" = "הטלפון מנותק";
+"watch_phone_link_testing_detail" = "ממתין לטלפון";
+"watch_phone_link_normal_detail" = "מחובר";
+"watch_phone_link_failed_detail" = "הטלפון לא הגיב בתוך 8 שניות.";
+"watch_phone_link_failed_inactive" = "הטלפון מנותק · נסה שוב";
+"watch_phone_link_failed_unreachable" = "פתחו את iScoreboard בטלפון ונסו שוב.";
+"watch_phone_link_failed_send" = "כשל בחיבור · נסה שוב";
+"watch_phone_link_reachable_detail" = "בדיקה";
+"watch_phone_link_waiting_detail" = "פתחו את iScoreboard בטלפון ונסו שוב.";
+"watch_phone_link_test_waiting" = "בודק…";
+"watch_phone_link_test_retry" = "נסה שוב";
+"watch_phone_link_test" = "בדיקה";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "חיבור אחרון %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "מצב אימון";
+"watch_bb_1pt" = "1 נקודה";
+"watch_bb_2pt" = "2 נקודות";
+"watch_bb_3pt" = "3 נקודות";
+"watch_bb_free" = "חופשי";
+"watch_training_miss" = "החטאה";
+"watch_training_made" = "קליעה";
+"watch_training_point_value" = "%d נקודות";
+"watch_training_breakdown" = "פירוט קליעות";
+"watch_training_start" = "אימון קליעות · התחל";
+"watch_training_rate_format" = "אחוז קליעה %d%%";
+"watch_training_action_format" = "%d נקודות · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "להצמיד למעלה?";
+"watch_home_pin_confirm" = "הצמדה";
+"watch_home_unpin_title" = "ביטול הצמדה?";
+"watch_home_unpin_confirm" = "ביטול הצמדה";
+"watch_home_pin_full_title" = "מגבלת הצמדות";
+"watch_home_pin_full_message" = "אפשר להצמיד 2. יש לבטל קודם הצמדה אחת.";
+"watch_home_pin_hint" = "הצמדה בלחיצה ארוכה";
+"watch_home_pin_success" = "נעוץ";
+"watch_home_unpin_success" = "ההצמדה בוטלה";
+"multi_score_player_default_format" = "שחקן %d";
+"nine_ball_big_gold" = "זהב גדול";
+"nine_ball_small_gold" = "זהב קטן";
+"nine_ball_golden_nine" = "תשע מוזהבת";
+"nine_ball_normal_win" = "ניצחון רגיל";
+"nine_ball_ball_in_hand" = "כדור ביד";
+"nine_ball_foul" = "עבירה";
+"watch_archery_set_rest" = "הפסקה בין מערכות";
+"watch_finish_confirm_title" = "משחק סיום?";
+"watch_finish_confirm_message" = "המשחק יסתיים ויישמר.";
+"watch_reset_confirm_title" = "להתחיל את המשחק מחדש?";
+"watch_reset_confirm_message" = "התוצאה הנוכחית תימחק.";
+"watch_side_exchange" = "החלפת צדדים";
+"watch_winner_format" = "%@ ניצח";
+"watch_finished_win_badge" = "נ׳";
+"watch_finished_winner" = "הזוכה";
+"watch_finished_home" = "בית";
+"watch_snooker_foul" = "עבירה";
+"watch_snooker_foul_selected_format" = "עבירה +%d";
+"watch_snooker_foul_next_turn" = "סיבוב מתג";
+"watch_snooker_foul_switch_turn" = "סיבוב מתג";
+"watch_snooker_foul_continue" = "המשך";
+"watch_action_snooker_foul_continue_format" = "%@· עבירה · יריב +%d · העבריין ממשיך";
+"watch_snooker_handover" = "סיבוב מתג";
+"watch_snooker_settle_frame" = "סיום המשחקון";
+"watch_snooker_choose_frame_winner" = "בחירת המנצח במשחקון";
+"watch_snooker_frame_finished" = "הסבב הסתיים";
+"watch_snooker_next_frame" = "המשחקון הבא";
+"watch_training_breakdown_format" = "%d נקודות · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "אותו מרחק. המשך את הירי.";
+"edit" = "ערוך";
+"game_badminton_doubles" = "זוגות בדמינטון";
+"game_eight_ball" = "כדור 8";
+"game_nine_ball" = "כדור 9 בנקודות";
+"game_pickleball_doubles" = "זוגות פיקלבול";
+"game_pingpong_doubles" = "זוגות טניס שולחן";
+"game_snooker" = "סנוקר";
+"game_tennis_doubles" = "זוגות טניס";
+"save" = "שמור";
+"watch_action_adjust_score_format" = "%@· הציון השתנה";
+"watch_action_archery_arrow_format" = "%@+%d נקודות";
+"watch_action_archery_closest" = "דו-קרב הכרעה · הקרוב ביותר למרכז";
+"watch_action_archery_miss_format" = "%@· החטאה";
+"watch_action_archery_set_ready" = "חץ וקשת · הסבב הסתיים";
+"watch_action_ball_potted_format" = "%@ · כדור הוכנס %@";
+"watch_action_basketball_foul_format" = "%@· עבירה";
+"watch_action_basketball_period_format" = "תקופה %d · התחל";
+"watch_action_basketball_timeout_format" = "%@· פסק זמן";
+"watch_action_edit_name" = "עודכן";
+"watch_action_exchange_sides" = "החלפת צדדים";
+"watch_action_exchange_sides_reminder" = "יש להחליף צדדים ידנית";
+"watch_action_game_finished_format" = "סט %1$d הסתיים · %2$@ ניצח";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "%@ ניצח";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "סט %1$d הסתיים · %2$@ ניצח";
+"watch_action_shooter_format" = "תור הירי של %@";
+"watch_action_side_out_format" = "הגשה · %@";
+"watch_action_snooker_foul_format" = "%@· עבירה · יריב +%d";
+"watch_action_snooker_frame_format" = "משחקון %1$d · %2$@ ניצח";
+"watch_action_snooker_handover_format" = "סיבוב מתג · %@";
+"watch_action_snooker_miss_format" = "%@· החטאה";
+"watch_action_snooker_next_frame_format" = "משחקון %d · התחל";
+"watch_action_snooker_pot_format" = "%@· כדור הוכנס +%d";
+"watch_record_actions_unavailable" = "אין רשומות";
+"linked_score_error_title" = "כשל בחיבור";
+"linked_score_persistence_failed" = "קישור טלפון ושעון · שמירה נכשלה: %@";
+"resume_persistence_error_title" = "השמירה נכשלה";
+"resume_persistence_failed" = "המשך המשחק · שמירה נכשלה: %@";
+"linked_score_control_timeout" = "לקיחת שליטה · תם זמן ההמתנה · נסה שוב";
+"linked_score_sync_timeout" = "תם זמן ההמתנה · ממתין לסנכרון";
+
+/* Football */
+"game_football" = "כדורגל";
+"game_football_5v5" = "5×5 כדורגל";
+"watch_setup_half_length" = "משך המחצית";
+"watch_setup_teams" = "קבוצות";
+"football_first_half" = "מחצית ראשונה";
+"football_second_half" = "מחצית שנייה";
+"football_extra_time_first" = "הארכה - מחצית ראשונה";
+"football_extra_time_second" = "הארכה - מחצית שנייה";
+"football_first_half_over" = "המחצית הראשונה הסתיימה";
+"football_switch_half" = "מחצית שנייה";
+"football_switch_half_title" = "להתחיל את המחצית השנייה?";
+"football_switch_half_message" = "המחצית הראשונה תושהה ולא ניתן לפתוח אותה מחדש.";
+"football_extra_time_first_over" = "הארכה - מחצית ראשונה · הסבב הסתיים";
+"football_switch_extra_time_half" = "הארכה - מחצית שנייה";
+"football_enter_extra_time_title" = "זמן ההסדרה הסתיים";
+"football_post_regulation_action" = "לאחר תקנה";
+"football_injury_title" = "זמן עצירה";
+"football_undo_stoppage" = "בטל זמן עצירה";
+"football_enter_extra_time" = "הזן תוספת זמן";
+"football_end_as_draw" = "סיים כהגרלה";
+"football_goal_hint" = "מגע להוספת שער";
+"watch_football_start" = "התחל";
+"watch_football_pause" = "השהה";
+"watch_football_resume" = "המשך";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "התחל · %@";
+"watch_action_football_stoppage_format" = "זמן עצירה +%d שנ׳";
+"watch_action_football_clock_start" = "הטיימר התחיל";
+"watch_action_football_clock_pause" = "הטיימר הושהה";
+"watch_record_sync_sent" = "סונכרן";
+"watch_record_sync_pending" = "ממתין לסנכרון";
+"watch_record_sync_not_synced" = "לא סונכרן עם iPhone";
+"watch_record_sync_action" = "סנכרון עם iPhone";
+"watch_settings_auto_sync_records" = "סנכרון רשומות אוטומטי";
+"game_shuttlecock" = "ג׳יאנזי";
+"game_squash" = "סקווש";
+"game_foosball" = "כדורגל שולחן";
+
+"watch_setup_win_by_two" = "זכה בסט סופי ב-2";
+"watch_setup_score_cap" = "תקרת ניקוד";
+"watch_setup_serving_side" = "המגיש הראשון";
+"watch_setup_kickoff_side" = "בעיטת הפתיחה הראשונה";
+"watch_setup_side_left" = "אדום";
+"watch_setup_side_right" = "כחול";
+
+"watch_about_us" = "אודותינו";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "גרסה %@";
+"watch_wechat_group_title" = "קבוצת WeChat";
+"watch_wechat_group_scan_hint" = "WeChat · סרקו את הקוד לפרטים נוספים";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "פתיחה";
+"watch_nine_ball_select_payer" = "בחירת המשלם";
+"watch_nine_ball_select_continue" = "בחירת השחקן הבא";
+"watch_nine_ball_prev_player" = "הקודם";
+"watch_nine_ball_next_player" = "הבא";
+"watch_nine_ball_continue_badge" = "לשחק";
+
+"watch_a11y_points_format" = "%d נקודות";
+"watch_a11y_sets_format" = "%d מערכות";
+"watch_a11y_serving" = "הגשה";
+
+"watch_phone_shared_link_intro" = "מתחילים בטלפון ואפשר לרשום ניקוד בכל אחד מהמכשירים.";
+"linked_score_simultaneous_edit" = "בוצעו שינויים בשני המכשירים. כדאי לבדוק את התוצאה.";

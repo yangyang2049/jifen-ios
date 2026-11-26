@@ -1,0 +1,422 @@
+/* Watch App - uk */
+
+/* Tab Bar */
+"tab_score" = "Рахунок";
+"tab_tools" = "Інструменти";
+"tab_timer" = "Таймер";
+
+/* Game Types */
+"game_badminton" = "Бадмінтон";
+"game_pingpong" = "Настільний теніс";
+"game_tennis" = "Теніс";
+"game_pickleball" = "Піклбол";
+"game_archery" = "Стрільба з лука";
+"tool_basketball_training" = "Тренування кидків";
+
+/* Tools */
+"tool_flip_coin" = "Підкинути монету";
+"tool_random_number" = "Випадкове число";
+"tool_ten_second" = "Зупини час";
+"game_counter" = "Лічильник";
+"press_again_to_reset" = "Торкніться ще раз для скидання";
+
+/* Records */
+"records" = "Записи";
+"loading" = "Завантаження";
+"no_records" = "Немає записів";
+"record_not_found" = "Запис не знайдено";
+"match_details" = "Деталі матчу";
+"match_record" = "Запис матчу";
+"delete_record" = "Видалити запис";
+"confirm_deletion" = "Підтвердити видалення";
+"cannot_be_recovered_after_deletion" = "Цю дію неможливо скасувати";
+"date" = "Дата";
+"time" = "Час";
+"duration" = "Тривалість";
+
+/* Common */
+"cancel" = "Скасувати";
+"confirm" = "Підтвердити";
+"delete" = "Видалити";
+"setup" = "Налаштування";
+"vibration" = "Вібрація";
+"sound" = "Звук";
+"watch_scoreboard_keep_screen_on" = "Не вимикати екран";
+
+/* Ping Pong / Tennis Sets */
+
+/* Usage Guide */
+"usage_guide" = "Довідка";
+"usage_prompt_message" = "Торкніться боку, щоб додати очко\nЗмахніть униз, щоб скасувати дію\nУтримуйте, щоб відкрити меню";
+"got_it" = "Зрозуміло";
+
+/* Privacy */
+"privacy_policy" = "Політика конфіденційності";
+"scan_to_view_details" = "Відскануйте код для деталей";
+
+/* Settings / About */
+"version" = "Версія";
+"company_name" = "Chongqing Douhua Technology";
+"watch_feedback" = "Відгук";
+"watch_contact_us" = "Зв’язатися";
+
+/* Scoreboard menu */
+"menu_undo" = "Скасувати";
+"menu_reset" = "Скинути";
+"watch_continue" = "Продовжити";
+"watch_end_match" = "Завершити";
+"watch_layout_vertical" = "Вертикально";
+"watch_layout_horizontal" = "Горизонтально";
+"watch_settings_layout_title" = "Розташування";
+"watch_reset_toast" = "Скинути";
+"watch_undo_toast" = "Скасовано";
+"watch_play_again" = "Грати знову";
+"watch_exit" = "Вийти";
+"exit" = "Вийти";
+"watch_team_red" = "Червоний";
+"watch_team_blue" = "Синій";
+"team_a" = "Команда А";
+"team_b" = "Команда Б";
+"team_home" = "Господарі";
+"team_away" = "Гості";
+"player_a" = "Гравець А";
+"player_b" = "Гравець Б";
+"archer_a" = "Лучник A";
+"archer_b" = "Лучник B";
+"linked_score_confirm_title" = "Зв’язок телефона й годинника?";
+"linked_score_phone_started_scoreboard" = "Зв’язок телефона й годинника · Гра почалася";
+"linked_score_accept" = "Прийняти";
+"linked_score_reject" = "Відхилити";
+"linked_score_watch_reclaim" = "Перебрати керування";
+"linked_score_setup_rules" = "Сетів: %1$d · %2$d очк.";
+"linked_score_setup_rules_sets" = "Сетів: %d";
+"linked_score_setup_race_to" = "Ціль %d";
+"linked_score_sport_badminton" = "Одиночний бадмінтон";
+"linked_score_sport_badminton_doubles" = "Парний бадмінтон";
+"linked_score_sport_pingpong" = "Настільний теніс, одиночний розряд";
+"linked_score_sport_pingpong_doubles" = "Парний настільний теніс";
+"linked_score_sport_tennis" = "Одиночний теніс";
+"linked_score_sport_tennis_doubles" = "Парний теніс";
+"linked_score_sport_pickleball" = "Одиночний піклбол";
+"linked_score_sport_pickleball_doubles" = "Парний піклбол";
+"game_basketball" = "Баскетбол";
+"game_three_basketball" = "Баскетбол 3×3";
+"linked_score_sport_archery" = "Стрільба з лука";
+"linked_score_sport_eight_ball" = "Вісімка";
+"linked_score_sport_nine_ball" = "Пул-9 на очки";
+"linked_score_sport_snooker" = "Снукер";
+"linked_score_sport_shuttlecock" = "Цзяньцзи";
+"linked_score_sport_squash" = "Сквош";
+"linked_score_sport_foosball" = "Настільний футбол";
+"linked_score_sport_football" = "Футбол";
+"linked_score_sport_football_5v5" = "Футбол 5×5";
+"watch_menu_end_match" = "Завершити матч";
+"watch_menu_restart" = "Перезапустити";
+"watch_bball_overtime" = "Овертайм";
+"watch_nine_ball_players_format" = "Nine-ball chase · Гравців: %1$d";
+"archery_closest_title" = "Додаткова стрільба · Найближче до центру";
+"archery_closest_message" = "Нічия на %d — виберіть ближчу стрілку";
+"watch_set_end_format" = "Партію %d завершено";
+"watch_match_start" = "Гра почалася";
+"watch_match_finished" = "Матч завершено";
+"watch_bb_hit_rate" = "Влучність";
+"watch_bb_end_training" = "Завершити тренування";
+"watch_training_finish_confirm_title" = "Завершити тренування?";
+"watch_training_finish_confirm_message" = "Тренування завершиться та збережеться.";
+"watch_counter_finish_confirm_title" = "Завершити підрахунок?";
+"watch_counter_finish_confirm_message" = "Підрахунок збережеться й почнеться з нуля.";
+"watch_bb_restart" = "Перезапустити";
+
+/* Records */
+"clear_all_records" = "Очистити всі записи";
+"clear_all_records_message" = "Усі записи буде видалено назавжди.";
+
+/* Tools extras */
+"watch_coin_heads_text" = "8";
+"watch_coin_heads" = "Орел";
+"watch_coin_tails" = "Решка";
+"watch_archery_miss" = "Промах";
+"watch_flip_coin_hint" = "Торкніться, щоб підкинути монету";
+"watch_ten_second_challenge" = "Зупини час";
+"watch_ten_second_usage" = "Торкніться для запуску. Торкніться знову в цільовий час.";
+"watch_mid_game_rest" = "Перерва в середині партії";
+"watch_rest_between_sets" = "Перерва між партіями";
+"watch_official_timeout" = "Тайм-аут";
+"watch_medical_break" = "Медичний";
+"watch_score_event_set_title" = "Партію %d завершено";
+"watch_score_event_set_detail" = "Переможець: %1$@ %2$d:%3$d · Партії %4$d:%5$d";
+"watch_score_event_mid_game_title" = "Сет %d · Перерва в середині партії";
+"watch_score_event_mid_game_detail" = "%1$@ Лідирує %2$d:%3$d · Партії %4$d:%5$d";
+"watch_score_event_tennis_game_title" = "Партію %d завершено";
+"watch_score_event_tennis_game_detail" = "Переможець: %1$@ · Гейми %2$d:%3$d";
+"watch_score_event_tennis_set_title" = "Партію %d завершено";
+"watch_score_event_tennis_set_detail" = "Переможець: %1$@ %2$d:%3$d · Партії %4$d:%5$d";
+"watch_tiebreak_indicator_7" = "7-очковий тай-брейк";
+"watch_tiebreak_indicator_10" = "10-очковий тай-брейк";
+"watch_continue_match" = "Продовжити";
+"watch_continue_scoring" = "Продовжити";
+"watch_resume_discard" = "Видалити незавершений матч";
+"watch_resume_discard_training" = "Видалити незавершене тренування";
+"unit_hour" = "год";
+"unit_minute" = "хв";
+"unit_second" = "с";
+"today" = "Сьогодні";
+"yesterday" = "Вчора";
+
+/* Sports setup */
+"watch_setup_start" = "Почати";
+"watch_setup_sets" = "Партії";
+"watch_setup_points_per_set" = "Очок за сет";
+"watch_setup_tennis_deuce" = "Правило «рівно»";
+"watch_setup_tennis_advantage" = "Перевага";
+"watch_setup_tennis_no_ad" = "Без переваги";
+"watch_setup_target_score" = "Цільовий рахунок";
+"watch_setup_rally_scoring" = "Розіграшна система";
+"watch_setup_target_racks" = "Ціль";
+"watch_setup_race_racks" = "Гонка до";
+"watch_setup_race_racks_help" = "3 = перший до 3 партій";
+"watch_setup_handicap" = "Гандикап";
+"watch_setup_handicap_none" = "Жодного";
+"watch_setup_handicap_red_gives_blue" = "Червоний → Синій";
+"watch_setup_handicap_blue_gives_red" = "Синій → Червоний";
+"watch_setup_handicap_racks" = "Партії з форою";
+"watch_setup_frames" = "Фрейми";
+"watch_setup_custom_frames" = "Своя кількість фреймів";
+"watch_setup_custom_frames_placeholder" = "1–99";
+"watch_setup_custom_frames_invalid" = "Введіть 1-99";
+"watch_setup_players" = "Гравці";
+"watch_setup_archers" = "Лучники";
+"watch_setup_player_number" = "Гравець %d";
+"watch_setup_red_a" = "Червоний А";
+"watch_setup_red_b" = "Червоний B";
+"watch_setup_blue_a" = "Синій А";
+"watch_setup_blue_b" = "Синій B";
+"watch_setup_name_missing" = "Заповніть усі імена або залиште всі поля порожніми";
+"watch_setup_select_players" = "Гравці";
+"watch_setup_player_count" = "Гравців: %d";
+"watch_common_names_select_player" = "Виберіть гравця";
+"watch_common_names_no_records" = "Збережених імен немає";
+"watch_common_names_title" = "Збережені імена";
+"watch_common_names_add" = "Додати";
+"watch_common_names_edit" = "Редагувати назву";
+"watch_common_names_delete_title" = "Видалити ім’я?";
+"watch_common_names_error_title" = "Не вдалося оновити";
+"watch_common_names_players" = "Гравці";
+"watch_common_names_teams" = "команди";
+"watch_common_names_empty" = "Збережених імен немає";
+"watch_common_names_team_placeholder" = "Назва команди";
+"watch_common_names_player_placeholder" = "Ім'я гравця";
+"watch_common_names_length_hint" = "До %d символів";
+"watch_common_names_error_empty" = "Ім’я не може бути порожнім";
+"watch_common_names_error_duplicate" = "Назва вже існує";
+"watch_common_names_error_missing" = "Запис не знайдено · Повторіть спробу";
+"watch_common_names_error_generic" = "Не вдалося зберегти. Спробуйте ще раз.";
+"watch_common_names_sync_now" = "Синхронізувати зараз";
+"watch_common_names_actions" = "Збережені імена";
+"watch_common_names_sync_requested" = "Очікує синхронізації";
+"watch_common_names_sync_queued" = "Телефон не підключено · Очікує синхронізації";
+"watch_common_names_sync_inactive" = "Телефон не підключено";
+"watch_common_names_sync_failed" = "Помилка підключення · Повторіть спробу";
+"watch_common_names_sync_conflict" = "Деякі зміни не синхронізовано";
+"watch_common_names_sync_pending" = "Очікує синхронізації";
+"watch_common_names_sync_unavailable" = "Телефон не підключено";
+"watch_common_names_sync_done" = "Синхронізовано";
+"watch_common_names_pending_count" = "Очікує синхронізації · %d";
+"watch_common_names_never_synced" = "Ще не синхронізовано";
+"watch_common_names_last_sync" = "Остання синхронізація %@";
+
+"watch_phone_link_title" = "Apple Watch";
+"watch_phone_link_intro" = "Почніть на телефоні, ведіть рахунок на годиннику";
+"watch_phone_link_support" = "Бадмінтон · Футбол · Стрільба з лука · Тренування кидків…";
+"watch_phone_link_status" = "Стан підключення";
+"watch_phone_link_steps" = "Як використовувати";
+"watch_phone_link_step_1" = "Налаштуйте матч або тренування кидків на телефоні.";
+"watch_phone_link_step_2" = "Початок · Apple Watch";
+"watch_phone_link_step_3" = "Ведіть рахунок на годиннику. Запис синхронізується після завершення.";
+"watch_phone_link_help" = "З’єднайте пристрої, установіть iScoreboard на обидва й відкрийте застосунок на телефоні.";
+"watch_phone_link_testing" = "Перевірка";
+"watch_phone_link_normal" = "Підключено";
+"watch_phone_link_failed" = "Помилка підключення";
+"watch_phone_link_reachable" = "Підключено";
+"watch_phone_link_waiting" = "Очікування телефона";
+"watch_phone_link_inactive" = "Телефон не підключено";
+"watch_phone_link_testing_detail" = "Очікування телефона";
+"watch_phone_link_normal_detail" = "Підключено";
+"watch_phone_link_failed_detail" = "Телефон не відповів за 8 секунд.";
+"watch_phone_link_failed_inactive" = "Телефон не підключено · Повторіть спробу";
+"watch_phone_link_failed_unreachable" = "Відкрийте iScoreboard на телефоні й повторіть спробу.";
+"watch_phone_link_failed_send" = "Помилка підключення · Повторіть спробу";
+"watch_phone_link_reachable_detail" = "Тест";
+"watch_phone_link_waiting_detail" = "Відкрийте iScoreboard на телефоні й повторіть спробу.";
+"watch_phone_link_test_waiting" = "Перевірка…";
+"watch_phone_link_test_retry" = "Повторіть спробу";
+"watch_phone_link_test" = "Тест";
+"watch_phone_link_last_empty" = "—";
+"watch_phone_link_last_time" = "Останнє підключення %@";
+
+/* Basketball training setup and board */
+"watch_bb_select_mode" = "Режим тренування";
+"watch_bb_1pt" = "1 очко";
+"watch_bb_2pt" = "2 очки";
+"watch_bb_3pt" = "3 очки";
+"watch_bb_free" = "Вільний режим";
+"watch_training_miss" = "Промах";
+"watch_training_made" = "Влучання";
+"watch_training_point_value" = "%d очк.";
+"watch_training_breakdown" = "Деталі кидків";
+"watch_training_start" = "Тренування кидків · Початок";
+"watch_training_rate_format" = "Влучність %d%%";
+"watch_training_action_format" = "%d очк. · %@";
+
+/* Home pinning */
+"watch_home_pin_title" = "Закріпити вгорі?";
+"watch_home_pin_confirm" = "Закріпити";
+"watch_home_unpin_title" = "Відкріпити?";
+"watch_home_unpin_confirm" = "Відкріпити";
+"watch_home_pin_full_title" = "Ліміт закріплень";
+"watch_home_pin_full_message" = "Можна закріпити 2 пункти. Спочатку відкріпіть один.";
+"watch_home_pin_hint" = "Утримуйте, щоб закріпити";
+"watch_home_pin_success" = "Закріплено";
+"watch_home_unpin_success" = "Відкріплено";
+"multi_score_player_default_format" = "Гравець %d";
+"nine_ball_big_gold" = "Велике золото";
+"nine_ball_small_gold" = "Мале золото";
+"nine_ball_golden_nine" = "Золота дев’ятка";
+"nine_ball_normal_win" = "Звичайна перемога";
+"nine_ball_ball_in_hand" = "Биток із руки";
+"nine_ball_foul" = "Фол";
+"watch_archery_set_rest" = "Перерва між сетами";
+"watch_finish_confirm_title" = "Завершити матч?";
+"watch_finish_confirm_message" = "Матч завершиться та збережеться.";
+"watch_reset_confirm_title" = "Почати матч заново?";
+"watch_reset_confirm_message" = "Поточний рахунок буде скинуто.";
+"watch_side_exchange" = "Змінити сторони";
+"watch_winner_format" = "Переможець: %@";
+"watch_finished_win_badge" = "В";
+"watch_finished_winner" = "Переможець";
+"watch_finished_home" = "Головна";
+"watch_snooker_foul" = "Фол";
+"watch_snooker_foul_selected_format" = "Фол +%d";
+"watch_snooker_foul_next_turn" = "Змінити хід";
+"watch_snooker_foul_switch_turn" = "Змінити хід";
+"watch_snooker_foul_continue" = "Продовжити";
+"watch_action_snooker_foul_continue_format" = "%@· Фол · Суперник +%d · Гравець, який сфолив, продовжує";
+"watch_snooker_handover" = "Змінити хід";
+"watch_snooker_settle_frame" = "Завершити фрейм";
+"watch_snooker_choose_frame_winner" = "Виберіть переможця фрейму";
+"watch_snooker_frame_finished" = "Раунд завершено";
+"watch_snooker_next_frame" = "Наступний фрейм";
+"watch_training_breakdown_format" = "%d очк. · %d/%d";
+
+/* Localization audit additions */
+"archery_repeat_shoot_off" = "Відстань однакова. Продовжте додаткову стрільбу.";
+"edit" = "Редагувати";
+"game_badminton_doubles" = "Парний бадмінтон";
+"game_eight_ball" = "Вісімка";
+"game_nine_ball" = "Пул-9 на очки";
+"game_pickleball_doubles" = "Парний піклбол";
+"game_pingpong_doubles" = "Парний настільний теніс";
+"game_snooker" = "Снукер";
+"game_tennis_doubles" = "Парний теніс";
+"save" = "Зберегти";
+"watch_action_adjust_score_format" = "%@· Рахунок змінено";
+"watch_action_archery_arrow_format" = "%@+%d очк.";
+"watch_action_archery_closest" = "Додаткова стрільба · Найближче до центру";
+"watch_action_archery_miss_format" = "%@· Промах";
+"watch_action_archery_set_ready" = "Стрільба з лука · Раунд завершено";
+"watch_action_ball_potted_format" = "%@ · Куля забита %@";
+"watch_action_basketball_foul_format" = "%@· Фол";
+"watch_action_basketball_period_format" = "Період %d · Початок";
+"watch_action_basketball_timeout_format" = "%@· Тайм-аут";
+"watch_action_edit_name" = "Оновлено";
+"watch_action_exchange_sides" = "Помінятися сторонами";
+"watch_action_exchange_sides_reminder" = "Змініть сторони вручну";
+"watch_action_game_finished_format" = "Партію %1$d завершено · Переможець: %2$@";
+"watch_action_nine_ball_format" = "%@ · %@ (%+d)";
+"watch_action_rack_won_format" = "Переможець: %@";
+"watch_action_score_format" = "%@+%d";
+"watch_action_set_finished_format" = "Партію %1$d завершено · Переможець: %2$@";
+"watch_action_shooter_format" = "%@ починає стріляти";
+"watch_action_side_out_format" = "Подача · %@";
+"watch_action_snooker_foul_format" = "%@· Фол · Суперник +%d";
+"watch_action_snooker_frame_format" = "Фрейм %1$d · Переможець: %2$@";
+"watch_action_snooker_handover_format" = "Змінити хід · %@";
+"watch_action_snooker_miss_format" = "%@· Промах";
+"watch_action_snooker_next_frame_format" = "Фрейм %d · Початок";
+"watch_action_snooker_pot_format" = "%@· Куля забита +%d";
+"watch_record_actions_unavailable" = "Немає записів";
+"linked_score_error_title" = "Помилка підключення";
+"linked_score_persistence_failed" = "Зв’язок телефона й годинника · Не вдалося зберегти: %@";
+"resume_persistence_error_title" = "Не вдалося зберегти";
+"resume_persistence_failed" = "Продовжити матч · Не вдалося зберегти: %@";
+"linked_score_control_timeout" = "Перебрати керування · Час очікування вичерпано · Повторіть спробу";
+"linked_score_sync_timeout" = "Час очікування вичерпано · Очікує синхронізації";
+
+/* Football */
+"game_football" = "Футбол";
+"game_football_5v5" = "Футбол 5×5";
+"watch_setup_half_length" = "Тривалість тайму";
+"watch_setup_teams" = "команди";
+"football_first_half" = "Перший тайм";
+"football_second_half" = "Другий тайм";
+"football_extra_time_first" = "Додатковий час — перший тайм";
+"football_extra_time_second" = "Додатковий час — другий тайм";
+"football_first_half_over" = "Перший тайм закінчився";
+"football_switch_half" = "Другий тайм";
+"football_switch_half_title" = "Почати другий тайм?";
+"football_switch_half_message" = "Перший тайм буде завершено, і його неможливо буде відкрити знову.";
+"football_extra_time_first_over" = "Додатковий час — перший тайм · Раунд завершено";
+"football_switch_extra_time_half" = "Додатковий час — другий тайм";
+"football_enter_extra_time_title" = "Основний час завершено";
+"football_post_regulation_action" = "Після регламенту";
+"football_injury_title" = "Компенсований час";
+"football_undo_stoppage" = "Скасувати компенсований час";
+"football_enter_extra_time" = "Перейти до додаткового часу";
+"football_end_as_draw" = "Завершити внічию";
+"football_goal_hint" = "Торкніться, щоб додати гол";
+"watch_football_start" = "Почати";
+"watch_football_pause" = "Пауза";
+"watch_football_resume" = "Продовжити";
+"watch_action_football_goal_format" = "%@+%d";
+"watch_action_football_period_format" = "Початок · %@";
+"watch_action_football_stoppage_format" = "Компенсований час +%d с";
+"watch_action_football_clock_start" = "Таймер запущено";
+"watch_action_football_clock_pause" = "Таймер призупинено";
+"watch_record_sync_sent" = "Синхронізовано";
+"watch_record_sync_pending" = "Очікує синхронізації";
+"watch_record_sync_not_synced" = "Не синхронізовано з iPhone";
+"watch_record_sync_action" = "Синхронізувати з iPhone";
+"watch_settings_auto_sync_records" = "Автосинхронізація";
+"game_shuttlecock" = "Цзяньцзи";
+"game_squash" = "Сквош";
+"game_foosball" = "Настільний футбол";
+
+"watch_setup_win_by_two" = "Фінальний сет із перевагою у 2";
+"watch_setup_score_cap" = "Максимальний рахунок";
+"watch_setup_serving_side" = "Хто подає першим";
+"watch_setup_kickoff_side" = "Перший стартовий удар";
+"watch_setup_side_left" = "Червоний";
+"watch_setup_side_right" = "Синій";
+
+"watch_about_us" = "Про нас";
+"watch_about_app_name" = "iScoreboard";
+"watch_about_version" = "Версія %@";
+"watch_wechat_group_title" = "Група WeChat";
+"watch_wechat_group_scan_hint" = "WeChat · Відскануйте код для деталей";
+
+"nine_ball_handoff" = "Handoff";
+"nine_ball_no_score" = "No points";
+"nine_ball_current_breaker" = "Rack breaker";
+"watch_nine_ball_breaker_badge" = "Розбій";
+"watch_nine_ball_select_payer" = "Хто платить";
+"watch_nine_ball_select_continue" = "Хто грає далі";
+"watch_nine_ball_prev_player" = "Назад";
+"watch_nine_ball_next_player" = "Далі";
+"watch_nine_ball_continue_badge" = "Грати";
+
+"watch_a11y_points_format" = "%d очк.";
+"watch_a11y_sets_format" = "Сетів: %d";
+"watch_a11y_serving" = "Подача";
+
+"watch_phone_shared_link_intro" = "Почніть на телефоні й записуйте рахунок на будь-якому пристрої.";
+"linked_score_simultaneous_edit" = "На обох пристроях внесено зміни. Перевірте рахунок.";

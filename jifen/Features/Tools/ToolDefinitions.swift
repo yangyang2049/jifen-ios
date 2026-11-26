@@ -31,7 +31,7 @@ extension ToolItem {
         ToolItem(id: "points_table", emoji: "📊", title: NSLocalizedString("points_table_title", value: "Standings", comment: ""), view: AnyView(PointsTableView())),
         ToolItem(id: "time", emoji: "🕐", title: NSLocalizedString("tool_time", value: "翻页时钟", comment: "Flip Clock"), view: AnyView(DateTimeToolView())),
         ToolItem(id: "aa_calculator", emoji: "💰", title: NSLocalizedString("tool_aa_calculator", comment: "AA Calculator"), view: AnyView(AACalculatorView())),
-        ToolItem(id: "ten_second", emoji: "⏱️", title: NSLocalizedString("tool_ten_second", comment: "Ten Second Challenge"), view: AnyView(TenSecondChallengeView()))
+        ToolItem(id: "ten_second", emoji: "⏱️", title: NSLocalizedString("tool_ten_second", comment: "Stop the Clock"), view: AnyView(TenSecondChallengeView()))
     ]
 
     static let allTools: [ToolItem] = competitionTools + otherTools

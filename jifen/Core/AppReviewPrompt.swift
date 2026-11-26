@@ -73,19 +73,18 @@ enum AppReviewPrompt {
 }
 
 private struct LaunchReviewPromptModifier: ViewModifier {
+    let suppressed: Bool
     @Environment(\.requestReview) private var requestReview
     @State private var hasCheckedThisPresentation = false
 
     func body(content: Content) -> some View {
         content.task {
-            guard !hasCheckedThisPresentation else { return }
+            guard !suppressed, !hasCheckedThisPresentation else { return }
             // Recheck after yielding so a community sheet and a review request cannot win together.
             await Task.yield()
             guard !Task.isCancelled, !hasCheckedThisPresentation else { return }
             hasCheckedThisPresentation = true
-            // 国庆活动优先于评分邀请（对齐安卓）：活动展示当天不再弹评分邀请，
-            // 也不消耗本次待邀请次数，活动结束后仍可正常弹出。
-            guard !NationalDayCampaignReviewGate.blocksReviewToday(), !VipCommunityAvailability.shared.isPresenting else { return }
+            guard !VipCommunityAvailability.shared.isPresenting else { return }
             guard AppReviewPrompt.consumePendingRequestIfAllowed() else { return }
 
             AppReviewPrompt.requestedThisLaunch = true
@@ -99,7 +98,7 @@ private struct LaunchReviewPromptModifier: ViewModifier {
 }
 
 extension View {
-    func requestsReviewOnEligibleLaunch() -> some View {
-        modifier(LaunchReviewPromptModifier())
+    func requestsReviewOnEligibleLaunch(suppressed: Bool = false) -> some View {
+        modifier(LaunchReviewPromptModifier(suppressed: suppressed))
     }
 }

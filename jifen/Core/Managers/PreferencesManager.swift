@@ -56,6 +56,7 @@ class PreferencesManager {
         static let touchGuard = "scoreboard_touch_guard"
         static let doubleTapSubtract = "scoreboard_double_tap_subtract"
         static let doubleTapSubtractInitialized = "scoreboard_double_tap_subtract_initialized_v1"
+        static let basketballAutoBuzzer = "basketball_auto_buzzer_enabled"
         static let matchTimePrefix = "scoreboard_match_time_visible_v1_"
         static let typographyPrefix = "scoreboard_typography_"
         static let styleProfilePrefix = "scoreboard_style_v2_"
@@ -72,6 +73,13 @@ class PreferencesManager {
     var basketballOvertimeSeconds: Int {
         get { BasketballMatchEngine.validDuration(defaults.object(forKey: "basketballOvertimeSeconds") as? Int, fallback: 300) }
         set { defaults.set(newValue, forKey: "basketballOvertimeSeconds") }
+    }
+    var basketballAutoBuzzerEnabled: Bool {
+        get { defaults.bool(forKey: Key.basketballAutoBuzzer, defaultValue: true) }
+        set {
+            defaults.set(newValue, forKey: Key.basketballAutoBuzzer)
+            notifyScoreboardPreferencesChanged()
+        }
     }
 
     private let defaults: UserDefaults
@@ -230,6 +238,7 @@ class PreferencesManager {
             "multiScoreboardStyleMode", "multiScoreboardSolidColor",
             "unoScoreboardStyleMode", "unoScoreboardSolidColor",
             "basketballRuleSet", "basketballPeriodSeconds", "basketballOvertimeSeconds",
+            Key.basketballAutoBuzzer,
             "guandanSetupTripleA", "guandanSetupPassACondition",
             "guandanSetupTripleAFallbackRank", "scoreboard_style_v2_recent_colors"
         ]

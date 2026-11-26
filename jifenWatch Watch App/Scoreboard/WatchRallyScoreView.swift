@@ -13,6 +13,7 @@ private final class WatchRallySessionStore {
     private let core: ScoreSessionCore<RallyMatchReducer>
     private(set) var state: RallyMatchState
     private(set) var actionLog: WatchScoreActionLog
+    private var lastAppliedRemoteGeneration: UInt64?
     private var lastAppliedRemoteRevision: UInt64?
 
     init(
@@ -90,6 +91,16 @@ private final class WatchRallySessionStore {
             let timestamp = Date()
             let now = Int64(timestamp.timeIntervalSince1970 * 1_000)
             guard let self else { return }
+            if case .setOfficialBreakState = intent {
+                guard case .accepted(let session, let events) = await core.dispatchNonUndoable(
+                    actorId: "watch",
+                    intent: intent,
+                    at: now
+                ) else { return }
+                self.state = session.state
+                self.onStateChanged?(session.state, events)
+                return
+            }
             self.actionLog.beginUndoableMutation()
             guard case .accepted(let session, let events) = await core.dispatch(actorId: "watch", intent: intent, at: now) else {
                 self.actionLog.rejectUndoableMutation()
@@ -132,9 +143,19 @@ private final class WatchRallySessionStore {
     func applyAuthoritativeState(
         _ state: RallyMatchState,
         detailedActions: [DetailedScoreAction],
-        revision: UInt64
+        revision: UInt64,
+        matchGeneration: UInt64? = nil,
+        newMatchStartedAt: Date? = nil
     ) async -> Bool {
-        if let lastAppliedRemoteRevision, revision <= lastAppliedRemoteRevision {
+        if let matchGeneration, lastAppliedRemoteGeneration != matchGeneration {
+            lastAppliedRemoteGeneration = matchGeneration
+            lastAppliedRemoteRevision = nil
+        }
+        if revision == lastAppliedRemoteRevision {
+            mergeRemoteActions(detailedActions)
+            return false
+        }
+        if let lastAppliedRemoteRevision, revision < lastAppliedRemoteRevision {
             return false
         }
         lastAppliedRemoteRevision = revision
@@ -142,8 +163,10 @@ private final class WatchRallySessionStore {
             to: state,
             status: state.finished ? .finished : .live
         )
-        guard lastAppliedRemoteRevision == revision else { return false }
+        guard lastAppliedRemoteRevision == revision,
+              matchGeneration == nil || lastAppliedRemoteGeneration == matchGeneration else { return false }
         self.state = session.state
+        if let newMatchStartedAt { actionLog.reset(at: newMatchStartedAt) }
         actionLog.merge(detailedActions: detailedActions)
         return true
     }
@@ -165,6 +188,7 @@ struct WatchRallyScoreView: View {
     let gameType: GameType
     let rules: RallyRuleSet
     let linkedSessionId: UUID?
+    @State private var showRecordSaveFailure = false
     @State private var store: WatchRallySessionStore
     @State private var showMenu = false
     @State private var matchStartTime = Date()
@@ -257,12 +281,18 @@ struct WatchRallyScoreView: View {
             if let restState {
                 WatchRestOverlay(
                     state: restState,
-                    onContinue: { self.restState = nil },
+                    isReadOnly: scoringLocked,
+                    onContinue: {
+                        guard !scoringLocked else { return }
+                        self.restState = nil
+                        syncOfficialBreakState(nil)
+                    },
                     onUndo: {
                         guard !scoringLocked else { return }
                         let triggerID = restState.triggerID
                         self.restState = nil
                         restTriggers.release(triggerID)
+                        syncOfficialBreakState(nil)
                         undoScoreboard()
                     }
                 )
@@ -273,19 +303,24 @@ struct WatchRallyScoreView: View {
                     scoreItems: [
                         WatchFinishedScoreItem(
                             name: store.state.leftName,
-                            score: String(store.state.leftSets + store.state.rightSets > 0
+                            score: store.state.leftSets + store.state.rightSets > 0
                                 ? store.state.leftSets
-                                : store.state.leftPoints)
+                                : store.state.leftPoints,
+                            doublesNames: store.state.doubles?.playerNames,
+                            side: .left
                         ),
                         WatchFinishedScoreItem(
                             name: store.state.rightName,
-                            score: String(store.state.leftSets + store.state.rightSets > 0
+                            score: store.state.leftSets + store.state.rightSets > 0
                                 ? store.state.rightSets
-                                : store.state.rightPoints)
+                                : store.state.rightPoints,
+                            doublesNames: store.state.doubles?.playerNames,
+                            side: .right
                         )
                     ],
-                    winnerText: winnerText,
+                    winner: .side(finishedWinner),
                     undoAvailable: finishUndoAvailable,
+                    canPlayAgain: !scoringLocked,
                     onUndo: undoFinish,
                     onPlayAgain: playAgain,
                     onExit: finishAndExit
@@ -300,13 +335,14 @@ struct WatchRallyScoreView: View {
             }
         }
         .ignoresSafeArea()
+        .watchFinishSaveFailure(isPresented: $showRecordSaveFailure) { finalizeFinish() }
         .onAppear {
             if store.state.doubles == nil {
                 scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
             }
             store.onStateChanged = { [linkService] state, events in
                 if linkedSessionId != nil {
-                    guard linkService.isController else { return }
+                    guard linkService.canEditLinkedMatch else { return }
                     linkService.publishSnapshot(.rally(state), detailedActions: store.actionLog.detailedActions)
                 }
                 handle(events: events, state: state)
@@ -314,24 +350,31 @@ struct WatchRallyScoreView: View {
             }
             if store.state.finished {
                 beginProvisionalFinish()
+            } else if restState == nil, let remoteBreak = store.state.officialBreakState {
+                restState = WatchRestState.fromOfficialBreak(remoteBreak)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .watchScoreboardLayoutDidChange)) { _ in
             guard store.state.doubles == nil else { return }
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
-        .onChange(of: linkService.latestSnapshot) { _, update in
-            guard let linkedSessionId,
+        .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
+            guard linkService.incomingSnapshot != nil, let linkedSessionId,
                   let update,
                   update.sessionId == linkedSessionId else { return }
             guard let state = update.snapshot.rallyState else { return }
+            let newMatchStartedAt = update.beginsMatch(after: previous) ? Date() : nil
+            if let newMatchStartedAt { matchStartTime = newMatchStartedAt }
             Task {
                 guard await store.applyAuthoritativeState(
                     state,
                     detailedActions: update.detailedActions,
-                    revision: update.revision
+                    revision: update.revision,
+                    matchGeneration: update.matchGeneration,
+                    newMatchStartedAt: newMatchStartedAt
                 ) else { return }
                 if state.finished {
+                    restState = nil
                     beginRemoteFinishPresentation()
                 } else {
                     completedScoreTask?.cancel()
@@ -341,6 +384,7 @@ struct WatchRallyScoreView: View {
                     showFinishedOverlay = false
                     finishUndoAvailable = false
                     didFinalizeFinish = false
+                    restState = WatchRestState.fromOfficialBreak(state.officialBreakState)
                 }
             }
         }
@@ -355,6 +399,7 @@ struct WatchRallyScoreView: View {
                     detailedActions: pending.detailedActions,
                     revision: pending.revision
                 ) else { return }
+                restState = WatchRestState.fromOfficialBreak(state.finished ? nil : state.officialBreakState)
                 linkService.completeReclaimAcceptance(messageId: pending.messageId)
             }
         }
@@ -636,15 +681,10 @@ struct WatchRallyScoreView: View {
         return "\(store.state.leftPoints) : \(store.state.rightPoints)"
     }
 
-    private var winnerText: String? {
+    private var finishedWinner: MatchSide? {
+        if let forfeitingSide = store.state.pingPongForfeitSide { return forfeitingSide.opposite }
         guard store.state.leftSets != store.state.rightSets else { return nil }
-        let name = store.state.leftSets > store.state.rightSets
-            ? store.state.leftName
-            : store.state.rightName
-        return String(
-            format: NSLocalizedString("watch_winner_format", value: "%@ 获胜", comment: ""),
-            name
-        )
+        return store.state.leftSets > store.state.rightSets ? .left : .right
     }
 
     private func handle(events: [RallyMatchEvent], state: RallyMatchState) {
@@ -765,12 +805,14 @@ struct WatchRallyScoreView: View {
               let duration = WatchRestPolicy.betweenSetDuration(for: gameType) else { return }
         let triggerID = "set-\(setNumber)"
         guard restTriggers.consume(triggerID) else { return }
-        restState = WatchRestState(
+        let nextRest = WatchRestState(
             kind: .betweenSets,
             title: NSLocalizedString("watch_rest_between_sets", value: "局间休息", comment: ""),
             durationSeconds: duration,
             triggerID: triggerID
         )
+        restState = nextRest
+        syncOfficialBreakState(nextRest)
     }
 
     @discardableResult
@@ -787,12 +829,14 @@ struct WatchRallyScoreView: View {
         let triggerID = badmintonMidGameTriggerID(setNumber: state.currentSet, point: point)
         guard restTriggers.consume(triggerID) else { return false }
         if WatchPreferences.shared.setBreakEnabled {
-            restState = WatchRestState(
+            let nextRest = WatchRestState(
                 kind: .midGame,
                 title: NSLocalizedString("watch_mid_game_rest", value: "局中休息", comment: ""),
                 durationSeconds: 60,
                 triggerID: triggerID
             )
+            restState = nextRest
+            syncOfficialBreakState(nextRest)
         } else {
             let leader: MatchSide = state.leftPoints > state.rightPoints ? .left : .right
             let leaderName = rallyDisplayName(for: leader, state: state)
@@ -939,16 +983,16 @@ struct WatchRallyScoreView: View {
         }
     }
 
-    private func finalizeFinish() {
-        guard store.state.finished, !didFinalizeFinish else { return }
-        resumeStore.clear()
-        didFinalizeFinish = true
+    @discardableResult
+    private func finalizeFinish() -> Bool {
+        guard store.state.finished, !didFinalizeFinish, !scoringLocked else { return true }
+        finishUndoAvailable = false
+        let saved: Bool
         if linkedSessionId != nil {
-            guard linkService.isController else { return }
             let winner: MatchSide? = store.state.leftSets == store.state.rightSets
                 ? nil
                 : (store.state.leftSets > store.state.rightSets ? .left : .right)
-            linkService.publishMatchFinished(
+            saved = linkService.publishMatchFinished(
                 snapshot: .rally(store.state),
                 recordId: "w_\(UUID().uuidString)",
                 winnerSide: winner,
@@ -959,8 +1003,15 @@ struct WatchRallyScoreView: View {
                 detailedActions: store.actionLog.detailedActions
             )
         } else {
-            transferLocalFinishedRecordIfNeeded(store.state)
+            saved = transferLocalFinishedRecordIfNeeded(store.state)
         }
+        guard saved else {
+            showRecordSaveFailure = true
+            return false
+        }
+        didFinalizeFinish = true
+        resumeStore.clear()
+        return true
     }
 
     private func undoFinish() {
@@ -983,8 +1034,7 @@ struct WatchRallyScoreView: View {
 
     private func playAgain() {
         guard !scoringLocked else { return }
-        resumeStore.clear()
-        finalizeFinish()
+        guard finalizeFinish() else { return }
         finishTask?.cancel()
         showFinishedOverlay = false
         finishUndoAvailable = false
@@ -1003,7 +1053,7 @@ struct WatchRallyScoreView: View {
     }
 
     private func finishAndExit() {
-        finalizeFinish()
+        guard finalizeFinish() else { return }
         exitBoard()
     }
 
@@ -1053,7 +1103,7 @@ struct WatchRallyScoreView: View {
         )
         freshStore.onStateChanged = { [linkService] state, events in
             if linkedSessionId != nil {
-                guard linkService.isController else { return }
+                guard linkService.canEditLinkedMatch else { return }
                 linkService.publishSnapshot(
                     .rally(state),
                     detailedActions: freshStore.actionLog.detailedActions
@@ -1073,22 +1123,34 @@ struct WatchRallyScoreView: View {
         }
     }
 
+    private func syncOfficialBreakState(_ rest: WatchRestState?) {
+        guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
+        let mapped = rest?.officialBreakState(for: gameType)
+        guard store.state.officialBreakState != mapped else { return }
+        store.send(.setOfficialBreakState(mapped))
+    }
+
     private func exitBoard() {
-        if linkedSessionId != nil {
-            linkService.exitScoreboardToHome()
-        }
+        if let linkedSessionId { linkService.exitScoreboard(sessionId: linkedSessionId) }
         dismiss()
     }
 
     private func persistResumeSession() async {
+        if let linkedSessionId, linkService.activeSessionId != linkedSessionId {
+            return
+        }
         let state = store.state
-        guard !state.finished,
-              state.leftPoints != 0 || state.rightPoints != 0
+        if state.finished {
+            if didFinalizeFinish { resumeStore.clear() }
+            return
+        }
+        guard state.leftPoints != 0 || state.rightPoints != 0
                 || state.leftSets != 0 || state.rightSets != 0 else {
             resumeStore.clear()
             return
         }
         let bundle = await store.resumeBundle()
+        guard !store.state.finished else { return }
         resumeStore.save(WatchResumeSession(
             startedAt: matchStartTime,
             scoreLine: scoreLine,
@@ -1114,9 +1176,8 @@ struct WatchRallyScoreView: View {
         }
     }
 
-    private func transferLocalFinishedRecordIfNeeded(_ state: RallyMatchState) {
-        guard !didTransferFinishedRecord else { return }
-        didTransferFinishedRecord = true
+    private func transferLocalFinishedRecordIfNeeded(_ state: RallyMatchState) -> Bool {
+        guard !didTransferFinishedRecord else { return true }
         let end = Date()
         let winnerName: String? = {
             if state.leftSets == state.rightSets { return nil }
@@ -1150,7 +1211,9 @@ struct WatchRallyScoreView: View {
                 "isDoubles": String(state.doubles != nil)
             ]
         )
-        WatchRecordManager.shared.saveRecord(record)
+        guard resumeStore.saveFinishedRecord(record) else { return false }
+        didTransferFinishedRecord = true
+        return true
     }
 
     private func watchGameType(for type: GameType) -> WatchGameType {

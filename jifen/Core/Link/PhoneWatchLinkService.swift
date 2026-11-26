@@ -60,6 +60,17 @@ final class PhoneWatchLinkService {
     var sessionMachine: LinkSessionStateMachine?
     var pendingAck = LinkControlRetryQueue()
     var terminalOutbox = LinkDurableOutbox()
+    var peerSupportsCompressedFinish = false
+    @ObservationIgnored var retiredRecordSessions: LinkRetiredRecordSessions
+
+    var activeRecordSession: LinkRecordSession? {
+        guard let session = activeSession, sessionMachine?.lifecycle != .starting else { return nil }
+        return LinkRecordSession(
+            handle: session.handle, gameType: session.gameType,
+            authorityEpoch: session.authorityEpoch, completedMatchIds: session.completedMatchIds,
+            allowsPeerNextMatch: session.role == .phoneFollower || session.role == .shared
+        )
+    }
     var setupContinuation: CheckedContinuation<UUID, Error>?
     var pendingSetupMessageId: UUID?
     var setupTimeoutTask: Task<Void, Never>?
@@ -85,6 +96,8 @@ final class PhoneWatchLinkService {
     internal(set) var connectivityStatus: WatchConnectivityStatus
     internal(set) var controlRole: LinkControlRole?
     internal(set) var latestRemoteSnapshot: LinkedSnapshotUpdate?
+    var sharedEditTracker = LinkSharedEditTracker()
+    var simultaneousEditNotice: UUID?
     internal(set) var finishedRecordId: String?
     internal(set) var watchBackgrounded: Bool = false
     internal(set) var lastErrorMessage: String?
@@ -192,6 +205,11 @@ final class PhoneWatchLinkService {
         let matchGeneration: UInt64
         let snapshot: LinkedScoreboardSnapshot
         let detailedActions: [DetailedScoreAction]
+
+        func beginsMatch(after previous: Self?) -> Bool {
+            guard let previous, previous.sessionId == sessionId else { return false }
+            return previous.matchGeneration < matchGeneration
+        }
     }
 
     init(
@@ -203,18 +221,11 @@ final class PhoneWatchLinkService {
     ) {
         self.transport = transport
         self.contextStore = contextStore
+        retiredRecordSessions = LinkRetiredRecordSessions(store: contextStore)
         self.outboxStore = outboxStore
         self.recordSink = recordSink ?? DefaultPhoneLinkRecordSink()
         self.clock = clock
-        // 先用中性占位值完成属性初始化；真实状态在 activate() 之后读取，
-        // 避免激活前访问 WCSession 属性触发 "WCSession has not been activated" 警告。
-        connectivityStatus = WatchConnectivityStatus(
-            isSupported: true,
-            isActivated: false,
-            isPaired: false,
-            isWatchAppInstalled: false,
-            isReachable: false
-        )
+        connectivityStatus = transport.status
         if contextStore.data(forKey: legacyCleanupMarkerKey) == nil {
             contextStore.removeObject(forKey: "phone_link_context_v1")
             outboxStore.removeObject(forKey: "phone_link_terminal_outbox_v1")
@@ -266,7 +277,6 @@ final class PhoneWatchLinkService {
             }
         }
         transport.activate()
-        // activate() 之后才读取 WCSession 属性，避免 "WCSession has not been activated" 系统警告。
         connectivityStatus = transport.status
         #if DEBUG
         print("[PhoneLink] PhoneWatchLinkService init: activate() called, onWatchRecordData wired")
@@ -323,6 +333,21 @@ final class PhoneWatchLinkService {
         controlRole == .phoneController
     }
 
+    var canEditLinkedMatch: Bool {
+        isController || controlRole == .shared
+    }
+
+    var incomingSnapshot: LinkedSnapshotUpdate? {
+        guard let update = latestRemoteSnapshot,
+              isFollower || (controlRole == .shared && LinkSharedRevision.writer(of: update.revision) == .watch)
+        else { return nil }
+        return update
+    }
+
+    var peerFinishedSharedMatch: Bool {
+        controlRole == .shared && incomingSnapshot?.snapshot.isFinished == true
+    }
+
     var activeSessionId: UUID? {
         activeSession?.sessionId
     }
@@ -334,6 +359,7 @@ final class PhoneWatchLinkService {
         // GameBar appears before the link is actually established.
         guard let session = activeSession,
               sessionMachine?.lifecycle != .starting,
+              !pendingSessionEnds.contains(where: { $0.handle.sessionId == session.sessionId }),
               let snapshot = latestRemoteSnapshot?.sessionId == session.sessionId
                 ? latestRemoteSnapshot?.snapshot
                 : session.setup.initialSnapshot else {
@@ -364,6 +390,7 @@ final class PhoneWatchLinkService {
             String(session.authorityEpoch),
             String(session.revision),
             session.role.rawValue,
+            pendingSessionEnds.contains { $0.handle.sessionId == session.sessionId }.description,
             connectivityStatus.isReachable.description,
             watchBackgrounded.description
         ].joined(separator: ":")
@@ -387,6 +414,7 @@ final class PhoneWatchLinkService {
         clearSession()
 
         terminalOutbox = LinkDurableOutbox()
+        retiredRecordSessions.clear()
         pendingSessionEnds.removeAll()
         pendingSessionEndInFlight.removeAll()
         ackRetryTask?.cancel()

@@ -228,7 +228,7 @@ struct ArcheryScoreboardView: View {
         }
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
-                ScoreboardRecordDetailPage(recordId: recordID)
+                ScoreboardRecordDetailPage(recordId: (watchSessionId == nil ? nil : watchLinkService.finishedRecordId) ?? recordID)
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             ModalCloseButton { showFinishedRecordDetail = false }
@@ -289,9 +289,16 @@ struct ArcheryScoreboardView: View {
         .onChange(of: viewModel.rightTeam.score) { _, _ in publishWatchIfNeeded() }
         .onChange(of: viewModel.leftTeam.sets) { _, _ in publishWatchIfNeeded() }
         .onChange(of: viewModel.rightTeam.sets) { _, _ in publishWatchIfNeeded() }
-        .onChange(of: watchLinkService.latestRemoteSnapshot) { _, update in
-            guard let watchSessionId, let update, update.sessionId == watchSessionId,
+        .onChange(of: watchLinkService.latestRemoteSnapshot) { previous, update in
+            guard watchLinkService.incomingSnapshot != nil, let watchSessionId, let update, update.sessionId == watchSessionId,
                   let remote = update.snapshot.archeryState else { return }
+            if watchLinkService.controlRole == .shared, update.beginsMatch(after: previous) {
+                let previousRecordID = recordID
+                controller.beginNewMatch()
+                recordID = ScoreboardRecordIdentity.next(prefix: GameType.archery.canonicalScoreboardIdentifier)
+                ParticipantIdentityStore.shared.copySelections(from: previousRecordID, to: recordID)
+                viewModel.startNewMatch()
+            }
             applyRemoteArchery(remote)
         }
         .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
@@ -308,7 +315,7 @@ struct ArcheryScoreboardView: View {
         }
         .onDisappear {
             let skipSave = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.finishedRecordId != nil)
+                && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId { watchLinkService.detachPage(sessionId: watchSessionId) }
             if !skipSave {
                 saveGameRecordInRealTime(isGameFinished: viewModel.gameFinished)
@@ -600,7 +607,7 @@ struct ArcheryScoreboardView: View {
         pendingContinueUpdate = nil
         pendingClosestContinue = nil
         showGameOverDialog = false
-        if let watchSessionId, watchLinkService.isController {
+        if let watchSessionId, watchLinkService.canEditLinkedMatch {
             watchLinkService.prepareControllerForNewMatch(
                 sessionId: watchSessionId,
                 gameType: .archeryDual,
@@ -656,12 +663,13 @@ struct ArcheryScoreboardView: View {
     }
 
     private func publishWatchIfNeeded(finished: Bool = false) {
-        guard let watchSessionId, watchLinkService.isController else { return }
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
         let snapshot = viewModel.linkedSnapshot(finished: finished)
         watchLinkService.syncWatch(
             sessionId: watchSessionId,
             gameType: .archeryDual,
-            snapshot: .archery(snapshot)
+            snapshot: .archery(snapshot),
+            detailedActions: viewModel.detailedActions
         )
     }
 
@@ -691,7 +699,7 @@ struct ArcheryScoreboardView: View {
     }
 
     private func notifyLinkedFinishIfNeeded() {
-        guard let watchSessionId, watchLinkService.isController else { return }
+        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
         let state = viewModel.match
         watchLinkService.notifyMatchFinished(
             sessionId: watchSessionId,
@@ -701,11 +709,13 @@ struct ArcheryScoreboardView: View {
             manualEnd: manualFinishRequested,
             startTime: controller.getGameStartTime(),
             endTime: Date(),
-            totalScoreChanges: controller.getGameActions().count
+            totalScoreChanges: controller.getGameActions().count,
+            detailedActions: viewModel.detailedActions
         )
     }
 
     private func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+        if watchSessionId != nil, watchLinkService.peerFinishedSharedMatch { return }
         let hasProgress = !controller.getGameActions().isEmpty
             || viewModel.leftTeam.score != 0
             || viewModel.rightTeam.score != 0

@@ -476,7 +476,9 @@ struct CreateBookingPage: View {
 
     private var ruleSetOptions: [Int] {
         switch sportType {
-        case .badminton, .pingpong, .tennis, .pickleball:
+        case .badminton:
+            return SportsSetupDraft.badmintonClassicSetPresets
+        case .pingpong, .tennis, .pickleball:
             return [1, 3, 5, 7]
         case .billiards:
             switch billiardsFormat {
@@ -492,7 +494,7 @@ struct CreateBookingPage: View {
     private var pointOptions: [Int] {
         switch sportType {
         case .badminton: return [11, 15, 21]
-        case .pingpong: return [5, 7, 9, 11]
+        case .pingpong: return SportsSetupDraft.pingpongPointPresets
         case .pickleball: return [11, 15, 21]
         default: return []
         }

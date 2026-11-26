@@ -636,9 +636,10 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertLessThanOrEqual(HomeToolsLayoutPolicy.tools(isPad: true).count, 10)
 
         let compactIDs = HomeToolsLayoutPolicy.tools(isPad: false).map(\.id)
-        XCTAssertEqual(compactIDs.count, 8)
-        XCTAssertFalse(compactIDs.contains("random_team"))
-        XCTAssertFalse(compactIDs.contains("fullscreen_barrage"))
+        XCTAssertEqual(compactIDs, [
+            "whistle", "flip_coin", "points_table", "random_team", "dice",
+            "ten_second", "red_yellow_card", "fullscreen_barrage", "time", "aa_calculator"
+        ])
     }
 
     func testWideHomeToolGridUsesFourToTenColumns() {
@@ -1804,14 +1805,13 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertFalse(fresh.finished)
     }
 
-    func testPhoneWatchStartScopeMatchesExistingWatchMatchProjectsOnly() {
-        // 对齐 HOS linkedScoreboardCapability.ts：18 个项目里除投篮训练外全部放行，
-        // 手机端 GameType 缺独立双打项（羽/乒/网/匹克球/桌足共用单打项 + isSingles）。
+    func testPhoneWatchStartScopeIncludesTrainingAndSupportedMatchProjects() {
+        // 手机目录通过 isSingles 表示支持单打、双打的项目。
         let supported: Set<jifen.GameType> = [
             .pingpong, .badminton, .tennis, .pickleball,
             .archery, .eightBall, .nineBall, .snooker,
             .shuttlecock, .squash, .foosball,
-            .football, .football5v5
+            .football, .football5v5, .basketballTraining
         ]
         let actual = Set(GameCatalog.scoreboardItems.map(\.gameType).filter {
             AppFeatureFlags.isWatchLinkSupportedProject($0)
@@ -1819,7 +1819,7 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(actual, supported)
         XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.basketball))
         XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.threeBasketball))
-        XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedProject(.basketballTraining))
+        XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .basketballTraining))
         XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedProject(.foosball))
         XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .pingpong, isSingles: true))
         XCTAssertTrue(AppFeatureFlags.isWatchLinkSupportedSetup(gameType: .pingpong, isSingles: false))
@@ -1840,17 +1840,11 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertFalse(AppFeatureFlags.isWatchLinkSupportedHostDevice(.tv))
     }
 
-    func testTwentyNineModeAuditMatrixIncludesWatchOnlyBasketballTraining() throws {
+    func testPhoneModeAuditMatrixIncludesBasketballTraining() {
         let phoneModes = GameCatalog.scoreboardItems.count
             + GameCatalog.scoreboardItems.map(\.gameType).filter(\.supportsSinglesAndDoubles).count
         XCTAssertEqual(phoneModes, 37)
-
-        let repositoryRoot = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-        let managerSource = try String(
-            contentsOf: repositoryRoot.appendingPathComponent("jifenWatch Watch App/Managers/WatchRecordManager.swift"),
-            encoding: .utf8
-        )
-        XCTAssertTrue(managerSource.contains("record.gameType != .basketballTraining"))
+        XCTAssertTrue(GameCatalog.scoreboardItems.contains { $0.gameType == .basketballTraining })
     }
 
     func testPickleballUsesTableTennisIcon() throws {

@@ -7,6 +7,12 @@ struct WatchPillRow: View {
     let title: String
     var subtitle: String? = nil
     var trailingIcon: String? = nil
+    var trailingSystemImage: String? = nil
+    var trailingTint: Color = WatchTheme.accent
+
+    private var hasTrailingAccessory: Bool {
+        trailingSystemImage != nil || trailingIcon != nil
+    }
 
     var body: some View {
         HStack(spacing: 12) {
@@ -25,8 +31,8 @@ struct WatchPillRow: View {
                 Text(title)
                     .font(.system(size: 16, weight: .regular))
                     .foregroundColor(WatchTheme.primaryText)
-                    .lineLimit(trailingIcon == nil ? 1 : 2)
-                    .minimumScaleFactor(trailingIcon == nil ? 0.75 : 1)
+                    .lineLimit(subtitle == nil ? 2 : 1)
+                    .minimumScaleFactor(0.8)
                     .multilineTextAlignment(.leading)
 
                 if let subtitle = subtitle {
@@ -37,10 +43,15 @@ struct WatchPillRow: View {
                 }
             }
             .layoutPriority(1)
-            .padding(.trailing, trailingIcon == nil ? 0 : 6)
+            .padding(.trailing, hasTrailingAccessory ? 6 : 0)
             .frame(maxWidth: .infinity, alignment: .leading)
 
-            if let trailingIcon {
+            if let trailingSystemImage {
+                Image(systemName: trailingSystemImage)
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(trailingTint)
+                    .accessibilityHidden(true)
+            } else if let trailingIcon {
                 Text(trailingIcon)
                     .font(.system(size: 14))
             }

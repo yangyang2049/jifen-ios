@@ -3,6 +3,9 @@ import UIKit
 
 struct MainTabView: View {
     @Environment(SessionStore.self) private var session
+    @Environment(PhoneWatchLinkService.self) private var watchLinkService: PhoneWatchLinkService?
+    @Environment(WatchLinkIntroPresentation.self) private var watchLinkIntro: WatchLinkIntroPresentation?
+    @Environment(\.scenePhase) private var scenePhase
     @State private var showWechatBinding = false
     @State private var showBindingLogin = false
     @State private var bindingRequested = false
@@ -26,8 +29,33 @@ struct MainTabView: View {
             )
         }
         .tint(Theme.accentColor)
+        .sheet(isPresented: watchLinkIntroBinding, onDismiss: { watchLinkIntro?.dismiss() }) {
+            if let artwork = watchLinkIntro?.artwork {
+                WatchLinkIntroSheet(artwork: artwork)
+                    .onAppear { watchLinkIntro?.sheetDidAppear() }
+            }
+        }
+        // 兜底：下拉关闭、或 present 之后被系统收起时也复位遮罩状态，
+        // 不能只依赖 onDismiss（present 失败时它根本不会回调）。
+        .onChange(of: watchLinkIntro?.isPresented) { _, presented in
+            guard presented != true else { return }
+            watchLinkIntro?.dismiss()
+        }
+        .task(id: canPresentWatchLinkIntro) {
+            guard canPresentWatchLinkIntro else { return }
+            // Give a launch notification or deep link a chance to select its destination.
+            await Task.yield()
+            guard !Task.isCancelled, canPresentWatchLinkIntro else { return }
+            watchLinkIntro?.present()
+        }
         .sheet(isPresented: Binding(
-            get: { previewsWechatBindingPrompt || (session.presentsWechatUpgradePrompt && selectedGame == nil && groupInvitation == nil && !VipCommunityAvailability.shared.isPresenting) },
+            get: {
+                guard watchLinkIntro?.reservesLaunchPresentation != true else { return false }
+                return previewsWechatBindingPrompt || (
+                    session.presentsWechatUpgradePrompt && selectedGame == nil
+                        && groupInvitation == nil && !VipCommunityAvailability.shared.isPresenting
+                )
+            },
             set: { if !$0 { dismissBindingPrompt() } }
         ), onDismiss: {
             guard bindingRequested else { return }
@@ -66,6 +94,25 @@ struct MainTabView: View {
         .onChange(of: selectedTab) { oldValue, newValue in
             configureTabBarPresentation()
         }
+    }
+
+    private var canPresentWatchLinkIntro: Bool {
+        guard let watchLinkIntro,
+              watchLinkIntro.hasLaunchPriority,
+              !watchLinkIntro.wasDismissed,
+              !watchLinkIntro.isPresented,
+              // 与微信绑定弹层同一口径：社群邀请卡在场时不再叠加介绍页。
+              !VipCommunityAvailability.shared.isPresenting else { return false }
+        return scenePhase == .active && selectedTab == 0 && selectedGame == nil
+            && groupInvitation == nil && GroupPushManager.shared.destination == nil
+            && groupReminders.destination == nil && watchLinkService?.activeSessionId == nil
+    }
+
+    private var watchLinkIntroBinding: Binding<Bool> {
+        Binding(
+            get: { watchLinkIntro?.isPresented == true },
+            set: { watchLinkIntro?.isPresented = $0 }
+        )
     }
 
     private func dismissBindingPrompt() {
