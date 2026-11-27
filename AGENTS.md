@@ -28,3 +28,11 @@ The five test targets hold roughly a third of the repository's Swift (about 57k 
 
 - `VisualAudit` scheme: screenshot capture, walkthrough and localization visual audit. `jifenUITests` classes listed in its `SkippedTests` are excluded from the default `jifen` scheme; add new capture-only classes to that list instead of leaving them in the everyday run.
 - Unit tests (`jifenTests`, watch unit tests, `JifenCore`) stay in the default scheme; they are the regression net and must keep running on every build.
+
+# Localization Resource Boundaries
+
+The 47 locale folders under `jifen/Resources/*.lproj` and `jifenWatch Watch App/Resources/*.lproj` hold about 175k lines, 93% of it generated from `scripts/localization/catalogs/`. `.ignore` keeps them out of default searches while leaving them fully readable.
+
+- Only `en`, `zh-Hans` and `zh-Hant` are authored by hand. Every other locale is generated; edit the catalog and re-run `localize.py`, never the `.lproj` file directly.
+- When a new user-facing string is needed, add the `en` row plus a catalog row for each locale, or the locale silently falls back to English. `python3 scripts/localization/localize.py validate --locale <id> --require-reviewed` reports both stale sources and missing rows.
+- `.ignore` excludes non-authored locales, `scripts/localization/catalogs/` and `artifacts/` from default searches. Pass an explicit `path` to search inside them; `read`, `glob` and every build or test command are unaffected.

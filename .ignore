@@ -1,0 +1,10 @@
+jifen/Resources/*.lproj/
+!jifen/Resources/en.lproj/
+!jifen/Resources/zh-Hans.lproj/
+!jifen/Resources/zh-Hant.lproj/
+jifenWatch Watch App/Resources/*.lproj/
+!jifenWatch Watch App/Resources/en.lproj/
+!jifenWatch Watch App/Resources/zh-Hans.lproj/
+!jifenWatch Watch App/Resources/zh-Hant.lproj/
+scripts/localization/catalogs/
+artifacts/
