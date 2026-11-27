@@ -126,7 +126,7 @@ struct MarketingScreenshotFixtureView: View {
             case "multi":
                 MultiScoreboardView(initialSetup: MarketingScreenshotFixture.setup)
             case "rally":
-                BadmintonScoreboardView(initialSetup: MarketingScreenshotFixture.setup)
+                RallyScoreboardLaunch(sport: .badminton, initialSetup: MarketingScreenshotFixture.setup)
             case "snooker":
                 SnookerScoreboardView(initialSetup: MarketingScreenshotFixture.setup)
             case "xhs-shot-fixed", "xhs-shot-free",

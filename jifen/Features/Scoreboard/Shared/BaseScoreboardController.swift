@@ -7,6 +7,7 @@
 
 import Foundation
 import RecordCore
+import ScoreCore
 import UIKit
 
 enum ScoreboardRecordIdentity {
@@ -53,6 +54,38 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         self.undoEnabled = config.enableUndo
         self.swipeScreenshotEnabled = config.enableScreenshot
     }
+
+    static func simpleScore() -> BaseScoreboardController {
+        BaseScoreboardController(config: ScoreboardControllerConfig(gameType: .simpleScore))
+    }
+
+    static func football(gameType: ScoreCore.GameType = .football) -> BaseScoreboardController {
+        BaseScoreboardController(config: ScoreboardControllerConfig(
+            gameType: GameType(scoreCoreGameType: gameType) ?? .football
+        ))
+    }
+
+    static func billiards() -> BaseScoreboardController {
+        BaseScoreboardController(config: ScoreboardControllerConfig(
+            gameType: .billiards,
+            scoringOptions: []
+        ))
+    }
+
+    static func boxing() -> BaseScoreboardController {
+        BaseScoreboardController(config: ScoreboardControllerConfig(
+            gameType: .boxing,
+            scoringOptions: []
+        ))
+    }
+
+    static func archery() -> BaseScoreboardController {
+        BaseScoreboardController(config: ScoreboardControllerConfig(
+            gameType: .archery,
+            maxHistorySize: 80,
+            scoringOptions: []
+        ))
+    }
     
     // MARK: - Vibration
     
@@ -98,7 +131,7 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
     // MARK: - Scoring Options (Override in subclasses)
     
     func getScoringOptions() -> [Int] {
-        return [1] // Default: only +1
+        return config.scoringOptions
     }
     
     // MARK: - Game Recording
@@ -168,6 +201,70 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         )
     }
     
+    func saveRealtimeRecord<Snapshot: Encodable>(
+        id: String,
+        hasProgress: Bool,
+        isFinished: Bool,
+        team1Name: String,
+        team2Name: String,
+        team1FinalScore: Int,
+        team2FinalScore: Int,
+        team1SetScore: Int? = nil,
+        team2SetScore: Int? = nil,
+        winnerComparison: (left: Int, right: Int)? = nil,
+        extraData: [String: Any] = [:],
+        detailedActions: [DetailedScoreAction]? = nil,
+        projectConfiguration: [String: Any]? = nil,
+        snapshot: Snapshot,
+        snapshotErrorLabel: String
+    ) {
+        guard hasProgress else { return }
+
+        let endTime = Date()
+        let duration = endTime.timeIntervalSince(gameStartTime)
+
+        var winnerIdentity: ScoreboardWinnerIdentity?
+        if isFinished {
+            let comparison = winnerComparison ?? (left: team1FinalScore, right: team2FinalScore)
+            if comparison.left > comparison.right {
+                winnerIdentity = .team(.team0)
+            } else if comparison.right > comparison.left {
+                winnerIdentity = .team(.team1)
+            }
+        }
+
+        let snapshotData: Data
+        do {
+            snapshotData = try JSONEncoder().encode(snapshot)
+        } catch {
+            ScoreboardPersistenceFailureReporter.report(
+                error,
+                context: "Failed to encode \(snapshotErrorLabel) record \(id)"
+            )
+            return
+        }
+
+        saveScoreboardRecord(
+            id: id,
+            endTime: endTime,
+            duration: duration,
+            team1Name: team1Name,
+            team2Name: team2Name,
+            team1FinalScore: team1FinalScore,
+            team2FinalScore: team2FinalScore,
+            team1SetScore: team1SetScore,
+            team2SetScore: team2SetScore,
+            winner: winnerIdentity?.legacyToken,
+            winnerIdentity: winnerIdentity,
+            totalScoreChanges: gameActions.count,
+            extraData: extraData,
+            detailedActions: detailedActions,
+            projectConfiguration: projectConfiguration,
+            stateSnapshot: snapshotData,
+            isFinished: isFinished
+        )
+    }
+
     func saveScoreboardRecord(
         id: String,
         endTime: Date,
@@ -179,6 +276,7 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
         team1SetScore: Int?,
         team2SetScore: Int?,
         winner: String?,
+        winnerIdentity: ScoreboardWinnerIdentity? = nil,
         totalScoreChanges: Int,
         extraData: [String: Any],
         detailedActions: [DetailedScoreAction]? = nil,
@@ -202,7 +300,8 @@ class BaseScoreboardController: BaseScoreboardControllerProtocol {
             team2FinalScore: team2FinalScore,
             team1SetScore: team1SetScore,
             team2SetScore: team2SetScore,
-            winner: winner,
+            winner: winner ?? winnerIdentity?.legacyToken,
+            winnerIdentity: winnerIdentity,
             actions: gameActions,
             detailedActions: detailedActions,
             setResults: detailedActions.map { ScoreboardRecordActionAdapter.setResults(from: $0) },

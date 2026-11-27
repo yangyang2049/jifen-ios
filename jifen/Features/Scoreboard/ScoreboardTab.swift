@@ -61,7 +61,7 @@ struct ScoreboardTab: View {
                     alignment: pendingSetupSport?.gameType == .multiScoreboard ? .bottom : .center
                 ) { sport, dismiss, maxDialogHeight in
                     scoreboardSetupDialog(
-                        for: sport,
+                        for: sport.gameType,
                         maxDialogHeight: maxDialogHeight,
                         onConfirm: { result in
                             AppAnalytics.scoreSetupConfirmed(
@@ -163,83 +163,6 @@ struct ScoreboardTab: View {
             }
         }
     }
-
-    @ViewBuilder
-    private func scoreboardSetupDialog(
-        for sport: ScoreboardCatalogItem,
-        maxDialogHeight: CGFloat,
-        onConfirm: @escaping (SportsSetupResult) -> Void,
-        onCancel: @escaping () -> Void
-    ) -> some View {
-        if sport.gameType == .basketballTraining {
-            ShotTrainingSetupDialogView(
-                maxDialogHeight: maxDialogHeight,
-                allowsStartOnWatch: true,
-                onConfirm: onConfirm,
-                onCancel: onCancel
-            )
-        } else if sport.gameType == .nineBall {
-            NineBallSetupDialogView(
-                maxDialogHeight: maxDialogHeight,
-                onConfirm: onConfirm,
-                onCancel: onCancel
-            )
-        } else if Self.isCasualSetupGame(sport.gameType) {
-            let defaults = DefaultParticipantNames.resolve(for: sport.gameType)
-            MultiScoreSetupDialogView(
-                gameType: sport.gameType,
-                defaultPlayerCount: Self.casualDefaultPlayerCount(for: sport.gameType),
-                defaultTeam1Name: defaults.left,
-                defaultTeam2Name: defaults.right,
-                initialTargetScore: PreferencesManager.shared.unoTargetScore,
-                titleEmoji: sport.emoji,
-                titleKey: localizationKey(for: sport.gameType),
-                titleFallback: sport.title,
-                maxDialogHeight: maxDialogHeight,
-                onConfirm: onConfirm,
-                onCancel: onCancel
-            )
-        } else {
-            let defaults = DefaultParticipantNames.resolve(for: sport.gameType)
-            SportsSetupDialogView(
-                gameType: sport.gameType,
-                defaultTeam1Name: defaults.left,
-                defaultTeam2Name: defaults.right,
-                initialMaxSets: nil,
-                initialPointsPerSet: nil,
-                initialTieBreakPoints: nil,
-                maxDialogHeight: maxDialogHeight,
-                onConfirm: onConfirm,
-                onCancel: onCancel
-            )
-        }
-    }
-
-    private static func isCasualSetupGame(_ gameType: GameType) -> Bool {
-        [.multiScoreboard, .doudizhu, .uno, .guandan, .shengji, .simpleScore].contains(gameType)
-    }
-
-    private static func casualDefaultPlayerCount(for gameType: GameType) -> Int {
-        switch gameType {
-        case .doudizhu: return 3
-        case .uno: return PreferencesManager.shared.unoPlayerCount
-        case .multiScoreboard: return PreferencesManager.shared.multiScoreboardPlayerCount
-        default: return 4
-        }
-    }
-
-    private func localizationKey(for gameType: GameType) -> String {
-        switch gameType {
-        case .doudizhu: return "game_doudizhu"
-        case .nineBall: return "game_nine_ball"
-        case .uno: return "game_uno"
-        case .guandan: return "game_guandan"
-        case .shengji: return "game_shengji"
-        case .simpleScore: return "game_simple_score"
-        default: return "game_multi_scoreboard"
-        }
-    }
-
 }
 
 struct SportCardView: View {

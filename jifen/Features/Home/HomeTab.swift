@@ -1043,70 +1043,6 @@ struct HomeTab: View {
     }
 
     @ViewBuilder
-    private func scoreboardSetupDialog(
-        for gameType: GameType,
-        maxDialogHeight: CGFloat,
-        onConfirm: @escaping (SportsSetupResult) -> Void,
-        onCancel: @escaping () -> Void
-    ) -> some View {
-        if gameType == .basketballTraining {
-            ShotTrainingSetupDialogView(
-                maxDialogHeight: maxDialogHeight,
-                allowsStartOnWatch: true,
-                onConfirm: onConfirm,
-                onCancel: onCancel
-            )
-        } else if gameType == .nineBall {
-            NineBallSetupDialogView(
-                maxDialogHeight: maxDialogHeight,
-                onConfirm: onConfirm,
-                onCancel: onCancel
-            )
-        } else if Self.isCasualSetupGame(gameType) {
-            let defaults = DefaultParticipantNames.resolve(for: gameType)
-            MultiScoreSetupDialogView(
-                gameType: gameType,
-                defaultPlayerCount: Self.casualDefaultPlayerCount(for: gameType),
-                defaultTeam1Name: defaults.left,
-                defaultTeam2Name: defaults.right,
-                initialTargetScore: PreferencesManager.shared.unoTargetScore,
-                titleEmoji: gameType.icon,
-                titleKey: Self.localizationKey(for: gameType),
-                titleFallback: gameType.displayName,
-                maxDialogHeight: maxDialogHeight,
-                onConfirm: onConfirm,
-                onCancel: onCancel
-            )
-        } else {
-            let defaults = DefaultParticipantNames.resolve(for: gameType)
-            SportsSetupDialogView(
-                gameType: gameType,
-                defaultTeam1Name: defaults.left,
-                defaultTeam2Name: defaults.right,
-                initialMaxSets: nil,
-                initialPointsPerSet: nil,
-                initialTieBreakPoints: nil,
-                maxDialogHeight: maxDialogHeight,
-                onConfirm: onConfirm,
-                onCancel: onCancel
-            )
-        }
-    }
-
-    private static func isCasualSetupGame(_ gameType: GameType) -> Bool {
-        [.multiScoreboard, .doudizhu, .uno, .guandan, .shengji, .simpleScore].contains(gameType)
-    }
-
-    private static func casualDefaultPlayerCount(for gameType: GameType) -> Int {
-        switch gameType {
-        case .doudizhu: return 3
-        case .uno: return PreferencesManager.shared.unoPlayerCount
-        case .multiScoreboard: return PreferencesManager.shared.multiScoreboardPlayerCount
-        default: return 4
-        }
-    }
-
-    @ViewBuilder
     private func getScoreboardView(
         for gameType: GameType,
         setupResult: SportsSetupResult? = nil,
@@ -1129,17 +1065,6 @@ struct HomeTab: View {
         .toolbar(.hidden, for: .tabBar)
     }
 
-    private static func localizationKey(for gameType: GameType) -> String {
-        switch gameType {
-        case .doudizhu: return "game_doudizhu"
-        case .nineBall: return "game_nine_ball"
-        case .uno: return "game_uno"
-        case .guandan: return "game_guandan"
-        case .shengji: return "game_shengji"
-        case .simpleScore: return "game_simple_score"
-        default: return "game_multi_scoreboard"
-        }
-    }
     // MARK: - @ViewBuilder Layouts
 
     @ViewBuilder

@@ -1305,10 +1305,17 @@ struct RallyScoreboardView: View {
             return side == .left ? store.state.leftName : store.state.rightName
         }
         let slots = side == .left ? (0, 2) : (1, 3)
-        return FoosballScoreboardView.joinFoosballNames(
+        return joinFoosballNames(
             doubles.playerName(at: slots.0) ?? "",
             doubles.playerName(at: slots.1) ?? ""
         )
+    }
+
+    private func joinFoosballNames(_ first: String, _ second: String) -> String {
+        let a = first.trimmingCharacters(in: .whitespacesAndNewlines)
+        let b = second.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !a.isEmpty && !b.isEmpty { return "\(a)/\(b)" }
+        return a.isEmpty ? b : a
     }
 
     // MARK: - Doubles

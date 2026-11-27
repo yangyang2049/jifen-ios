@@ -2232,20 +2232,37 @@ final class FullAppScreenshotUITests: XCTestCase {
         app.buttons["setup_multi_count_custom"].tap()
         let field = app.textFields["setup_multi_count_custom_input"]
         XCTAssertTrue(field.waitForExistence(timeout: 4))
-        // Appending to 4 leaves the visible draft invalid while the last valid
-        // selection has already advanced to 49. Start must respect the draft.
-        field.typeText("99")
-        XCTAssertEqual(field.value as? String, "499")
         let start = app.buttons["开始"]
+        field.typeText("9")
+        XCTAssertEqual(field.value as? String, "49")
+        XCTAssertTrue(start.isEnabled)
+        field.typeText("9")
+        XCTAssertEqual(field.value as? String, "49")
+
+        let clearTwoDigits = String(repeating: XCUIKeyboardKey.delete.rawValue, count: 2)
+        field.typeText(clearTwoDigits)
+        XCTAssertTrue(field.exists)
         XCTAssertFalse(start.isEnabled)
-        field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: 3))
+        field.typeText("51")
+        XCTAssertEqual(field.value as? String, "51")
         XCTAssertFalse(start.isEnabled)
+        field.typeText(clearTwoDigits)
         field.typeText("50")
         XCTAssertEqual(field.value as? String, "50")
         XCTAssertTrue(start.isEnabled)
-        app.buttons["setup_multi_quick_count_50"].tap()
+        if app.buttons["setup_multi_quick_count_50"].exists {
+            app.staticTexts["多人计分"].firstMatch.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
+        }
+        XCTAssertEqual(field.value as? String, "50")
         XCTAssertTrue(tapStart())
-        XCTAssertTrue(app.buttons["multi_score_next_page"].waitForExistence(timeout: 6))
+        let next = app.buttons["multi_score_next_page"]
+        XCTAssertTrue(next.waitForExistence(timeout: 6))
+        for _ in 0..<50 {
+            guard next.isEnabled else { break }
+            next.tap()
+        }
+        assertReleaseMultiScore("0", at: 49)
+        XCTAssertFalse(releaseMultiScore(50).exists)
     }
 
     // 同一组交互回归可在 SE 2 真机与模拟器运行，不清空用户数据或保存测试预约。

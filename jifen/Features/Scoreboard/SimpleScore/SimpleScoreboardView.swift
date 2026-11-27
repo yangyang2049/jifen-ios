@@ -17,7 +17,7 @@ struct SimpleScoreboardView: View {
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
-    @State private var controller: SimpleScoreboardController
+    @State private var controller: BaseScoreboardController
     @State private var viewModel: LineScoreViewModel
     @State private var responsiveScoreFontSize: CGFloat = ScoreboardConstants.baseMainScoreFontSize
     @State private var customAdjustEnabled: Bool
@@ -39,7 +39,7 @@ struct SimpleScoreboardView: View {
         self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
-        let c = SimpleScoreboardController()
+        let c = BaseScoreboardController.simpleScore()
         _controller = State(initialValue: c)
         _viewModel = State(initialValue: LineScoreViewModel(
             controller: c,
@@ -308,51 +308,24 @@ struct SimpleScoreboardView: View {
     }
 
     private func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+        let finished = isGameFinished || viewModel.gameFinished
         let hasProgress = !controller.getGameActions().isEmpty
             || viewModel.leftTeam.score != 0
             || viewModel.rightTeam.score != 0
-            || isGameFinished
-            || viewModel.gameFinished
-        guard hasProgress else { return }
-
-        let finished = isGameFinished || viewModel.gameFinished
-        let endTime = Date()
-        let start = controller.getGameStartTime()
-        var winner: String?
-        if finished {
-            if viewModel.leftTeam.score > viewModel.rightTeam.score {
-                winner = "left"
-            } else if viewModel.rightTeam.score > viewModel.leftTeam.score {
-                winner = "right"
-            }
-        }
-
+            || finished
         let resumeState = LineScoreResumeState(
             state: viewModel.sessionState,
             undoHistory: viewModel.resumeHistory,
             intentTimeline: controller.getGameActions()
         )
-        let snapshotData: Data
-        do {
-            snapshotData = try JSONEncoder().encode(resumeState)
-        } catch {
-            ScoreboardPersistenceFailureReporter.report(
-                error,
-                context: "Failed to encode simple score record \(recordID)"
-            )
-            return
-        }
-
-        controller.saveScoreboardRecord(
+        controller.saveRealtimeRecord(
             id: recordID,
-            endTime: endTime,
-            duration: endTime.timeIntervalSince(start),
+            hasProgress: hasProgress,
+            isFinished: finished,
             team1Name: viewModel.leftTeam.name,
             team2Name: viewModel.rightTeam.name,
             team1FinalScore: viewModel.leftTeam.score,
             team2FinalScore: viewModel.rightTeam.score,
-            winner: winner,
-            totalScoreChanges: controller.getGameActions().count,
             extraData: [
                 "multiScoreCustomAdjustEnabled": customAdjustEnabled,
                 "showMatchTime": matchClockSession?.isVisible ?? false
@@ -363,8 +336,8 @@ struct SimpleScoreboardView: View {
                 "maximumScore": LineScoreRuleSet.freeCounter.maximum,
                 "showMatchTime": matchClockSession?.isVisible ?? false
             ],
-            stateSnapshot: snapshotData,
-            isFinished: finished
+            snapshot: resumeState,
+            snapshotErrorLabel: "simple score"
         )
     }
 }

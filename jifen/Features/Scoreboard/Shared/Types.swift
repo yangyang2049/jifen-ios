@@ -244,6 +244,32 @@ enum GameType: String, Codable, CaseIterable, Sendable {
     var scoreCoreGameType: ScoreCore.GameType? {
         ScoreCore.GameType(rawValue: canonicalScoreboardIdentifier)
     }
+
+    /// 是否区分单打/双打两个计分板类型。
+    var supportsSinglesAndDoubles: Bool {
+        switch self {
+        case .pingpong, .badminton, .tennis, .pickleball, .foosball, .softTennis, .padel, .shuttlecock: return true
+        default: return false
+        }
+    }
+
+    /// 应用层项目 → ScoreCore 精确计分板类型，单双打通吃。
+    /// 与 `init?(scoreCoreGameType:)` 互为反向，两者收在一处，避免调用方跨功能借用。
+    func scoreCoreGameType(isSingles: Bool) -> ScoreCore.GameType? {
+        switch self {
+        case .pingpong: return isSingles ? .pingpong : .pingpongDoubles
+        case .badminton: return isSingles ? .badminton : .badmintonDoubles
+        case .tennis: return isSingles ? .tennis : .tennisDoubles
+        case .pickleball: return isSingles ? .pickleball : .pickleballDoubles
+        case .foosball: return isSingles ? .foosball : .foosballDoubles
+        case .shuttlecock: return .shuttlecock
+        case .squash: return .squash
+        case .softTennis: return .softTennis
+        case .padel: return .padel
+        case .football5v5: return .football5v5
+        default: return scoreCoreGameType
+        }
+    }
 }
 
 // MARK: - Team Data
@@ -301,19 +327,22 @@ struct ScoreboardControllerConfig {
     let enableScreenshot: Bool
     let enableUndo: Bool
     let maxHistorySize: Int
+    let scoringOptions: [Int]
     
     init(
         gameType: GameType,
         enableRecording: Bool = true,
         enableScreenshot: Bool = true,
         enableUndo: Bool = true,
-        maxHistorySize: Int = 50
+        maxHistorySize: Int = 50,
+        scoringOptions: [Int] = [1]
     ) {
         self.gameType = gameType
         self.enableRecording = enableRecording
         self.enableScreenshot = enableScreenshot
         self.enableUndo = enableUndo
         self.maxHistorySize = maxHistorySize
+        self.scoringOptions = scoringOptions
     }
 }
 

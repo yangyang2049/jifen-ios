@@ -27,7 +27,7 @@ struct BilliardsScoreboardView: View {
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
-    @State private var controller: BilliardsScoreboardController
+    @State private var controller: BaseScoreboardController
     @State private var viewModel: LineScoreViewModel
     @State private var responsiveScoreFontSize: CGFloat = ScoreboardConstants.baseMainScoreFontSize
     @State private var showGameOverDialog = false
@@ -45,7 +45,7 @@ struct BilliardsScoreboardView: View {
         self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
-        let c = BilliardsScoreboardController()
+        let c = BaseScoreboardController.billiards()
         _controller = State(initialValue: c)
         _viewModel = State(initialValue: LineScoreViewModel(
             controller: c,
@@ -213,72 +213,35 @@ struct BilliardsScoreboardView: View {
     }
 
     private func saveGameRecordInRealTime(isGameFinished: Bool = false) {
+        let finished = isGameFinished || viewModel.gameFinished
         let hasProgress = !controller.getGameActions().isEmpty
             || viewModel.leftTeam.score != 0
             || viewModel.rightTeam.score != 0
-            || isGameFinished
-            || viewModel.gameFinished
-        guard hasProgress else { return }
-
-        let finished = isGameFinished || viewModel.gameFinished
-        let endTime = Date()
-        let start = controller.getGameStartTime()
-        var winner: String?
-        if finished {
-            if viewModel.leftTeam.score > viewModel.rightTeam.score {
-                winner = "left"
-            } else if viewModel.rightTeam.score > viewModel.leftTeam.score {
-                winner = "right"
-            }
-        }
-
+            || finished
         let resumeState = LineScoreResumeState(
             state: viewModel.sessionState,
             undoHistory: viewModel.resumeHistory,
             intentTimeline: controller.getGameActions()
         )
-        let snapshotData: Data
-        do {
-            snapshotData = try JSONEncoder().encode(resumeState)
-        } catch {
-            ScoreboardPersistenceFailureReporter.report(error, context: "Failed to encode billiards record \(recordID)")
-            return
-        }
-        var record = ScoreboardRecord(
+        controller.saveRealtimeRecord(
             id: recordID,
-            gameType: .billiards,
-            startTime: start,
-            endTime: endTime,
-            duration: endTime.timeIntervalSince(start),
+            hasProgress: hasProgress,
+            isFinished: finished,
             team1Name: viewModel.leftTeam.name,
             team2Name: viewModel.rightTeam.name,
             team1FinalScore: viewModel.leftTeam.score,
             team2FinalScore: viewModel.rightTeam.score,
-            winner: winner,
-            actions: controller.getGameActions(),
-            totalScoreChanges: controller.getGameActions().count,
             extraData: [
-                "schemaVersion": AnyCodable(4),
-                "canonicalGameType": AnyCodable(GameType.billiards.canonicalScoreboardIdentifier)
+                "schemaVersion": ScoreboardRecord.currentSchemaVersion,
+                "canonicalGameType": GameType.billiards.canonicalScoreboardIdentifier
             ],
             projectConfiguration: [
-                "minimumScore": AnyCodable(0),
-                "maximumScore": AnyCodable(9_999)
+                "minimumScore": 0,
+                "maximumScore": 9_999
             ],
-            stateSnapshot: snapshotData,
-            status: .finished
+            snapshot: resumeState,
+            snapshotErrorLabel: "billiards"
         )
-        let detailed = ScoreboardRecordActionAdapter.actions(for: record)
-        record.detailedActions = detailed
-        record.setResults = ScoreboardRecordActionAdapter.setResults(from: detailed)
-        do {
-            try ScoreboardLifecyclePersistence.save(record, finished: finished)
-            if finished {
-                ScoreboardRecordsViewModel.shared.refreshRecords()
-            }
-        } catch {
-            ScoreboardPersistenceFailureReporter.report(error, context: "Failed to save billiards record \(recordID)")
-        }
     }
 }
 

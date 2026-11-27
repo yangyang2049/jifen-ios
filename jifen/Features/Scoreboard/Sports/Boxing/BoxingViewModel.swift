@@ -128,58 +128,29 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
     }
 
     func saveGameRecordInRealTime(recordID: String, isGameFinished: Bool = false) {
+        let finished = isGameFinished || gameFinished
         let hasProgress = !(controller?.getGameActions().isEmpty ?? true)
             || leftTeam.score != 0
             || rightTeam.score != 0
             || (leftTeam.sets ?? 0) != 0
             || (rightTeam.sets ?? 0) != 0
-            || isGameFinished
-            || gameFinished
-        guard hasProgress else { return }
-
-        let finished = isGameFinished || gameFinished
-        let start = controller?.getGameStartTime() ?? Date()
-        let end = Date()
-
-        var winner: String?
-        if finished {
-            let leftSets = leftTeam.sets ?? 0
-            let rightSets = rightTeam.sets ?? 0
-            if leftSets > rightSets {
-                winner = "left"
-            } else if rightSets > leftSets {
-                winner = "right"
-            }
-        }
-
+            || finished
         let resumeState = BoxingResumeState(
             state: matchState,
             undoHistory: fullStateHistory,
             intentTimeline: controller?.getGameActions() ?? []
         )
-        let snapshotData: Data
-        do {
-            snapshotData = try JSONEncoder().encode(resumeState)
-        } catch {
-            ScoreboardPersistenceFailureReporter.report(
-                error,
-                context: "Failed to encode boxing record \(recordID)"
-            )
-            return
-        }
-
-        controller?.saveScoreboardRecord(
+        controller?.saveRealtimeRecord(
             id: recordID,
-            endTime: end,
-            duration: end.timeIntervalSince(start),
+            hasProgress: hasProgress,
+            isFinished: finished,
             team1Name: leftTeam.name,
             team2Name: rightTeam.name,
             team1FinalScore: leftTeam.score,
             team2FinalScore: rightTeam.score,
             team1SetScore: leftTeam.sets,
             team2SetScore: rightTeam.sets,
-            winner: winner,
-            totalScoreChanges: controller?.getGameActions().count ?? 0,
+            winnerComparison: (left: leftTeam.sets ?? 0, right: rightTeam.sets ?? 0),
             extraData: [
                 "currentRound": currentRound,
                 "maxRounds": maxRounds,
@@ -190,8 +161,8 @@ class BoxingViewModel: BaseScoreViewModel, ScoreEditGuarding {
                 ScoreboardRecordConfiguration.Key.scoreCoreGameType: ScoreCore.GameType.boxing.rawValue,
                 "maxRounds": maxRounds
             ],
-            stateSnapshot: snapshotData,
-            isFinished: finished
+            snapshot: resumeState,
+            snapshotErrorLabel: "boxing"
         )
     }
 

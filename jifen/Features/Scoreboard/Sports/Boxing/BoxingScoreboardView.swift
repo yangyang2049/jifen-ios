@@ -15,7 +15,7 @@ struct BoxingScoreboardView: View {
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
-    @State private var controller: BoxingScoreboardController
+    @State private var controller: BaseScoreboardController
     @State private var viewModel: BoxingViewModel
     @State private var typographySession = ScoreboardTypographySession(
         styleID: ScoreboardStyleID(gameType: .boxing)
@@ -39,7 +39,7 @@ struct BoxingScoreboardView: View {
         self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.onNavigationBack = onNavigationBack
-        let controller = BoxingScoreboardController()
+        let controller = BaseScoreboardController.boxing()
         _controller = State(initialValue: controller)
         _viewModel = State(initialValue: BoxingViewModel(controller: controller))
         _recordID = State(initialValue: ScoreboardRecordIdentity.initial(

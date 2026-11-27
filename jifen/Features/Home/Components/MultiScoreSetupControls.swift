@@ -81,6 +81,7 @@ struct MultiScoreCountSelector: View {
 
     @State private var customMode: Bool
     @State private var draft: String
+    @State private var lastAcceptedCount: Int
     @State private var showQuickCounts = false
     @FocusState private var customFieldFocused: Bool
 
@@ -90,6 +91,7 @@ struct MultiScoreCountSelector: View {
         self.onValidationChange = onValidationChange
         _customMode = State(initialValue: playerCount > 9)
         _draft = State(initialValue: "\(playerCount)")
+        _lastAcceptedCount = State(initialValue: playerCount)
     }
 
     private var parsedDraft: Int? {
@@ -148,8 +150,9 @@ struct MultiScoreCountSelector: View {
         .onAppear { onValidationChange(isValid) }
         .onChange(of: isValid) { _, valid in onValidationChange(valid) }
         .onChange(of: playerCount) { _, newValue in
-            // 恢复偏好或批量输入时同步显示，不覆盖正在输入的本机草稿。
-            guard parsedDraft != newValue else { return }
+            // 本地编辑已更新草稿，父层回传人数时不能重置正在编辑的输入框。
+            guard newValue != lastAcceptedCount else { return }
+            lastAcceptedCount = newValue
             customMode = newValue > 9
             draft = "\(newValue)"
         }
@@ -158,15 +161,7 @@ struct MultiScoreCountSelector: View {
     private var customCountField: some View {
         TextField(
             "",
-            text: Binding(
-                get: { draft },
-                set: { raw in
-                    draft = normalizedDecimalDigits(raw, limit: 3)
-                    if let value = parsedDraft {
-                        onPlayerCountChange(value)
-                    }
-                }
-            ),
+            text: $draft,
             prompt: Text(NSLocalizedString("multi_score_count_placeholder", value: "3–50", comment: ""))
                 .foregroundColor(Theme.textOnPrimary.opacity(0.7))
         )
@@ -178,6 +173,18 @@ struct MultiScoreCountSelector: View {
         .background(Theme.primary)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .focused($customFieldFocused)
+        .onChange(of: draft) { oldValue, newValue in
+            let digits = normalizedDecimalDigits(newValue, limit: 3)
+            if digits.count > 2 {
+                draft = oldValue
+                return
+            }
+            if digits != newValue { draft = digits }
+            if let value = MultiScoreCapacity.parsePlayerCount(digits), value != lastAcceptedCount {
+                lastAcceptedCount = value
+                onPlayerCountChange(value)
+            }
+        }
         .onTapGesture { showQuickCounts = true }
         .onChange(of: customFieldFocused) { _, focused in
             if focused { showQuickCounts = true }
@@ -230,6 +237,7 @@ struct MultiScoreCountSelector: View {
         draft = "\(count)"
         showQuickCounts = false
         customFieldFocused = false
+        lastAcceptedCount = count
         onPlayerCountChange(count)
     }
 }

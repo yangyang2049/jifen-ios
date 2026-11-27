@@ -1020,31 +1020,6 @@ enum ScoreboardRecordConfiguration {
     }
 }
 
-extension GameType {
-    var supportsSinglesAndDoubles: Bool {
-        switch self {
-        case .pingpong, .badminton, .tennis, .pickleball, .foosball, .softTennis, .padel, .shuttlecock: return true
-        default: return false
-        }
-    }
-
-    func scoreCoreGameType(isSingles: Bool) -> ScoreCore.GameType? {
-        switch self {
-        case .pingpong: return isSingles ? .pingpong : .pingpongDoubles
-        case .badminton: return isSingles ? .badminton : .badmintonDoubles
-        case .tennis: return isSingles ? .tennis : .tennisDoubles
-        case .pickleball: return isSingles ? .pickleball : .pickleballDoubles
-        case .foosball: return isSingles ? .foosball : .foosballDoubles
-        case .shuttlecock: return .shuttlecock
-        case .squash: return .squash
-        case .softTennis: return .softTennis
-        case .padel: return .padel
-        case .football5v5: return .football5v5
-        default: return scoreCoreGameType
-        }
-    }
-}
-
 extension ScoreCore.GameType {
     var isDoublesScoreboard: Bool {
         switch self {

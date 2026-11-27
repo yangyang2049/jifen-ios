@@ -757,7 +757,7 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertNotNil(UUID(uuidString: nextID))
         XCTAssertNotEqual(freshID, nextID)
 
-        let controller = BilliardsScoreboardController()
+        let controller = BaseScoreboardController.billiards()
         controller.gameActions = ["old-action"]
         controller.gameRecordSaved = true
         let newStart = Date(timeIntervalSince1970: 123)
@@ -1592,7 +1592,7 @@ final class ScoreboardCatalogTests: XCTestCase {
         )
         XCTAssertEqual(lineResume.schemaVersion, 1)
         let lineViewModel = LineScoreViewModel(
-            controller: SimpleScoreboardController(),
+            controller: BaseScoreboardController.simpleScore(),
             rules: .nonNegative
         )
         lineViewModel.restoreSession(lineResume)
@@ -1622,7 +1622,7 @@ final class ScoreboardCatalogTests: XCTestCase {
             ))
         )
         XCTAssertEqual(boxingResume.schemaVersion, 1)
-        let boxingViewModel = BoxingViewModel(controller: BoxingScoreboardController())
+        let boxingViewModel = BoxingViewModel(controller: BaseScoreboardController.boxing())
         boxingViewModel.restoreSession(boxingResume)
         XCTAssertEqual(boxingViewModel.leftTeam.name, "红拳手")
         XCTAssertEqual(boxingViewModel.rightTeam.name, "蓝拳手")
@@ -1666,7 +1666,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testBoxingRestoredSessionKeepsUndoAndNewMatchClearsIt() {
-        let controller = BoxingScoreboardController()
+        let controller = BaseScoreboardController.boxing()
         let viewModel = BoxingViewModel(controller: controller)
         let beforeRound = BoxingMatchState(leftName: "A", rightName: "B", maxRounds: 3)
         let afterRound = BoxingMatchState(
@@ -1696,7 +1696,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testFootballRestoredSessionKeepsUndoAndNewLifecycleClearsControllerState() {
-        let controller = FootballScoreboardController()
+        let controller = BaseScoreboardController.football()
         let viewModel = FootballViewModel(controller: controller)
         let initial = LineScoreState(leftName: "主队", rightName: "客队")
         let scored = LineScoreState(
@@ -1724,7 +1724,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testPublishedFootballDraftResumesAtTheSameScoreAndPeriod() throws {
-        let controller = FootballScoreboardController(gameType: .football5v5)
+        let controller = BaseScoreboardController.football(gameType: .football5v5)
         let viewModel = FootballViewModel(controller: controller, gameType: .football5v5)
         let draft = FootballResumeStateV2(
             lineScore: .init(
@@ -1748,7 +1748,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testFootballScoreUndoDoesNotConsumeInterleavedStoppageHistory() {
-        let controller = FootballScoreboardController()
+        let controller = BaseScoreboardController.football()
         let viewModel = FootballViewModel(controller: controller, gameType: .football)
 
         viewModel.addStoppage(60)
@@ -1772,7 +1772,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testFiveAsideClockToggleDoesNotStealFollowingGoalUndo() {
-        let controller = FootballScoreboardController(gameType: .football5v5)
+        let controller = BaseScoreboardController.football(gameType: .football5v5)
         let viewModel = FootballViewModel(
             controller: controller,
             gameType: .football5v5,
@@ -1794,7 +1794,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testFootballDedicatedStoppageUndoDoesNotResurrectViaScoreUndo() {
-        let controller = FootballScoreboardController()
+        let controller = BaseScoreboardController.football()
         let viewModel = FootballViewModel(controller: controller, gameType: .football)
 
         viewModel.addScore(isLeft: true, points: 1)
@@ -1812,7 +1812,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testLineScoreFreshMatchRestoresOriginalSidesAndClearsFinishedState() {
-        let controller = SimpleScoreboardController()
+        let controller = BaseScoreboardController.simpleScore()
         let viewModel = LineScoreViewModel(controller: controller, rules: .freeCounter)
         viewModel.leftTeam.name = "A"
         viewModel.rightTeam.name = "B"
@@ -1915,8 +1915,8 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(rules.finalSetPointCap, 10)
         XCTAssertEqual(rules.pointCap, nil)
         XCTAssertEqual(rules.servingModel, .concedingSideServes)
-        XCTAssertEqual(FoosballScoreboardView.openingServer(for: setup), .right)
-        XCTAssertEqual(FoosballScoreboardView.openingServer(for: nil), .left)
+        XCTAssertEqual(RallyScoreboardLaunch.openingServer(for: setup), .right)
+        XCTAssertEqual(RallyScoreboardLaunch.openingServer(for: nil), .left)
     }
 
     func testFoosballSetupRejectsScoreCapBelowTarget() {
@@ -2071,7 +2071,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testFootballBoundariesExchangeUndoResetAndFinishLock() {
-        let controller = FootballScoreboardController()
+        let controller = BaseScoreboardController.football()
         let viewModel = FootballViewModel(controller: controller)
         viewModel.leftTeam.name = "主队"
         viewModel.rightTeam.name = "客队"
@@ -2107,7 +2107,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testBoxingFinalRoundUndoRestoresAnEditableMatch() {
-        let controller = BoxingScoreboardController()
+        let controller = BaseScoreboardController.boxing()
         let viewModel = BoxingViewModel(controller: controller)
         viewModel.leftTeam.name = "红方"
         viewModel.rightTeam.name = "蓝方"
@@ -2138,7 +2138,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testGenericBilliardsScoreBoundariesAndUndo() {
-        let controller = BilliardsScoreboardController()
+        let controller = BaseScoreboardController.billiards()
         let viewModel = BaseScoreViewModel(controller: controller, scoreRange: 0 ... 9999)
 
         XCTAssertEqual(controller.getScoringOptions(), [])
@@ -2151,7 +2151,7 @@ final class ScoreboardCatalogTests: XCTestCase {
     }
 
     func testSimpleScoreAllowsNegativeValuesButRespectsHardBounds() {
-        let controller = SimpleScoreboardController()
+        let controller = BaseScoreboardController.simpleScore()
         let viewModel = LineScoreViewModel(controller: controller, rules: .freeCounter)
 
         viewModel.adjustScore(isLeft: true, delta: -20_000)
@@ -2160,6 +2160,72 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(viewModel.leftTeam.score, 9999)
         XCTAssertTrue(viewModel.undo())
         XCTAssertEqual(viewModel.leftTeam.score, -9999)
+    }
+
+    func testBaseScoreboardControllerFactoriesAndRealtimeSave() throws {
+        let simple = BaseScoreboardController.simpleScore()
+        XCTAssertEqual(simple.config.gameType, .simpleScore)
+        XCTAssertEqual(simple.getScoringOptions(), [1])
+
+        let football = BaseScoreboardController.football()
+        XCTAssertEqual(football.config.gameType, .football)
+        XCTAssertEqual(football.getScoringOptions(), [1])
+
+        let football5v5 = BaseScoreboardController.football(gameType: .football5v5)
+        XCTAssertEqual(football5v5.config.gameType, .football5v5)
+        XCTAssertEqual(football5v5.getScoringOptions(), [1])
+
+        let billiards = BaseScoreboardController.billiards()
+        XCTAssertEqual(billiards.config.gameType, .billiards)
+        XCTAssertEqual(billiards.getScoringOptions(), [])
+
+        let boxing = BaseScoreboardController.boxing()
+        XCTAssertEqual(boxing.config.gameType, .boxing)
+        XCTAssertEqual(boxing.getScoringOptions(), [])
+
+        let archery = BaseScoreboardController.archery()
+        XCTAssertEqual(archery.config.gameType, .archery)
+        XCTAssertEqual(archery.config.maxHistorySize, 80)
+        XCTAssertEqual(archery.getScoringOptions(), [])
+
+        let skippedID = ScoreboardRecordIdentity.next(prefix: "boxing_skip")
+        boxing.saveRealtimeRecord(
+            id: skippedID,
+            hasProgress: false,
+            isFinished: false,
+            team1Name: "红方",
+            team2Name: "蓝方",
+            team1FinalScore: 0,
+            team2FinalScore: 0,
+            snapshot: ["state": "empty"],
+            snapshotErrorLabel: "boxing"
+        )
+        XCTAssertNil(ScoreboardRecordManager.shared.getRecordById(skippedID))
+
+        let savedID = ScoreboardRecordIdentity.next(prefix: "boxing_test")
+        defer { _ = ScoreboardRecordManager.shared.deleteRecord(savedID) }
+        boxing.saveRealtimeRecord(
+            id: savedID,
+            hasProgress: true,
+            isFinished: true,
+            team1Name: "红方",
+            team2Name: "蓝方",
+            team1FinalScore: 20,
+            team2FinalScore: 30,
+            team1SetScore: 2,
+            team2SetScore: 1,
+            winnerComparison: (left: 2, right: 1),
+            snapshot: ["round": 3],
+            snapshotErrorLabel: "boxing"
+        )
+
+        let saved = try XCTUnwrap(ScoreboardRecordManager.shared.getRecordById(savedID))
+        XCTAssertEqual(saved.team1FinalScore, 20)
+        XCTAssertEqual(saved.team2FinalScore, 30)
+        XCTAssertEqual(saved.team1SetScore, 2)
+        XCTAssertEqual(saved.team2SetScore, 1)
+        XCTAssertEqual(saved.winnerIdentity, .team(.team0))
+        XCTAssertEqual(saved.winner, TeamID.team0.rawValue)
     }
 
     func testStandardTeamNamesNormalizeEmptyAndLegacyLabelsWithoutReplacingCustomNames() {

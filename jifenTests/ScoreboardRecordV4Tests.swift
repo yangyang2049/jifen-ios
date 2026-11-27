@@ -1152,7 +1152,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
     }
 
     func testLineScoreViewModelRecordsExactSnapshotsForScoreUndoAndReset() {
-        let controller = SimpleScoreboardController()
+        let controller = BaseScoreboardController.simpleScore()
         let viewModel = LineScoreViewModel(controller: controller, rules: .freeCounter)
 
         viewModel.adjustScore(isLeft: true, delta: 3)
@@ -1172,7 +1172,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
     }
 
     func testLineScoreFinishUndoResumeAndRefinishKeepsOneTerminalAction() {
-        let controller = SimpleScoreboardController()
+        let controller = BaseScoreboardController.simpleScore()
         let viewModel = LineScoreViewModel(controller: controller, rules: .freeCounter)
         viewModel.adjustScore(isLeft: true, delta: 2)
         viewModel.endGame()
@@ -1186,7 +1186,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             undoHistory: viewModel.resumeHistory,
             intentTimeline: controller.getGameActions()
         )
-        let restoredController = SimpleScoreboardController()
+        let restoredController = BaseScoreboardController.simpleScore()
         restoredController.gameActions = resume.intentTimeline
         let restored = LineScoreViewModel(controller: restoredController, rules: .freeCounter)
         restored.restoreSession(resume)
@@ -1200,7 +1200,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
     }
 
     func testBoxingAndArcheryUndoRollbackTerminalRecordActionsAcrossResume() {
-        let boxingController = BoxingScoreboardController()
+        let boxingController = BaseScoreboardController.boxing()
         let boxing = BoxingViewModel(controller: boxingController)
         boxing.setMaxRounds(1)
         boxing.addRoundScore(leftPoints: 10, rightPoints: 9)
@@ -1223,7 +1223,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             undoHistory: boxing.resumeHistory,
             intentTimeline: boxingController.getGameActions()
         )
-        let restoredBoxingController = BoxingScoreboardController()
+        let restoredBoxingController = BaseScoreboardController.boxing()
         restoredBoxingController.gameActions = boxingResume.intentTimeline
         let restoredBoxing = BoxingViewModel(controller: restoredBoxingController)
         restoredBoxing.restoreSession(boxingResume)
@@ -1262,7 +1262,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
     }
 
     func testReducerAdaptersOwnTemplateMenuSnapshotsWithoutLegacyDuplicates() {
-        let lineController = SimpleScoreboardController()
+        let lineController = BaseScoreboardController.simpleScore()
         let line = LineScoreViewModel(controller: lineController, rules: .freeCounter)
         XCTAssertTrue(line.recordsExchangeActionInternally)
         XCTAssertTrue(line.recordsResetActionInternally)
@@ -1274,7 +1274,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             "snapshot|reset|0,0"
         ])
 
-        let boxingController = BoxingScoreboardController()
+        let boxingController = BaseScoreboardController.boxing()
         let boxing = BoxingViewModel(controller: boxingController)
         boxing.exchangeSides()
         boxing.reset()
@@ -1300,7 +1300,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
 
     func testLineAndBoxingPersistenceRevisionAdvancesOnlyForAcceptedMutationsAndUndo() {
         let line = LineScoreViewModel(
-            controller: SimpleScoreboardController(),
+            controller: BaseScoreboardController.simpleScore(),
             rules: .freeCounter
         )
         XCTAssertEqual(line.persistenceRevision, 0)
@@ -1311,7 +1311,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertTrue(line.undo())
         XCTAssertEqual(line.persistenceRevision, 2)
 
-        let boxing = BoxingViewModel(controller: BoxingScoreboardController())
+        let boxing = BoxingViewModel(controller: BaseScoreboardController.boxing())
         XCTAssertEqual(boxing.persistenceRevision, 0)
         boxing.addRoundScore(leftPoints: 10, rightPoints: 9)
         XCTAssertEqual(boxing.persistenceRevision, 1)
@@ -1357,7 +1357,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertTrue(restoredArchery.undo())
         XCTAssertEqual(restoredArchery.match.leftName, originalArcheryName)
 
-        let boxingController = BoxingScoreboardController()
+        let boxingController = BaseScoreboardController.boxing()
         let boxing = BoxingViewModel(controller: boxingController)
         let originalBoxingName = boxing.matchState.rightName
         boxing.startEditName(isLeft: false)
@@ -1381,7 +1381,7 @@ final class ScoreboardRecordV4Tests: XCTestCase {
             BoxingResumeState.self,
             from: JSONEncoder().encode(boxingSnapshot)
         )
-        let restoredBoxingController = BoxingScoreboardController()
+        let restoredBoxingController = BaseScoreboardController.boxing()
         restoredBoxingController.gameActions = decodedBoxing.intentTimeline
         let restoredBoxing = BoxingViewModel(controller: restoredBoxingController)
         restoredBoxing.restoreSession(decodedBoxing)

@@ -527,7 +527,7 @@ final class ScoreboardRecordFileStore {
             records.append(record)
         }
 
-        records.sort(by: Self.newestRecordFirst)
+        records.sort { Self.newestRecordFirst($0, $1) }
         if !missingIDs.isEmpty, snapshot.isComplete {
             try? writeIndex(snapshot.entries.filter { !missingIDs.contains($0.summary.id) })
         }
@@ -558,7 +558,7 @@ final class ScoreboardRecordFileStore {
         let snapshot = currentEntries()
         var entries = (snapshot?.entries ?? []).filter { $0.summary.id != record.id }
         entries.append(indexEntry(persistedRecord))
-        entries.sort(by: Self.newestEntryFirst)
+        entries.sort { Self.newestEntryFirst($0, $1) }
 
         // The index is invalidated *before* the body is written. When that fails
         // we may only continue if the path provably cannot serve stale rows;
@@ -756,7 +756,7 @@ final class ScoreboardRecordFileStore {
             }
             entries.append(indexEntry(record, fileName: url.lastPathComponent))
         }
-        entries.sort(by: Self.newestEntryFirst)
+        entries.sort { Self.newestEntryFirst($0, $1) }
         if isComplete {
             try? writeIndex(entries)
         } else {
@@ -1099,14 +1099,14 @@ final class ScoreboardRecordManager {
         lock.lock()
         defer { lock.unlock() }
         let hadRecords = !store.loadSummaries().isEmpty
-        // Remove the legacy aggregate before rebuilding the empty v4 store so
-        // a later migration cannot restore records the user just cleared.
-        defaults.removeObject(forKey: recordsKey)
         do {
             try store.clearAllStoredData()
         } catch {
             return false
         }
+        // The empty store now has a migration marker. Keep the legacy copy
+        // until that marker is durable so a failed reset cannot lose it.
+        defaults.removeObject(forKey: recordsKey)
         // 空引用集 = 全量移除音频，连带清掉从未被记录引用的 temp_ 残留。
         Self.cleanupOrphanVoiceNoteFiles(referencedPaths: [])
         if hadRecords {

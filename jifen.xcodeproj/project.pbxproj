@@ -29,8 +29,8 @@
 		BC2026102500000000000006 /* PersonalRecordAccessPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2026102500000000000005 /* PersonalRecordAccessPolicyTests.swift */; };
 		BC20261100000000000000A2 /* GroupMatchSetupRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261100000000000000A1 /* GroupMatchSetupRulesTests.swift */; };
 		BC20261100000000000000B2 /* GroupMatchSetupUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261100000000000000B1 /* GroupMatchSetupUITests.swift */; };
-		BC20261200000000000000C2 /* WatchLinkIntroLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */; };
 		BC20261126000000000000D3 /* WeekendMembershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261126000000000000D2 /* WeekendMembershipTests.swift */; };
+		BC20261200000000000000C2 /* WatchLinkIntroLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */; };
 		C0D320261002000000000002 /* APIClientSessionIsolationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */; };
 		C10000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000001 /* ScoreCore */; };
 		C10000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000002 /* SessionCore */; };
@@ -40,16 +40,16 @@
 		C10000000000000000000006 /* TimerCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000006 /* TimerCore */; };
 		C10000000000000000000007 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000007 /* FirebaseCore */; };
 		C10000000000000000000008 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000008 /* FirebaseAnalyticsCore */; };
-		C1000000000000000000000B /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000000B /* RevenueCat */; };
-		C1000000000000000000000A /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000000A /* RevenueCatUI */; };
 		C10000000000000000000009 /* LinkSync in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000009 /* LinkSync */; };
+		C1000000000000000000000A /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000000A /* RevenueCatUI */; };
+		C1000000000000000000000B /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000000B /* RevenueCat */; };
 		C20000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000001 /* ScoreCore */; };
 		C20000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000002 /* SessionCore */; };
 		C20000000000000000000003 /* RecordCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000003 /* RecordCore */; };
 		C20000000000000000000004 /* PersistenceCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000004 /* PersistenceCore */; };
 		C20000000000000000000005 /* LinkCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000005 /* LinkCore */; };
-		C20000000000000000000007 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000007 /* TelemetryDeck */; };
 		C20000000000000000000006 /* LinkSync in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000006 /* LinkSync */; };
+		C20000000000000000000007 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000007 /* TelemetryDeck */; };
 		C23000000000000000000001 /* WechatOpenSDK in Frameworks */ = {isa = PBXBuildFile; productRef = A23000000000000000000001 /* WechatOpenSDK */; };
 		C748D22B660C17B977BC6AE9 /* BookingBasketballTimingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F8EC0DD915B1306E2528D /* BookingBasketballTimingTests.swift */; };
 		CCD15D3C49FDE98D34734F0E /* MultiScorePagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1078853789E2731F9870B9 /* MultiScorePagingTests.swift */; };
@@ -182,8 +182,8 @@
 		BC20261100000000000000A1 /* GroupMatchSetupRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMatchSetupRulesTests.swift; sourceTree = "<group>"; };
 		BC20261100000000000000B1 /* GroupMatchSetupUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMatchSetupUITests.swift; sourceTree = "<group>"; };
 		BC20261126000000000000D1 /* Configuration/RevenueCat.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Configuration/RevenueCat.xcconfig; sourceTree = "<group>"; };
-		BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLinkIntroLaunchTests.swift; sourceTree = "<group>"; };
 		BC20261126000000000000D2 /* WeekendMembershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekendMembershipTests.swift; sourceTree = "<group>"; };
+		BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLinkIntroLaunchTests.swift; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
 		C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIClientSessionIsolationTests.swift; sourceTree = "<group>"; };
 		D20000000000000000000001 /* jifenWatch Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "jifenWatch Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1593,15 +1593,20 @@
 			package = D50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalyticsCore;
 		};
-		A1000000000000000000000B /* RevenueCat */ = {
+		A10000000000000000000009 /* LinkSync */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D60000000000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */;
-			productName = RevenueCat;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
+			productName = LinkSync;
 		};
 		A1000000000000000000000A /* RevenueCatUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D60000000000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCatUI;
+		};
+		A1000000000000000000000B /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D60000000000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
 		};
 		A23000000000000000000001 /* WechatOpenSDK */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -1633,20 +1638,15 @@
 			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = LinkCore;
 		};
-		B10000000000000000000007 /* TelemetryDeck */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D70000000000000000000001 /* XCRemoteSwiftPackageReference "SwiftSDK" */;
-			productName = TelemetryDeck;
-		};
-		A10000000000000000000009 /* LinkSync */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
-			productName = LinkSync;
-		};
 		B10000000000000000000006 /* LinkSync */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = LinkSync;
+		};
+		B10000000000000000000007 /* TelemetryDeck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D70000000000000000000001 /* XCRemoteSwiftPackageReference "SwiftSDK" */;
+			productName = TelemetryDeck;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -376,27 +376,15 @@ class FootballViewModel: LineScoreViewModel {
         #if DEBUG
         print("[FootballViewModel] 💾 Saving football record in real-time (isGameFinished: \(isGameFinished))")
         #endif
+        let finished = isGameFinished || gameFinished
         let hasProgress = !(controller?.getGameActions().isEmpty ?? true)
             || leftTeam.score != 0
             || rightTeam.score != 0
             || standaloneState.timer.stage != 1
             || clockElapsedSeconds > 0
             || standaloneState.timer.stoppageSeconds.contains(where: { $0 > 0 })
-            || isGameFinished
-            || gameFinished
+            || finished
         guard hasProgress else { return }
-
-        let endTime = Date()
-        let duration = endTime.timeIntervalSince(controller?.getGameStartTime() ?? Date())
-
-        var winner: String? = nil
-        if isGameFinished || gameFinished {
-            if leftTeam.score > rightTeam.score {
-                winner = TeamID.team0.rawValue
-            } else if rightTeam.score > leftTeam.score {
-                winner = TeamID.team1.rawValue
-            }
-        }
 
         let resumeState = LineScoreResumeState(
             state: sessionState,
@@ -407,25 +395,15 @@ class FootballViewModel: LineScoreViewModel {
             state: standaloneState, at: localClockMilliseconds
         ).timer
         persistedTimer.savedWallClockMilliseconds = Self.wallClockMilliseconds()
-        if isGameFinished || gameFinished {
+        if finished {
             persistedTimer.isRunning = false
         }
         let footballResume = FootballResumeStateV2(lineScore: resumeState, timer: persistedTimer)
-        let snapshotData: Data
-        do {
-            snapshotData = try JSONEncoder().encode(footballResume)
-        } catch {
-            ScoreboardPersistenceFailureReporter.report(
-                error,
-                context: "Failed to encode football record \(recordID)"
-            )
-            return
-        }
 
-        controller?.saveScoreboardRecord(
+        controller?.saveRealtimeRecord(
             id: recordID,
-            endTime: endTime,
-            duration: duration,
+            hasProgress: true,
+            isFinished: finished,
             team1Name: leftTeam.name,
             team2Name: rightTeam.name,
             team1FinalScore: leftTeam.score,
@@ -434,8 +412,6 @@ class FootballViewModel: LineScoreViewModel {
             // synthetic 1:1 made a genuine 2:0 result render and share as 1:1.
             team1SetScore: nil,
             team2SetScore: nil,
-            winner: winner,
-            totalScoreChanges: controller?.getGameActions().count ?? 0,
             extraData: [:],
             projectConfiguration: [
                 ScoreboardRecordConfiguration.Key.scoreCoreGameType: gameType.rawValue,
@@ -445,8 +421,8 @@ class FootballViewModel: LineScoreViewModel {
                 "footballHalfLengthSeconds": standaloneState.timer.halfLengthSeconds,
                 "showMatchTime": true
             ],
-            stateSnapshot: snapshotData,
-            isFinished: isGameFinished || gameFinished
+            snapshot: footballResume,
+            snapshotErrorLabel: "football"
         )
         #if DEBUG
         print("[FootballViewModel] ✅ Football record saved successfully")

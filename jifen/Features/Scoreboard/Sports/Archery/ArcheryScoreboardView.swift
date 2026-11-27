@@ -31,7 +31,7 @@ struct ArcheryScoreboardView: View {
     var onSetupConsumed: (() -> Void)? = nil
     var onNavigationBack: (() -> Void)? = nil
 
-    @State private var controller = ArcheryScoreboardController()
+    @State private var controller = BaseScoreboardController.archery()
     @State private var viewModel = ArcheryViewModel()
     @State private var responsiveScoreFontSize: CGFloat = 120
     @State private var showGameOverDialog = false
@@ -637,30 +637,13 @@ struct ArcheryScoreboardView: View {
 
     private func saveGameRecordInRealTime(isGameFinished: Bool = false) {
         guard watchSessionId == nil, confirmedLinkedRecordID != recordID else { return }
+        let finished = isGameFinished || viewModel.gameFinished
         let hasProgress = !controller.getGameActions().isEmpty
             || viewModel.leftTeam.score != 0
             || viewModel.rightTeam.score != 0
             || (viewModel.leftTeam.sets ?? 0) != 0
             || (viewModel.rightTeam.sets ?? 0) != 0
-            || isGameFinished
-            || viewModel.gameFinished
-        guard hasProgress else { return }
-
-        let finished = isGameFinished || viewModel.gameFinished
-        let start = controller.getGameStartTime()
-        let end = Date()
-
-        var winner: String?
-        if finished {
-            let leftSets = viewModel.leftTeam.sets ?? 0
-            let rightSets = viewModel.rightTeam.sets ?? 0
-            if leftSets > rightSets {
-                winner = TeamID.team0.rawValue
-            } else if rightSets > leftSets {
-                winner = TeamID.team1.rawValue
-            }
-        }
-
+            || finished
         let resumeState = ArcheryResumeState(
             state: viewModel.match,
             undoHistory: viewModel.resumeHistory,
@@ -668,29 +651,16 @@ struct ArcheryScoreboardView: View {
             detailedActions: viewModel.detailedActions,
             recordUndoCheckpoints: viewModel.recordUndoCheckpoints
         )
-        let snapshotData: Data
-        do {
-            snapshotData = try JSONEncoder().encode(resumeState)
-        } catch {
-            ScoreboardPersistenceFailureReporter.report(
-                error,
-                context: "Failed to encode archery record \(recordID)"
-            )
-            return
-        }
-
-        controller.saveScoreboardRecord(
+        controller.saveRealtimeRecord(
             id: recordID,
-            endTime: end,
-            duration: end.timeIntervalSince(start),
+            hasProgress: hasProgress,
+            isFinished: finished,
             team1Name: viewModel.leftTeam.name,
             team2Name: viewModel.rightTeam.name,
             team1FinalScore: viewModel.leftTeam.sets ?? 0,
             team2FinalScore: viewModel.rightTeam.sets ?? 0,
             team1SetScore: viewModel.leftTeam.sets,
             team2SetScore: viewModel.rightTeam.sets,
-            winner: winner,
-            totalScoreChanges: controller.getGameActions().count,
             extraData: [
                 "currentSet": viewModel.currentSet,
                 "arrowsPerSet": viewModel.arrowsPerSet,
@@ -711,30 +681,14 @@ struct ArcheryScoreboardView: View {
                     ? MatchSide.left.rawValue
                     : MatchSide.right.rawValue
             ],
-            stateSnapshot: snapshotData,
-            isFinished: finished
+            snapshot: resumeState,
+            snapshotErrorLabel: "archery"
         )
     }
 
     private func shareFinishedMatch() {
         let text = "\(viewModel.leftTeam.name) \(viewModel.leftTeam.sets ?? 0) - \(viewModel.rightTeam.sets ?? 0) \(viewModel.rightTeam.name)"
         ScoreboardShareSupport.present(text: text)
-    }
-}
-
-private class ArcheryScoreboardController: BaseScoreboardController {
-    init() {
-        super.init(config: ScoreboardControllerConfig(
-            gameType: .archery,
-            enableRecording: true,
-            enableScreenshot: true,
-            enableUndo: true,
-            maxHistorySize: 80
-        ))
-    }
-
-    override func getScoringOptions() -> [Int] {
-        []
     }
 }
 
@@ -1334,7 +1288,7 @@ class ArcheryViewModel: BaseScoreViewModel, ScoreEditGuarding {
 private struct ArcheryMiddleLayer: View {
     var viewModel: ArcheryViewModel
     @Binding var showArrowPicker: Bool
-    var controller: ArcheryScoreboardController
+    var controller: BaseScoreboardController
     var isEditMode: Bool
     var scoringLocked: Bool = false
     var indicatorColor: Color = Color(hex: "30D158")

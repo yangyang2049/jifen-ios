@@ -22,7 +22,7 @@ struct FootballScoreboardView: View {
     var initialResumeSessionId: String? = nil
     var onSetupConsumed: (() -> Void)? = nil
     var isFiveAside = false
-    @State private var controller: FootballScoreboardController
+    @State private var controller: BaseScoreboardController
     @State private var viewModel: FootballViewModel
     @State private var showGameOverDialog: Bool = false
     @State private var showFinishedRecordDetail = false
@@ -53,7 +53,7 @@ struct FootballScoreboardView: View {
         self.initialResumeSessionId = initialResumeSessionId
         self.onSetupConsumed = onSetupConsumed
         self.isFiveAside = isFiveAside
-        let controller = FootballScoreboardController(
+        let controller = BaseScoreboardController.football(
             gameType: isFiveAside ? .football5v5 : .football
         )
         _controller = State(initialValue: controller)

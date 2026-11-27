@@ -239,9 +239,9 @@ struct ScoreboardLaunchView: View {
         Group {
             switch gameType {
             case .pingpong:
-                PingPongScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, usageHintCoordinatorOverride: usageHintCoordinator)
+                RallyScoreboardLaunch(sport: .pingPong, onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, usageHintCoordinatorOverride: usageHintCoordinator)
             case .badminton:
-                BadmintonScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, usageHintCoordinatorOverride: usageHintCoordinator)
+                RallyScoreboardLaunch(sport: .badminton, onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, usageHintCoordinatorOverride: usageHintCoordinator)
             case .shuttlecock:
                 RallyScoreboardView(
                     leftName: setupResult?.team1Name ?? DefaultParticipantNames.resolve(for: .shuttlecock).left,
@@ -312,11 +312,11 @@ struct ScoreboardLaunchView: View {
             case .football5v5:
                 FootballScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, isFiveAside: true)
             case .volleyball:
-                VolleyballScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed)
+                RallyScoreboardLaunch(sport: .volleyball, onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed)
             case .beachVolleyball:
-                VolleyballScoreboardView(variant: .beachVolleyball, onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed)
+                RallyScoreboardLaunch(sport: .beachVolleyball, onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed)
             case .airVolleyball:
-                VolleyballScoreboardView(variant: .airVolleyball, onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed)
+                RallyScoreboardLaunch(sport: .airVolleyball, onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed)
             case .archery:
                 ArcheryScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .boxing:
@@ -330,7 +330,7 @@ struct ScoreboardLaunchView: View {
             case .snooker:
                 SnookerScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .pickleball:
-                PickleballScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack, usageHintCoordinatorOverride: usageHintCoordinator)
+                RallyScoreboardLaunch(sport: .pickleball, onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, usageHintCoordinatorOverride: usageHintCoordinator)
             case .guandan:
                 GuandanScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .doudizhu:
@@ -340,7 +340,7 @@ struct ScoreboardLaunchView: View {
             case .uno:
                 MultiScoreboardView(gameType: .uno, defaultPlayerCount: setupResult?.playerCount ?? PreferencesManager.shared.unoPlayerCount, targetScore: setupResult?.targetScore ?? PreferencesManager.shared.unoTargetScore, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .foosball:
-                FoosballScoreboardView(onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed)
+                RallyScoreboardLaunch(sport: .foosball, onNavigationBack: onBack, initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed)
             case .simpleScore, .counter:
                 SimpleScoreboardView(initialSetup: setupResult, initialResumeSessionId: initialResumeSessionId, onSetupConsumed: onSetupConsumed, onNavigationBack: onBack)
             case .multiScoreboard:
