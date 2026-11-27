@@ -50,7 +50,8 @@ enum WatchNumberKeypadRules {
 }
 
 /// 手表端自定义数字弹层：预设档位覆盖不到的值从这里输入。
-/// 版面照 46mm 圆屏等比缩放到当前屏幕，40/42/46/49mm 共用一套。
+/// 版面为贴底方形面板（设计稿方案 B）：顶部一行是关闭/当前值/退格，中间 3×3 数字
+/// 加通栏 0，底部为通栏绿色确认条；46mm 全屏宽为基准，40/42/49mm 等比缩放共用。
 struct WatchNumberKeypad: View {
     let minValue: Int
     let maxValue: Int
@@ -62,10 +63,8 @@ struct WatchNumberKeypad: View {
     @State private var draft: String
     @State private var showsRangeHint = false
 
-    /// 参考直径：46mm（208pt）下的基准尺寸，其余表径按比例缩放。
-    private static let referenceDiameter: CGFloat = 300
-    /// 内容区相对圆直径的宽度比例：内接方形是 1/√2 ≈ 0.707，留一点余量取 0.70。
-    static let contentWidthRatio: CGFloat = 0.70
+    /// 参考宽度：46mm（208pt）全屏宽，其余表径按宽度比例缩放。
+    private static let referenceWidth: CGFloat = 208
 
     init(
         minValue: Int,
@@ -108,78 +107,79 @@ struct WatchNumberKeypad: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let diameter = min(proxy.size.width, proxy.size.height)
-            let scale = min(1, max(0.5, diameter / Self.referenceDiameter))
+            let scale = min(1.1, max(0.5, proxy.size.width / Self.referenceWidth))
 
-            ZStack {
+            ZStack(alignment: .bottom) {
                 // 遮罩不接管点按：鸿蒙手表同样只给关闭按钮，避免弹层刚出现就被
                 // 同一次抬手事件命中而立即关掉。
                 WatchTheme.panelScrim
                     .ignoresSafeArea()
 
-                panel(scale: scale, diameter: diameter * 0.98)
+                panel(scale: scale)
             }
             .frame(width: proxy.size.width, height: proxy.size.height)
         }
+        // 面板贴住屏幕物理底边，确认条不被安全区垫高。
+        .ignoresSafeArea(.container, edges: .bottom)
     }
 
-    private func panel(scale: CGFloat, diameter: CGFloat) -> some View {
-        VStack(spacing: 8 * scale) {
-            HStack(spacing: 10 * scale) {
-                // 关闭钮与输入框同高，整块落在内接方形里；圆屏下左右两端的
-                // 触控目标再靠 buttonStyle 外扩，不去挤内容宽度。
-                Button(action: onClose) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 18 * scale, weight: .semibold))
-                        .foregroundStyle(WatchTheme.primaryText)
-                        .frame(width: 44 * scale, height: 44 * scale)
-                        .background(Color.white.opacity(0.10))
-                        .clipShape(Circle())
-                        .contentShape(Circle())
+    private func panel(scale: CGFloat) -> some View {
+        VStack(spacing: 0) {
+            VStack(spacing: 6 * scale) {
+                HStack(spacing: 8 * scale) {
+                    closeButton(scale: scale)
+                    displayField(scale: scale)
+                    deleteButton(scale: scale)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
 
-                displayField(scale: scale)
-            }
-
-            digitRow([1, 2, 3, 4], scale: scale)
-            digitRow([5, 6, 7, 8], scale: scale)
-            HStack(spacing: 8 * scale) {
-                digitButton(9, scale: scale)
+                digitRow([1, 2, 3], scale: scale)
+                digitRow([4, 5, 6], scale: scale)
+                digitRow([7, 8, 9], scale: scale)
                 digitButton(0, scale: scale)
-                deleteButton(scale: scale)
-                confirmButton(scale: scale)
             }
+            .padding(.horizontal, 12 * scale)
+            .padding(.top, 8 * scale)
+            .padding(.bottom, 6 * scale)
+
+            confirmBar(scale: scale)
         }
-        // 圆形裁切只保留内接方形：内容宽度按直径的 0.70 收口（内接方形为 0.707d），
-        // 否则最上一行与最下一行会被圆边切掉。
-        .frame(width: diameter * Self.contentWidthRatio)
-        .frame(width: diameter, height: diameter)
-        .background(WatchTheme.card)
-        .clipShape(Circle())
+        .background(WatchTheme.overlayCard)
+        .clipShape(TopRoundedCornerShape(radius: 18 * scale))
+        .shadow(color: .black.opacity(0.45), radius: 10 * scale, x: 0, y: -4 * scale)
+    }
+
+    private func closeButton(scale: CGFloat) -> some View {
+        Button(action: onClose) {
+            Image(systemName: "xmark")
+                .font(.system(size: 14 * scale, weight: .semibold))
+                .foregroundStyle(WatchTheme.primaryText)
+                .frame(width: 34 * scale, height: 34 * scale)
+                .background(Color.white.opacity(0.10))
+                .clipShape(Circle())
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(NSLocalizedString("cancel", value: "取消", comment: ""))
     }
 
     private func displayField(scale: CGFloat) -> some View {
         Text(draft.isEmpty ? rangeText : draft)
-            .font(.system(size: 30 * scale, weight: .bold, design: .rounded))
+            .font(.system(size: 24 * scale, weight: .bold, design: .rounded))
             .foregroundStyle(
                 isInvalid
                     ? WatchTheme.dangerRed
-                    : (draft.isEmpty ? Color.white.opacity(0.38) : WatchTheme.accent)
+                    : (draft.isEmpty ? Color.white.opacity(0.38) : WatchTheme.primaryText)
             )
             .lineLimit(1)
             .minimumScaleFactor(0.6)
-            .frame(maxWidth: .infinity)
-            .frame(height: 44 * scale)
-            .background(Color.white.opacity(0.10))
-            .clipShape(Capsule())
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(height: 34 * scale)
             .accessibilityIdentifier("watch_keypad_display")
             .accessibilityValue(draft.isEmpty ? rangeText : draft)
     }
 
     private func digitRow(_ values: [Int], scale: CGFloat) -> some View {
-        HStack(spacing: 8 * scale) {
+        HStack(spacing: 6 * scale) {
             ForEach(values, id: \.self) { value in
                 digitButton(value, scale: scale)
             }
@@ -195,12 +195,13 @@ struct WatchNumberKeypad: View {
             showsRangeHint = false
         } label: {
             Text("\(value)")
-                .font(.system(size: 24 * scale, weight: .medium, design: .rounded))
+                .font(.system(size: 17 * scale, weight: .medium, design: .rounded))
                 .foregroundStyle(WatchTheme.primaryText)
                 .frame(maxWidth: .infinity)
-                .frame(height: 56 * scale)
+                .frame(height: 28 * scale)
                 .background(Color.white.opacity(0.10))
-                .clipShape(RoundedRectangle(cornerRadius: 16 * scale, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 10 * scale, style: .continuous))
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityIdentifier("watch_keypad_digit_\(value)")
@@ -212,19 +213,19 @@ struct WatchNumberKeypad: View {
             draft.removeLast()
         } label: {
             Image(systemName: "delete.left")
-                .font(.system(size: 20 * scale, weight: .medium))
+                .font(.system(size: 15 * scale, weight: .medium))
                 .foregroundStyle(WatchTheme.primaryText)
-                .frame(maxWidth: .infinity)
-                .frame(height: 56 * scale)
+                .frame(width: 34 * scale, height: 34 * scale)
                 .background(Color.white.opacity(0.10))
-                .clipShape(RoundedRectangle(cornerRadius: 16 * scale, style: .continuous))
+                .clipShape(RoundedRectangle(cornerRadius: 10 * scale, style: .continuous))
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(NSLocalizedString("delete", value: "删除", comment: ""))
         .accessibilityIdentifier("watch_keypad_delete")
     }
 
-    private func confirmButton(scale: CGFloat) -> some View {
+    private func confirmBar(scale: CGFloat) -> some View {
         Button {
             guard let value = validated else {
                 showsRangeHint = true
@@ -232,18 +233,30 @@ struct WatchNumberKeypad: View {
             }
             onConfirm(value)
         } label: {
-            Image(systemName: "checkmark")
-                .font(.system(size: 20 * scale, weight: .bold))
+            // 绿色实底确认条必须显式白字（项目规范：自动对比度不得改成黑字）。
+            Text(NSLocalizedString("confirm", value: "确认", comment: ""))
+                .font(.system(size: 15 * scale, weight: .bold))
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 56 * scale)
+                .frame(height: 40 * scale)
                 .background(WatchTheme.accent)
-                .clipShape(RoundedRectangle(cornerRadius: 16 * scale, style: .continuous))
         }
         .buttonStyle(.plain)
         .disabled(validated == nil)
         .opacity(validated == nil ? 0.4 : 1)
-        .accessibilityLabel(NSLocalizedString("confirm", value: "确认", comment: ""))
         .accessibilityIdentifier("watch_keypad_confirm")
+    }
+}
+
+/// 只圆上角的矩形：面板底部贴住屏幕下缘，下角交给系统屏幕圆角裁切。
+private struct TopRoundedCornerShape: Shape {
+    var radius: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        Path(UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: [.topLeft, .topRight],
+            cornerRadii: CGSize(width: radius, height: radius)
+        ).cgPath)
     }
 }
