@@ -419,9 +419,11 @@ public actor ResumeSessionRepository {
         sessionId: UUID,
         rootURL: URL = defaultRootURL()
     ) throws -> ResumeSessionCleanupToken? {
-        try loadEnvelope(sessionId: sessionId, rootURL: rootURL).map {
-            ResumeSessionCleanupToken(envelope: $0)
-        }
+        try loadEnvelope(sessionId: sessionId, rootURL: rootURL).map(cleanupToken(for:))
+    }
+
+    public static func cleanupToken(for envelope: ResumeSessionEnvelope) -> ResumeSessionCleanupToken {
+        ResumeSessionCleanupToken(envelope: envelope)
     }
 
     public static func loadPayload(

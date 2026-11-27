@@ -11,11 +11,11 @@ final class BasketballSessionStore {
     private typealias ResumeBundle = ScoreSessionResumeBundle<BasketballMatchState, BasketballMatchEvent, BasketballMatchIntent>
     private static let clockStartedFlag = "basketballClockStarted"
 
-    private let core: ScoreSessionCore<BasketballMatchReducer>
+    @ObservationIgnored private var machine: ScoreSessionMachine<BasketballMatchReducer>
     private let resumeRepository: ResumeSessionRepository
     private var clockTask: Task<Void, Never>?
     private var recordContext: ScoreSessionRecordContext
-    private var operationTask: Task<Void, Never>?
+    @ObservationIgnored private var persistenceTask: Task<Void, Never>?
     private var hasPersistedFinishedRecord = false
     private var gameClockAnchorNanoseconds: UInt64?
     private var timeoutClockAnchorNanoseconds: UInt64?
@@ -87,7 +87,7 @@ final class BasketballSessionStore {
         sessionId = session.sessionId
         let startedMilliseconds = session.metadata.extras["startedAtEpochMilliseconds"].flatMap(Int64.init)
         startedAt = startedMilliseconds.map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? Date()
-        core = ScoreSessionCore(
+        machine = ScoreSessionMachine(
             seedSession: session,
             reducer: BasketballMatchReducer(),
             shouldFinish: { _, state in state.finished }
@@ -110,7 +110,7 @@ final class BasketballSessionStore {
         sessionId = session.sessionId
         let startedMilliseconds = session.metadata.extras["startedAtEpochMilliseconds"].flatMap(Int64.init)
         startedAt = startedMilliseconds.map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? Date()
-        core = ScoreSessionCore(
+        machine = ScoreSessionMachine(
             resumeBundle: resumeBundle,
             reducer: BasketballMatchReducer(),
             shouldFinish: { _, state in state.finished }
@@ -161,51 +161,36 @@ final class BasketballSessionStore {
         if intent != .tickClock, intent != .tickTimeout {
             refreshClockFromAnchor()
         }
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            let now = Int64(Date().timeIntervalSince1970 * 1_000)
-            let result = if recordsUndo {
-                await core.dispatch(actorId: "phone", intent: intent, at: now)
-            } else {
-                await core.dispatchNonUndoable(actorId: "phone", intent: intent, at: now)
-            }
-            guard case .accepted(let session, _) = result, let self else { return }
-            if Self.mainClockExpires(from: self.state, with: intent) {
-                self.mainClockExpirationCount += 1
-            }
-            self.state = session.state
-            self.synchronizeClockAnchors()
-            if session.status == .live {
-                self.hasPersistedFinishedRecord = false
-            }
-            if recordsUndo {
-                // The actor has just created the matching undo frame. Capture
-                // the record-facing state before projecting this accepted
-                // intent so both layers can roll back as one operation.
-                self.recordContext.pushUndoCheckpoint()
-            }
-            self.updateClockStarted(after: intent, acceptedState: session.state)
-            if intent != .tickClock, intent != .tickTimeout {
-                // The final action is part of the formal record and must be in
-                // memory before the record-first commit starts.
-                self.append(intent: intent, at: now, state: session.state)
-            }
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            await self.synchronizeParticipants(for: session.state)
-            let bundle = await core.resumeBundle()
-            do {
-                // Live clock ticks only update the resume snapshot. The tick
-                // that actually ends a timed match must still write the final
-                // record now that the view no longer queues a duplicate save.
-                try await self.persist(bundle)
-            } catch {
-                ScoreboardPersistenceFailureReporter.report(
-                    error,
-                    context: "Failed to persist basketball session \(self.sessionId.uuidString)"
-                )
-            }
+        if apply(intent, recordsUndo: recordsUndo) {
+            enqueuePersistence()
         }
+    }
+
+    private func apply(_ intent: BasketballMatchIntent, recordsUndo: Bool) -> Bool {
+        let now = Int64(Date().timeIntervalSince1970 * 1_000)
+        let result = if recordsUndo {
+            machine.dispatch(actorId: "phone", intent: intent, at: now)
+        } else {
+            machine.dispatchNonUndoable(actorId: "phone", intent: intent, at: now)
+        }
+        guard case .accepted(let session, _) = result else { return false }
+        if Self.mainClockExpires(from: state, with: intent) {
+            mainClockExpirationCount += 1
+        }
+        if state.finished, session.status == .live {
+            recordContext.reopenedResumeID = UUID()
+        }
+        state = session.state
+        synchronizeClockAnchors()
+        if recordsUndo {
+            recordContext.pushUndoCheckpoint()
+        }
+        updateClockStarted(after: intent, acceptedState: session.state)
+        if intent != .tickClock, intent != .tickTimeout {
+            append(intent: intent, at: now, state: session.state)
+        }
+        synchronizeParticipants(for: session.state)
+        return true
     }
 
     // A tied fourth quarter resets the clock to overtime in the same reducer tick.
@@ -217,50 +202,36 @@ final class BasketballSessionStore {
 
     func undo(completion: ((Bool) -> Void)? = nil) {
         refreshClockFromAnchor()
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            let intent = await core.intentTimeline().last?.intent
-            let preservesTiming = intent.map(BasketballMatchEngine.preservesTimingOnUndo) ?? false
-            let hadStartedClock = self?.basketballClockStarted ?? false
-            guard await core.undo(actorId: "phone", mergingState: { before, current in
-                if preservesTiming {
-                    return BasketballMatchEngine.mergeUndoTiming(before, current)
-                }
-                return BasketballMatchEngine.mergeUndoConfiguration(before, current)
-            }), let self else {
-                completion?(false)
-                return
+        let intent = machine.intentTimeline().last?.intent
+        let preservesTiming = intent.map(BasketballMatchEngine.preservesTimingOnUndo) ?? false
+        let hadStartedClock = basketballClockStarted
+        let wasFinished = state.finished
+        guard machine.undo(actorId: "phone", mergingState: { before, current in
+            if preservesTiming {
+                return BasketballMatchEngine.mergeUndoTiming(before, current)
             }
-            let session = await core.snapshot()
-            self.state = session.state
-            self.synchronizeClockAnchors()
-            if session.status == .live {
-                self.hasPersistedFinishedRecord = false
-            }
-            await self.synchronizeParticipants(for: session.state)
-            if !self.recordContext.restoreLastUndoCheckpoint() {
-                // Bundles written before record checkpoints existed still have
-                // the reducer event stream. Re-project it instead of retaining
-                // a stale score/period action after a legacy resume undo.
-                self.rebuildRecordContext(from: session.events)
-            }
-            let restoredClockStarted = self.recordContext.presentationFlags[Self.clockStartedFlag]
-                ?? Self.inferLegacyClockStarted(from: session.state)
-            self.basketballClockStarted = restoredClockStarted || (preservesTiming && hadStartedClock)
-            self.recordContext.presentationFlags[Self.clockStartedFlag] = self.basketballClockStarted
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            completion?(true)
-            let bundle = await core.resumeBundle()
-            do {
-                try await self.persist(bundle)
-            } catch {
-                ScoreboardPersistenceFailureReporter.report(
-                    error,
-                    context: "Failed to persist basketball undo \(self.sessionId.uuidString)"
-                )
-            }
+            return BasketballMatchEngine.mergeUndoConfiguration(before, current)
+        }) else {
+            completion?(false)
+            return
         }
+        let session = machine.currentSession
+        state = session.state
+        synchronizeClockAnchors()
+        synchronizeParticipants(for: session.state)
+        if !recordContext.restoreLastUndoCheckpoint() {
+            // Older snapshots have the event stream, but no record checkpoint.
+            rebuildRecordContext(from: session.events)
+        }
+        let restoredClockStarted = recordContext.presentationFlags[Self.clockStartedFlag]
+            ?? Self.inferLegacyClockStarted(from: session.state)
+        if wasFinished, session.status == .live {
+            recordContext.reopenedResumeID = UUID()
+        }
+        basketballClockStarted = restoredClockStarted || (preservesTiming && hadStartedClock)
+        recordContext.presentationFlags[Self.clockStartedFlag] = basketballClockStarted
+        enqueuePersistence()
+        completion?(true)
     }
 
     func startClock() {
@@ -295,28 +266,12 @@ final class BasketballSessionStore {
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
         refreshClockFromAnchor()
-        let previousTask = operationTask
-        operationTask = Task { [core] in
-            _ = await previousTask?.value
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            let bundle = await core.resumeBundle()
-            do {
-                try await self.persist(bundle)
-                completion?(true)
-            } catch {
-                ScoreboardPersistenceFailureReporter.report(
-                    error,
-                    context: "Failed to persist final basketball snapshot \(self.sessionId.uuidString)",
-                    forcePresentation: true
-                )
-                completion?(false)
-            }
-        }
+        enqueuePersistence(completion: completion, forceFailurePresentation: true)
     }
 
     func flush(completion: @escaping () -> Void) {
         refreshClockFromAnchor()
-        let pending = operationTask
+        let pending = persistenceTask
         Task {
             _ = await pending?.value
             completion()
@@ -335,9 +290,7 @@ final class BasketballSessionStore {
             let elapsed = min(maximumCatchUpSeconds, Int((now - anchor) / 1_000_000_000))
             guard elapsed > 0 else { return }
             timeoutClockAnchorNanoseconds = anchor + UInt64(elapsed) * 1_000_000_000
-            for _ in 0..<elapsed {
-                send(.tickTimeout, recordsUndo: false)
-            }
+            catchUpClock(.tickTimeout, elapsed: elapsed)
             return
         }
 
@@ -353,9 +306,17 @@ final class BasketballSessionStore {
         let elapsed = min(maximumCatchUpSeconds, Int((now - anchor) / 1_000_000_000))
         guard elapsed > 0 else { return }
         gameClockAnchorNanoseconds = anchor + UInt64(elapsed) * 1_000_000_000
+        catchUpClock(.tickClock, elapsed: elapsed)
+    }
+
+    private func catchUpClock(_ intent: BasketballMatchIntent, elapsed: Int) {
+        var changed = false
         for _ in 0..<elapsed {
-            send(.tickClock, recordsUndo: false)
+            guard apply(intent, recordsUndo: false) else { break }
+            changed = true
         }
+        // Catch-up is a single recovery update, even if the final tick ends the match.
+        if changed { enqueuePersistence() }
     }
 
     private func synchronizeClockAnchors() {
@@ -371,13 +332,13 @@ final class BasketballSessionStore {
         }
     }
 
-    private func synchronizeParticipants(for state: BasketballMatchState) async {
+    private func synchronizeParticipants(for state: BasketballMatchState) {
         let participants: [SessionParticipant] = [
             .init(id: TeamID.team0.rawValue, name: state.leftName, role: "team"),
             .init(id: TeamID.team1.rawValue, name: state.rightName, role: "team")
         ]
-        guard await core.snapshot().participants != participants else { return }
-        _ = await core.updateParticipants(participants)
+        guard machine.currentSession.participants != participants else { return }
+        machine.updateParticipants(participants)
     }
 
     private func append(intent: BasketballMatchIntent, at milliseconds: Int64, state: BasketballMatchState) {
@@ -433,7 +394,8 @@ final class BasketballSessionStore {
         recordContext = ScoreSessionRecordContext(
             detailedActions: actions,
             actionCount: actions.count,
-            presentationFlags: presentationFlags
+            presentationFlags: presentationFlags,
+            reopenedResumeID: recordContext.reopenedResumeID
         )
     }
 
@@ -479,27 +441,58 @@ final class BasketballSessionStore {
             || state.isOvertime
     }
 
-    private func persist(_ bundle: ResumeBundle) async throws {
-        let reachedFinishedCommit = try await ScoreSessionPersistenceSupport.persist(
-            bundle,
-            repository: resumeRepository,
-            alreadyPersistedFinishedRecord: hasPersistedFinishedRecord,
-            makeFinishedRecord: makeFinishedRecord,
-            onCleanupFailure: { [sessionId] error in
+    private func enqueuePersistence(
+        completion: ((Bool) -> Void)? = nil,
+        forceFailurePresentation: Bool = false
+    ) {
+        let context = recordContext
+        machine.setResumeAuxiliaryPayload(context.encoded)
+        let bundle = machine.resumeBundle()
+        let pending = persistenceTask
+        persistenceTask = Task {
+            _ = await pending?.value
+            if bundle.currentSession.status == .live {
+                hasPersistedFinishedRecord = false
+            }
+            do {
+                let reachedFinishedCommit = try await ScoreSessionPersistenceSupport.persist(
+                    bundle,
+                    repository: resumeRepository,
+                    alreadyPersistedFinishedRecord: hasPersistedFinishedRecord,
+                    reopenedResumeID: context.reopenedResumeID,
+                    makeFinishedRecord: { session in
+                        try self.makeFinishedRecord(session, context: context)
+                    },
+                    onCleanupFailure: { [sessionId] error in
+                        ScoreboardPersistenceFailureReporter.report(
+                            error,
+                            context: "Failed to clean finished basketball resume \(sessionId.uuidString)"
+                        )
+                    },
+                    removeResume: ScoreSessionPersistenceSupport.finishedResumeRemover(
+                        for: bundle.currentSession, repository: resumeRepository
+                    )
+                )
+                if reachedFinishedCommit {
+                    hasPersistedFinishedRecord = true
+                }
+                completion?(true)
+            } catch {
                 ScoreboardPersistenceFailureReporter.report(
                     error,
-                    context: "Failed to clean finished basketball resume \(sessionId.uuidString)"
+                    context: "Failed to persist basketball session \(sessionId.uuidString)",
+                    forcePresentation: forceFailurePresentation
                 )
+                completion?(false)
             }
-        )
-        if reachedFinishedCommit {
-            hasPersistedFinishedRecord = true
         }
     }
 
     private func makeFinishedRecord(
-        _ session: ScoreSession<BasketballMatchState, BasketballMatchEvent>
+        _ session: ScoreSession<BasketballMatchState, BasketballMatchEvent>,
+        context: ScoreSessionRecordContext
     ) throws -> ScoreboardRecord? {
+        let state = session.state
         guard session.status == .finished, state.finished else { return nil }
         let appGameType: GameType = state.gameMode == .threeXThree ? .threeBasketball : .basketball
         let snapshot = try JSONEncoder().encode(session)
@@ -515,9 +508,9 @@ final class BasketballSessionStore {
             team1FinalScore: state.leftScore,
             team2FinalScore: state.rightScore,
             winner: winner,
-            detailedActions: recordContext.detailedActions,
-            setResults: ScoreboardRecordActionAdapter.setResults(from: recordContext.detailedActions),
-            totalScoreChanges: recordContext.actionCount,
+            detailedActions: context.detailedActions,
+            setResults: ScoreboardRecordActionAdapter.setResults(from: context.detailedActions),
+            totalScoreChanges: context.actionCount,
             projectConfiguration: [
                 "basketballMode": AnyCodable(state.gameMode == .threeXThree ? "three_x_three" : "five_v_five"),
                 "basketballRuleSet": AnyCodable(state.ruleSet.rawValue),

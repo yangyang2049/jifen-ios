@@ -905,25 +905,62 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertEqual(afterScores, [1, 2])
     }
 
-    func testTennisRapidQueuedSendsDeliverAtomicBeforeAndAfterTransitions() async {
-        let store = TennisSessionStore(leftName: "A", rightName: "B")
+    func testTennisRestoresAndUndoesDraftWrittenByActor() async throws {
+        let repository = ResumeSessionRepository()
+        let seed = ScoreSession<TennisMatchState, TennisMatchEvent>(
+            gameType: .tennis,
+            ruleFamily: .s1,
+            reducerType: ScoreboardKernelRegistry.descriptor(for: .tennis).reducerType,
+            state: TennisMatchState(leftName: "A", rightName: "B", rules: .init())
+        )
+        defer { Task { try? await repository.remove(sessionId: seed.sessionId) } }
+        let actorStore = ScoreSessionCore(seedSession: seed, reducer: TennisMatchReducer())
+        _ = await actorStore.dispatch(actorId: "phone", intent: .pointWon(.left), at: 1)
+        let oldBundle = await actorStore.resumeBundle()
+        XCTAssertNil(oldBundle.auxiliaryPayload)
+        try await repository.saveResumeBundle(oldBundle)
+
+        let restored = try XCTUnwrap(TennisSessionStore(restoring: seed.sessionId))
+        XCTAssertEqual(restored.state.leftPoints, 1)
+        var didUndo = false
+        restored.undo { didUndo = $0 }
+        XCTAssertTrue(didUndo)
+        XCTAssertEqual(restored.state.leftPoints, 0)
+
+        let saved = expectation(description: "restored tennis draft updated")
+        restored.flush { saved.fulfill() }
+        await fulfillment(of: [saved], timeout: 3)
+        XCTAssertEqual(TennisSessionStore(restoring: seed.sessionId)?.state.leftPoints, 0)
+    }
+
+    func testTennisReentrantSendPersistsSnapshotsInTransitionOrder() async throws {
+        let repository = ResumeSessionRepository()
+        let store = TennisSessionStore(leftName: "A", rightName: "B", resumeRepository: repository)
+        defer { Task { try? await repository.remove(sessionId: store.sessionId) } }
         var beforeScores: [Int] = []
         var afterScores: [Int] = []
-        let transitioned = expectation(description: "two serialized tennis transitions")
-        transitioned.expectedFulfillmentCount = 2
 
-        for _ in 0..<2 {
+        store.send(.pointWon(.left), onTransition: { before, after, events in
+            XCTAssertTrue(events.contains { if case .pointScored = $0 { return true }; return false })
+            beforeScores.append(before.leftPoints)
+            afterScores.append(after.leftPoints)
             store.send(.pointWon(.left), onTransition: { before, after, events in
                 XCTAssertTrue(events.contains { if case .pointScored = $0 { return true }; return false })
                 beforeScores.append(before.leftPoints)
                 afterScores.append(after.leftPoints)
-                transitioned.fulfill()
             })
-        }
+        })
 
-        await fulfillment(of: [transitioned], timeout: 3)
         XCTAssertEqual(beforeScores, [0, 1])
         XCTAssertEqual(afterScores, [1, 2])
+        XCTAssertEqual(store.state.leftPoints, 2)
+
+        let saved = expectation(description: "nested tennis transitions persisted")
+        store.flush { saved.fulfill() }
+        await fulfillment(of: [saved], timeout: 3)
+        let restored = try XCTUnwrap(TennisSessionStore(restoring: store.sessionId))
+        XCTAssertEqual(restored.state.leftPoints, 2)
+        XCTAssertEqual(restored.actionTimeline.count, 2)
     }
 
     func testRallyRapidTerminalScoringReusesFinishedPersistence() async {
@@ -1023,6 +1060,58 @@ final class RallySessionStoreTests: XCTestCase {
 
 
 
+    func testTennisReopenedDraftSurvivesHomeReconciliationUntilRefinish() async throws {
+        typealias Bundle = ScoreSessionResumeBundle<TennisMatchState, TennisMatchEvent, TennisMatchIntent>
+        let repository = ResumeSessionRepository()
+        let store = TennisSessionStore(
+            leftName: "A", rightName: "B", rules: .init(tieBreakPoints: 7, setScoringMode: .tiebreakOnly),
+            resumeRepository: repository
+        )
+        let id = store.sessionId.uuidString
+        defer {
+            _ = ScoreboardRecordManager.shared.deleteRecord(id)
+            Task { try? await repository.remove(sessionId: store.sessionId) }
+        }
+
+        store.send(.pointWon(.left))
+        store.send(.finish)
+        await withCheckedContinuation { continuation in
+            store.flush { continuation.resume() }
+        }
+        XCTAssertEqual(ScoreboardRecordManager.shared.getRecordById(id)?.team1FinalScore, 1)
+
+        store.undo()
+        await withCheckedContinuation { continuation in
+            store.flush { continuation.resume() }
+        }
+        let coordinator = FinishedSessionCommitCoordinator()
+        let whileReopened = await coordinator.reconcileCommittedRecord(
+            recordID: id, sessionId: store.sessionId, repository: repository
+        )
+        XCTAssertNil(whileReopened, "Home must preserve the new live draft")
+        let liveBundle = try await repository.loadResumeBundle(sessionId: store.sessionId, as: Bundle.self)
+        let reopened = try XCTUnwrap(liveBundle)
+        let restored = try XCTUnwrap(TennisSessionStore(restoring: store.sessionId))
+
+        restored.send(.pointWon(.left))
+        restored.send(.finish)
+        await withCheckedContinuation { continuation in
+            restored.flush { continuation.resume() }
+        }
+        XCTAssertEqual(ScoreboardRecordManager.shared.getRecordById(id)?.team1FinalScore, 2)
+        let afterRefinish = try await repository.loadResumeBundle(sessionId: store.sessionId, as: Bundle.self)
+        XCTAssertNil(afterRefinish)
+
+        // Simulate a cleanup interrupted after the replacement record became durable.
+        try await repository.saveResumeBundle(reopened)
+        let afterInterruptedCleanup = await coordinator.reconcileCommittedRecord(
+            recordID: id, sessionId: store.sessionId, repository: repository
+        )
+        XCTAssertNotNil(afterInterruptedCleanup)
+        let remaining = try await repository.loadResumeBundle(sessionId: store.sessionId, as: Bundle.self)
+        XCTAssertNil(remaining)
+    }
+
     func testFinishedBilliardsStoreDoesNotDeleteResumeBeforeFormalRecordCommit() async throws {
         let resumeRoot = FileManager.default.temporaryDirectory
             .appendingPathComponent("finished-billiards-resume-\(UUID().uuidString)", isDirectory: true)
@@ -1065,6 +1154,36 @@ final class RallySessionStoreTests: XCTestCase {
         XCTAssertTrue(store.state.finished)
         XCTAssertEqual(retained?.currentSession.status, .live)
         XCTAssertFalse(retained?.currentSession.state.finished ?? true)
+    }
+
+    func testBilliardsFinishedCleanupWaitsForDraftAndDoesNotRemoveTheUndoneMatch() async throws {
+        let resumeRoot = FileManager.default.temporaryDirectory
+            .appendingPathComponent("billiards-cleanup-\(UUID().uuidString)", isDirectory: true)
+        let repository = ResumeSessionRepository(rootURL: resumeRoot)
+        defer { try? FileManager.default.removeItem(at: resumeRoot) }
+
+        let store = BilliardsSessionStore(
+            gameType: .eightBall, state: EightBallState.initial(targetPoints: 5),
+            reducer: EightBallReducer(), participants: [], startedAt: Date(),
+            recordID: UUID().uuidString, resumeRepository: repository
+        )
+        store.persistSnapshot()
+        store.send(.finishMatch)
+        XCTAssertTrue(store.state.finished)
+        let coordinator = store.finishedCommitCoordinator
+        let commit = FinishedSessionRecordCommit(sessionId: store.sessionId, recordWritten: false)
+        let cleaned = await coordinator.cleanupResume(after: commit)
+        XCTAssertNil(cleaned.cleanupError)
+        let afterFinish = try await repository.liveEntries()
+        XCTAssertTrue(afterFinish.isEmpty)
+
+        XCTAssertTrue(store.undo())
+        let flushed = expectation(description: "undone billiards match is persisted")
+        store.flush { flushed.fulfill() }
+        await fulfillment(of: [flushed], timeout: 2)
+        _ = await coordinator.cleanupResume(after: commit)
+        let afterUndo = try await repository.liveEntries()
+        XCTAssertEqual(afterUndo.map(\.sessionId), [store.sessionId])
     }
 
     func testFreshRallyMatchKeepsFinishedRecordAndPersistsLiveResume() async {

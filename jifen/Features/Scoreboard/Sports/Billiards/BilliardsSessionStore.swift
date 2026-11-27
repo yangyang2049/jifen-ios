@@ -27,7 +27,7 @@ struct BilliardsWatchLink {
     }
 }
 
-/// Main-actor projection of `ScoreSessionCore` for the three
+/// Main-actor projection of `ScoreSessionMachine` for the three
 /// billiards scoreboards. The actor owns the authoritative state, undo frames,
 /// and typed intent timeline; SwiftUI only observes this read-only projection.
 @MainActor
@@ -38,18 +38,13 @@ final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: E
     typealias Event = Reducer.Event
     typealias ResumeBundle = ScoreSessionResumeBundle<State, Event, Intent>
 
-    private let core: ScoreSessionCore<Reducer>
+    @ObservationIgnored private var machine: ScoreSessionMachine<Reducer>
     private let reducer: Reducer
     private let resumeRepository: ResumeSessionRepository
     private var cachedBundle: ResumeBundle
     private(set) var recordContext: ScoreSessionRecordContext
-    /// Synchronous projection of the serialized reducer queue. Every accepted
-    /// preview uses the same reducer input, intent, and timestamp as the later
-    /// actor dispatch, so Undo can reserve a real future frame without treating
-    /// a nil/rejected derived intent as optimistic capacity.
-    private var reservationState: State
-    private var reservationUndoStates: [State]
-    private var operationTask: Task<Void, Never>?
+    @ObservationIgnored private var persistenceTask: Task<Void, Never>?
+    @ObservationIgnored private var liveSaveGeneration: UInt64 = 0
     private var installedLinkedUpdate: PhoneWatchLinkService.LinkedSnapshotUpdate?
     private var isProjectingAcceptedTransition = false
     private var lastPersistenceErrorPresentationAt: Date?
@@ -58,21 +53,26 @@ final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: E
     private(set) var state: State
     private(set) var persistenceFailureSignal = 0
     private(set) var hasCommittedFinishedRecord = false
-    private(set) var shouldReplaceCommittedFinishedRecord = false
+    var shouldReplaceCommittedFinishedRecord: Bool { recordContext.reopenedResumeID != nil }
     let sessionId: UUID
 
     var finishedCommitCoordinator: FinishedSessionCommitCoordinator {
-        let cleanupToken = try? ResumeSessionRepository.cleanupToken(
-            sessionId: sessionId,
-            rootURL: resumeRepository.rootURL
-        )
+        let pending = persistenceTask
+        let generation = liveSaveGeneration
+        var cleanupToken: ResumeSessionCleanupToken?
         return FinishedSessionCommitCoordinator(
-            resumeRemover: { [resumeRepository] sessionId in
+            resumeRemover: { [weak self, resumeRepository] sessionId in
+                // A final record can commit before the previous scoring tap's
+                // draft write finishes. Wait for it before capturing cleanup.
+                _ = await pending?.value
+                guard (self?.liveSaveGeneration ?? generation) == generation else { return }
+                if cleanupToken == nil {
+                    cleanupToken = try ResumeSessionRepository.cleanupToken(
+                        sessionId: sessionId, rootURL: resumeRepository.rootURL
+                    )
+                }
                 guard let cleanupToken else { return }
-                _ = try await resumeRepository.remove(
-                    sessionId: sessionId,
-                    ifUnchanged: cleanupToken
-                )
+                _ = try await resumeRepository.remove(sessionId: sessionId, ifUnchanged: cleanupToken)
             }
         )
     }
@@ -148,10 +148,8 @@ final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: E
         self.cachedBundle = bundle
         self.recordContext = .init()
         self.reducer = reducer
-        self.reservationState = state
-        self.reservationUndoStates = restoredUndoStates
         self.resumeRepository = resumeRepository ?? ResumeSessionRepository()
-        self.core = ScoreSessionCore(
+        self.machine = ScoreSessionMachine(
             resumeBundle: bundle,
             reducer: reducer,
             shouldFinish: { _, state in Self.status(of: state) == .finished }
@@ -168,10 +166,8 @@ final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: E
         cachedBundle = resumeBundle
         recordContext = ScoreSessionRecordContext.decode(resumeBundle.auxiliaryPayload) ?? .init()
         self.reducer = reducer
-        reservationState = resumeBundle.currentSession.state
-        reservationUndoStates = resumeBundle.undoFrames.map(\.session.state)
         self.resumeRepository = resumeRepository ?? ResumeSessionRepository()
-        core = ScoreSessionCore(
+        machine = ScoreSessionMachine(
             resumeBundle: resumeBundle,
             reducer: reducer,
             shouldFinish: { _, state in Self.status(of: state) == .finished }
@@ -229,50 +225,26 @@ final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: E
             sendLinked(deriveIntent, through: linked, completion: completion, afterFinalized: afterFinalized)
             return
         }
+        let before = state
         let now = Int64(Date().timeIntervalSince1970 * 1_000)
-        let reservedBefore = reservationState
-        guard let intent = deriveIntent(reservedBefore) else { return }
-        let preview = reducer.reduce(state: reservedBefore, intent: intent, at: now)
-        guard preview.accepted else { return }
-        reservationUndoStates.append(reservedBefore)
-        reservationState = preview.state
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            guard let self else { return }
-            let before = self.state
-            guard case .accepted(let session, let events) = await core.dispatch(
-                actorId: "phone",
-                intent: intent,
-                at: now
-            ) else {
-                assertionFailure("Billiards reducer dispatch diverged from its synchronous reservation preview")
-                return
-            }
-            self.recordContext.pushUndoCheckpoint()
-            self.state = session.state
-            // Let the scoreboard project the accepted reducer events into the
-            // record context before this authoritative state is persisted.
-            // `updateRecordContext` replaces `recordContext` synchronously, so
-            // the resume saved below contains state + action timeline together.
-            self.isProjectingAcceptedTransition = true
-            completion?(intent, before, session.state, events)
-            self.isProjectingAcceptedTransition = false
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            self.cachedBundle = await core.resumeBundle()
-            // Formal records must read `encodedResumeBundle` only after both
-            // the accepted state and its projected record context are present.
-            afterFinalized?(intent, before, session.state, events)
-            do {
-                try await self.saveLiveResumeIfNeeded()
-            } catch {
-                self.reportPersistenceFailure(error)
-            }
+        guard let intent = deriveIntent(before),
+              case .accepted(let session, let events) = machine.dispatch(
+                  actorId: "phone", intent: intent, at: now
+              ) else { return }
+        recordContext.pushUndoCheckpoint()
+        if Self.status(of: before) == .finished, session.status == .live {
+            hasCommittedFinishedRecord = false
+            recordContext.reopenedResumeID = UUID()
         }
+        state = session.state
+        // The view projects accepted events into the same snapshot as the score.
+        isProjectingAcceptedTransition = true
+        completion?(intent, before, session.state, events)
+        isProjectingAcceptedTransition = false
+        enqueuePersistence()
+        afterFinalized?(intent, before, session.state, events)
     }
 
-    /// Reserves an existing undo frame synchronously so current UI callbacks can
-    /// decide which Toast to show without racing a second rapid tap.
     @discardableResult
     func undo(linked: BilliardsWatchLink? = nil, completion: ((Bool, State) -> Void)? = nil) -> Bool {
         if let linked {
@@ -280,39 +252,21 @@ final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: E
             completion?(succeeded, state)
             return succeeded
         }
-        guard let projectedRestore = reservationUndoStates.popLast() else { return false }
-        reservationState = projectedRestore
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            guard let self else { return }
-            let wasFinished = Self.status(of: self.state) == .finished
-            let succeeded = await core.undo(actorId: "phone")
-            if succeeded {
-                let session = await core.snapshot()
-                self.state = session.state
-                _ = self.recordContext.restoreLastUndoCheckpoint()
-                await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-                self.cachedBundle = await core.resumeBundle()
-                if wasFinished,
-                   Self.status(of: session.state) == .live,
-                   self.hasCommittedFinishedRecord {
-                    self.hasCommittedFinishedRecord = false
-                    self.shouldReplaceCommittedFinishedRecord = true
-                }
-                do {
-                    try await self.saveLiveResumeIfNeeded()
-                } catch {
-                    self.reportPersistenceFailure(error)
-                }
-            }
-            completion?(succeeded, self.state)
+        let wasFinished = Self.status(of: state) == .finished
+        guard machine.undo(actorId: "phone") else { return false }
+        state = machine.currentSession.state
+        _ = recordContext.restoreLastUndoCheckpoint()
+        if wasFinished, Self.status(of: state) == .live {
+            hasCommittedFinishedRecord = false
+            recordContext.reopenedResumeID = UUID()
         }
+        enqueuePersistence()
+        completion?(true, state)
         return true
     }
 
     /// Apply the phone's synchronous authoritative score and history together.
-    /// The local actor is used again only after explicitly ending the link.
+    /// The local machine is used again only after explicitly ending the link.
     @discardableResult
     func installLinkedUpdate(_ update: PhoneWatchLinkService.LinkedSnapshotUpdate) -> Bool {
         if let previous = installedLinkedUpdate, previous.sessionId == update.sessionId {
@@ -340,8 +294,6 @@ final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: E
             actionLog: actionLog, detailedActions: update.detailedActions, actionCount: update.detailedActions.count
         )
         state = confirmed
-        reservationState = confirmed
-        reservationUndoStates.removeAll()
         installedLinkedUpdate = update
         return true
     }
@@ -403,79 +355,32 @@ final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: E
     }
 
     func rebase(to state: State, completion: ((State) -> Void)? = nil) {
-        reservationState = state
-        reservationUndoStates.removeAll(keepingCapacity: true)
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            let session = await core.rebase(to: state, status: Self.status(of: state))
-            guard let self else { return }
-            self.state = session.state
-            self.recordContext.undoCheckpoints.removeAll()
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            self.cachedBundle = await core.resumeBundle()
-            do {
-                try await self.saveLiveResumeIfNeeded()
-            } catch {
-                self.reportPersistenceFailure(error)
-            }
-            completion?(session.state)
-        }
+        let session = machine.rebase(to: state, status: Self.status(of: state))
+        self.state = session.state
+        recordContext.undoCheckpoints.removeAll()
+        enqueuePersistence { _ in completion?(session.state) }
     }
 
-    /// Starts a fresh local match in the same session slot. Unlike a scoring
-    /// reset intent this is an undo boundary: Android's Snooker reset rebuilds
-    /// the runtime and clears both reducer history and record projection.
+    /// Starts a fresh local match and clears both undo and record history.
     func resetRuntime(to state: State, completion: ((State) -> Void)? = nil) {
-        reservationState = state
-        reservationUndoStates.removeAll(keepingCapacity: true)
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            let session = await core.rebase(to: state, status: Self.status(of: state))
-            guard let self else { return }
-            self.state = session.state
-            self.recordContext = .init()
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            self.cachedBundle = await core.resumeBundle()
-            do {
-                try await self.saveLiveResumeIfNeeded()
-            } catch {
-                self.reportPersistenceFailure(error)
-            }
-            completion?(session.state)
-        }
+        let session = machine.rebase(to: state, status: Self.status(of: state))
+        self.state = session.state
+        let reopenedResumeID = hasCommittedFinishedRecord ? UUID() : recordContext.reopenedResumeID
+        hasCommittedFinishedRecord = false
+        recordContext = .init(reopenedResumeID: reopenedResumeID)
+        enqueuePersistence { _ in completion?(session.state) }
     }
 
     func updateParticipants(_ participants: [SessionParticipant]) {
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            _ = await core.updateParticipants(participants)
-            guard let self else { return }
-            self.cachedBundle = await core.resumeBundle()
-            do {
-                try await self.saveLiveResumeIfNeeded()
-            } catch {
-                self.reportPersistenceFailure(error)
-            }
-        }
+        machine.updateParticipants(participants)
+        guard !isProjectingAcceptedTransition else { return }
+        enqueuePersistence()
     }
 
     func updateMetadataTitle(_ title: String?) {
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            guard let self else { return }
-            let current = await core.snapshot()
-            _ = await core.updateMetadata(.init(title: title, extras: current.metadata.extras))
-            self.cachedBundle = await core.resumeBundle()
-            do {
-                try await self.saveLiveResumeIfNeeded()
-            } catch {
-                self.reportPersistenceFailure(error)
-            }
-        }
+        machine.updateMetadata(.init(title: title, extras: machine.currentSession.metadata.extras))
+        guard !isProjectingAcceptedTransition else { return }
+        enqueuePersistence()
     }
 
     /// Persists the record-facing timeline beside the typed reducer bundle.
@@ -490,47 +395,20 @@ final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: E
             detailedActions: detailedActions,
             actionCount: actionCount,
             completedSetScores: recordContext.completedSetScores,
-            undoCheckpoints: recordContext.undoCheckpoints
+            undoCheckpoints: recordContext.undoCheckpoints,
+            reopenedResumeID: recordContext.reopenedResumeID
         )
         recordContext = context
-        // Accepted-transition completions run inside the serialized operation.
-        // The caller above will persist this synchronously replaced context
-        // together with the accepted state, so enqueuing a second save here
-        // would reorder later taps/undo and could replay stale record data.
         guard !isProjectingAcceptedTransition else { return }
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            guard let self else { return }
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            self.cachedBundle = await core.resumeBundle()
-            do {
-                try await self.saveLiveResumeIfNeeded()
-            } catch {
-                self.reportPersistenceFailure(error)
-            }
-        }
+        enqueuePersistence()
     }
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            guard let self else { return }
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            self.cachedBundle = await core.resumeBundle()
-            do {
-                try await self.saveLiveResumeIfNeeded()
-                completion?(true)
-            } catch {
-                self.reportPersistenceFailure(error)
-                completion?(false)
-            }
-        }
+        enqueuePersistence(completion: completion)
     }
 
     func flush(completion: @escaping () -> Void) {
-        let pending = operationTask
+        let pending = persistenceTask
         Task {
             _ = await pending?.value
             completion()
@@ -547,17 +425,29 @@ final class BilliardsSessionStore<Reducer: DomainReducer> where Reducer.State: E
 
     func markFinishedRecordCommitted() {
         hasCommittedFinishedRecord = true
-        shouldReplaceCommittedFinishedRecord = false
+        recordContext.reopenedResumeID = nil
     }
 
-    private func saveLiveResumeIfNeeded() async throws {
-        guard cachedBundle.currentSession.status == .live else {
-            // Never invoke PersistenceCore's finished-save removal before the
-            // app-layer formal record has committed. Keeping the last live
-            // snapshot makes a failed finish recoverable.
+    private func enqueuePersistence(completion: ((Bool) -> Void)? = nil) {
+        machine.setResumeAuxiliaryPayload(recordContext.encoded)
+        let bundle = machine.resumeBundle()
+        cachedBundle = bundle
+        guard bundle.currentSession.status == .live, installedLinkedUpdate == nil else {
+            completion?(true)
             return
         }
-        try await resumeRepository.saveResumeBundle(cachedBundle)
+        liveSaveGeneration &+= 1
+        let pending = persistenceTask
+        persistenceTask = Task {
+            _ = await pending?.value
+            do {
+                try await resumeRepository.saveResumeBundle(bundle)
+                completion?(true)
+            } catch {
+                reportPersistenceFailure(error)
+                completion?(false)
+            }
+        }
     }
 
     private func reportPersistenceFailure(_ error: Error) {

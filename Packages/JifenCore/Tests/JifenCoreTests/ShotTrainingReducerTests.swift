@@ -111,6 +111,34 @@ import Testing
         #expect(noUndo.state == prefixOnly)
     }
 
+    @Test func standaloneKeepsShotIDsAndCanUndoASpecificBucketBeyondTheLinkedLimit() {
+        let oldShot = ShotTrainingShot(id: UUID(), points: 3, made: true, timestamp: startTime)
+        let otherShot = ShotTrainingShot(id: UUID(), points: 1, made: false, timestamp: startTime)
+        let detailLimit = ShotTrainingState.maxDetailedShots
+        let initial = ShotTrainingSession(
+            mode: .free, startTime: startTime,
+            shots: [oldShot] + Array(repeating: otherShot, count: detailLimit - 1),
+            earlierCounts: .init(twoMade: 2)
+        )
+        let newShotID = UUID()
+        let recorded = reducer.reduce(
+            state: initial, intent: .recordShot(points: 2, made: false),
+            at: 1_700_000_001_000, shotID: newShotID
+        )
+        #expect(recorded.state.shots.count == detailLimit + 1)
+        #expect(recorded.state.shots.first?.id == oldShot.id)
+        #expect(recorded.state.shots.last?.id == newShotID)
+
+        let undone = reducer.reduce(
+            state: recorded.state, intent: .undoLastShot, at: 1_700_000_002_000,
+            undoMade: true, undoPoints: 3
+        )
+        #expect(undone.accepted)
+        #expect(undone.state.shots.count == detailLimit)
+        #expect(undone.state.shots.last?.id == newShotID)
+        #expect(undone.state.counts == .init(oneMiss: detailLimit - 1, twoMade: 2, twoMiss: 1))
+    }
+
     @Test func finishPreservesCountsAndResetStartsACleanRunInTheSameMode() {
         let initial = ShotTrainingState(mode: .fixed2, startTime: startTime, earlierCounts: ShotTrainingCounts(twoMiss: 1))
         let recorded = reducer.reduce(state: initial, intent: .recordShot(points: 2, made: true), at: 1_700_000_001_000).state

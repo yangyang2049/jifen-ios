@@ -136,6 +136,8 @@ private final class FinishedResumeCleanupRetryScheduler {
 /// formal record write has succeeded.
 @MainActor
 struct FinishedSessionCommitCoordinator {
+    private static let reopenedResumeIDKey = "reopenedResumeID"
+
     typealias RecordLookup = @MainActor (String) -> ScoreboardRecord?
     typealias RecordWriter = @MainActor (ScoreboardRecord) throws -> Void
     typealias ResumeRemover = @MainActor (UUID) async throws -> Void
@@ -177,16 +179,25 @@ struct FinishedSessionCommitCoordinator {
     func commitRecord(
         _ record: ScoreboardRecord,
         sessionId: UUID,
-        replaceExisting: Bool = false
+        replaceExisting: Bool = false,
+        reopenedResumeID: UUID? = nil
     ) throws -> FinishedSessionRecordCommit {
-        let alreadyCommitted = recordLookup(record.id)?.status == .finished
-        if !alreadyCommitted || replaceExisting {
+        let existing = recordLookup(record.id)
+        let alreadyCommitted = existing?.status == .finished
+        let sameReopenedResume = reopenedResumeID.map {
+            existing?.syncMetadata?[Self.reopenedResumeIDKey] == $0.uuidString
+        } ?? false
+        let writeRecord = !alreadyCommitted || (replaceExisting && !sameReopenedResume)
+        if writeRecord {
+            var record = record
+            if let reopenedResumeID {
+                record.syncMetadata = (record.syncMetadata ?? [:]).merging(
+                    [Self.reopenedResumeIDKey: reopenedResumeID.uuidString], uniquingKeysWith: { _, new in new }
+                )
+            }
             try recordWriter(record)
         }
-        return FinishedSessionRecordCommit(
-            sessionId: sessionId,
-            recordWritten: !alreadyCommitted || replaceExisting
-        )
+        return FinishedSessionRecordCommit(sessionId: sessionId, recordWritten: writeRecord)
     }
 
     /// Cleanup failure is returned as a committed result instead of throwing:
@@ -218,13 +229,34 @@ struct FinishedSessionCommitCoordinator {
     /// already durable record. `nil` means no formal record exists yet.
     func reconcileCommittedRecord(
         recordID: String,
-        sessionId: UUID
+        sessionId: UUID,
+        repository: ResumeSessionRepository
     ) async -> FinishedSessionCommitResult? {
-        guard recordLookup(recordID)?.status == .finished else { return nil }
-        return await cleanupResume(after: FinishedSessionRecordCommit(
-            sessionId: sessionId,
-            recordWritten: false
-        ))
+        guard let record = recordLookup(recordID), record.status == .finished else { return nil }
+        do {
+            guard let envelope = try ResumeSessionRepository.loadEnvelope(
+                sessionId: sessionId, rootURL: repository.rootURL
+            ) else { return .committed(recordWritten: false) }
+            // Only the finish committed for this reopened draft makes it stale.
+            if envelope.payloadKind == .scoreSessionBundle,
+               let reopenedResumeID = ScoreSessionPersistenceSupport.reopenedResumeID(in: envelope.payload),
+               record.syncMetadata?[Self.reopenedResumeIDKey] != reopenedResumeID.uuidString {
+                return nil
+            }
+            let token = ResumeSessionRepository.cleanupToken(for: envelope)
+            let guardedCleanup = FinishedSessionCommitCoordinator(
+                resumeRemover: { sessionId in
+                    _ = try await repository.remove(sessionId: sessionId, ifUnchanged: token)
+                },
+                cleanupRetryScheduler: cleanupRetryScheduler
+            )
+            return await guardedCleanup.cleanupResume(after: FinishedSessionRecordCommit(
+                sessionId: sessionId,
+                recordWritten: false
+            ))
+        } catch {
+            return .committedCleanupPending(recordWritten: false, error: error)
+        }
     }
 }
 

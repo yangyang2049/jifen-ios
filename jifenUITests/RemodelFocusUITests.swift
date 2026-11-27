@@ -48,6 +48,38 @@ final class RemodelFocusUITests: XCTestCase {
         }
     }
 
+    func testTennisScoreboardScoresAndUndoes() {
+        let app = launchChineseApp()
+        defer {
+            XCUIDevice.shared.orientation = .portrait
+            app.terminate()
+        }
+
+        XCTAssertTrue(selectTab("计分", in: app))
+        XCTAssertTrue(openCatalogCard("tennis", label: "网球", in: app))
+        tapStart(in: app)
+        XCUIDevice.shared.orientation = .landscapeLeft
+        let back = app.descendants(matching: .any)["scoreboard_back_button"]
+        XCTAssertTrue(back.waitForExistence(timeout: 10))
+
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.25, dy: 0.50)).tap()
+        let pointScore = app.staticTexts["15"].firstMatch
+        XCTAssertTrue(pointScore.waitForExistence(timeout: 5))
+
+        let menu = app.descendants(matching: .any)["scoreboard_menu_button"]
+        XCTAssertTrue(menu.waitForExistence(timeout: 3))
+        menu.tap()
+        let undo = app.descendants(matching: .any)["scoreboard_menu_action_undo"]
+        XCTAssertTrue(undo.waitForExistence(timeout: 3))
+        undo.tap()
+        app.descendants(matching: .any)["scoreboard_menu_close_button"].tap()
+        let clearedScore = expectation(
+            for: NSPredicate(format: "exists == false"),
+            evaluatedWith: pointScore
+        )
+        wait(for: [clearedScore], timeout: 5)
+    }
+
     func testRemodeledRecordFixturesOpen() {
         defer { clearRecordFixtures() }
         for project in remodeledRecordProjects {

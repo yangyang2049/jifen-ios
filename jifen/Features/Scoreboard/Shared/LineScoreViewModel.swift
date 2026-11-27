@@ -170,12 +170,7 @@ class LineScoreViewModel: BaseScoreViewModel {
 
     private func dispatch(_ intent: LineScoreIntent) {
         let before = state
-        let result = reducer.reduce(
-            state: before,
-            intent: intent,
-            at: Int64(Date().timeIntervalSince1970 * 1_000)
-        )
-        guard result.accepted else { return }
+        guard let next = stateAfterApplying(intent, to: before) else { return }
         let restoresNames: Bool
         switch intent {
         case .exchangeSides, .setNames, .reset:
@@ -190,13 +185,22 @@ class LineScoreViewModel: BaseScoreViewModel {
         ))
         if stateHistory.count > 50 { stateHistory.removeFirst() }
         controller?.pushHistory(left: before.leftScore, right: before.rightScore)
-        apply(result.state)
+        apply(next)
         recordSnapshot(
             code: operationCode(for: intent),
             annotation: snapshotAnnotation(for: intent)
         )
         persistenceRevision &+= 1
         controller?.performVibration(type: .light)
+    }
+
+    /// Subclasses can share a sport reducer while keeping the line-score
+    /// presentation, undo boundaries, and persisted action format.
+    func stateAfterApplying(_ intent: LineScoreIntent, to state: LineScoreState) -> LineScoreState? {
+        let result = reducer.reduce(
+            state: state, intent: intent, at: Int64(Date().timeIntervalSince1970 * 1_000)
+        )
+        return result.accepted ? result.state : nil
     }
 
     private func operationCode(for intent: LineScoreIntent) -> String {

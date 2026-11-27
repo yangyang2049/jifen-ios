@@ -53,15 +53,11 @@ struct ShotTrainingScoreboardView: View {
     /// 鸿蒙端 FREE_ENTRY_SIDE_PROMPT_DURATION_MS
     private static let entrySidePromptDuration: TimeInterval = 2
 
-    @State private var mode: ShotTrainingMode
+    @State private var training: ShotTrainingSession
     @State private var watchSessionId: UUID?
     @State private var appliedWatchMatchGeneration: UInt64?
-    @State private var earlierCounts: ShotTrainingCounts
-    @State private var shots: [ShotTrainingShot]
-    @State private var gameStartTime: Date
     @State private var recordID: String
     @State private var registersParticipantOwner: Bool
-    @State private var gameFinished: Bool
     @State private var showGameOver: Bool
     @State private var finalizedRecordID: String?
     @State private var previousIdleTimerDisabled: Bool?
@@ -108,13 +104,12 @@ struct ShotTrainingScoreboardView: View {
             }
         }
 
-        _mode = State(initialValue: restoredMode)
+        _training = State(initialValue: ShotTrainingSession(
+            mode: restoredMode, startTime: restoredStart, shots: restoredShots,
+            earlierCounts: restoredEarlierCounts, finished: restoredFinished
+        ))
         _watchSessionId = State(initialValue: initialSetup?.linkedWatchSessionId)
-        _earlierCounts = State(initialValue: restoredEarlierCounts)
-        _shots = State(initialValue: restoredShots)
-        _gameStartTime = State(initialValue: restoredStart)
         _recordID = State(initialValue: restoredID)
-        _gameFinished = State(initialValue: restoredFinished)
         _showGameOver = State(initialValue: restoredFinished)
         _finalizedRecordID = State(initialValue: restoredFinished ? restoredID : nil)
         let prefersLandscape = UserDefaults.standard.object(forKey: Self.landscapeLayoutKey) as? Bool ?? true
@@ -122,7 +117,26 @@ struct ShotTrainingScoreboardView: View {
         _registersParticipantOwner = State(initialValue: initialResumeSessionId == nil)
     }
 
-    private var counts: ShotTrainingCounts { .build(from: shots, earlier: earlierCounts) }
+    private var mode: ShotTrainingMode { training.mode }
+    private var shots: [ShotTrainingShot] { training.shots }
+    private var gameStartTime: Date { training.startTime }
+    private var earlierCounts: ShotTrainingCounts { training.earlierCounts }
+    private var gameFinished: Bool { training.finished }
+    private var counts: ShotTrainingCounts { training.counts }
+
+    private func reduceLocalTraining(
+        _ intent: ShotTrainingIntent,
+        shotID: UUID? = nil,
+        undoMade: Bool? = nil,
+        undoPoints: Int? = nil
+    ) -> ShotTrainingSession? {
+        let result = ShotTrainingReducer().reduce(
+            state: training, intent: intent,
+            at: Int64((Date().timeIntervalSince1970 * 1_000).rounded()),
+            shotID: shotID, undoMade: undoMade, undoPoints: undoPoints
+        )
+        return result.accepted ? result.state : nil
+    }
 
     private var scoringLocked: Bool {
         watchSessionId != nil && (!watchLinkService.canEditLinkedMatch)
@@ -623,7 +637,10 @@ struct ShotTrainingScoreboardView: View {
                 return
             }
         } else {
-            shots.append(.init(id: UUID(), points: points, made: made, timestamp: Date()))
+            guard let next = reduceLocalTraining(.recordShot(points: points, made: made), shotID: UUID()) else {
+                return
+            }
+            training = next
             saveRecord(finished: false)
         }
         // 鸿蒙端 vibrate(made)：命中 40ms、未中 90ms，未中比命中更重。
@@ -639,10 +656,8 @@ struct ShotTrainingScoreboardView: View {
                 .latestShotTrainingUndoTargetId(made: made, points: points),
                   applyLinkedTrainingIntent(.undo(targetOpId: target), sessionId: watchSessionId) else { return }
         } else {
-            guard let index = shots.lastIndex(where: { shot in
-                (made == nil || shot.made == made) && (points == nil || shot.points == points)
-            }) else { return }
-            shots.remove(at: index)
+            guard let next = reduceLocalTraining(.undoLastShot, undoMade: made, undoPoints: points) else { return }
+            training = next
             saveRecord(finished: false)
         }
         VibrationManager.shared.vibrateLight()
@@ -687,8 +702,8 @@ struct ShotTrainingScoreboardView: View {
         if let watchSessionId {
             guard applyLinkedTrainingIntent(.finish, sessionId: watchSessionId) else { return }
         } else {
-            guard saveRecord(finished: true) else { return }
-            gameFinished = true
+            guard let next = reduceLocalTraining(.finish), saveRecord(finished: true) else { return }
+            training = next
             showGameOver = true
         }
         VibrationManager.shared.vibrateMedium()
@@ -712,16 +727,11 @@ struct ShotTrainingScoreboardView: View {
             }
             return
         }
-        if counts.attempts > 0 {
-            guard saveRecord(finished: true) else { return }
-            gameFinished = true
-        }
+        if counts.attempts > 0, !saveRecord(finished: true) { return }
+        guard let next = reduceLocalTraining(.reset) else { return }
         recordID = ScoreboardRecordIdentity.next(prefix: GameType.basketballTraining.canonicalScoreboardIdentifier)
         try? ParticipantIdentityStore.shared.registerRecord(recordID)
-        gameStartTime = Date()
-        shots.removeAll()
-        earlierCounts = .init()
-        gameFinished = false
+        training = next
         showGameOver = false
         finalizedRecordID = nil
         menuConfirm.clear()
@@ -834,13 +844,13 @@ struct ShotTrainingScoreboardView: View {
         if state.finished, let id = watchLinkService.finishedRecordId {
             finalizedRecordID = id
         }
-        mode = state.mode
-        gameStartTime = state.startTime
-        shots = state.shots.map {
-            .init(id: UUID(), points: $0.points, made: $0.made, timestamp: $0.timestamp)
-        }
-        earlierCounts = state.earlierCounts
-        gameFinished = state.finished
+        training = ShotTrainingSession(
+            mode: state.mode, startTime: state.startTime,
+            shots: state.shots.map {
+                .init(id: UUID(), points: $0.points, made: $0.made, timestamp: $0.timestamp)
+            },
+            earlierCounts: state.earlierCounts, finished: state.finished
+        )
         showGameOver = state.finished
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
     }

@@ -773,11 +773,7 @@ struct HomeTab: View {
 
             let repository = ResumeSessionRepository()
             do {
-                let finishedCoordinator = FinishedSessionCommitCoordinator(
-                    resumeRemover: { sessionId in
-                        try await repository.remove(sessionId: sessionId)
-                    }
-                )
+                let finishedCoordinator = FinishedSessionCommitCoordinator()
                 let lifecycleCoordinator = AbandonedResumeSessionCoordinator()
                 let scanner = HomeResumeSessionScanner<UnfinishedGameSummary>(
                     reconcileCommittedRecord: { entry in
@@ -787,7 +783,8 @@ struct HomeTab: View {
                         ) ?? entry.sessionId.uuidString
                         guard let reconciliation = await finishedCoordinator.reconcileCommittedRecord(
                             recordID: committedRecordID,
-                            sessionId: entry.sessionId
+                            sessionId: entry.sessionId,
+                            repository: repository
                         ) else { return false }
                         if let cleanupError = reconciliation.cleanupError {
                             ScoreboardPersistenceFailureReporter.report(

@@ -20,8 +20,9 @@ struct FootballResumeStateV2: Codable {
 @Observable
 class FootballViewModel: LineScoreViewModel {
     let gameType: ScoreCore.GameType
-    private(set) var clockSession: FootballMatchClockSession
-    private var stoppageAdditionHistory: [Int] = []
+    private var standaloneState: FootballMatchState
+    private let clockAnchorWall: Int64
+    private let clockAnchorUptime: UInt64
     private(set) var clockRevision = 0
     @ObservationIgnored var submitLinkedIntent: (@MainActor (LinkedScoreboardIntent) -> Bool)?
     private var confirmedLinkedState: FootballMatchState?
@@ -34,14 +35,18 @@ class FootballViewModel: LineScoreViewModel {
         halfLengthSeconds: Int = 45 * 60
     ) {
         self.gameType = gameType
-        self.clockSession = FootballMatchClockSession(
-            state: .init(halfLengthSeconds: halfLengthSeconds),
-            gameType: gameType
+        let now = Self.wallClockMilliseconds()
+        clockAnchorWall = now
+        clockAnchorUptime = DispatchTime.now().uptimeNanoseconds
+        let left = NSLocalizedString("team_home", comment: "Home Team")
+        let right = NSLocalizedString("team_away", comment: "Away Team")
+        standaloneState = FootballMatchReducer.initial(
+            leftName: left, rightName: right, isFiveAside: gameType == .football5v5,
+            halfLengthSeconds: halfLengthSeconds, at: now
         )
         super.init(controller: controller, rules: .nonNegative)
-        self.leftTeam = TeamData(name: NSLocalizedString("team_home", comment: "Home Team"), score: 0)
-        self.rightTeam = TeamData(name: NSLocalizedString("team_away", comment: "Away Team"), score: 0)
-        self.clockSession.resetForNewGame()
+        leftTeam = TeamData(name: left, score: 0)
+        rightTeam = TeamData(name: right, score: 0)
     }
 
     func getScoringOptions() -> [Int] {
@@ -55,30 +60,32 @@ class FootballViewModel: LineScoreViewModel {
         return ""
     }
 
-    var clockStage: Int { confirmedLinkedState?.timer.stage ?? clockSession.state.stage }
-    var clockPeriodLengthSeconds: Int { confirmedLinkedState?.currentPeriodLengthSeconds ?? clockSession.currentPeriodLengthSeconds }
-    var clockStoppageSeconds: Int { confirmedLinkedState?.currentStoppageSeconds ?? clockSession.currentStoppageSeconds }
+    private static func wallClockMilliseconds() -> Int64 {
+        Int64(Date().timeIntervalSince1970 * 1_000)
+    }
+
+    private var localClockMilliseconds: Int64 {
+        clockAnchorWall + Int64((DispatchTime.now().uptimeNanoseconds - clockAnchorUptime) / 1_000_000)
+    }
+
+    private var activeFootballState: FootballMatchState { confirmedLinkedState ?? standaloneState }
+    var clockStage: Int { activeFootballState.timer.stage }
+    var clockPeriodLengthSeconds: Int { activeFootballState.currentPeriodLengthSeconds }
+    var clockStoppageSeconds: Int { activeFootballState.currentStoppageSeconds }
     var clockIsRunning: Bool {
-        guard let confirmedLinkedState else { return clockSession.state.isRunning }
-        return confirmedLinkedState.timer.isRunning && !clockPeriodCompleted
+        activeFootballState.timer.isRunning && (confirmedLinkedState == nil || !clockPeriodCompleted)
     }
-    var clockIsTimeUp: Bool {
-        guard let confirmedLinkedState else { return clockSession.isTimeUp() }
-        return clockElapsedSeconds >= confirmedLinkedState.targetSeconds
-    }
+    var clockIsTimeUp: Bool { clockElapsedSeconds >= activeFootballState.targetSeconds }
     var clockElapsedSeconds: Int {
-        guard let confirmedLinkedState else { return clockSession.elapsedSecondsNow() }
-        return FootballMatchReducer.displayElapsedSeconds(state: confirmedLinkedState, at: linkedDisplayEpochMilliseconds)
+        activeFootballState.displayElapsedSeconds(
+            at: confirmedLinkedState == nil ? localClockMilliseconds : linkedDisplayEpochMilliseconds
+        )
     }
-    var clockMainDisplaySeconds: Int {
-        confirmedLinkedState == nil ? clockSession.mainDisplaySeconds : min(clockElapsedSeconds, clockPeriodLengthSeconds)
-    }
-    var clockStoppageElapsedSeconds: Int {
-        confirmedLinkedState == nil ? clockSession.elapsedStoppageSeconds : max(0, clockElapsedSeconds - clockPeriodLengthSeconds)
-    }
-    var clockPeriodCompleted: Bool { confirmedLinkedState == nil ? clockSession.periodCompleted : clockIsTimeUp }
-    var allowsManualClockPause: Bool { clockSession.allowsManualPause }
-    var allowsStoppageTime: Bool { clockSession.allowsStoppageTime }
+    var clockMainDisplaySeconds: Int { min(clockElapsedSeconds, clockPeriodLengthSeconds) }
+    var clockStoppageElapsedSeconds: Int { max(0, clockElapsedSeconds - clockPeriodLengthSeconds) }
+    var clockPeriodCompleted: Bool { clockIsTimeUp }
+    var allowsManualClockPause: Bool { activeFootballState.allowsManualClockPause }
+    var allowsStoppageTime: Bool { activeFootballState.allowsStoppageTime }
 
     func formattedClock() -> String {
         let seconds = max(0, clockMainDisplaySeconds)
@@ -92,41 +99,32 @@ class FootballViewModel: LineScoreViewModel {
 
     func toggleClock() {
         guard allowsManualClockPause else { return }
-        if let submitLinkedIntent {
-            _ = submitLinkedIntent(.football(.toggleClock))
-            return
-        }
-        clockSession.toggleRunning()
-        clockRevision &+= 1
+        sendClockIntent(.toggleClock)
     }
 
     func addStoppage(_ seconds: Int) {
-        if let submitLinkedIntent {
-            _ = submitLinkedIntent(.football(.addStoppage(seconds: seconds)))
-            return
-        }
-        guard clockSession.addStoppageSeconds(seconds) else { return }
-        stoppageAdditionHistory.append(seconds)
-        clockRevision &+= 1
+        sendClockIntent(.addStoppage(seconds: seconds))
     }
 
-    var canUndoLastStoppage: Bool { !(confirmedLinkedState?.stoppageHistory ?? stoppageAdditionHistory).isEmpty }
+    var canUndoLastStoppage: Bool { !activeFootballState.stoppageHistory.isEmpty }
 
     func undoLastStoppage() {
-        if let submitLinkedIntent {
-            _ = submitLinkedIntent(.football(.undoLastStoppage))
-            return
-        }
-        guard let seconds = stoppageAdditionHistory.last else { return }
-        guard clockSession.undoStoppageSeconds(seconds) else { return }
-        stoppageAdditionHistory.removeLast()
-        clockRevision &+= 1
+        sendClockIntent(.undoLastStoppage)
     }
 
     @discardableResult
     func advanceClockStage() -> Bool {
-        if let submitLinkedIntent { return submitLinkedIntent(.football(.advanceStage)) }
-        guard clockSession.advanceStage() else { return false }
+        sendClockIntent(.advanceStage)
+    }
+
+    @discardableResult
+    private func sendClockIntent(_ intent: FootballMatchIntent) -> Bool {
+        if let submitLinkedIntent { return submitLinkedIntent(.football(intent)) }
+        let result = FootballMatchReducer().reduce(
+            state: localState(with: sessionState), intent: intent, at: localClockMilliseconds
+        )
+        guard result.accepted else { return false }
+        standaloneState = result.state
         clockRevision &+= 1
         return true
     }
@@ -134,54 +132,112 @@ class FootballViewModel: LineScoreViewModel {
     func checkClockExpiry() -> Bool {
         let wasRunning = clockIsRunning
         if confirmedLinkedState != nil {
-            linkedDisplayEpochMilliseconds = Int64(Date().timeIntervalSince1970 * 1_000)
+            linkedDisplayEpochMilliseconds = Self.wallClockMilliseconds()
             return wasRunning && clockPeriodCompleted
         }
-        let completed = clockSession.refresh()
-        if wasRunning && completed { clockRevision &+= 1 }
-        return wasRunning && completed
+        guard wasRunning, clockIsTimeUp else { return false }
+        standaloneState = FootballMatchReducer.settleClock(state: standaloneState, at: localClockMilliseconds)
+        clockRevision &+= 1
+        return true
     }
 
     func restoreFootballSession(_ resumeState: FootballResumeStateV2) {
         restoreSession(resumeState.lineScore)
-        clockSession = FootballMatchClockSession(state: resumeState.timer, gameType: gameType)
-        clockSession.reconcileAfterRestore()
-        stoppageAdditionHistory.removeAll()
+        // Read the shipped V2 timer with its original upgrade semantics.
+        var restored = FootballMatchClockSession(state: resumeState.timer, gameType: gameType)
+        restored.reconcileAfterRestore()
+        var timer = restored.state
+        timer.savedWallClockMilliseconds = localClockMilliseconds
+        standaloneState = makeStandaloneState(timer: timer)
         clockRevision &+= 1
     }
 
-    /// Android 3.0 records did not contain a football clock. Preserve their
-    /// score while restoring a paused first period at the configured default.
+    /// Earlier sessions had no clock. Keep their score at a paused first period.
     func restoreLegacyFootballSession(_ resumeState: LineScoreResumeState? = nil) {
         if let resumeState { restoreSession(resumeState) }
-        clockSession = FootballMatchClockSession(
-            state: .init(halfLengthSeconds: clockSession.state.halfLengthSeconds),
-            gameType: gameType
-        )
-        stoppageAdditionHistory.removeAll()
+        standaloneState = makeStandaloneState(timer: .init(
+            halfLengthSeconds: standaloneState.timer.halfLengthSeconds,
+            savedWallClockMilliseconds: localClockMilliseconds
+        ))
         clockRevision &+= 1
     }
 
     func resetClock(halfLengthSeconds: Int? = nil) {
         finishedViaLink = false
-        let length = halfLengthSeconds ?? clockSession.state.halfLengthSeconds
-        clockSession = FootballMatchClockSession(
-            state: .init(halfLengthSeconds: length),
-            gameType: gameType
+        standaloneState = FootballMatchReducer.initial(
+            leftName: leftTeam.name, rightName: rightTeam.name, isFiveAside: gameType == .football5v5,
+            halfLengthSeconds: halfLengthSeconds ?? standaloneState.timer.halfLengthSeconds,
+            at: localClockMilliseconds
         )
-        clockSession.resetForNewGame()
-        stoppageAdditionHistory.removeAll()
         clockRevision &+= 1
     }
 
-    /// Goals carry the match-clock snapshot so records can render `53′` /
-    /// `45+2′` (same fields Android and Harmony write).
-    override func snapshotAnnotation(for intent: LineScoreIntent) -> String? {
-        guard case .pointWon = intent else { return nil }
-        return FootballClockAnnotation.encode(
-            period: clockSession.state.stage,
-            elapsedSeconds: clockSession.elapsedSecondsNow()
+    private func makeStandaloneState(timer: FootballTimerStateV2) -> FootballMatchState {
+        FootballMatchState(
+            leftName: leftTeam.name, rightName: rightTeam.name, leftScore: leftTeam.score,
+            rightScore: rightTeam.score, timer: timer, isFiveAside: gameType == .football5v5,
+            sidesSwapped: sidesSwapped, finished: gameFinished
         )
+    }
+
+    private func localState(with score: LineScoreState) -> FootballMatchState {
+        var state = standaloneState
+        state.leftName = score.leftName
+        state.rightName = score.rightName
+        state.leftScore = score.leftScore
+        state.rightScore = score.rightScore
+        state.sidesSwapped = score.sidesSwapped
+        state.finished = score.finished
+        return state
+    }
+
+    override func stateAfterApplying(_ intent: LineScoreIntent, to score: LineScoreState) -> LineScoreState? {
+        let current = localState(with: score)
+        let footballIntent: FootballMatchIntent
+        var repetitions = 1
+        switch intent {
+        case .pointWon(let side):
+            footballIntent = .goal(side: side)
+        case .adjust(let side, let delta):
+            let previous = side == .left ? score.leftScore : score.rightScore
+            let (sum, overflow) = previous.addingReportingOverflow(delta)
+            let target = score.rules.clamp(overflow ? (delta > 0 ? Int.max : Int.min) : sum)
+            guard target != previous else { return nil }
+            footballIntent = target > previous ? .goal(side: side) : .subtractGoal(side: side)
+            repetitions = abs(target - previous)
+        case .exchangeSides:
+            footballIntent = .exchangeSides
+        case .setNames(let left, let right):
+            footballIntent = .setNames(left: left, right: right)
+        case .finish:
+            footballIntent = .finish
+        case .reset:
+            footballIntent = .reset()
+        }
+        var next = current
+        let now = localClockMilliseconds
+        for _ in 0..<repetitions {
+            let result = FootballMatchReducer().reduce(state: next, intent: footballIntent, at: now)
+            guard result.accepted else { return nil }
+            next = result.state
+        }
+        standaloneState = next
+        return LineScoreState(
+            leftName: next.leftName, rightName: next.rightName, rules: score.rules,
+            leftScore: next.leftScore, rightScore: next.rightScore,
+            sidesSwapped: next.sidesSwapped, finished: next.finished
+        )
+    }
+
+    override func snapshotAnnotation(for intent: LineScoreIntent) -> String? {
+        switch intent {
+        case .pointWon, .adjust(_, delta: 1...):
+            return FootballClockAnnotation.encode(
+                period: standaloneState.timer.stage, elapsedSeconds: standaloneState.timer.elapsedSeconds
+            )
+        default:
+            return nil
+        }
     }
 
     // MARK: - Linked session
@@ -203,13 +259,8 @@ class FootballViewModel: LineScoreViewModel {
     func continueStandaloneFromLink(actions: [DetailedScoreAction]) {
         submitLinkedIntent = nil
         guard let state = confirmedLinkedState else { return }
-        let now = Int64(Date().timeIntervalSince1970 * 1_000)
-        var timer = state.timer
-        timer.elapsedSeconds = FootballMatchReducer.displayElapsedSeconds(state: state, at: now)
-        timer.savedWallClockMilliseconds = now
-        timer.isRunning = timer.isRunning && !state.finished && timer.elapsedSeconds < state.targetSeconds
-        clockSession = FootballMatchClockSession(state: timer, gameType: gameType)
-        stoppageAdditionHistory = state.stoppageHistory
+        standaloneState = FootballMatchReducer.settleClock(state: state, at: Self.wallClockMilliseconds())
+        standaloneState.timer.savedWallClockMilliseconds = localClockMilliseconds
         confirmedLinkedState = nil
         if !state.finished {
             controller?.gameActions = actions.compactMap(Self.standaloneAction)
@@ -304,11 +355,6 @@ class FootballViewModel: LineScoreViewModel {
             return
         }
         super.endGame()
-        // Freeze the match clock at the final whistle. The board keeps a 1s
-        // tick that refreshes the clock session, so without this every later
-        // save (background/exit) persisted a longer elapsed time than the
-        // moment the match actually ended.
-        clockSession.pause()
         clockRevision &+= 1
     }
 
@@ -318,7 +364,9 @@ class FootballViewModel: LineScoreViewModel {
         // commands. The scoreboard's generic Undo must therefore only consume
         // the line-score reducer history; `undoLastStoppage()` owns stoppage
         // rollback and clock/stage operations never enter the score undo stack.
-        return super.undo()
+        guard super.undo() else { return false }
+        standaloneState = localState(with: sessionState)
+        return true
     }
 
     // MARK: - Real-time Record Saving
@@ -331,9 +379,9 @@ class FootballViewModel: LineScoreViewModel {
         let hasProgress = !(controller?.getGameActions().isEmpty ?? true)
             || leftTeam.score != 0
             || rightTeam.score != 0
-            || clockSession.state.stage != 1
-            || clockSession.elapsedSecondsNow() > 0
-            || clockSession.state.stoppageSeconds.contains(where: { $0 > 0 })
+            || standaloneState.timer.stage != 1
+            || clockElapsedSeconds > 0
+            || standaloneState.timer.stoppageSeconds.contains(where: { $0 > 0 })
             || isGameFinished
             || gameFinished
         guard hasProgress else { return }
@@ -355,7 +403,10 @@ class FootballViewModel: LineScoreViewModel {
             undoHistory: resumeHistory,
             intentTimeline: controller?.getGameActions() ?? []
         )
-        var persistedTimer = clockSession.snapshot()
+        var persistedTimer = FootballMatchReducer.settleClock(
+            state: standaloneState, at: localClockMilliseconds
+        ).timer
+        persistedTimer.savedWallClockMilliseconds = Self.wallClockMilliseconds()
         if isGameFinished || gameFinished {
             persistedTimer.isRunning = false
         }
@@ -391,7 +442,7 @@ class FootballViewModel: LineScoreViewModel {
                 "minimumScore": LineScoreRuleSet.nonNegative.minimum,
                 "maximumScore": LineScoreRuleSet.nonNegative.maximum,
                 "ruleProfileVersion": 1,
-                "footballHalfLengthSeconds": clockSession.state.halfLengthSeconds,
+                "footballHalfLengthSeconds": standaloneState.timer.halfLengthSeconds,
                 "showMatchTime": true
             ],
             stateSnapshot: snapshotData,

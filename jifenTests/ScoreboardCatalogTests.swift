@@ -1044,7 +1044,7 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertEqual(store.undoStates.map(\.leftPoints), [0, 1])
     }
 
-    func testNineBallQueuedWinRejectsStaleSmallGoldWithoutUndoOrRecord() async throws {
+    func testNineBallWinRejectsStaleSmallGoldWithoutUndoOrRecord() async throws {
         let root = FileManager.default.temporaryDirectory
             .appendingPathComponent("nine-ball-stale-transfer-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -1082,15 +1082,13 @@ final class ScoreboardCatalogTests: XCTestCase {
                 }
             )
         }
-        XCTAssertEqual(store.state, initial, "The UI projection has not advanced while both taps reserve their work")
+        XCTAssertEqual(store.state.playerPoints, [-4, 4, 0, 0])
+        XCTAssertEqual(store.state.roundNumber, 2)
+        XCTAssertEqual(store.state.breakerPlayer, 2)
         XCTAssertEqual(rejected, 1)
         let flushed = expectation(description: "nine-ball stale transfer flushed")
         store.flush { flushed.fulfill() }
         await fulfillment(of: [flushed], timeout: 2)
-
-        XCTAssertEqual(store.state.playerPoints, [-4, 4, 0, 0])
-        XCTAssertEqual(store.state.roundNumber, 2)
-        XCTAssertEqual(store.state.breakerPlayer, 2)
         XCTAssertEqual(store.undoStates.count, 1)
         XCTAssertEqual(store.recordContext.actionCount, 1)
         XCTAssertEqual(store.recordContext.actionLog.count, 1)
@@ -1325,7 +1323,9 @@ final class ScoreboardCatalogTests: XCTestCase {
         await fulfillment(of: [undone], timeout: 2)
         XCTAssertFalse(store.hasCommittedFinishedRecord)
         XCTAssertTrue(store.shouldReplaceCommittedFinishedRecord)
-        XCTAssertEqual(store.recordContext, .init())
+        let reopenedResumeID = store.recordContext.reopenedResumeID
+        XCTAssertNotNil(reopenedResumeID)
+        XCTAssertEqual(store.recordContext, .init(reopenedResumeID: reopenedResumeID))
 
         var requestedReplacement = false
         let secondFinish = expectation(description: "replacement finish committed")
@@ -1723,6 +1723,30 @@ final class ScoreboardCatalogTests: XCTestCase {
         XCTAssertFalse(viewModel.undo())
     }
 
+    func testPublishedFootballDraftResumesAtTheSameScoreAndPeriod() throws {
+        let controller = FootballScoreboardController(gameType: .football5v5)
+        let viewModel = FootballViewModel(controller: controller, gameType: .football5v5)
+        let draft = FootballResumeStateV2(
+            lineScore: .init(
+                state: .init(leftName: "A", rightName: "B", leftScore: 2, rightScore: 1),
+                undoHistory: [], intentTimeline: []
+            ),
+            timer: .init(stage: 2, halfLengthSeconds: 1_200, elapsedSeconds: 125)
+        )
+        let stored = try JSONEncoder().encode(draft)
+        viewModel.restoreFootballSession(try JSONDecoder().decode(FootballResumeStateV2.self, from: stored))
+
+        XCTAssertEqual(viewModel.clockStage, 2)
+        XCTAssertEqual(viewModel.clockElapsedSeconds, 125)
+        XCTAssertFalse(viewModel.clockIsRunning)
+        viewModel.addScore(isLeft: true, points: 1)
+        XCTAssertEqual(viewModel.leftTeam.score, 3)
+        XCTAssertEqual(viewModel.rightTeam.score, 1)
+        XCTAssertTrue(viewModel.undo())
+        XCTAssertEqual(viewModel.leftTeam.score, 2)
+        XCTAssertEqual(viewModel.clockElapsedSeconds, 125)
+    }
+
     func testFootballScoreUndoDoesNotConsumeInterleavedStoppageHistory() {
         let controller = FootballScoreboardController()
         let viewModel = FootballViewModel(controller: controller, gameType: .football)
@@ -1731,18 +1755,18 @@ final class ScoreboardCatalogTests: XCTestCase {
         viewModel.addScore(isLeft: true, points: 1)
 
         XCTAssertEqual(viewModel.leftTeam.score, 1)
-        XCTAssertEqual(viewModel.clockSession.state.stoppageSeconds[0], 60)
+        XCTAssertEqual(viewModel.clockStoppageSeconds, 60)
         XCTAssertTrue(viewModel.undo(), "The generic scoreboard undo must consume the goal")
         XCTAssertEqual(viewModel.leftTeam.score, 0)
         XCTAssertEqual(
-            viewModel.clockSession.state.stoppageSeconds[0],
+            viewModel.clockStoppageSeconds,
             60,
             "Score undo must not consume the football injury-time stack"
         )
         XCTAssertTrue(viewModel.canUndoLastStoppage)
 
         viewModel.undoLastStoppage()
-        XCTAssertEqual(viewModel.clockSession.state.stoppageSeconds[0], 0)
+        XCTAssertEqual(viewModel.clockStoppageSeconds, 0)
         XCTAssertFalse(viewModel.canUndoLastStoppage)
         XCTAssertFalse(viewModel.undo())
     }
@@ -1776,12 +1800,12 @@ final class ScoreboardCatalogTests: XCTestCase {
         viewModel.addScore(isLeft: true, points: 1)
         viewModel.addStoppage(90)
         viewModel.undoLastStoppage()
-        XCTAssertEqual(viewModel.clockSession.state.stoppageSeconds[0], 0)
+        XCTAssertEqual(viewModel.clockStoppageSeconds, 0)
 
         XCTAssertTrue(viewModel.undo())
         XCTAssertEqual(viewModel.leftTeam.score, 0)
         XCTAssertEqual(
-            viewModel.clockSession.state.stoppageSeconds[0],
+            viewModel.clockStoppageSeconds,
             0,
             "The generic score undo must not redo a separately-undone stoppage addition"
         )

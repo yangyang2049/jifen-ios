@@ -166,12 +166,25 @@ public struct FootballMatchReducer: DomainReducer {
         elapsedTime(in: state, at: epochMilliseconds).seconds
     }
 
+    /// Materializes the running clock without recording an intent.
+    public static func settleClock(state: FootballMatchState, at epochMilliseconds: Int64) -> FootballMatchState {
+        var next = state
+        let anchor = max(0, state.timer.savedWallClockMilliseconds, epochMilliseconds)
+        let elapsed = elapsedTime(in: state, at: anchor)
+        next.timer.savedWallClockMilliseconds = anchor
+        next.timer.elapsedSeconds = elapsed.seconds
+        next.elapsedSubsecondMilliseconds = elapsed.milliseconds
+        if elapsed.seconds == state.targetSeconds {
+            next.timer.isRunning = false
+        }
+        return next
+    }
+
     public func reduce(
         state: FootballMatchState,
         intent: FootballMatchIntent,
         at epochMilliseconds: Int64
     ) -> ReduceResult<FootballMatchState, FootballMatchEvent> {
-        let anchor = max(0, state.timer.savedWallClockMilliseconds, epochMilliseconds)
         if state.finished {
             guard case .reset = intent else { return .rejected(state: state, reason: "Already finished") }
         }
@@ -180,14 +193,9 @@ public struct FootballMatchReducer: DomainReducer {
             return .rejected(state: state, reason: "Invalid football period")
         }
 
-        var next = state
-        let elapsed = Self.elapsedTime(in: state, at: anchor)
-        next.timer.savedWallClockMilliseconds = anchor
-        next.timer.elapsedSeconds = elapsed.seconds
-        next.elapsedSubsecondMilliseconds = elapsed.milliseconds
-        if elapsed.seconds == state.targetSeconds {
-            next.timer.isRunning = false
-        }
+        var next = Self.settleClock(state: state, at: epochMilliseconds)
+        let anchor = next.timer.savedWallClockMilliseconds
+        let elapsed = (seconds: next.timer.elapsedSeconds, milliseconds: next.elapsedSubsecondMilliseconds)
 
         let period = next.timer.stage
         let event: FootballMatchEvent

@@ -11,16 +11,24 @@ import SessionCore
 final class RallySessionStore {
     private typealias ResumeBundle = ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>
 
-    private let core: ScoreSessionCore<RallyMatchReducer>
+    @ObservationIgnored private var machine: ScoreSessionMachine<RallyMatchReducer>
     private let resumeRepository: ResumeSessionRepository
     private var detailedActions: [DetailedScoreAction]
     private(set) var completedSetScores: [VoiceSetScore]
     private var recordUndoCheckpoints: [ScoreSessionRecordCheckpoint]
-    private var operationTask: Task<Void, Never>?
+    @ObservationIgnored private var persistenceTask: Task<Void, Never>?
+    @ObservationIgnored private var persistenceGeneration: UInt64 = 0
     private var scoreInputFrozen: Bool
     private var lastPersistenceErrorPresentationAt: Date?
     private var hasPersistedFinishedRecord = false
-    @ObservationIgnored var isManagedByLink = false
+    private var reopenedResumeID: UUID?
+    @ObservationIgnored var isManagedByLink = false {
+        didSet {
+            if isManagedByLink && !oldValue {
+                persistenceGeneration &+= 1
+            }
+        }
+    }
     private(set) var linkedMatchGeneration: UInt64?
     private var linkedRevision: UInt64?
     private let logger = Logger(subsystem: "com.douhua.jifen.ios", category: "RallyPersistence")
@@ -133,7 +141,7 @@ final class RallySessionStore {
         sessionId = session.sessionId
         let startedMilliseconds = session.metadata.extras["startedAtEpochMilliseconds"].flatMap(Int64.init)
         startedAt = startedMilliseconds.map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? Date()
-        core = ScoreSessionCore(seedSession: session, reducer: RallyMatchReducer(), shouldFinish: { _, state in state.finished })
+        machine = ScoreSessionMachine(seedSession: session, reducer: RallyMatchReducer(), shouldFinish: { _, state in state.finished })
         self.resumeRepository = resumeRepository ?? ResumeSessionRepository()
         state = session.state
         scoreInputFrozen = session.state.officialBreakState?.isRunning == true
@@ -157,7 +165,7 @@ final class RallySessionStore {
         sessionId = session.sessionId
         let startedMilliseconds = session.metadata.extras["startedAtEpochMilliseconds"].flatMap(Int64.init)
         startedAt = startedMilliseconds.map { Date(timeIntervalSince1970: TimeInterval($0) / 1_000) } ?? Date()
-        core = ScoreSessionCore(
+        machine = ScoreSessionMachine(
             resumeBundle: resumeBundle,
             reducer: RallyMatchReducer(),
             shouldFinish: { _, state in state.finished }
@@ -166,6 +174,7 @@ final class RallySessionStore {
         state = session.state
         scoreInputFrozen = session.state.officialBreakState?.isRunning == true
         let recordContext = ScoreSessionRecordContext.decode(resumeBundle.auxiliaryPayload)
+        reopenedResumeID = recordContext?.reopenedResumeID
         let restoredDetailedActions = recordContext?.detailedActions
             ?? ScoreboardRecordManager.shared.getRecordById(session.sessionId.uuidString)?.detailedActions
             ?? []
@@ -334,20 +343,11 @@ final class RallySessionStore {
 
     private func persistPresentationMetadata() {
         guard !isManagedByLink else { return }
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            guard let self else { return }
-            var metadata = await core.snapshot().metadata
-            metadata.extras["voiceAnnouncementEnabled"] = String(self.voiceAnnouncementEnabled)
-            metadata.extras["showMatchTime"] = String(self.showMatchTimeEnabled)
-            _ = await core.updateMetadata(metadata)
-            do {
-                try await self.persist(await core.resumeBundle())
-            } catch {
-                self.reportPersistenceFailure(error)
-            }
-        }
+        var metadata = machine.currentSession.metadata
+        metadata.extras["voiceAnnouncementEnabled"] = String(voiceAnnouncementEnabled)
+        metadata.extras["showMatchTime"] = String(showMatchTimeEnabled)
+        machine.updateMetadata(metadata)
+        enqueuePersistence()
     }
 
     private static func metadataBool(_ value: String?) -> Bool? {
@@ -358,69 +358,56 @@ final class RallySessionStore {
         }
     }
 
-    /// Closes the UI-to-actor queue gap when an official break starts. The
-    /// reducer remains the final authority once the break state is committed.
+    /// Blocks local scoring during the official break presentation.
     func setScoreInputFrozen(_ frozen: Bool) {
         scoreInputFrozen = frozen
     }
 
     func send(_ intent: RallyMatchIntent, onEvents: (([RallyMatchEvent]) -> Void)? = nil) {
-        enqueue(intent) { _, _, events in
+        dispatch(intent) { _, _, events in
             onEvents?(events)
         }
     }
 
-    /// Delivers the reducer transition captured at the exact point this intent
-    /// reaches the serialized store queue. UI code must use this callback when
-    /// it needs a before/after pair; reading `state` before calling `send` races
-    /// with earlier queued intents during rapid scoring.
+    /// Delivers the accepted before/after transition in the same action.
     func send(
         _ intent: RallyMatchIntent,
         onTransition: @escaping (RallyMatchState, RallyMatchState, [RallyMatchEvent]) -> Void
     ) {
-        enqueue(intent, onTransition: onTransition)
+        dispatch(intent, onTransition: onTransition)
     }
 
-    private func enqueue(
+    private func dispatch(
         _ intent: RallyMatchIntent,
         onTransition: ((RallyMatchState, RallyMatchState, [RallyMatchEvent]) -> Void)?
     ) {
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            guard let self else { return }
-            if self.scoreInputFrozen, Self.isScoreChanging(intent) { return }
-            let before = self.state
-            let now = Int64(Date().timeIntervalSince1970 * 1_000)
-            let dispatchResult: DispatchResult<RallyMatchState, RallyMatchEvent>
-            let recordsUndo: Bool
-            if case .setOfficialBreakState = intent {
-                recordsUndo = false
-                dispatchResult = await core.dispatchNonUndoable(actorId: "phone", intent: intent, at: now)
-            } else {
-                recordsUndo = true
-                dispatchResult = await core.dispatch(actorId: "phone", intent: intent, at: now)
-            }
-            guard case .accepted(let session, let events) = dispatchResult else { return }
-            if recordsUndo {
-                self.recordUndoCheckpoints.append(self.makeRecordUndoCheckpoint())
-            }
-            self.state = session.state
-            if session.status == .live {
-                self.hasPersistedFinishedRecord = false
-            }
-            self.append(events: events, at: now, state: session.state)
-            self.updateCompletedSetScores(for: events)
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            onTransition?(before, session.state, events)
-            await self.synchronizeParticipants(for: session.state)
-            let bundle = await core.resumeBundle()
-            do {
-                try await self.persist(bundle)
-            } catch {
-                self.reportPersistenceFailure(error)
-            }
+        guard !isManagedByLink, !scoreInputFrozen || !Self.isScoreChanging(intent) else { return }
+        let before = state
+        let now = Int64(Date().timeIntervalSince1970 * 1_000)
+        let result: DispatchResult<RallyMatchState, RallyMatchEvent>
+        let recordsUndo: Bool
+        if case .setOfficialBreakState = intent {
+            recordsUndo = false
+            result = machine.dispatchNonUndoable(actorId: "phone", intent: intent, at: now)
+        } else {
+            recordsUndo = true
+            result = machine.dispatch(actorId: "phone", intent: intent, at: now)
         }
+        guard case .accepted(let session, let events) = result else { return }
+        if recordsUndo {
+            recordUndoCheckpoints.append(makeRecordUndoCheckpoint())
+        }
+        if before.finished, session.status == .live {
+            reopenedResumeID = UUID()
+        }
+        state = session.state
+        append(events: events, at: now, state: session.state)
+        updateCompletedSetScores(for: events)
+        synchronizeParticipants(for: session.state)
+        // A UI callback can send another intent, for example when a point
+        // starts an official break. Enqueue this snapshot before calling it.
+        enqueuePersistence()
+        onTransition?(before, session.state, events)
     }
 
     private static func isScoreChanging(_ intent: RallyMatchIntent) -> Bool {
@@ -433,56 +420,28 @@ final class RallySessionStore {
     }
 
     func undo(completion: ((Bool) -> Void)? = nil) {
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            let undoneIntentEpochMilliseconds = await core.intentTimeline().last?.epochMilliseconds
-            guard await core.undo(actorId: "phone"), let self else {
-                completion?(false)
-                return
-            }
-            let session = await core.snapshot()
-            self.state = session.state
-            if session.status == .live {
-                self.hasPersistedFinishedRecord = false
-            }
-            await self.synchronizeParticipants(for: session.state)
-            self.restoreRecordUndoCheckpoint(fallbackEpochMilliseconds: undoneIntentEpochMilliseconds)
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            completion?(true)
-            let bundle = await core.resumeBundle()
-            do {
-                try await self.persist(bundle)
-            } catch {
-                self.reportPersistenceFailure(error)
-            }
+        let wasFinished = state.finished
+        let undoneIntentEpochMilliseconds = machine.intentTimeline().last?.epochMilliseconds
+        guard !isManagedByLink, machine.undo(actorId: "phone") else {
+            completion?(false)
+            return
         }
+        state = machine.currentSession.state
+        if wasFinished, !state.finished {
+            reopenedResumeID = UUID()
+        }
+        synchronizeParticipants(for: state)
+        restoreRecordUndoCheckpoint(fallbackEpochMilliseconds: undoneIntentEpochMilliseconds)
+        enqueuePersistence()
+        completion?(true)
     }
 
     func persistSnapshot(completion: ((Bool) -> Void)? = nil) {
-        if isManagedByLink {
-            completion?(true)
-            return
-        }
-        let previousTask = operationTask
-        operationTask = Task { [core] in
-            _ = await previousTask?.value
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            let bundle = await core.resumeBundle()
-            do {
-                try await self.persist(bundle)
-                completion?(true)
-            } catch {
-                self.reportPersistenceFailure(error, forcePresentation: true)
-                completion?(false)
-            }
-        }
+        enqueuePersistence(completion: completion, forceFailurePresentation: true)
     }
 
-
-
     func flush(completion: @escaping () -> Void) {
-        let pending = operationTask
+        let pending = persistenceTask
         Task {
             _ = await pending?.value
             completion()
@@ -514,31 +473,20 @@ final class RallySessionStore {
         return true
     }
 
-    /// Rebase the standalone actor only when the user ends the link on this page.
+    /// Rebase the standalone machine only when the user ends the link on this page.
     func continueStandaloneFromLink() {
         isManagedByLink = false
         guard linkedMatchGeneration != nil else { return }
         linkedMatchGeneration = nil
         linkedRevision = nil
         recordUndoCheckpoints.removeAll(keepingCapacity: true)
-        let projectedState = state
-        let previousTask = operationTask
-        operationTask = Task { [weak self, core] in
-            _ = await previousTask?.value
-            guard let self else { return }
-            let session = await core.rebase(to: projectedState, status: projectedState.finished ? .finished : .live)
-            var metadata = session.metadata
-            metadata.extras["voiceAnnouncementEnabled"] = String(self.voiceAnnouncementEnabled)
-            metadata.extras["showMatchTime"] = String(self.showMatchTimeEnabled)
-            _ = await core.updateMetadata(metadata)
-            await self.synchronizeParticipants(for: projectedState)
-            await core.setResumeAuxiliaryPayload(self.recordContext.encoded)
-            do {
-                try await self.persist(await core.resumeBundle())
-            } catch {
-                self.reportPersistenceFailure(error)
-            }
-        }
+        let session = machine.rebase(to: state, status: state.finished ? .finished : .live)
+        var metadata = session.metadata
+        metadata.extras["voiceAnnouncementEnabled"] = String(voiceAnnouncementEnabled)
+        metadata.extras["showMatchTime"] = String(showMatchTimeEnabled)
+        machine.updateMetadata(metadata)
+        synchronizeParticipants(for: state)
+        enqueuePersistence()
     }
 
     private func append(events: [RallyMatchEvent], at milliseconds: Int64, state: RallyMatchState) {
@@ -596,7 +544,8 @@ final class RallySessionStore {
             detailedActions: detailedActions,
             actionCount: detailedActions.count,
             completedSetScores: completedSetScores,
-            undoCheckpoints: recordUndoCheckpoints
+            undoCheckpoints: recordUndoCheckpoints,
+            reopenedResumeID: reopenedResumeID
         )
     }
 
@@ -653,8 +602,8 @@ final class RallySessionStore {
         }
     }
 
-    private func synchronizeParticipants(for state: RallyMatchState) async {
-        let existing = await core.snapshot().participants
+    private func synchronizeParticipants(for state: RallyMatchState) {
+        let existing = machine.currentSession.participants
         let participants: [SessionParticipant]
         if let doubles = state.doubles {
             let names = doubles.playerNames
@@ -673,7 +622,7 @@ final class RallySessionStore {
             ]
         }
         guard participants != existing else { return }
-        _ = await core.updateParticipants(participants)
+        machine.updateParticipants(participants)
     }
 
     private static func doublesParticipantID(for index: Int) -> String {
@@ -696,25 +645,63 @@ final class RallySessionStore {
         ]
     }
 
-    private func persist(
-        _ bundle: ResumeBundle
-    ) async throws {
-        guard !isManagedByLink else { return }
-        let reachedFinishedCommit = try await ScoreSessionPersistenceSupport.persist(
-            bundle,
-            repository: resumeRepository,
-            alreadyPersistedFinishedRecord: hasPersistedFinishedRecord,
-            makeFinishedRecord: makeFinishedRecord,
-            onCleanupFailure: { reportPersistenceFailure($0) }
-        )
-        if reachedFinishedCommit {
-            hasPersistedFinishedRecord = true
+    private func enqueuePersistence(
+        completion: ((Bool) -> Void)? = nil,
+        forceFailurePresentation: Bool = false
+    ) {
+        guard !isManagedByLink else {
+            completion?(true)
+            return
+        }
+        machine.setResumeAuxiliaryPayload(recordContext.encoded)
+        let bundle = machine.resumeBundle()
+        let actions = detailedActions
+        let matchTimeEnabled = showMatchTimeEnabled
+        let voiceEnabled = voiceAnnouncementEnabled
+        let generation = persistenceGeneration
+        let reopenedResumeID = reopenedResumeID
+        let pending = persistenceTask
+        persistenceTask = Task {
+            _ = await pending?.value
+            guard generation == persistenceGeneration else {
+                completion?(true)
+                return
+            }
+            if bundle.currentSession.status == .live {
+                hasPersistedFinishedRecord = false
+            }
+            do {
+                let reachedFinishedCommit = try await ScoreSessionPersistenceSupport.persist(
+                    bundle,
+                    repository: resumeRepository,
+                    alreadyPersistedFinishedRecord: hasPersistedFinishedRecord,
+                    reopenedResumeID: reopenedResumeID,
+                    makeFinishedRecord: { session in
+                        try self.makeFinishedRecord(session, actions: actions, voiceEnabled: voiceEnabled, matchTimeEnabled: matchTimeEnabled)
+                    },
+                    onCleanupFailure: { self.reportPersistenceFailure($0) },
+                    removeResume: ScoreSessionPersistenceSupport.finishedResumeRemover(
+                        for: bundle.currentSession, repository: resumeRepository
+                    )
+                )
+                if reachedFinishedCommit, generation == persistenceGeneration {
+                    hasPersistedFinishedRecord = true
+                }
+                completion?(true)
+            } catch {
+                reportPersistenceFailure(error, forcePresentation: forceFailurePresentation)
+                completion?(false)
+            }
         }
     }
 
     private func makeFinishedRecord(
-        _ session: ScoreSession<RallyMatchState, RallyMatchEvent>
+        _ session: ScoreSession<RallyMatchState, RallyMatchEvent>,
+        actions: [DetailedScoreAction],
+        voiceEnabled: Bool,
+        matchTimeEnabled: Bool
     ) throws -> ScoreboardRecord? {
+        let state = session.state
         guard session.status == .finished, state.finished else { return nil }
         guard let appGameType = GameType(scoreCoreGameType: gameType) else { return nil }
         let snapshot = try JSONEncoder().encode(session)
@@ -738,14 +725,14 @@ final class RallySessionStore {
             team1SetScore: state.leftSets,
             team2SetScore: state.rightSets,
             winner: winner,
-            detailedActions: detailedActions,
-            setResults: ScoreboardRecordActionAdapter.setResults(from: detailedActions),
-            totalScoreChanges: detailedActions.count,
+            detailedActions: actions,
+            setResults: ScoreboardRecordActionAdapter.setResults(from: actions),
+            totalScoreChanges: actions.count,
             projectConfiguration: ScoreboardRecordConfiguration.rally(
                 gameType: gameType,
                 state: state,
-                voiceAnnouncement: voiceAnnouncementEnabled,
-                showMatchTime: showMatchTimeEnabled,
+                voiceAnnouncement: voiceEnabled,
+                showMatchTime: matchTimeEnabled,
                 competitionFormat: gameType == .shuttlecock
                     ? (state.competitionFormat ?? (state.doubles == nil ? .singles : .doubles))
                     : nil,

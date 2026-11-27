@@ -27,6 +27,9 @@ struct ScoreSessionRecordContext: Codable, Equatable {
     var completedSetScores: [VoiceSetScore]
     var undoCheckpoints: [ScoreSessionRecordCheckpoint]
     var presentationFlags: [String: Bool]
+    /// A new live draft created after the user undid a committed finish.
+    /// This is independent of the score undo stack.
+    var reopenedResumeID: UUID?
 
     private enum CodingKeys: String, CodingKey {
         case schemaVersion
@@ -36,6 +39,7 @@ struct ScoreSessionRecordContext: Codable, Equatable {
         case completedSetScores
         case undoCheckpoints
         case presentationFlags
+        case reopenedResumeID
     }
 
     init(
@@ -44,7 +48,8 @@ struct ScoreSessionRecordContext: Codable, Equatable {
         actionCount: Int? = nil,
         completedSetScores: [VoiceSetScore] = [],
         undoCheckpoints: [ScoreSessionRecordCheckpoint] = [],
-        presentationFlags: [String: Bool] = [:]
+        presentationFlags: [String: Bool] = [:],
+        reopenedResumeID: UUID? = nil
     ) {
         self.actionLog = actionLog
         self.detailedActions = detailedActions
@@ -52,6 +57,7 @@ struct ScoreSessionRecordContext: Codable, Equatable {
         self.completedSetScores = completedSetScores
         self.undoCheckpoints = undoCheckpoints
         self.presentationFlags = presentationFlags
+        self.reopenedResumeID = reopenedResumeID
     }
 
     init(from decoder: Decoder) throws {
@@ -63,6 +69,7 @@ struct ScoreSessionRecordContext: Codable, Equatable {
         completedSetScores = try container.decodeIfPresent([VoiceSetScore].self, forKey: .completedSetScores) ?? []
         undoCheckpoints = try container.decodeIfPresent([ScoreSessionRecordCheckpoint].self, forKey: .undoCheckpoints) ?? []
         presentationFlags = try container.decodeIfPresent([String: Bool].self, forKey: .presentationFlags) ?? [:]
+        reopenedResumeID = try container.decodeIfPresent(UUID.self, forKey: .reopenedResumeID)
     }
 
     mutating func pushUndoCheckpoint() {
@@ -307,7 +314,8 @@ enum ReducerScoreboardRecordPersistence {
                 let recordCommit = try finishedCommitCoordinator.commitRecord(
                     record,
                     sessionId: sessionId,
-                    replaceExisting: replaceCommittedFinishedRecord
+                    replaceExisting: replaceCommittedFinishedRecord,
+                    reopenedResumeID: sessionSnapshotData.flatMap(ScoreSessionPersistenceSupport.reopenedResumeID(in:))
                 )
                 Task {
                     let result = await finishedCommitCoordinator.cleanupResume(after: recordCommit)

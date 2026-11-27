@@ -25,6 +25,29 @@ enum ScoreSessionPersistenceSupport {
         return bundle
     }
 
+    static func reopenedResumeID(in payload: Data) -> UUID? {
+        struct BundleHeader: Decodable {
+            let auxiliaryPayload: Data?
+        }
+        guard let header = try? JSONDecoder().decode(BundleHeader.self, from: payload) else { return nil }
+        return ScoreSessionRecordContext.decode(header.auxiliaryPayload)?.reopenedResumeID
+    }
+
+    static func finishedResumeRemover<State, Event>(
+        for session: ScoreSession<State, Event>,
+        repository: ResumeSessionRepository
+    ) -> FinishedSessionCommitCoordinator.ResumeRemover? {
+        guard session.status == .finished else { return nil }
+        // The cleanup retry may run after an undo has written a new draft.
+        let token = Result {
+            try ResumeSessionRepository.cleanupToken(sessionId: session.sessionId, rootURL: repository.rootURL)
+        }
+        return { sessionId in
+            guard let token = try token.get() else { return }
+            _ = try await repository.remove(sessionId: sessionId, ifUnchanged: token)
+        }
+    }
+
     /// Persists a live resume bundle or commits a finished record before
     /// removing its resume snapshot. Returns `true` after a finished session
     /// reaches the durable commit/cleanup phase.
@@ -36,8 +59,10 @@ enum ScoreSessionPersistenceSupport {
         _ bundle: ScoreSessionResumeBundle<State, Event, Intent>,
         repository: ResumeSessionRepository,
         alreadyPersistedFinishedRecord: Bool,
+        reopenedResumeID: UUID? = nil,
         makeFinishedRecord: (ScoreSession<State, Event>) throws -> ScoreboardRecord?,
-        onCleanupFailure: (Error) -> Void
+        onCleanupFailure: (Error) -> Void,
+        removeResume: FinishedSessionCommitCoordinator.ResumeRemover? = nil
     ) async throws -> Bool {
         let session = bundle.currentSession
         if session.status == .live {
@@ -47,7 +72,7 @@ enum ScoreSessionPersistenceSupport {
 
         guard let record = try makeFinishedRecord(session) else { return false }
         let coordinator = FinishedSessionCommitCoordinator(
-            resumeRemover: { [repository] sessionId in
+            resumeRemover: removeResume ?? { [repository] sessionId in
                 try await repository.remove(sessionId: sessionId)
             }
         )
@@ -60,7 +85,11 @@ enum ScoreSessionPersistenceSupport {
                 )
             )
         } else {
-            result = try await coordinator.commit(record, sessionId: session.sessionId)
+            let commit = try coordinator.commitRecord(
+                record, sessionId: session.sessionId,
+                replaceExisting: reopenedResumeID != nil, reopenedResumeID: reopenedResumeID
+            )
+            result = await coordinator.cleanupResume(after: commit)
         }
 
         if result.recordWritten {
