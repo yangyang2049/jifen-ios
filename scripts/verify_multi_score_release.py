@@ -29,7 +29,7 @@ def main():
     try:
         with log.open("w") as output:
             command = [
-                "xcodebuild", "-project", "jifen.xcodeproj", "-scheme", "jifen",
+                "xcodebuild", "-project", "jifen.xcodeproj", "-scheme", "VisualAudit",
                 "-destination", f"platform=iOS Simulator,id={args.simulator}",
                 "-derivedDataPath", args.derived_data, "-resultBundlePath", str(result),
                 "-parallel-testing-enabled", "NO", "-test-timeouts-enabled", "YES",

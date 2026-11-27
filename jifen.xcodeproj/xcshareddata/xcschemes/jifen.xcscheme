@@ -84,6 +84,17 @@
                BlueprintName = "jifenUITests"
                ReferencedContainer = "container:jifen.xcodeproj">
             </BuildableReference>
+            <SkippedTests>
+               <Test
+                  Identifier = "FullAppScreenshotUITests">
+               </Test>
+               <Test
+                  Identifier = "LocalizationVisualAuditUITests">
+               </Test>
+               <Test
+                  Identifier = "SupplementalScreenshotUITests">
+               </Test>
+            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

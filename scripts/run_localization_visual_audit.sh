@@ -109,7 +109,7 @@ run_device() {
   echo "Running localization visual audit for $label"
   if ! xcodebuild "$action" \
       -project "$repo_dir/jifen.xcodeproj" \
-      -scheme jifen \
+      -scheme VisualAudit \
       -destination "$destination" \
       "${test_targets[@]}" \
       -resultBundlePath "$result_bundle" \
