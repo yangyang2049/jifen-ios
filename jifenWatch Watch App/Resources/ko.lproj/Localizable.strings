@@ -420,3 +420,9 @@
 
 "watch_phone_shared_link_intro" = "휴대폰에서 시작하고 어느 기기에서든 점수를 기록하세요.";
 "linked_score_simultaneous_edit" = "두 기기에서 모두 변경이 있었습니다. 점수를 확인하세요.";
+"linked_score_pending_finish" = "동기화 대기 중";
+"linked_score_resync" = "Sync Score";
+"linked_score_end" = "End link";
+"linked_score_excluded_operations" = "%d개의 오프라인 점수 제외됨";
+"linked_score_reconnect_to_continue" = "계속 점수를 기록하려면 iPhone에 다시 연결하세요.";
+"linked_score_reset_unavailable" = "두 기기에서 점수를 기록하는 중에는 현재 경기를 종료한 후 새 경기를 시작하세요.";

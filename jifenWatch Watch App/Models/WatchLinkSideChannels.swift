@@ -218,7 +218,14 @@ extension WatchLinkService {
 
     func flushPendingCommonNameMutations(force: Bool) {
         guard transport.status.isActivated,
-              let batch = WatchCommonNamesStore.shared.pendingBatch() else { return }
+              let pending = WatchCommonNamesStore.shared.pendingBatch() else { return }
+        // `transferUserInfo` is a dictionary channel: trim to the largest
+        // deliverable prefix instead of dropping the whole batch. The rest stays
+        // pending and rides the next flush after this prefix is acknowledged.
+        guard let batch = pending.fittingPrefix() else {
+            commonNamesSyncFailed = true
+            return
+        }
         let ids = batch.mutations.map(\.id)
         guard force || ids != lastQueuedCommonNameMutationIDs else { return }
         do {
@@ -245,7 +252,7 @@ extension WatchLinkService {
 
     func markCommunication() {
         lastCommunicationAtEpochMilliseconds = nowMs()
-        WatchPreferences.shared.setInt(Int(lastCommunicationAtEpochMilliseconds), forKey: lastCommunicationAtKey)
+        WatchPreferences.shared.setInt64(lastCommunicationAtEpochMilliseconds, forKey: lastCommunicationAtKey)
     }
 
 }

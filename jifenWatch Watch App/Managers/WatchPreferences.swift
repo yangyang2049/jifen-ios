@@ -1,4 +1,5 @@
 import Foundation
+import LinkCore
 
 extension Notification.Name {
     static let watchScoreboardLayoutDidChange = Notification.Name("watch_scoreboard_layout_did_change")
@@ -90,6 +91,17 @@ final class WatchPreferences {
 
     func setInt(_ value: Int, forKey key: String) {
         defaults.set(value, forKey: key)
+    }
+
+    /// Epoch-millisecond timestamps do not fit a 32-bit `Int` on arm64_32
+    /// watches. Store them as NSNumber-backed Int64 values and accept values
+    /// written by older builds through `LinkEpochMillisecondsStorage`.
+    func int64(forKey key: String, defaultValue: Int64 = 0) -> Int64 {
+        LinkEpochMillisecondsStorage.value(from: defaults.object(forKey: key)) ?? defaultValue
+    }
+
+    func setInt64(_ value: Int64, forKey key: String) {
+        defaults.set(LinkEpochMillisecondsStorage.storable(value), forKey: key)
     }
 
     func allowedInt(forKey key: String, defaultValue: Int, allowed: [Int]) -> Int {

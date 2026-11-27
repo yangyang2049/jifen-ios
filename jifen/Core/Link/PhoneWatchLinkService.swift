@@ -54,6 +54,12 @@ final class PhoneWatchLinkService {
     var peerSupportsCompressedFinish = false
     /// Capabilities agreed during the setup handshake.
     var negotiatedPeerCapabilities: Set<LinkCapability> = []
+    /// Durable intent frames use `transferFile` only after the handshake
+    /// negotiated `.fileTransfer`. Without it they keep the existing
+    /// hold/outbox fallback instead of assuming the local transport can.
+    var peerSupportsFileTransfer: Bool {
+        negotiatedPeerCapabilities.contains(.fileTransfer)
+    }
     /// Reason reported by the watch when it refused the latest setup request.
     internal(set) var lastSetupRejectionReason: LinkSetupRejectionReason?
     var setupContinuation: CheckedContinuation<UUID, Error>?
@@ -173,10 +179,15 @@ final class PhoneWatchLinkService {
             pendingSessionEnds = requests
         }
         restoreContext()
-        if let handle = activeSession?.handle {
+        if let session = activeSession {
             do {
-                _ = try intentCoordinator.recoverActiveMatch(handle: handle)
-                try restoreIntentProjection(handle: handle)
+                // Old seeds that predate the durable names metadata inherit the
+                // names persisted with the active session, exactly once.
+                _ = try intentCoordinator.recoverActiveMatch(
+                    handle: session.handle,
+                    participantNames: session.setup.participantNames
+                )
+                try restoreIntentProjection(handle: session.handle)
                 try finishIntentRollover()
             } catch {
                 clearSession()

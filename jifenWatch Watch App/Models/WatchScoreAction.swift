@@ -113,33 +113,9 @@ struct WatchScoreActionLog: Codable, Sendable, Equatable {
 
     var detailedActions: [DetailedScoreAction] { actions }
 
-    var scoreChangeCount: Int {
-        actions.reduce(into: 0) { count, action in
-            switch action.type {
-            case .scoreChanged:
-                if action.scoreChange != 0
-                    || action.operationCode == "archery_arrow"
-                    || action.operationCode == "archery_miss" {
-                    count += 1
-                }
-            case .stateChanged:
-                if action.scoreChange != 0, let code = action.operationCode, Self.scoreAdjustments.contains(code) {
-                    count += 1
-                }
-            case .foul:
-                if action.scoreChange != 0, action.operationCode?.hasPrefix("basketball_") != true {
-                    count += 1
-                }
-            default:
-                break
-            }
-        }
-    }
-
-    private static let scoreAdjustments: Set<String> = [
-        "adjust_points", "adjust_sets", "edit_score", "archery_adjust_arrow_sum", "archery_adjust_set_points",
-        "eight_ball_admin_adjust", "nine_ball_adjust_total", "snooker_admin_correct"
-    ]
+    /// Shared with linked finishes and phone records: the reducer-aware tally in
+    /// RecordCore, so independent and linked records report the same total.
+    var scoreChangeCount: Int { actions.scoreChangeCount }
 
     private static func startAction(at timestamp: Date) -> DetailedScoreAction {
         ScoreActionProjector.action(.matchStarted, code: "game_start", scores: (0, 0), sets: (0, 0), timestamp: timestamp)

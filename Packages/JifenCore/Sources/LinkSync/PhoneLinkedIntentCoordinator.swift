@@ -15,6 +15,10 @@ public final class PhoneLinkedIntentCoordinator {
         public let initialEpochMilliseconds: Int64
         public let commits: [LinkOperationCommitPayload]
         public let isActiveMatch: Bool
+        /// Names captured for this full handle when the match was activated.
+        /// Durable metadata, so a late finish of a previous match and a record
+        /// repaired after a restart still carry the eight-ball/snooker names.
+        public let participantNames: [String]
     }
 
     public enum Failure: Error, Equatable {
@@ -30,6 +34,9 @@ public final class PhoneLinkedIntentCoordinator {
     private struct Match {
         let seed: Checkpoint
         let journal: Journal
+        /// Names recovered once when the match is opened. Held in memory so
+        /// every projection/commit does not re-read and re-decode the metadata.
+        var participantNames: [String]
         var sequencer: PhoneHostSequencer<LinkedReducerState>
     }
 
@@ -79,28 +86,62 @@ public final class PhoneLinkedIntentCoordinator {
         handle: LinkedMatchHandle,
         gameType: GameType,
         initialSnapshot: LinkedScoreboardSnapshot,
-        initialEpochMilliseconds: Int64
+        initialEpochMilliseconds: Int64,
+        participantNames: [String] = []
     ) throws -> Checkpoint {
         try requireProjectionIdle()
         try requireAllowedActivation(handle)
         if let existing = try knownMatch(handle) {
             guard existing.seed.state.gameType == gameType else { throw Failure.inconsistentMatchSeed }
-            return try installActive(existing)
+            // A seed written before participant names existed is upgraded once,
+            // the first time a caller supplies them; stored names always win.
+            return try installActive(try backfilling(existing, with: participantNames))
         }
         guard let state = adapter.state(gameType: gameType, from: initialSnapshot),
               adapter.snapshot(state) == initialSnapshot else { throw Failure.invalidInitialSnapshot }
+        // Names go first: a crash between the two writes leaves an orphan
+        // metadata entry (harmless, rewritten on the next activation) instead of
+        // a committed seed whose records can no longer recover the names.
+        try persistParticipantNames(participantNames, for: handle)
         let seed = Checkpoint(handle: handle, state: state, initialEpochMilliseconds: initialEpochMilliseconds)
         try metadata.setOrThrow(JSONEncoder().encode(seed), forKey: seedKey(handle))
         return try installActive(openMatch(seed: seed))
     }
 
+    /// Participant names persisted for one full handle. Empty for handles
+    /// created before the metadata existed and for matches that never had
+    /// custom names.
+    public func participantNames(for handle: LinkedMatchHandle) -> [String] {
+        if let active, active.seed.handle == handle { return active.participantNames }
+        return storedParticipantNames(for: handle)
+    }
+
+    private func storedParticipantNames(for handle: LinkedMatchHandle) -> [String] {
+        guard let data = try? metadata.dataOrThrow(forKey: participantNamesKey(handle)),
+              let names = try? JSONDecoder().decode([String].self, from: data) else { return [] }
+        return names
+    }
+
+    private func backfilling(_ match: Match, with names: [String]) throws -> Match {
+        guard match.participantNames.isEmpty, !names.isEmpty else { return match }
+        try persistParticipantNames(names, for: match.seed.handle)
+        var updated = match
+        updated.participantNames = names
+        return updated
+    }
+
     /// The app supplies its persisted active handle. The corresponding match
     /// seed and journal provide the reducer state and sequence after restart.
+    /// Names from the persisted active session backfill an old seed exactly
+    /// once; a retired seed that never stored names keeps the empty default.
     @discardableResult
-    public func recoverActiveMatch(handle: LinkedMatchHandle) throws -> Checkpoint {
+    public func recoverActiveMatch(
+        handle: LinkedMatchHandle,
+        participantNames: [String] = []
+    ) throws -> Checkpoint {
         try requireProjectionIdle()
         try requireAllowedActivation(handle)
-        return try installActive(match(for: handle))
+        return try installActive(try backfilling(try match(for: handle), with: participantNames))
     }
 
     public func deactivate(handle: LinkedMatchHandle) {
@@ -215,7 +256,8 @@ public final class PhoneLinkedIntentCoordinator {
             snapshot: adapter.snapshot(checkpoint.state),
             initialEpochMilliseconds: match.seed.effectiveEpochMilliseconds,
             commits: try match.journal.results(after: cursor),
-            isActiveMatch: active?.seed.handle == checkpoint.handle
+            isActiveMatch: active?.seed.handle == checkpoint.handle,
+            participantNames: match.participantNames
         )
         isProjecting = true
         defer { isProjecting = false }
@@ -261,10 +303,23 @@ public final class PhoneLinkedIntentCoordinator {
             isFinished: adapter.isFinished,
             transition: adapter.transition
         )
-        return Match(seed: seed, journal: journal, sequencer: sequencer)
+        return Match(
+            seed: seed, journal: journal,
+            participantNames: storedParticipantNames(for: seed.handle),
+            sequencer: sequencer
+        )
+    }
+
+    private func persistParticipantNames(_ names: [String], for handle: LinkedMatchHandle) throws {
+        if names.isEmpty {
+            try metadata.removeOrThrow(forKey: participantNamesKey(handle))
+        } else {
+            try metadata.setOrThrow(JSONEncoder().encode(names), forKey: participantNamesKey(handle))
+        }
     }
 
     private func seedKey(_ handle: LinkedMatchHandle) -> String { "seed-\(matchKey(handle))" }
+    private func participantNamesKey(_ handle: LinkedMatchHandle) -> String { "names-\(matchKey(handle))" }
     private func projectionKey(_ handle: LinkedMatchHandle) -> String { "projection-\(matchKey(handle))" }
 
     private func matchKey(_ handle: LinkedMatchHandle) -> String {

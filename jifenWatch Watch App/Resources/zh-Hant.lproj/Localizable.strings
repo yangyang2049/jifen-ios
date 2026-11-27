@@ -383,7 +383,8 @@
 "watch_phone_shared_link_intro" = "手機發起，兩端都能計分";
 "linked_score_simultaneous_edit" = "兩端剛剛都改了比分，請核對";
 "linked_score_pending_finish" = "待同步確認";
-"linked_score_resync" = "同步比分";
-"linked_score_end" = "結束連動";
+"linked_score_resync" = "同步積分";
+"linked_score_end" = "結束聯動";
 "linked_score_excluded_operations" = "有 %d 筆離線操作未納入本場成績";
 "linked_score_reconnect_to_continue" = "請重新連接 iPhone 後繼續計分。";
+"linked_score_reset_unavailable" = "聯動計分期間請先結束本場，再開始新一局。";

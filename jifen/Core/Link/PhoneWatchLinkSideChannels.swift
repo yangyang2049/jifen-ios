@@ -136,7 +136,9 @@ extension PhoneWatchLinkService {
               !batch.mutations.isEmpty else { return }
         let acknowledgement = CommonNamesManager.shared.applyWatchMutations(batch.mutations)
         do {
-            let acknowledgementData = try JSONEncoder().encode(acknowledgement)
+            // Keeps every result so the Watch dequeues by mutationId; only an
+            // oversized canonical snapshot is budget-constrained and re-encoded.
+            let acknowledgementData = try acknowledgement.encodedWithinControlBudget()
             try transport.transferCommonNameMutationAcknowledgement(acknowledgementData)
         } catch {
             lastErrorMessage = error.localizedDescription

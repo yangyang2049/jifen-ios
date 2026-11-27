@@ -136,6 +136,72 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         XCTAssertEqual(commits(from: transport, opId: opId), [receipt, receipt])
     }
 
+    func testRetiredEightBallFinishRepairsRecordWithOriginalNamesAfterRestart() async throws {
+        let context = InMemoryLinkDataStore()
+        let directory = makeIntentDirectory()
+        let sink = RecordingPhoneLinkSink()
+        let transport = FakeWatchLinkTransport()
+        let service = makeService(transport: transport, context: context, sink: sink, directory: directory)
+        let originalNames = ["Eight-ball Alice", "Eight-ball Bob"]
+        let initial = EightBallState.initial(targetPoints: 5)
+        let setup = Task {
+            try await service.startInteractiveOnWatch(
+                snapshot: .eightBall(initial), gameType: .eightBall, participantNames: originalNames
+            )
+        }
+        defer { setup.cancel() }
+        await waitUntil { !self.frames(.setupRequest, from: transport, as: LinkedScoreboardSetup.self).isEmpty }
+        let request = try XCTUnwrap(frames(.setupRequest, from: transport, as: LinkedScoreboardSetup.self).last)
+        transport.deliver(try watchFrame(
+            .setupAccepted, handle: request.handle, sequence: 1,
+            correlationId: request.messageId, payload: EmptyLinkPayload()
+        ))
+        let sessionID = try await setup.value
+        let score = try service.submitLocalIntent(.eightBall(.addRack(.left)), sessionId: sessionID)
+        XCTAssertEqual(score.outcome, .accepted)
+
+        let finish = operation(.finish, handle: request.handle, sequence: 1, at: service.nowMs())
+        let finishFrame = try watchFrame(.intentSubmit, handle: request.handle, sequence: 1, payload: finish)
+        sink.failNextIngest = true
+        service.receiveWatchIntent(finishFrame)
+        XCTAssertFalse(sink.failNextIngest)
+        XCTAssertTrue(sink.recorded.isEmpty)
+        service.clearSession()
+
+        let newTransport = FakeWatchLinkTransport()
+        let restarted = makeService(transport: newTransport, context: context, sink: sink, directory: directory)
+        let next = try await startBadminton(on: restarted, transport: newTransport)
+        XCTAssertNotEqual(next, request.handle)
+        restarted.receiveWatchIntent(finishFrame)
+
+        XCTAssertEqual(sink.matchIds, [request.handle.matchId])
+        let record = try XCTUnwrap(sink.recorded.first)
+        XCTAssertEqual(record.participantNames, originalNames)
+        XCTAssertEqual(record.totalScoreChanges, 1)
+        XCTAssertEqual(restarted.linkedResumeDescriptor?.handle, next)
+    }
+
+    func testFileTransferRequiresTheWatchHandshakeAndRestoresItsResult() async throws {
+        let context = InMemoryLinkDataStore()
+        let directory = makeIntentDirectory()
+        let transport = FakeWatchLinkTransport()
+        let service = makeService(transport: transport, context: context, directory: directory)
+        XCTAssertTrue(transport.supportsFileTransfer)
+        _ = try await startBadminton(
+            on: service, transport: transport,
+            peerCapabilities: LinkProtocol.capabilities.subtracting([.fileTransfer])
+        )
+        XCTAssertFalse(service.peerSupportsFileTransfer)
+
+        let restartedTransport = FakeWatchLinkTransport()
+        let restarted = makeService(transport: restartedTransport, context: context, directory: directory)
+        XCTAssertFalse(restarted.peerSupportsFileTransfer)
+        _ = try await startBadminton(on: restarted, transport: restartedTransport)
+        XCTAssertTrue(restarted.peerSupportsFileTransfer)
+        restarted.clearSession()
+        XCTAssertFalse(restarted.peerSupportsFileTransfer)
+    }
+
     func testRestoresConfirmedSnapshotAndActionsAfterProcessRestart() async throws {
         let context = InMemoryLinkDataStore()
         let directory = makeIntentDirectory()
@@ -241,7 +307,8 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
     private func startBadminton(
         on service: PhoneWatchLinkService,
         transport: FakeWatchLinkTransport,
-        expectPendingDescriptor: Bool = false
+        expectPendingDescriptor: Bool = false,
+        peerCapabilities: Set<LinkCapability> = LinkProtocol.capabilities
     ) async throws -> LinkedMatchHandle {
         let initial = RallyMatchEngine.initial(leftName: "Alice", rightName: "Bob", rules: .badminton())
         let setup = Task {
@@ -254,7 +321,7 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
         if expectPendingDescriptor { XCTAssertNil(service.linkedResumeDescriptor) }
         transport.deliver(try watchFrame(
             .setupAccepted, handle: request.handle, sequence: 1,
-            correlationId: request.messageId, payload: EmptyLinkPayload()
+            correlationId: request.messageId, peerCapabilities: peerCapabilities, payload: EmptyLinkPayload()
         ))
         let sessionId = try await setup.value
         XCTAssertEqual(sessionId, request.sessionId)
@@ -296,9 +363,10 @@ final class PhoneWatchLinkServiceTests: XCTestCase {
 
     private func watchFrame<Payload: Codable & Sendable>(
         _ kind: LinkMessageKind, handle: LinkedMatchHandle, sequence: UInt64,
-        correlationId: UUID? = nil, payload: Payload
+        correlationId: UUID? = nil, peerCapabilities: Set<LinkCapability> = LinkProtocol.capabilities, payload: Payload
     ) throws -> Data {
         try JSONEncoder().encode(LinkEnvelope(
+            capabilities: peerCapabilities,
             correlationId: correlationId, sessionId: handle.sessionId, matchId: handle.matchId,
             matchGeneration: handle.matchGeneration, kind: kind, sender: .watch, senderSequence: sequence,
             sessionRevision: 0, sentAtEpochMilliseconds: 1_795_000_000_000, payload: payload

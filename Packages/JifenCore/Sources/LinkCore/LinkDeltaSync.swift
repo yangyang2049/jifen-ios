@@ -157,7 +157,7 @@ public enum LinkDurableChannel: Equatable, Sendable {
 
 public enum LinkFinishedRouting {
     /// Background `transferUserInfo` budget for terminal frames.
-    public static let userInfoBudgetBytes = 32_000
+    public static let userInfoBudgetBytes = LinkPayloadBudget.userInfoBodyBudgetBytes
     /// Realtime (`sendMessageData`) budget — enforced by the transport too.
     public static let realtimeBudgetBytes = 60_000
 

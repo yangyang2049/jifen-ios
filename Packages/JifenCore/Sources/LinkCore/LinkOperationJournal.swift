@@ -119,10 +119,18 @@ public final class LinkOperationJournal<
 
     /// Returns every later operation result in revision order, including results
     /// older than the latest checkpoint. The caller supplies the confirmed cursor.
+    ///
+    /// A cursor exactly one revision behind the head is the common reconnect
+    /// case. It is answered in O(1) from the head: the single expected result is
+    /// the head itself, so no archive enumeration is needed. Every wider cursor
+    /// keeps the full multi-revision replay and continuity check below.
     public func results(after committedRevision: UInt64) throws -> [Outcome] {
         try lock.withLock {
             guard let latest = head?.outcome else { return [] }
             guard committedRevision < latest.committedRevision else { return [] }
+            if committedRevision + 1 == latest.committedRevision {
+                return [latest]
+            }
 
             var results: [Outcome] = [latest]
             for key in try storage.allKeysOrThrow() where key.hasPrefix("result-") {

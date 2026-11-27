@@ -425,3 +425,4 @@
 "linked_score_end" = "结束联动";
 "linked_score_excluded_operations" = "有 %d 笔离线操作未纳入本场成绩";
 "linked_score_reconnect_to_continue" = "请重新连接 iPhone 后继续计分。";
+"linked_score_reset_unavailable" = "联动计分期间请先结束本场，再开始新一局。";

@@ -174,7 +174,9 @@ struct UnfinishedGameSummary: Sendable {
             matchTitle = appGameType.displayName
         case .football(let state):
             scoreText = "\(state.leftScore) : \(state.rightScore)"
-            matchTitle = Self.namesTitle(names)
+            // Football team names are part of the live state (they can be edited
+            // during the match); the setup names may be stale.
+            matchTitle = Self.namesTitle([state.leftName, state.rightName])
         }
 
         let linkMode = NSLocalizedString("linked_score_shared_mode", value: "Score on both devices", comment: "")

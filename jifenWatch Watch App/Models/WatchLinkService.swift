@@ -161,8 +161,8 @@ final class WatchLinkService {
         self.clock = clock
         self.recordSink = recordSink ?? DefaultWatchLinkRecordSink()
         connectivityStatus = transport.status
-        lastCommunicationAtEpochMilliseconds = Int64(
-            WatchPreferences.shared.int(forKey: lastCommunicationAtKey)
+        lastCommunicationAtEpochMilliseconds = WatchPreferences.shared.int64(
+            forKey: lastCommunicationAtKey
         )
         if let data = outboxStore.data(forKey: pendingSessionEndsKey),
            let requests = try? JSONDecoder().decode([LinkPendingSessionEnd].self, from: data) {

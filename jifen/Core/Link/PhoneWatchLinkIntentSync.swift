@@ -42,7 +42,8 @@ extension PhoneWatchLinkService {
             handle: activeSession.handle,
             gameType: activeSession.gameType,
             initialSnapshot: snapshot,
-            initialEpochMilliseconds: initialEpochMilliseconds ?? nowMs()
+            initialEpochMilliseconds: initialEpochMilliseconds ?? nowMs(),
+            participantNames: activeSession.setup.participantNames
         )
         try restoreIntentProjection(handle: activeSession.handle)
         return checkpoint
@@ -112,8 +113,11 @@ extension PhoneWatchLinkService {
         guard let seed = intentReducerAdapter.nextMatchSnapshot(from: old.state, at: seedEpoch) else {
             throw PhoneLinkedIntentCoordinator.Failure.invalidInitialSnapshot
         }
+        // The next match of a rematch keeps the names already agreed for this
+        // session; they are bound to the new full handle before its seed exists.
         try intentCoordinator.activate(
-            handle: next, gameType: session.gameType, initialSnapshot: seed, initialEpochMilliseconds: seedEpoch
+            handle: next, gameType: session.gameType, initialSnapshot: seed,
+            initialEpochMilliseconds: seedEpoch, participantNames: session.setup.participantNames
         )
         let setup = LinkedScoreboardSetup(
             gameType: session.gameType, maxSets: maxSets(for: seed), initialSnapshot: seed,
@@ -231,6 +235,7 @@ extension PhoneWatchLinkService {
            }) {
             let end = terminalCommit.effectiveEpochMilliseconds
             let duration = max(0, Double(end) - Double(projection.initialEpochMilliseconds)) / 1_000
+            let participantNames = projection.participantNames
             let payload = LinkMatchFinishedPayload(
                 snapshot: projection.snapshot,
                 recordId: "w_\(handle.matchId.uuidString)",
@@ -238,9 +243,9 @@ extension PhoneWatchLinkService {
                 startTimeEpochMilliseconds: projection.initialEpochMilliseconds,
                 endTimeEpochMilliseconds: end,
                 durationSeconds: duration,
-                totalScoreChanges: actions.filter { $0.type != .undo }.count,
+                totalScoreChanges: actions.scoreChangeCount,
                 detailedActions: actions,
-                participantNames: activeSession?.handle == handle ? activeSession?.setup.participantNames ?? [] : []
+                participantNames: participantNames
             )
             recordId = try recordSink.ingest(payload: payload, gameType: checkpoint.state.gameType, matchId: handle.matchId)
             terminal = payload
@@ -314,12 +319,13 @@ extension PhoneWatchLinkService {
             matchGeneration: handle.matchGeneration, kind: kind, sender: .phone,
             senderSequence: sequence, sessionRevision: revision, sentAtEpochMilliseconds: sentAt ?? nowMs(), payload: payload
         )
+        let canTransferFile = peerSupportsFileTransfer
         Task { [weak self] in
             guard let self else { return }
             do {
                 let result = await intentSessionEngine.sendReplayableFrame(
                     try JSONEncoder().encode(frame), kind: .intentFrame,
-                    peerSupportsFileTransfer: transport.supportsFileTransfer
+                    peerSupportsFileTransfer: canTransferFile
                 )
                 if let channel = result.steps.last, let error = result.failures[channel] {
                     lastErrorMessage = error

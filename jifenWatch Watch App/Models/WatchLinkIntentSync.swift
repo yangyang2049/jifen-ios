@@ -518,7 +518,7 @@ final class WatchLinkIntentSync {
             recordId: recordID(match.metadata.handle), manualEnd: commit.op.intent == .finish,
             startTimeEpochMilliseconds: start, endTimeEpochMilliseconds: end,
             durationSeconds: max(0, (Double(end) - Double(start)) / 1_000),
-            totalScoreChanges: actions.filter { $0.type != .undo }.count,
+            totalScoreChanges: actions.scoreChangeCount,
             detailedActions: actions, participantNames: match.metadata.participantNames
         )
     }

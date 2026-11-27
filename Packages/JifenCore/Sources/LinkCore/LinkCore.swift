@@ -1300,14 +1300,18 @@ public final class UserDefaultsLinkDataStore: @unchecked Sendable, LinkDataStore
     }
 }
 
-#if canImport(WatchConnectivity)
+/// Transport failures shared by both peers. Declared outside the
+/// WatchConnectivity guard so the pure send helpers and their tests can use it.
 public enum WatchConnectivityTransportError: Error, Equatable, Sendable {
     case sessionNotActivated
     case peerNotReachable
     /// WCSession raises a native exception for payloads above 65,536 bytes;
     /// transports throw this Swift error instead so callers degrade gracefully.
     case payloadTooLarge(Int)
+    case payloadUnsupportedTypes
 }
+
+#if canImport(WatchConnectivity)
 
 public struct WatchConnectivityStatus: Equatable, Sendable {
     public let isSupported: Bool
@@ -1390,8 +1394,8 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
 
     private static let durableLinkPayloadKey = "jifen.link.terminal"
     private static let latestLinkSnapshotContextKey = "jifen.link.latest_snapshot"
-    /// Hard WCSession payload ceiling: larger payloads raise a native exception.
-    public static let maxPayloadBytes = 65_536
+    /// Maximum outbound payload size enforced by this transport.
+    public static let maxPayloadBytes = LinkPayloadBudget.maxBytes
 
     private static func ensurePayloadFits(_ data: Data) throws {
         guard data.count <= maxPayloadBytes else {
@@ -1414,6 +1418,11 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     public static let clearPendingMessageKey = "jifen.link.clear_pending"
 
     private let session: WCSession
+    /// Serializes both application-context write entry points through one
+    /// writer. The writer holds no dictionary: every call reads
+    /// `WCSession.applicationContext` afresh (Apple: it holds the most recent
+    /// dictionary this process set), so a paired-device change is observed.
+    private let contextWriter: LinkApplicationContextWriter
     public var onReceive: ReceiveHandler?
     public var onSendError: (@Sendable (Error) -> Void)?
     public var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)?
@@ -1441,6 +1450,10 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
 
     public init(session: WCSession = .default) {
         self.session = session
+        self.contextWriter = LinkApplicationContextWriter(
+            read: { session.applicationContext },
+            write: { try session.updateApplicationContext($0) }
+        )
         super.init()
     }
 
@@ -1515,9 +1528,7 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
             throw WatchConnectivityTransportError.sessionNotActivated
         }
         try Self.ensurePayloadFits(data)
-        var context = session.applicationContext
-        context[Self.latestLinkSnapshotContextKey] = data
-        try session.updateApplicationContext(context)
+        try withApplicationContextUpdate([Self.latestLinkSnapshotContextKey: data])
     }
 
     public func enqueueDurable(_ data: Data) throws {
@@ -1544,30 +1555,27 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     }
 
     /// Push a small always-latest dictionary to the peer (used for common-names auto sync).
-    /// The merged dictionary is serialized to measure the real byte size before
-    /// hitting WCSession, which raises a native exception above 65,536 bytes.
+    /// Measure the complete dictionary as a binary plist so the snapshot's
+    /// Data value and the nested common-names dictionary can coexist.
     public func updateApplicationContext(_ context: [String: Any]) throws {
         guard session.activationState == .activated else {
             throw WatchConnectivityTransportError.sessionNotActivated
         }
-        var merged = session.applicationContext
-        for (key, value) in context {
-            merged[key] = value
-        }
-        guard Self.contextDictionaryFits(merged) else {
-            throw WatchConnectivityTransportError.payloadTooLarge(Self.maxPayloadBytes + 1)
-        }
-        try session.updateApplicationContext(merged)
+        try withApplicationContextUpdate(context)
     }
 
-    /// Serializes the merged context dictionary the same way WCSession would,
-    /// and rejects it when the total would exceed the 65,536-byte ceiling.
-    static func contextDictionaryFits(_ context: [String: Any]) -> Bool {
-        guard JSONSerialization.isValidJSONObject(context) else { return false }
-        guard let data = try? JSONSerialization.data(withJSONObject: context, options: [.sortedKeys]) else {
-            return false
+    /// Both context write entry points share this lock, so concurrent
+    /// read/modify/write sequences cannot drop each other's keys regardless of
+    /// the calling queue. The dictionary is re-read from the session on every
+    /// call, so switching paired devices never republishes stale keys.
+    private func withApplicationContextUpdate(_ update: [String: Any]) throws {
+        do {
+            try contextWriter.merge(update)
+        } catch LinkApplicationContextError.tooLarge(let size) {
+            throw WatchConnectivityTransportError.payloadTooLarge(size)
+        } catch LinkApplicationContextError.invalidContext {
+            throw WatchConnectivityTransportError.payloadUnsupportedTypes
         }
-        return data.count <= maxPayloadBytes
     }
 
     /// Queue a finished watch record for delivery even when the peer is not reachable.
@@ -1589,20 +1597,16 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
         guard !data.isEmpty else {
             throw WatchConnectivityTransportError.payloadTooLarge(0)
         }
-        let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("jifen-link-\(UUID().uuidString).jifenlink")
+        let url = try LinkTemporaryTransferFile.makeURL()
         try data.write(to: url, options: .atomic)
-        pendingOutgoingFileURLs[url.path] = url
         session.transferFile(url, metadata: metadata)
     }
-
-    /// Temp files awaiting `didFinish` cleanup, keyed by path.
-    private var pendingOutgoingFileURLs: [String: URL] = [:]
 
     public func transferCommonNameMutations(_ data: Data) throws {
         guard session.activationState == .activated else {
             throw WatchConnectivityTransportError.sessionNotActivated
         }
+        try Self.ensureCommonNameControlFits(data)
         session.transferUserInfo([Self.commonNameMutationsUserInfoKey: data])
     }
 
@@ -1610,7 +1614,18 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
         guard session.activationState == .activated else {
             throw WatchConnectivityTransportError.sessionNotActivated
         }
+        try Self.ensureCommonNameControlFits(data)
         session.transferUserInfo([Self.commonNameMutationAckUserInfoKey: data])
+    }
+
+    /// `transferUserInfo` carries a dictionary, so the body shares the 65,536-byte
+    /// ceiling with the key and plist wrapper. The Watch trims mutation batches
+    /// with `fittingPrefix`; an oversized call here is a programming error and
+    /// must fail loudly instead of trapping inside WatchConnectivity.
+    private static func ensureCommonNameControlFits(_ data: Data) throws {
+        guard LinkCommonNameControlBudget.fits(data) else {
+            throw WatchConnectivityTransportError.payloadTooLarge(data.count)
+        }
     }
 
     /// Phone side: ask the watch for queued finished-record transfers it queued but the phone never received.
@@ -1779,11 +1794,10 @@ extension WatchConnectivityTransport: WCSessionDelegate {
     }
 
     public func session(_ session: WCSession, didFinish fileTransfer: WCSessionFileTransfer, error: Error?) {
-        let url = fileTransfer.file.fileURL
-        pendingOutgoingFileURLs.removeValue(forKey: url.path)
-        if url.path.contains("jifen-link-") {
-            try? FileManager.default.removeItem(at: url)
-        }
+        // The sender owns its staging file; WatchConnectivity only removes the
+        // received copy. Deleting is restricted to the dedicated directory so a
+        // peer-supplied path can never delete an unrelated file.
+        LinkTemporaryTransferFile.removeIfManaged(fileTransfer.file.fileURL)
         if let error {
             #if DEBUG
             print("[LinkCore] didFinishFileTransfer error:", error.localizedDescription)

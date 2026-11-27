@@ -420,3 +420,9 @@
 
 "watch_phone_shared_link_intro" = "Indítsd a telefonon, és rögzítsd a pontokat bármelyik eszközön.";
 "linked_score_simultaneous_edit" = "Mindkét eszközön történt módosítás. Ellenőrizd az állást.";
+"linked_score_pending_finish" = "Szinkronizálásra vár";
+"linked_score_resync" = "Sync Score";
+"linked_score_end" = "End link";
+"linked_score_excluded_operations" = "%d offline pont kihagyva";
+"linked_score_reconnect_to_continue" = "Csatlakoztasd újra az iPhone-t a pontrögzítés folytatásához.";
+"linked_score_reset_unavailable" = "Közös pontszámlálás közben fejezd be az aktuális mérkőzést, mielőtt újat kezdesz.";
