@@ -1,0 +1,68 @@
+Scoreboard background photographs
+
+Photo background theme default images bundled with the scoreboard.
+The table tennis image is used under CC BY-SA 4.0. The other images
+are distributed under CC0 1.0 Universal or are public-domain works.
+
+New project-specific images are converted to 1920x1080 JPEG, centre-cropped to 16:9 and
+recompressed for bundling. No other modification is made.
+
+== table tennis -> Assets.xcassets/scoreboard_event_background.imageset/background.jpg
+   Title   : Table Tennis racquet and ball on table - top view.jpg
+   Author  : Photo by KeepActive.com.au (https://keepactive.com.au/)
+   License : https://creativecommons.org/licenses/by-sa/4.0/
+   Source  : https://commons.wikimedia.org/wiki/File:Table_Tennis_racquet_and_ball_on_table_-_top_view.jpg
+   Use     : Bundled at 1280 x 960. Cropped to fit the screen and dimmed at runtime.
+
+== badminton -> Assets.xcassets/scoreboard_event_background_badminton.imageset
+   Title   : Badminton court view.jpg
+   License : CC0
+   Author  : Darakshanehaluddin
+   Source  : https://commons.wikimedia.org/wiki/File:Badminton_court_view.jpg
+
+== volleyball -> Assets.xcassets/scoreboard_event_background_volleyball.imageset
+   Title   : Armed Forces Indoor Volleyball Tournament 130508-F-EX835-722.jpg
+   License : Public domain
+   Author  : Airman 1st Class Tiffany DeNault
+   Source  : https://commons.wikimedia.org/wiki/File:Armed_Forces_Indoor_Volleyball_Tournament_130508-F-EX835-722.jpg
+
+== beach_volleyball -> Assets.xcassets/scoreboard_event_background_beach_volleyball.imageset
+   Title   : USMC-111007-M-UV915-234.jpg
+   License : Public domain
+   Author  : U.S. Marine Corps (public domain)
+   Source  : https://commons.wikimedia.org/wiki/File:USMC-111007-M-UV915-234.jpg
+
+== squash -> Assets.xcassets/scoreboard_event_background_squash.imageset
+   Title   : Olympic Squash Court.png
+   License : CC0
+   Author  : Unknown photographer; published via the Smithsonian National Postal Museum, edited and restored by HefePine23
+   Source  : https://commons.wikimedia.org/wiki/File:Olympic_Squash_Court.png
+
+== shuttlecock -> Assets.xcassets/scoreboard_event_background_shuttlecock.imageset
+   Title   : Haikou People's Park - people playing jianzi - 01.jpg
+   License : CC0
+   Author  : Anna Frodesiak
+   Source  : https://commons.wikimedia.org/wiki/File:Haikou_People%27s_Park_-_people_playing_jianzi_-_01.jpg
+
+== billiards -> Assets.xcassets/scoreboard_event_background_billiards.imageset
+   Title   : Billiards table.jpg
+   License : CC0
+   Author  : Kurt Kaiser
+   Source  : https://commons.wikimedia.org/wiki/File:Billiards_table.jpg
+
+== football -> Assets.xcassets/scoreboard_event_background_football.imageset
+   Title   : Football pitch in Shurskol settlement.jpg
+   License : CC0
+   Author  : Sportsmentos
+   Source  : https://commons.wikimedia.org/wiki/File:Football_pitch_in_Shurskol_settlement.jpg
+
+== simple -> Assets.xcassets/scoreboard_event_background_simple.imageset
+   Title   : Interior overview of the indoor sports hall at OAU Gymnasium.jpg
+   License : CC0
+   Author  : Eminence190
+   Source  : https://commons.wikimedia.org/wiki/File:Interior_overview_of_the_indoor_sports_hall_at_OAU_Gymnasium.jpg
+
+CC0 1.0 Universal: https://creativecommons.org/publicdomain/zero/1.0/
+
+Public-domain images from U.S. military sources are works of the U.S.
+federal government and are not subject to copyright in the United States.
