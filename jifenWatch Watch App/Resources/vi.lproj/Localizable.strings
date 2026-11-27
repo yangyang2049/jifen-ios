@@ -420,3 +420,9 @@
 
 "watch_phone_shared_link_intro" = "Bắt đầu trên điện thoại và ghi điểm trên một trong hai thiết bị.";
 "linked_score_simultaneous_edit" = "Cả hai thiết bị đều đã thay đổi. Hãy kiểm tra tỉ số.";
+"linked_score_pending_finish" = "Chờ đồng bộ";
+"linked_score_resync" = "Sync Score";
+"linked_score_end" = "End link";
+"linked_score_excluded_operations" = "%d điểm ngoại tuyến bị loại";
+"linked_score_reconnect_to_continue" = "Kết nối lại iPhone để tiếp tục ghi điểm.";
+"linked_score_reset_unavailable" = "Khi đang ghi điểm đồng bộ, hãy kết thúc trận hiện tại trước khi bắt đầu trận mới.";

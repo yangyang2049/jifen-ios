@@ -1,3 +1,4 @@
+import Foundation
 import ScoreCore
 import SessionCore
 import Testing
@@ -12,7 +13,7 @@ import Testing
         .foosball, .foosballDoubles
     ]
     let tennisTypes: [GameType] = [.tennis, .tennisDoubles, .softTennis, .padel]
-    let lineTypes: [GameType] = [.football, .football5v5, .billiards, .simpleScore]
+    let lineTypes: [GameType] = [.billiards, .simpleScore]
     var constructedTypes = Set<GameType>()
 
     for gameType in rallyTypes {
@@ -60,6 +61,24 @@ import Testing
         constructedTypes.insert(session.gameType)
     }
 
+    for gameType in [GameType.football, .football5v5] {
+        guard let core = ScoreboardSessionFactory.football(
+            gameType: gameType,
+            leftName: "A",
+            rightName: "B",
+            at: 1_000
+        ) else {
+            Issue.record("Missing football factory route for \(gameType.rawValue)")
+            continue
+        }
+        let session = await core.snapshot()
+        #expect(session.gameType == gameType)
+        #expect(session.reducerType == ScoreboardKernelRegistry.footballReducerType(for: gameType))
+        #expect(session.state.isFiveAside == (gameType == .football5v5))
+        #expect(session.state.timer.isRunning == (gameType == .football))
+        constructedTypes.insert(session.gameType)
+    }
+
     for gameType in [GameType.basketball, .threeBasketball] {
         guard let core = ScoreboardSessionFactory.basketball(
             gameType: gameType,
@@ -82,6 +101,7 @@ import Testing
     let snooker = await ScoreboardSessionFactory.snooker(leftName: "A", rightName: "B").snapshot()
     let guandan = await ScoreboardSessionFactory.guandan(redName: "A", blueName: "B").snapshot()
     let shengji = await ScoreboardSessionFactory.shengji(leftName: "A", rightName: "B").snapshot()
+    let training = await ScoreboardSessionFactory.shotTraining(mode: .free, at: 1_000).snapshot()
 
     guard let nineBallCore = ScoreboardSessionFactory.nineBall(playerNames: ["A", "B"]),
           let doudizhuCore = ScoreboardSessionFactory.doudizhu(playerNames: ["A", "B", "C"]),
@@ -105,16 +125,52 @@ import Testing
         (shengji.gameType, shengji.reducerType),
         (doudizhu.gameType, doudizhu.reducerType),
         (multi.gameType, multi.reducerType),
-        (uno.gameType, uno.reducerType)
+        (uno.gameType, uno.reducerType),
+        (training.gameType, training.reducerType)
     ]
     for (gameType, reducerType) in fixedSessions {
         #expect(reducerType == ScoreboardKernelRegistry.descriptor(for: gameType).reducerType)
         constructedTypes.insert(gameType)
     }
 
-    let reducerBackedTypes = Set(GameType.allCases.filter { $0 != .basketballTraining })
-    #expect(constructedTypes == reducerBackedTypes)
-    #expect(ScoreboardKernelRegistry.descriptor(for: .basketballTraining).kind == .shotTraining)
+    #expect(constructedTypes == Set(GameType.allCases))
+}
+
+@Test func typedFootballAndTrainingFactoriesKeepLegacyPhoneLineSessionsAvailable() async throws {
+    let start: Int64 = 1_700_000_000_125
+    let football = try #require(ScoreboardSessionFactory.football(
+        gameType: .football5v5, leftName: "Home", rightName: "Away", halfLengthSeconds: 720, at: start
+    ))
+    let footballSeed = await football.snapshot()
+    #expect(footballSeed.reducerType == "football/v1")
+    #expect(footballSeed.state.timer.halfLengthSeconds == 720)
+    #expect(footballSeed.state.timer.savedWallClockMilliseconds == start)
+    #expect(footballSeed.participants.map(\.name) == ["Home", "Away"])
+    _ = await football.dispatch(actorId: "watch", intent: .kickOff, at: start + 1_000)
+    _ = await football.dispatch(actorId: "watch", intent: .goal(side: .left), at: start + 2_000)
+    _ = await football.dispatch(actorId: "watch", intent: .finish, at: start + 3_000)
+    let footballFinished = await football.snapshot()
+    #expect(footballFinished.status == .finished)
+    #expect(footballFinished.state.leftScore == 1)
+    #expect(footballFinished.state.timer.elapsedSeconds == 2)
+
+    let legacy = try #require(ScoreboardSessionFactory.line(gameType: .football5v5, leftName: "Home", rightName: "Away"))
+    let legacySeed = await legacy.snapshot()
+    #expect(legacySeed.reducerType == "line/v1")
+    #expect(legacySeed.state.rules == .nonNegative)
+    #expect(ScoreboardKernelRegistry.descriptor(for: .football5v5).kind == .line)
+    #expect(ScoreboardSessionFactory.football(gameType: .billiards, leftName: "A", rightName: "B", at: start) == nil)
+
+    let training = ScoreboardSessionFactory.shotTraining(mode: .fixed3, at: start)
+    let trainingSeed = await training.snapshot()
+    #expect(trainingSeed.reducerType == "shot_training/v1")
+    #expect(trainingSeed.state.mode == .fixed3)
+    #expect(trainingSeed.state.startTime == Date(timeIntervalSince1970: 1_700_000_000.125))
+    _ = await training.dispatch(actorId: "watch", intent: .recordShot(points: 3, made: true), at: start + 1_000)
+    _ = await training.dispatch(actorId: "watch", intent: .finish, at: start + 2_000)
+    let trainingFinished = await training.snapshot()
+    #expect(trainingFinished.status == .finished)
+    #expect(trainingFinished.state.counts.threeMade == 1)
 }
 
 @Test func scoreboardSessionFactoryRejectsWrongKernelAndInvalidPlayerArity() {

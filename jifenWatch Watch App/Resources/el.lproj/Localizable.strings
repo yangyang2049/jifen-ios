@@ -420,3 +420,9 @@
 
 "watch_phone_shared_link_intro" = "Ξεκινήστε στο τηλέφωνο και καταγράψτε το σκορ σε οποιαδήποτε συσκευή.";
 "linked_score_simultaneous_edit" = "Έγιναν αλλαγές και στις δύο συσκευές. Ελέγξτε το σκορ.";
+"linked_score_pending_finish" = "Αναμονή συγχρονισμού";
+"linked_score_resync" = "Sync Score";
+"linked_score_end" = "End link";
+"linked_score_excluded_operations" = "%d πόντοι εκτός σύνδεσης εξαιρέθηκαν";
+"linked_score_reconnect_to_continue" = "Επανασυνδέστε το iPhone σας για να συνεχίσετε να καταγράφετε το σκορ.";
+"linked_score_reset_unavailable" = "Όσο καταγράφετε το σκορ από κοινού, ολοκληρώστε τον τρέχοντα αγώνα πριν ξεκινήσετε νέο.";

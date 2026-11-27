@@ -19,7 +19,7 @@ enum WatchScoreboardRoute: Hashable, Identifiable {
     case foosball(maxSets: Int)
     case foosballDoubles(maxSets: Int)
     case archery
-    case basketballTraining(mode: WatchBasketballTrainingMode)
+    case basketballTraining(mode: ShotTrainingMode)
     case eightBall
     case nineBall
     case snooker
@@ -82,59 +82,64 @@ extension WatchScoreboardRoute {
             self = .nineBall
         case .snooker:
             self = .snooker
-        case .football(let isFiveAside, let state, _, _, _):
-            let halfLengthSeconds = max(60, state.clock.halfLengthSeconds)
+        case .football(let isFiveAside, let bundle):
+            let halfLengthSeconds = max(60, bundle.currentSession.state.timer.halfLengthSeconds)
             self = isFiveAside
                 ? .football5v5(halfLengthSeconds: halfLengthSeconds)
                 : .football(halfLengthSeconds: halfLengthSeconds)
-        case .basketballTraining(let mode, _, _):
-            self = .basketballTraining(mode: mode)
+        case .basketballTraining(let bundle):
+            self = .basketballTraining(mode: bundle.currentSession.state.mode)
         }
     }
 
     init?(linkedSetup: LinkedScoreboardSetup) {
-        switch linkedSetup.gameType {
-        case .pingpong:
-            self = .pingpong(maxSets: linkedSetup.maxSets ?? 5)
-        case .pingpongDoubles:
-            self = .pingpongDoubles(maxSets: linkedSetup.maxSets ?? 5)
-        case .badminton:
-            self = .badminton(maxSets: linkedSetup.maxSets ?? 3)
-        case .badmintonDoubles:
-            self = .badmintonDoubles(maxSets: linkedSetup.maxSets ?? 3)
-        case .tennis:
-            self = .tennis(maxSets: linkedSetup.maxSets ?? 3)
-        case .tennisDoubles:
-            self = .tennisDoubles(maxSets: linkedSetup.maxSets ?? 3)
-        case .pickleball:
-            self = .pickleball(maxSets: linkedSetup.maxSets ?? 3)
-        case .pickleballDoubles:
-            self = .pickleballDoubles(maxSets: linkedSetup.maxSets ?? 3)
-        case .shuttlecock:
-            self = .shuttlecock(maxSets: linkedSetup.maxSets ?? 3)
-        case .squash:
-            self = .squash(maxSets: linkedSetup.maxSets ?? 5)
-        case .foosball:
-            self = .foosball(maxSets: linkedSetup.maxSets ?? 3)
-        case .foosballDoubles:
-            self = .foosballDoubles(maxSets: linkedSetup.maxSets ?? 3)
-        case .archeryDual:
+        guard let sport = WatchSportRegistry.descriptor(for: linkedSetup.gameType),
+              WatchSportRegistry.isValidLinkedSetup(linkedSetup) else { return nil }
+        let maxSets = linkedSetup.maxSets ?? sport.defaultMaxSets
+
+        switch (linkedSetup.gameType, maxSets) {
+        case (.pingpong, let sets?):
+            self = .pingpong(maxSets: sets)
+        case (.pingpongDoubles, let sets?):
+            self = .pingpongDoubles(maxSets: sets)
+        case (.badminton, let sets?):
+            self = .badminton(maxSets: sets)
+        case (.badmintonDoubles, let sets?):
+            self = .badmintonDoubles(maxSets: sets)
+        case (.tennis, let sets?):
+            self = .tennis(maxSets: sets)
+        case (.tennisDoubles, let sets?):
+            self = .tennisDoubles(maxSets: sets)
+        case (.pickleball, let sets?):
+            self = .pickleball(maxSets: sets)
+        case (.pickleballDoubles, let sets?):
+            self = .pickleballDoubles(maxSets: sets)
+        case (.shuttlecock, let sets?):
+            self = .shuttlecock(maxSets: sets)
+        case (.squash, let sets?):
+            self = .squash(maxSets: sets)
+        case (.foosball, let sets?):
+            self = .foosball(maxSets: sets)
+        case (.foosballDoubles, let sets?):
+            self = .foosballDoubles(maxSets: sets)
+        case (.archeryDual, _):
             self = .archery
-        case .eightBall:
+        case (.eightBall, _):
             self = .eightBall
-        case .nineBall:
+        case (.nineBall, _):
             self = .nineBall
-        case .snooker:
+        case (.snooker, _):
             self = .snooker
-        case .basketballTraining:
+        case (.basketballTraining, _):
             guard let state = linkedSetup.initialSnapshot?.basketballTrainingState else { return nil }
-            self = .basketballTraining(mode: WatchBasketballTrainingMode(linkedMode: state.mode))
-        case .football:
-            let halfLength = max(60, linkedSetup.initialSnapshot?.footballState?.timer.halfLengthSeconds ?? 45 * 60)
-            self = .football(halfLengthSeconds: halfLength)
-        case .football5v5:
-            let halfLength = max(60, linkedSetup.initialSnapshot?.footballState?.timer.halfLengthSeconds ?? 20 * 60)
-            self = .football5v5(halfLengthSeconds: halfLength)
+            self = .basketballTraining(mode: state.mode)
+        case (.football, _), (.football5v5, _):
+            guard let length = linkedSetup.initialSnapshot?.footballState?.timer.halfLengthSeconds
+                ?? sport.defaultFootballHalfLengthSeconds else { return nil }
+            let halfLength = max(60, length)
+            self = linkedSetup.gameType == .football5v5
+                ? .football5v5(halfLengthSeconds: halfLength)
+                : .football(halfLengthSeconds: halfLength)
         default:
             return nil
         }

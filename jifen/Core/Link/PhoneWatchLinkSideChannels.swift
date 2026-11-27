@@ -38,6 +38,7 @@ extension PhoneWatchLinkService {
               connectivityStatus.isPaired,
               connectivityStatus.isWatchAppInstalled else { return }
         let snapshot = CommonNamesManager.shared.currentSyncSnapshot()
+            .budgetConstrainedData()
         let context: [String: Any] = [
             WatchConnectivityTransport.commonNamesContextKey: snapshot.applicationContextValue()
         ]
@@ -45,6 +46,22 @@ extension PhoneWatchLinkService {
             try transport.updateApplicationContext(context)
         } catch {
             lastErrorMessage = error.localizedDescription
+        }
+    }
+
+    /// Route reliable files through the same receiver as other intent frames.
+    func handleReceivedFile(_ data: Data, metadata: [String: Any]) {
+        let kind = metadata[WatchConnectivityTransport.transferFileKindKey] as? String
+        if kind == WatchTransferFileKind.watchRecord.rawValue {
+            handleWatchRecordTransfer(data)
+            return
+        }
+        if kind == WatchTransferFileKind.intentFrame.rawValue {
+            handleIncoming(data)
+            return
+        }
+        if (try? JSONDecoder().decode(WatchRecordTransferPayload.self, from: data)) != nil {
+            handleWatchRecordTransfer(data)
         }
     }
 
@@ -113,23 +130,15 @@ extension PhoneWatchLinkService {
         }
     }
 
-    func handleCommonNameUsage(_ data: Data) {
-        guard let payload = try? JSONDecoder().decode(CommonNameUsagePayload.self, from: data),
-              payload.nameType == "player" else { return }
-        Task { @MainActor [weak self] in
-            for name in payload.names {
-                await CommonNamesManager.shared.saveNameIfNeeded(name, .player)
-            }
-            self?.pushCommonNamesToWatch()
-        }
-    }
 
     func handleCommonNameMutations(_ data: Data) {
         guard let batch = try? JSONDecoder().decode(CommonNameMutationBatch.self, from: data),
               !batch.mutations.isEmpty else { return }
         let acknowledgement = CommonNamesManager.shared.applyWatchMutations(batch.mutations)
         do {
-            let acknowledgementData = try JSONEncoder().encode(acknowledgement)
+            // Keeps every result so the Watch dequeues by mutationId; only an
+            // oversized canonical snapshot is budget-constrained and re-encoded.
+            let acknowledgementData = try acknowledgement.encodedWithinControlBudget()
             try transport.transferCommonNameMutationAcknowledgement(acknowledgementData)
         } catch {
             lastErrorMessage = error.localizedDescription
@@ -140,9 +149,13 @@ extension PhoneWatchLinkService {
     }
 
     func handleConnectivityStatusChange(_ status: WatchConnectivityStatus) {
+        let becameReachable = !connectivityStatus.isReachable && status.isReachable
         connectivityStatus = status
         pushCommonNamesToWatch()
         guard status.isReachable else { return }
+        if becameReachable, let handle = activeSession?.handle {
+            requestWatchIntentReplay(handle: handle)
+        }
         flushPendingSessionEnds()
         requestStatusForActiveSession()
         requestPendingWatchRecordsFromWatch()

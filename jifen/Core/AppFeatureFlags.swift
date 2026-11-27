@@ -1,4 +1,5 @@
 import Foundation
+import LinkCore
 import ScoreCore
 import UIKit
 
@@ -50,18 +51,8 @@ enum AppFeatureFlags {
     }
 
     static func isWatchLinkSupportedProject(_ gameType: GameType) -> Bool {
-        // 必须与手机端服务层白名单 PhoneWatchLinkService.phoneInteractiveStartSupported
-        // 及手表端 WatchLinkSession.isValidLinkedSetup 一致（由 PhoneWatchLinkServiceTests 守护）。
-        switch gameType {
-        case .pingpong, .badminton, .tennis, .pickleball,
-             .shuttlecock, .squash, .foosball,
-             .football, .football5v5, .basketballTraining,
-             .archery,
-             .eightBall, .nineBall, .snooker:
-            return true
-        default:
-            return false
-        }
+        guard let coreGameType = gameType.scoreCoreGameType else { return false }
+        return WatchSportRegistry.supportsPhoneWatchLink(coreGameType)
     }
 
     /// Whether the current setup mode (singles/doubles, nine-ball player count) can start on watch.
@@ -71,16 +62,11 @@ enum AppFeatureFlags {
         nineBallPlayerCount: Int? = nil,
         competitionFormat: CompetitionFormat? = nil
     ) -> Bool {
-        guard isWatchLinkSupportedProject(gameType) else { return false }
-        if gameType == .shuttlecock, competitionFormat == .team {
-            return false
-        }
-        if gameType == .nineBall {
-            let count = nineBallPlayerCount ?? 2
-            return (2...4).contains(count)
-        }
-        // Singles/doubles share the same phone GameType entry; both are supported on watch.
-        _ = isSingles
-        return true
+        guard let coreGameType = gameType.scoreCoreGameType else { return false }
+        return WatchSportRegistry.supportsPhoneWatchLink(
+            coreGameType,
+            playerCount: nineBallPlayerCount,
+            competitionFormat: competitionFormat
+        )
     }
 }

@@ -420,3 +420,9 @@
 
 "watch_phone_shared_link_intro" = "เริ่มบนโทรศัพท์และบันทึกคะแนนได้จากทั้งสองอุปกรณ์";
 "linked_score_simultaneous_edit" = "มีการเปลี่ยนแปลงจากทั้งสองอุปกรณ์ โปรดตรวจสอบคะแนน";
+"linked_score_pending_finish" = "รอซิงค์";
+"linked_score_resync" = "Sync Score";
+"linked_score_end" = "End link";
+"linked_score_excluded_operations" = "ไม่นับคะแนนออฟไลน์ %d รายการ";
+"linked_score_reconnect_to_continue" = "เชื่อมต่อ iPhone อีกครั้งเพื่อบันทึกคะแนนต่อ";
+"linked_score_reset_unavailable" = "ขณะบันทึกคะแนนร่วมกัน ให้จบการแข่งขันปัจจุบันก่อนเริ่มการแข่งขันใหม่";

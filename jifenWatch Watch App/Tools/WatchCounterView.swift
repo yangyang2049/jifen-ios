@@ -5,6 +5,7 @@
 //  计数器：点击屏幕 +1，支持重置。与主应用/鸿蒙计数器对齐。
 //
 
+import RecordCore
 import SwiftUI
 
 struct WatchCounterSession {
@@ -31,23 +32,20 @@ struct WatchCounterSession {
     mutating func finish(save: (WatchScoreboardRecord) -> Bool) -> Bool {
         let end = Date()
         if count > 0 {
-            let record = WatchScoreboardRecord(
+            let canonical = CanonicalMatchRecord(
                 id: "w_counter_\(UUID().uuidString)",
-                gameType: .counter,
-                startTime: startedAt,
-                endTime: end,
-                duration: end.timeIntervalSince(startedAt),
+                kind: .counter,
+                source: .watchLocal,
+                startEpochMilliseconds: Int64((startedAt.timeIntervalSince1970 * 1_000).rounded()),
+                endEpochMilliseconds: Int64((end.timeIntervalSince1970 * 1_000).rounded()),
+                durationSeconds: end.timeIntervalSince(startedAt),
                 team1Name: NSLocalizedString("game_counter", comment: "Counter"),
                 team2Name: "",
                 team1FinalScore: count,
                 team2FinalScore: 0,
-                team1SetScore: 0,
-                team2SetScore: 0,
-                winner: nil,
-                actions: [],
                 totalScoreChanges: count
             )
-            guard save(record) else { return false }
+            guard let record = WatchScoreboardRecord(canonical: canonical), save(record) else { return false }
         }
         reset()
         startedAt = end

@@ -209,24 +209,24 @@ final class WatchScoreboardFlowTests: XCTestCase {
             startedAt: now,
             scoreLine: "2/3 = 67%",
             emoji: "🏀",
-            payload: .basketballTraining(
-                mode: .twoPoint,
-                history: [
-                    WatchBasketballTrainingShot(points: 2, made: true, timestamp: now)
-                ]
+            payload: trainingResumeFixture(
+                mode: .fixed2, startedAt: now,
+                shots: [ShotTrainingShot(points: 2, made: true, timestamp: now)]
             )
+        )
+        let descriptor = ScoreboardKernelRegistry.descriptor(for: .nineBall)
+        let nineBall = ScoreSessionMachine(
+            seedSession: ScoreSession<NineBallChaseState, NineBallChaseEvent>(
+                gameType: .nineBall, ruleFamily: descriptor.ruleFamily, reducerType: descriptor.reducerType,
+                state: NineBallChaseState.initial(playerCount: 2, playerNames: ["选手 1", "选手 2"])
+            ),
+            reducer: NineBallChaseReducer()
         )
         let matchSession = WatchResumeSession(
             startedAt: now,
             scoreLine: "1 : 0",
             emoji: "🎱",
-            payload: .nineBall(
-                state: NineBallChaseState.initial(
-                    playerCount: 2,
-                    playerNames: ["选手 1", "选手 2"]
-                ),
-                undoStates: []
-            )
+            payload: .nineBall(bundle: nineBall.resumeBundle())
         )
 
         XCTAssertTrue(trainingSession.isTrainingSession)

@@ -1,4 +1,5 @@
 import LinkCore
+import ScoreCore
 import SwiftUI
 
 enum WatchHomeItem: String, CaseIterable {
@@ -237,12 +238,13 @@ struct WatchHomeTabView: View {
     private func discardResume(_ session: WatchResumeSession) {
         guard let current = resumeStore.session,
               current.startedAt == session.startedAt,
-              current.link?.handle == session.link?.handle else { return }
-        if let context = current.link {
+              current.linkHandle == session.linkHandle else { return }
+        if current.linkHandle != nil,
+           let context = resumeStore.linkContextForResume(linkService.storedLinkContext) {
             if linkService.resumeContext == nil {
                 linkService.restoreSuspendedSession(context)
             }
-            linkService.discardResumableSession(reason: .resumeBarClose)
+            linkService.discardResumableSession()
         }
         resumeStore.clear()
     }
@@ -403,9 +405,9 @@ struct WatchHomeTabView: View {
                 } else {
                     VStack(spacing: compact ? 8 : 10) {
                         HStack(spacing: 6) {
-                            trainingModeButton(.onePoint, title: NSLocalizedString("watch_bb_1pt", value: "1分", comment: ""))
-                            trainingModeButton(.twoPoint, title: NSLocalizedString("watch_bb_2pt", value: "2分", comment: ""))
-                            trainingModeButton(.threePoint, title: NSLocalizedString("watch_bb_3pt", value: "3分", comment: ""))
+                            trainingModeButton(.fixed1, title: NSLocalizedString("watch_bb_1pt", value: "1分", comment: ""))
+                            trainingModeButton(.fixed2, title: NSLocalizedString("watch_bb_2pt", value: "2分", comment: ""))
+                            trainingModeButton(.fixed3, title: NSLocalizedString("watch_bb_3pt", value: "3分", comment: ""))
                         }
                         trainingModeButton(
                             .free,
@@ -430,7 +432,7 @@ struct WatchHomeTabView: View {
     }
 
     private func trainingModeButton(
-        _ mode: WatchBasketballTrainingMode,
+        _ mode: ShotTrainingMode,
         title: String,
         fillsWidth: Bool = false
     ) -> some View {

@@ -432,23 +432,6 @@ struct ScoreboardLaunchView: View {
         .modifier(IPadForcedLandscapeSurface(
             isEnabled: Theme.usesPadLayout && forceIPadLandscape
         ))
-        .overlay {
-            if let watchLinkService, let linkedWatchSessionId,
-               watchLinkService.activeSessionId == linkedWatchSessionId,
-               let notice = watchLinkService.simultaneousEditNotice {
-                ToastView(message: NSLocalizedString(
-                    "linked_score_simultaneous_edit", value: "Both devices made changes. Check the score.", comment: ""
-                ))
-                .accessibilityIdentifier("linked_score_simultaneous_edit")
-                .allowsHitTesting(false)
-                .task(id: notice) {
-                    do { try await Task.sleep(for: .seconds(2)) } catch { return }
-                    if watchLinkService.simultaneousEditNotice == notice {
-                        watchLinkService.simultaneousEditNotice = nil
-                    }
-                }
-            }
-        }
         .appAnalyticsScreen(analyticsContext.screen)
     }
 

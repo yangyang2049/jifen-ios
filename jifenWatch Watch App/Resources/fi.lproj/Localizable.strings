@@ -420,3 +420,9 @@
 
 "watch_phone_shared_link_intro" = "Aloita puhelimella ja kirjaa pisteitä kummalla tahansa laitteella.";
 "linked_score_simultaneous_edit" = "Molemmilla laitteilla tehtiin muutoksia. Tarkista pistetilanne.";
+"linked_score_pending_finish" = "Odottaa synkronointia";
+"linked_score_resync" = "Sync Score";
+"linked_score_end" = "End link";
+"linked_score_excluded_operations" = "%d offline-pistettä jätetty pois";
+"linked_score_reconnect_to_continue" = "Yhdistä iPhone uudelleen, niin voit jatkaa pisteiden kirjaamista.";
+"linked_score_reset_unavailable" = "Kun yhteinen pistelasku on käytössä, päätä nykyinen ottelu ennen uuden aloittamista.";

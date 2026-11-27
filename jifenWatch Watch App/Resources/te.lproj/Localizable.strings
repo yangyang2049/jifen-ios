@@ -420,3 +420,9 @@
 
 "watch_phone_shared_link_intro" = "ఫోన్‌లో ప్రారంభించి, ఏ పరికరంలోనైనా స్కోరు నమోదు చేయండి.";
 "linked_score_simultaneous_edit" = "రెండు పరికరాల్లో మార్పులు జరిగాయి. స్కోరును తనిఖీ చేయండి.";
+"linked_score_pending_finish" = "సింక్ కోసం వేచి ఉంది";
+"linked_score_resync" = "Sync Score";
+"linked_score_end" = "End link";
+"linked_score_excluded_operations" = "%d ఆఫ్‌లైన్ స్కోర్లు చేర్చబడలేదు";
+"linked_score_reconnect_to_continue" = "స్కోరు నమోదు కొనసాగించడానికి iPhoneకు మళ్లీ కనెక్ట్ చేయండి.";
+"linked_score_reset_unavailable" = "రెండు పరికరాల్లో స్కోరు నమోదు చేస్తున్నప్పుడు, కొత్త మ్యాచ్‌ను ప్రారంభించే ముందు ప్రస్తుత మ్యాచ్‌ను ముగించండి.";

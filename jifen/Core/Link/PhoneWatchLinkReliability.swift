@@ -53,59 +53,47 @@ extension PhoneWatchLinkService {
             initialSnapshot: initialSnapshot,
             participantNames: participantNames ?? []
         )
-        if let session = activeRecordSession { retiredRecordSessions.retire(session) }
         if let existing = activeSession?.sessionId {
             leaveSession(existing)
         }
-        pendingTakeoverMessageId = nil
-        pendingReclaimGrantMessageId = nil
-        pendingReclaimRequest = nil
-        pendingTakeoverApplication = nil
-        forceTakeoverConfirmationSessionId = nil
         pendingStatusCorrelationId = nil
         statusTimeoutTask?.cancel()
         statusTimeoutTask = nil
         resumeStatusContinuations(throwing: CancellationError())
-        reclaimTimeoutTask?.cancel()
-        reclaimTimeoutTask = nil
-        pendingAck.clear()
         peerSupportsCompressedFinish = false
+        negotiatedPeerCapabilities = []
         mergedDetailedActions = []
-        watchBackgrounded = false
         activeSession = ActiveSession(
             handle: LinkedMatchHandle(sessionId: sessionId),
             gameType: gameType,
             revision: 0,
-            role: .phoneFollower,
-            authorityEpoch: 0,
             setup: setup,
             completedMatchIds: []
         )
         if let session = activeSession {
             installStateMachine(from: session, lifecycle: .starting)
         }
-        controlRole = .phoneFollower
         latestRemoteSnapshot = nil
         finishedRecordId = nil
-        publishedFinishedMatchIds.removeAll()
         lastErrorMessage = nil
-        if let handle = activeSession?.handle {
-            _ = revisionGate.beginMatch(handle, initialRevision: 0)
+        let seedEpochMilliseconds = nowMs()
+        do {
+            try prepareIntentMatch(initialEpochMilliseconds: seedEpochMilliseconds)
+        } catch {
+            clearSession()
+            throw error
         }
-        persistContext()
         sequence += 1
         let envelope = LinkEnvelope(
             supportsCompressedFinish: true,
-            supportsSharedEditing: true,
             sessionId: sessionId,
             matchId: activeSession?.handle.matchId,
             matchGeneration: activeSession?.handle.matchGeneration ?? 1,
-            authorityEpoch: 0,
             kind: .setupRequest,
             sender: .phone,
             senderSequence: sequence,
             sessionRevision: 0,
-            sentAtEpochMilliseconds: nowMs(),
+            sentAtEpochMilliseconds: seedEpochMilliseconds,
             payload: setup
         )
         pendingSetupMessageId = envelope.messageId
@@ -156,179 +144,8 @@ extension PhoneWatchLinkService {
     }
 
 
-    func sendSnapshotIfController(
-        sessionId: UUID,
-        gameType: ScoreCore.GameType,
-        snapshot: LinkedScoreboardSnapshot,
-        detailedActions: [DetailedScoreAction]? = nil,
-        participantNames: [String]? = nil
-    ) {
-        guard let currentSession = activeSession,
-              currentSession.sessionId == sessionId,
-              currentSession.gameType == gameType,
-              canEditLinkedMatch,
-              !peerFinishedSharedMatch,
-              !currentSession.completedMatchIds.contains(currentSession.handle.matchId),
-              var machine = sessionMachine else { return }
-        let shared = machine.role == .shared
-        let baseRevision = machine.revision
-        if shared, baseRevision != 0 || currentSession.handle.matchGeneration == 1,
-           snapshot == (latestRemoteSnapshot?.snapshot ?? currentSession.setup.initialSnapshot),
-           participantNames == nil || participantNames == currentSession.setup.participantNames {
-            let knownActionIds = Set(mergedDetailedActions.map(\.id))
-            if detailedActions?.allSatisfy({ knownActionIds.contains($0.id) }) ?? true {
-                return
-            }
-        }
-        _ = machine.advanceRevision(sender: .phone)
-        sessionMachine = machine
-        synchronizeActiveSessionFromStateMachine()
-        guard var session = activeSession else { return }
-        mergeDetailedActions(detailedActions)
-        session.setup = LinkedScoreboardSetup(
-            gameType: gameType,
-            maxSets: maxSets(for: snapshot),
-            initialSnapshot: snapshot,
-            detailedActions: mergedDetailedActions,
-            participantNames: participantNames ?? session.setup.participantNames
-        )
-        activeSession = session
-        latestRemoteSnapshot = .init(
-            sessionId: sessionId,
-            revision: session.revision,
-            matchGeneration: session.handle.matchGeneration,
-            snapshot: snapshot,
-            detailedActions: mergedDetailedActions
-        )
-        persistContext()
-        sequence += 1
-        let messageId = UUID()
-        let envelope = LinkEnvelope(
-            baseSnapshotRevision: shared ? baseRevision : nil,
-            messageId: messageId,
-            sessionId: sessionId,
-            matchId: session.handle.matchId,
-            matchGeneration: session.handle.matchGeneration,
-            authorityEpoch: session.authorityEpoch,
-            kind: .stateSnapshot,
-            sender: .phone,
-            senderSequence: sequence,
-            sessionRevision: session.revision,
-            sentAtEpochMilliseconds: nowMs(),
-            payload: LinkedScoreboardSetup(
-                gameType: gameType,
-                maxSets: maxSets(for: snapshot),
-                initialSnapshot: snapshot,
-                detailedActions: mergedDetailedActions,
-                participantNames: session.setup.participantNames
-            )
-        )
-        if shared {
-            sharedEditTracker.recordLocalEdit(
-                handle: envelope.handle, revision: envelope.sessionRevision,
-                baseRevision: baseRevision, sentAt: envelope.sentAtEpochMilliseconds
-            )
-        }
-        Task {
-            guard let current = activeSession, current.handle == envelope.handle,
-                  canEditLinkedMatch else { return }
-            let isLatest = current.revision == envelope.sessionRevision
-            let supersededByWatch = shared && LinkSharedRevision.writer(of: current.revision) == .watch
-            guard isLatest || (supersededByWatch && transport.isReachable) else { return }
-            let data = LinkEnvelopeEncoding.data(
-                envelope,
-                actionsKeyPath: \LinkedScoreboardSetup.detailedActions
-            )
-            if !isLatest {
-                // Let the peer detect a simultaneous edit without replacing
-                // the current application context or retrying the older score.
-                try? await transport.sendRealtime(data)
-                return
-            }
-            do {
-                // 实时快照携带全量动作历史，超出 64KB 时裁剪最旧尾部。
-                sessionMachine?.registerPendingAcknowledgement(messageId)
-                pendingAck.enqueue(.init(
-                    messageId: messageId,
-                    sessionId: sessionId,
-                    revision: session.revision,
-                    data: data,
-                    lastSentAtEpochMilliseconds: nowMs()
-                ))
-                rescheduleRetryIfNeeded()
-                try transport.publishLatestSnapshot(
-                    LinkEnvelopeEncoding.applicationContextData(envelope)
-                )
-                if transport.isReachable {
-                    try await transport.sendRealtime(data)
-                }
-            } catch {
-                lastErrorMessage = error.localizedDescription
-            }
-        }
-    }
-
-    func sendAck(
-        sessionId: UUID,
-        messageId: UUID,
-        revision: UInt64,
-        handle: LinkedMatchHandle? = nil,
-        authorityEpoch: UInt64? = nil,
-        recordAck: Bool = false
-    ) {
-        let resolvedHandle = handle
-            ?? activeSession?.handle
-            ?? LinkedMatchHandle(sessionId: sessionId, matchId: sessionId)
-        sequence += 1
-        let envelope = LinkEnvelope(
-            correlationId: messageId,
-            sessionId: sessionId,
-            matchId: resolvedHandle.matchId,
-            matchGeneration: resolvedHandle.matchGeneration,
-            authorityEpoch: authorityEpoch
-                ?? activeSession?.authorityEpoch
-                ?? 0,
-            kind: recordAck ? .recordAcknowledgement : .acknowledgement,
-            sender: .phone,
-            senderSequence: sequence,
-            sessionRevision: revision,
-            sentAtEpochMilliseconds: nowMs(),
-            payload: LinkAcknowledgementPayload(
-                acknowledgedMessageId: messageId,
-                acknowledgedRevision: revision
-            )
-        )
-        sendReportingError(envelope)
-    }
-
-    func sendReportingError<Payload: Codable & Sendable>(
-        _ envelope: LinkEnvelope<Payload>
-    ) {
-        Task {
-            do {
-                try await sendEnvelope(envelope)
-            } catch {
-                lastErrorMessage = error.localizedDescription
-            }
-        }
-    }
-
     func sendEnvelope<Payload: Codable & Sendable>(_ envelope: LinkEnvelope<Payload>) async throws {
-        // 统一经类型分派裁剪：ACK/接管等信封若未来携带长动作历史也不会超限。
-        let data = LinkEnvelopeEncoding.encodedData(envelope)
-        switch envelope.kind {
-        case .stateSnapshot:
-            try transport.publishLatestSnapshot(
-                LinkEnvelopeEncoding.applicationContextData(envelope)
-            )
-            if transport.isReachable {
-                try await transport.sendRealtime(data)
-            }
-        case .matchFinished:
-            try transport.enqueueDurable(data)
-        default:
-            try await transport.sendRealtime(data)
-        }
+        try await transport.sendRealtime(JSONEncoder().encode(envelope))
     }
 
     func scheduleRetryIfNeeded() {
@@ -354,132 +171,38 @@ extension PhoneWatchLinkService {
     }
 
     private func nextRetryDelayNanoseconds() -> UInt64? {
-        let now = nowMs()
-        var deadlines: [Int64] = []
-        if let pending = pendingAck.pending {
-            deadlines.append(
-                pending.lastSentAtEpochMilliseconds
-                    + LinkControlRetryQueue.retryIntervalMilliseconds
-            )
-        }
-        deadlines.append(contentsOf: terminalOutbox.items.map {
-            $0.lastSentAtEpochMilliseconds
-                + LinkDurableOutbox.retryIntervalMilliseconds
-        })
-        if pendingSessionEnds.contains(where: {
+        intentSessionEngine.nextRetryDelayNanoseconds(hasPendingSessionEnd: pendingSessionEnds.contains {
             !pendingSessionEndInFlight.contains($0.handle.sessionId)
-        }) {
-            // Session-end delivery has no acknowledgement queue of its own. Keep
-            // a one-second backoff only while an end request is actually pending.
-            deadlines.append(now + 1_000)
-        }
-        guard let deadline = deadlines.min() else { return nil }
-        let delayMilliseconds = max(0, deadline - now)
-        return UInt64(delayMilliseconds) * 1_000_000
+        })
     }
 
-    private func performRetryWork() {
-        let pendingMessageId = pendingAck.pending?.messageId
-        let authorityTransferPending = pendingMessageId == pendingTakeoverMessageId
-            || pendingMessageId == pendingReclaimGrantMessageId
-        if let data = pendingAck.retryIfDue(nowEpochMilliseconds: nowMs()) {
-            Task {
-                do {
-                    try await transport.sendRealtime(data)
-                } catch {
-                    // 后台自动重发失败（如手表暂不可达）属于非致命事件，
-                    // 重试循环会继续投递，不应弹出“联动失败”对话框。
-                    #if DEBUG
-                    print("[PhoneLink] pending ack retry send failed: \(error.localizedDescription)")
-                    #endif
-                }
-            }
-        } else if let pendingMessageId,
-                  pendingAck.pending == nil {
-            if var machine = sessionMachine {
-                _ = machine.acknowledge(messageId: pendingMessageId)
-                if authorityTransferPending {
-                    _ = machine.rejectAuthorityTransfer(
-                        correlationId: pendingMessageId
-                    )
-                }
-                sessionMachine = machine
-                synchronizeActiveSessionFromStateMachine()
-            }
-            if pendingTakeoverMessageId == pendingMessageId {
-                pendingTakeoverMessageId = nil
-            }
-            if pendingReclaimGrantMessageId == pendingMessageId {
-                pendingReclaimGrantMessageId = nil
-            }
-            lastErrorMessage = authorityTransferPending
-                ? InteractiveStartError.authorityTransferTimedOut.localizedDescription
-                : NSLocalizedString(
-                    "linked_score_sync_timeout",
-                    value: "比分同步超时，将在重新连接后继续同步。",
-                    comment: ""
-                )
-            persistContext()
-        }
-        let dueTerminalData = terminalOutbox.retryDue(
-            nowEpochMilliseconds: nowMs()
-        )
-        if !dueTerminalData.isEmpty {
-            persistTerminalOutbox()
-            for data in dueTerminalData {
-                do {
-                    try transport.enqueueDurable(data)
-                } catch {
-                    // 后台重试入队失败（如会话尚未激活）不弹窗，outbox 会继续重试。
-                    #if DEBUG
-                    print("[PhoneLink] terminal outbox re-enqueue failed: \(error.localizedDescription)")
-                    #endif
-                }
-                if transport.isReachable {
-                    Task { try? await transport.sendRealtime(data) }
-                }
-            }
-        }
+    func performRetryWork() {
         flushPendingSessionEnds()
     }
 
-    func nowMs() -> Int64 {
-        clock.nowEpochMilliseconds()
-    }
+    func nowMs() -> Int64 { clock.nowEpochMilliseconds() }
 
-    func persistTerminalOutbox() {
-        guard !terminalOutbox.isEmpty else {
-            outboxStore.removeObject(forKey: terminalOutboxKey)
-            return
-        }
+    @discardableResult
+    func persistPendingSessionEnds() -> Bool {
         do {
-            let data = try JSONEncoder().encode(terminalOutbox)
-            outboxStore.set(data, forKey: terminalOutboxKey)
+            if pendingSessionEnds.isEmpty {
+                try outboxStore.removeOrThrow(forKey: pendingSessionEndsKey)
+            } else {
+                let data = try JSONEncoder().encode(pendingSessionEnds)
+                try outboxStore.setOrThrow(data, forKey: pendingSessionEndsKey)
+            }
+            return true
         } catch {
             reportPersistenceError(error)
-        }
-    }
-
-    func persistPendingSessionEnds() {
-        guard !pendingSessionEnds.isEmpty else {
-            outboxStore.removeObject(forKey: pendingSessionEndsKey)
-            return
-        }
-        do {
-            let data = try JSONEncoder().encode(pendingSessionEnds)
-            outboxStore.set(data, forKey: pendingSessionEndsKey)
-        } catch {
-            reportPersistenceError(error)
+            return false
         }
     }
 
     func flushPendingSessionEnds() {
+        guard !pendingSessionEnds.isEmpty, persistPendingSessionEnds() else { return }
         for request in pendingSessionEnds {
             let sessionId = request.handle.sessionId
-            guard !pendingSessionEndInFlight.contains(sessionId),
-                  !terminalOutbox.items.contains(where: {
-                      $0.handle.sessionId == sessionId
-                  }) else {
+            guard !pendingSessionEndInFlight.contains(sessionId) else {
                 continue
             }
             pendingSessionEndInFlight.insert(sessionId)
@@ -488,7 +211,6 @@ extension PhoneWatchLinkService {
                 sessionId: sessionId,
                 matchId: request.handle.matchId,
                 matchGeneration: request.handle.matchGeneration,
-                authorityEpoch: request.authorityEpoch,
                 kind: .sessionLeft,
                 sender: .phone,
                 senderSequence: sequence,
@@ -503,10 +225,15 @@ extension PhoneWatchLinkService {
                 }
                 do {
                     try await sendEnvelope(envelope)
-                    pendingSessionEnds.removeAll { $0 == request }
-                    persistPendingSessionEnds()
                     if activeSession?.handle == request.handle {
+                        // Retire the durable resume pointer before dropping the queued end.
+                        try contextStore.removeOrThrow(forKey: contextKey)
                         clearSession()
+                    }
+                    let previousRequests = pendingSessionEnds
+                    pendingSessionEnds.removeAll { $0 == request }
+                    if !persistPendingSessionEnds() {
+                        pendingSessionEnds = previousRequests
                     }
                 } catch {
                     // 会话结束消息的后台重发失败（如手表暂不可达）不弹窗，
@@ -519,30 +246,32 @@ extension PhoneWatchLinkService {
         }
     }
 
-    func persistContext() {
-        guard let session = activeSession else {
-            contextStore.removeObject(forKey: contextKey)
-            return
-        }
-        let context = PhoneLinkResumeContext(
-            handle: session.handle,
-            setup: session.setup,
-            role: session.role,
-            authorityEpoch: session.authorityEpoch,
-            revision: session.revision,
-            latestAuthoritativeSnapshot: latestRemoteSnapshot?.snapshot
-                ?? session.setup.initialSnapshot,
-            detailedActions: mergedDetailedActions,
-            completedMatchIds: session.completedMatchIds,
-            pendingTerminalMessageIds: Set(terminalOutbox.items.map(\.messageId)),
-            finishedRecordId: finishedRecordId,
-            peerSupportsCompressedFinish: peerSupportsCompressedFinish
-        )
+    @discardableResult
+    func persistContext() -> Bool {
         do {
-            let data = try JSONEncoder().encode(context)
-            contextStore.set(data, forKey: contextKey)
+            guard let session = activeSession else {
+                try contextStore.removeOrThrow(forKey: contextKey)
+                return true
+            }
+            let context = PhoneLinkResumeContext(
+                handle: session.handle,
+                setup: LinkedScoreboardSetup(
+                    gameType: session.gameType, participantNames: session.setup.participantNames
+                ),
+                revision: 0,
+                latestAuthoritativeSnapshot: nil,
+                detailedActions: [],
+                completedMatchIds: [],
+                pendingTerminalMessageIds: [],
+                finishedRecordId: nil,
+                peerSupportsCompressedFinish: peerSupportsCompressedFinish,
+                negotiatedPeerCapabilities: negotiatedPeerCapabilities
+            )
+            try contextStore.setOrThrow(JSONEncoder().encode(context), forKey: contextKey)
+            return true
         } catch {
             reportPersistenceError(error)
+            return false
         }
     }
 
@@ -559,45 +288,20 @@ extension PhoneWatchLinkService {
 
     func restoreContext() {
         guard let data = contextStore.data(forKey: contextKey),
-              let context = try? JSONDecoder().decode(
-                PhoneLinkResumeContext.self,
-                from: data
-              ) else {
+              let context = try? JSONDecoder().decode(PhoneLinkResumeContext.self, from: data),
+              let capabilities = context.negotiatedPeerCapabilities,
+              LinkProtocol.requiredCapabilities.isSubset(of: capabilities),
+              !pendingSessionEnds.contains(where: { $0.handle == context.handle }) else {
             contextStore.removeObject(forKey: contextKey)
             return
         }
-        activeSession = ActiveSession(
-            handle: context.handle,
-            gameType: context.setup.gameType,
-            revision: context.revision,
-            role: context.role,
-            authorityEpoch: context.authorityEpoch,
-            setup: context.setup,
-            completedMatchIds: context.completedMatchIds
+        let session = ActiveSession(
+            handle: context.handle, gameType: context.setup.gameType,
+            revision: 0, setup: context.setup, completedMatchIds: []
         )
-        if let session = activeSession {
-            installStateMachine(
-                from: session,
-                lifecycle: context.completedMatchIds.contains(context.handle.matchId) ? .matchFinished : .active
-            )
-            synchronizeActiveSessionFromStateMachine()
-        }
-        finishedRecordId = context.finishedRecordId
+        activeSession = session
+        installStateMachine(from: session)
         peerSupportsCompressedFinish = context.peerSupportsCompressedFinish == true
-        mergedDetailedActions = context.detailedActions
-        publishedFinishedMatchIds = context.completedMatchIds
-        if let snapshot = context.latestAuthoritativeSnapshot {
-            latestRemoteSnapshot = LinkedSnapshotUpdate(
-                sessionId: context.handle.sessionId,
-                revision: context.revision,
-                matchGeneration: context.handle.matchGeneration,
-                snapshot: snapshot,
-                detailedActions: context.detailedActions
-            )
-        }
-        _ = revisionGate.beginMatch(
-            context.handle,
-            initialRevision: context.revision
-        )
+        negotiatedPeerCapabilities = capabilities
     }
 }

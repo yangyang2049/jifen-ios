@@ -39,11 +39,13 @@
 		C10000000000000000000006 /* TimerCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000006 /* TimerCore */; };
 		C10000000000000000000007 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000007 /* FirebaseCore */; };
 		C10000000000000000000008 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000008 /* FirebaseAnalyticsCore */; };
+		C10000000000000000000009 /* LinkSync in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000009 /* LinkSync */; };
 		C20000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000001 /* ScoreCore */; };
 		C20000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000002 /* SessionCore */; };
 		C20000000000000000000003 /* RecordCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000003 /* RecordCore */; };
 		C20000000000000000000004 /* PersistenceCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000004 /* PersistenceCore */; };
 		C20000000000000000000005 /* LinkCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000005 /* LinkCore */; };
+		C20000000000000000000006 /* LinkSync in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000006 /* LinkSync */; };
 		C23000000000000000000001 /* WechatOpenSDK in Frameworks */ = {isa = PBXBuildFile; productRef = A23000000000000000000001 /* WechatOpenSDK */; };
 		C748D22B660C17B977BC6AE9 /* BookingBasketballTimingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F8EC0DD915B1306E2528D /* BookingBasketballTimingTests.swift */; };
 		CCD15D3C49FDE98D34734F0E /* MultiScorePagingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F1078853789E2731F9870B9 /* MultiScorePagingTests.swift */; };
@@ -272,6 +274,7 @@
 				C10000000000000000000006 /* TimerCore in Frameworks */,
 				C10000000000000000000007 /* FirebaseCore in Frameworks */,
 				C10000000000000000000008 /* FirebaseAnalyticsCore in Frameworks */,
+				C10000000000000000000009 /* LinkSync in Frameworks */,
 				C23000000000000000000001 /* WechatOpenSDK in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -285,6 +288,7 @@
 				C20000000000000000000003 /* RecordCore in Frameworks */,
 				C20000000000000000000004 /* PersistenceCore in Frameworks */,
 				C20000000000000000000005 /* LinkCore in Frameworks */,
+				C20000000000000000000006 /* LinkSync in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -477,6 +481,7 @@
 				A10000000000000000000006 /* TimerCore */,
 				A10000000000000000000007 /* FirebaseCore */,
 				A10000000000000000000008 /* FirebaseAnalyticsCore */,
+				A10000000000000000000009 /* LinkSync */,
 				A23000000000000000000001 /* WechatOpenSDK */,
 			);
 			productName = jifen;
@@ -505,6 +510,7 @@
 				B10000000000000000000003 /* RecordCore */,
 				B10000000000000000000004 /* PersistenceCore */,
 				B10000000000000000000005 /* LinkCore */,
+				B10000000000000000000006 /* LinkSync */,
 			);
 			productName = "jifenWatch Watch App";
 			productReference = 0FA5BAE32F18F43E00182375 /* jifenWatch Watch App.app */;
@@ -1577,6 +1583,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = LinkCore;
+		};
+		A10000000000000000000009 /* LinkSync */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
+			productName = LinkSync;
+		};
+		B10000000000000000000006 /* LinkSync */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
+			productName = LinkSync;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

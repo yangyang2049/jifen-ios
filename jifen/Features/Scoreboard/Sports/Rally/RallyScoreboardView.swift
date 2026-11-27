@@ -1,4 +1,5 @@
 import LinkCore
+import LinkSync
 import ScoreCore
 import SessionCore
 import SwiftUI
@@ -374,6 +375,7 @@ struct RallyScoreboardView: View {
     @State private var store: RallySessionStore
     @State private var initialParticipantSelections: [String: ParticipantSelection]?
     @State private var watchSessionId: UUID?
+    @State private var detachedLinkedFinishedRecordID: String?
     @State private var menuConfirm = ScoreboardMenuConfirmState()
     @State private var toastMessage: String?
     @State private var appearance = ScoreboardAppearanceSnapshot.current()
@@ -400,7 +402,6 @@ struct RallyScoreboardView: View {
     @State private var showFinishedRecordDetail = false
     @State private var didSpeakOpeningAnnouncement = false
     @State private var openingAnnouncementTask: Task<Void, Never>?
-    @State private var manualFinishRequested = false
     @State private var isStartingNewMatch = false
     @State private var terminalHold = ScoreboardTerminalHold<RallyTerminalSetPresentation>()
     @State private var officialBreakSession = OfficialBreakSession()
@@ -550,7 +551,7 @@ struct RallyScoreboardView: View {
     private var terminalSetPresentation: RallyTerminalSetPresentation? { terminalHold.value }
     private var linkScoringLocked: Bool {
         watchSessionId != nil
-            && (watchLinkService.isFollower || watchLinkService.isAuthorityTransferPending)
+            && !watchLinkService.canEditLinkedMatch
     }
     private var scoringLocked: Bool {
         terminalSetPresentation != nil || linkScoringLocked || officialBreakSession.inputFrozen
@@ -735,7 +736,6 @@ struct RallyScoreboardView: View {
                             store.persistSnapshot { success in
                                 guard success else { return }
                                 if let id = watchSessionId {
-                                    if store.state.finished { notifyLinkedFinishIfNeeded() }
                                     watchLinkService.leaveSessionIfMatchFinished(id)
                                 }
                                 performScoreboardExit(
@@ -767,7 +767,10 @@ struct RallyScoreboardView: View {
         ))
         .fullScreenCover(isPresented: $showFinishedRecordDetail) {
             NavigationStack {
-                ScoreboardRecordDetailPage(recordId: (watchSessionId == nil ? nil : watchLinkService.finishedRecordId) ?? store.sessionId.uuidString)
+                ScoreboardRecordDetailPage(
+                    recordId: (watchSessionId == nil ? nil : watchLinkService.finishedRecordId)
+                        ?? detachedLinkedFinishedRecordID ?? store.sessionId.uuidString
+                )
                     .toolbar {
                         ToolbarItem(placement: .topBarTrailing) {
                             ModalCloseButton { showFinishedRecordDetail = false }
@@ -794,22 +797,11 @@ struct RallyScoreboardView: View {
             previousIdleTimerDisabled = UIApplication.shared.isIdleTimerDisabled
             UIApplication.shared.isIdleTimerDisabled = appearance.keepScreenOn
             registerScoreboardSync()
-            if let watchSessionId,
-               let update = watchLinkService.attachPage(sessionId: watchSessionId),
-               let rally = update.snapshot.rallyState {
-            Task {
-                let applied = await store.applyAuthoritativeState(
-                    rally,
-                    detailedActions: update.detailedActions,
-                    revision: update.revision,
-                    matchGeneration: update.matchGeneration,
-                    persistFormalRecord: false
-                )
-                if applied {
-                    if rally.finished { showGameOverDialog = true }
-                    applyRemoteOfficialBreak(rally.finished ? nil : rally.officialBreakState)
+            if let watchSessionId {
+                store.isManagedByLink = true
+                if let update = watchLinkService.attachPage(sessionId: watchSessionId) {
+                    applyLinkedUpdate(update)
                 }
-            }
             }
             revealImmersiveChrome()
             if store.state.finished {
@@ -833,64 +825,14 @@ struct RallyScoreboardView: View {
             LocalScoreboardSyncCoordinator.shared.publishSnapshot()
         }
         .onChange(of: onePointDoubleTapEnabled) { _, _ in cancelPendingTap() }
-        .onChange(of: store.state) { _, state in
+        .onChange(of: store.state) { _, _ in
             if terminalSetPresentation == nil {
                 publishCurrentRallyState()
-                if state.finished { notifyLinkedFinishIfNeeded() }
             }
         }
         .onChange(of: watchLinkService.latestRemoteSnapshot) { previous, update in
-            guard watchLinkService.incomingSnapshot != nil, let watchSessionId,
-                  let update,
-                  update.sessionId == watchSessionId,
-                  let rally = update.snapshot.rallyState else { return }
-            if watchLinkService.controlRole == .shared, update.beginsMatch(after: previous) {
-                let finishedStore = store
-                store = finishedStore.makeFreshMatchStore(initialState: rally)
-                ParticipantIdentityStore.shared.copySelections(
-                    from: finishedStore.sessionId.uuidString, to: store.sessionId.uuidString
-                )
-                manualFinishRequested = false
-                bindMatchClock()
-            }
-            let snapshotFinished = rally.finished
-            let remoteBreak = snapshotFinished ? nil : rally.officialBreakState
-            cancelTerminalSetPresentation()
-            Task {
-                let applied = await store.applyAuthoritativeState(
-                    rally,
-                    detailedActions: update.detailedActions,
-                    revision: update.revision,
-                    matchGeneration: update.matchGeneration,
-                    persistFormalRecord: false
-                )
-                if applied {
-                    // Reactive to the linked device's finished flag (mirrors
-                    // HarmonyOS: follower auto-shows the finish dialog when the
-                    // received snapshot is finished, and dismisses it when a new
-                    // unfinished match arrives after 再来一场).
-                    showGameOverDialog = snapshotFinished
-                    applyRemoteOfficialBreak(remoteBreak)
-                }
-            }
-        }
-        .onChange(of: watchLinkService.pendingTakeoverApplication) { _, pending in
-            guard let watchSessionId,
-                  let pending,
-                  pending.sessionId == watchSessionId,
-                  let state = pending.snapshot.rallyState else { return }
-            cancelTerminalSetPresentation()
-            Task {
-                let applied = await store.applyAuthoritativeState(
-                    state,
-                    detailedActions: pending.detailedActions,
-                    revision: pending.revision
-                )
-                if applied {
-                    syncOfficialBreakFromState(state.finished ? nil : state.officialBreakState)
-                }
-                watchLinkService.completePhoneTakeover(messageId: pending.messageId)
-            }
+            guard let update else { return }
+            applyLinkedUpdate(update, startsNewMatch: update.beginsMatch(after: previous))
         }
         .onChange(of: showMenu) { _, isOpen in
             if !isOpen { menuConfirm.clear() }
@@ -941,14 +883,9 @@ struct RallyScoreboardView: View {
             cancelTerminalSetPresentation()
             LocalScoreboardSyncCoordinator.shared.unregisterHost()
             if let previousIdleTimerDisabled { UIApplication.shared.isIdleTimerDisabled = previousIdleTimerDisabled }
-            // Capture before leave — ending the session clears follower role.
-            let skipPersist = watchSessionId != nil
-                && (watchLinkService.isFollower || watchLinkService.peerFinishedSharedMatch || watchLinkService.finishedRecordId != nil)
             if let watchSessionId {
                 watchLinkService.detachPage(sessionId: watchSessionId)
-            }
-            // Linked follower finishes are ingested via matchFinished — do not write a resume or second record.
-            if !skipPersist {
+            } else {
                 store.persistSnapshot()
             }
         }
@@ -981,38 +918,6 @@ struct RallyScoreboardView: View {
             Button(NSLocalizedString("cancel", comment: ""), role: .cancel) {}
         } message: {
             Text(badmintonDisqualifyConfirmMessage)
-        }
-        .alert(
-            NSLocalizedString("linked_score_watch_reclaim_title", value: "手表请求重新接管", comment: ""),
-            isPresented: Binding(
-                get: { watchLinkService.pendingReclaimRequest != nil },
-                set: { presented in
-                    if !presented, watchLinkService.pendingReclaimRequest != nil {
-                        watchLinkService.resolveReclaimRequest(
-                            accepted: false,
-                            snapshot: nil,
-                            detailedActions: []
-                        )
-                    }
-                }
-            )
-        ) {
-            Button(NSLocalizedString("linked_score_accept", value: "同意", comment: "")) {
-                watchLinkService.resolveReclaimRequest(
-                    accepted: true,
-                    snapshot: .rally(store.state),
-                    detailedActions: store.actionTimeline
-                )
-            }
-            Button(NSLocalizedString("linked_score_reject", value: "拒绝", comment: ""), role: .cancel) {
-                watchLinkService.resolveReclaimRequest(
-                    accepted: false,
-                    snapshot: nil,
-                    detailedActions: []
-                )
-            }
-        } message: {
-            Text(NSLocalizedString("linked_score_watch_reclaim_message", value: "是否允许手表在 5 秒内重新接管计分？", comment: ""))
         }
     }
 
@@ -2007,9 +1912,7 @@ struct RallyScoreboardView: View {
         var extras: [ScoreboardMenuItem] = []
         extras.append(contentsOf: WatchLinkMenuSupport.extraItems(
             entryEnabled: AppFeatureFlags.watchLinkEntryEnabled,
-            sessionId: watchSessionId,
-            isFollower: watchLinkService.isFollower,
-            watchBackgrounded: watchLinkService.watchBackgrounded
+            sessionId: watchSessionId
         ))
         if VoiceAnnouncementSupport.isSupported(gameType) {
             extras.append(
@@ -2059,7 +1962,7 @@ struct RallyScoreboardView: View {
             settleConfirming: menuConfirm.settleConfirming,
             scoringEnabled: !linkScoringLocked,
             extraItems: extras
-        )
+        ).filter { watchSessionId == nil || $0.action != "reset" }
     }
 
     private func handleMenuAction(_ action: String) {
@@ -2079,10 +1982,10 @@ struct RallyScoreboardView: View {
                 showToast(ScoreboardMenuConfirmAction.exchangeSide.localizedToast)
             }
         case "reset":
+            guard watchSessionId == nil else { return }
             if menuConfirm.armOrConfirm(.reset) {
                 cancelTerminalSetPresentation()
                 showGameOverDialog = false
-                manualFinishRequested = false
                 dispatch(.reset)
                 showToast(NSLocalizedString("has_been_reset", value: "已重置", comment: ""))
                 showMenu = false
@@ -2091,7 +1994,6 @@ struct RallyScoreboardView: View {
             }
         case "endGame":
             if menuConfirm.armOrConfirm(.finish) {
-                manualFinishRequested = true
                 finishMatch()
                 showMenu = false
             } else {
@@ -2099,7 +2001,6 @@ struct RallyScoreboardView: View {
             }
         case "settleMatch":
             if menuConfirm.armOrConfirm(.settleMatch) {
-                manualFinishRequested = true
                 finishMatch()
                 showMenu = false
             } else {
@@ -2163,35 +2064,13 @@ struct RallyScoreboardView: View {
         case "resync":
             watchLinkService.requestScoreResync()
             showMenu = false
-        case "takeover":
-            Task {
-                if let id = watchSessionId {
-                    if let update = watchLinkService.latestRemoteSnapshot,
-                       update.sessionId == id,
-                       let state = update.snapshot.rallyState {
-                        _ = await store.applyAuthoritativeState(
-                            state,
-                            detailedActions: update.detailedActions,
-                            revision: update.revision
-                        )
-                    }
-                    do {
-                        try await watchLinkService.takeover(sessionId: id)
-                    } catch {
-                        showToast(error.localizedDescription)
-                    }
-                }
-                showMenu = false
-            }
-        case "forceTakeover":
-            if let id = watchSessionId {
-                watchLinkService.requestForceTakeoverConfirmation(id)
-            }
-            showMenu = false
         case "endLink":
             if let id = watchSessionId {
+                if let update = watchLinkService.latestRemoteSnapshot { applyLinkedUpdate(update) }
+                detachedLinkedFinishedRecordID = store.state.finished ? watchLinkService.finishedRecordId : nil
                 watchLinkService.leaveSession(id)
                 watchSessionId = nil
+                store.continueStandaloneFromLink()
             }
             showMenu = false
         default:
@@ -2233,8 +2112,9 @@ struct RallyScoreboardView: View {
             countUp: countUp
         )
         store.setScoreInputFrozen(true)
-        store.send(.setOfficialBreakState(officialBreakSession.state))
-        speakOfficialBreakCue(.start)
+        if sendScoreboardIntent(.setOfficialBreakState(officialBreakSession.state)) {
+            speakOfficialBreakCue(.start)
+        }
     }
 
     private func completeOfficialBreak(_ action: OfficialBreakAfterAction) {
@@ -2243,12 +2123,7 @@ struct RallyScoreboardView: View {
         _ = action
         officialBreakSession = OfficialBreakSession()
         store.setScoreInputFrozen(false)
-        store.send(.setOfficialBreakState(nil))
-    }
-
-    private func applyRemoteOfficialBreak(_ remoteBreak: OfficialBreakState?) {
-        guard watchSessionId != nil, watchLinkService.incomingSnapshot != nil else { return }
-        syncOfficialBreakFromState(remoteBreak)
+        sendScoreboardIntent(.setOfficialBreakState(nil))
     }
 
     private func syncOfficialBreakFromState(_ remoteBreak: OfficialBreakState?) {
@@ -2276,7 +2151,7 @@ struct RallyScoreboardView: View {
     private func cancelOfficialBreak() {
         officialBreakSession = OfficialBreakSession()
         store.setScoreInputFrozen(false)
-        store.send(.setOfficialBreakState(nil))
+        sendScoreboardIntent(.setOfficialBreakState(nil))
         performUndo()
     }
 
@@ -2995,7 +2870,6 @@ struct RallyScoreboardView: View {
         cancelTerminalSetPresentation()
         store.flush {
             if let id = watchSessionId {
-                if store.state.finished { notifyLinkedFinishIfNeeded() }
                 watchLinkService.leaveSessionIfMatchFinished(id)
             }
             performScoreboardExit(
@@ -3052,11 +2926,96 @@ struct RallyScoreboardView: View {
         default:
             break
         }
-        store.send(intent, onTransition: { before, after, events in
+        sendScoreboardIntent(intent, onTransition: { before, after, events in
             handleVoiceAnnouncement(before: before, after: after, events: events)
             handleEvents(events, before: before, after: after)
             onApplied?()
         })
+    }
+
+    @discardableResult
+    private func sendScoreboardIntent(
+        _ intent: RallyMatchIntent,
+        onTransition: ((RallyMatchState, RallyMatchState, [RallyMatchEvent]) -> Void)? = nil
+    ) -> Bool {
+        guard let watchSessionId else {
+            store.send(intent, onTransition: { before, after, events in
+                onTransition?(before, after, events)
+            })
+            return true
+        }
+        let linkedIntent: LinkedScoreboardIntent = switch intent {
+        case .finish: .finish
+        default: .rally(intent)
+        }
+        do {
+            let checkpoint = try watchLinkService.prepareIntentMatch()
+            guard checkpoint.handle.sessionId == watchSessionId,
+                  case .rally(let before) = checkpoint.state.current else { return false }
+            let result = try watchLinkService.submitLocalIntent(linkedIntent, sessionId: watchSessionId)
+            guard result.outcome == .accepted,
+                  let update = watchLinkService.latestRemoteSnapshot,
+                  update.sessionId == watchSessionId,
+                  update.matchGeneration == result.op.handle.matchGeneration,
+                  update.revision == result.committedRevision,
+                  let after = update.snapshot.rallyState else {
+                if case .setOfficialBreakState = intent { syncOfficialBreakFromState(before.officialBreakState) }
+                return false
+            }
+            prepareLinkedMatchStore(for: update, state: after)
+            guard store.applyLinkedProjection(
+                after,
+                detailedActions: update.detailedActions,
+                revision: update.revision,
+                matchGeneration: update.matchGeneration
+            ) else { return false }
+            // The sequencer owns the state. Replay just the transition effects needed by this view.
+            let transition = RallyMatchReducer().reduce(state: before, intent: intent, at: result.effectiveEpochMilliseconds)
+            onTransition?(before, after, transition.events)
+            return true
+        } catch {
+            if case .setOfficialBreakState = intent { syncOfficialBreakFromState(store.state.officialBreakState) }
+            showLinkedScoreSubmissionFailure()
+            return false
+        }
+    }
+
+    private func applyLinkedUpdate(_ update: PhoneWatchLinkService.LinkedSnapshotUpdate, startsNewMatch: Bool = false) {
+        guard update.sessionId == watchSessionId, let state = update.snapshot.rallyState else { return }
+        prepareLinkedMatchStore(for: update, state: state, startsNewMatch: startsNewMatch)
+        let shouldUpdatePresentation = store.linkedMatchGeneration == nil || store.state != state
+        guard store.applyLinkedProjection(
+            state,
+            detailedActions: update.detailedActions,
+            revision: update.revision,
+            matchGeneration: update.matchGeneration
+        ), shouldUpdatePresentation else { return }
+        cancelTerminalSetPresentation()
+        showGameOverDialog = state.finished
+        syncOfficialBreakFromState(state.finished ? nil : state.officialBreakState)
+    }
+
+    private func prepareLinkedMatchStore(
+        for update: PhoneWatchLinkService.LinkedSnapshotUpdate,
+        state: RallyMatchState,
+        startsNewMatch: Bool = false
+    ) {
+        if let generation = store.linkedMatchGeneration {
+            guard update.matchGeneration > generation else { return }
+        } else if !startsNewMatch {
+            return
+        }
+        let freshStore = store.makeFreshMatchStore(initialState: state)
+        freshStore.isManagedByLink = true
+        installFreshMatchStore(freshStore)
+    }
+
+    private func showLinkedScoreSubmissionFailure() {
+        showToast(NSLocalizedString(
+            "scoreboard_save_failed",
+            value: "保存失败，请稍后重试",
+            comment: "Scoreboard persistence failed"
+        ))
     }
 
     private func handleEvents(
@@ -3206,7 +3165,6 @@ struct RallyScoreboardView: View {
                 }
             }
             if matchFinished {
-                notifyLinkedFinishIfNeeded()
                 showGameOverDialog = true
             }
         }
@@ -3232,28 +3190,6 @@ struct RallyScoreboardView: View {
 
     private func publishCurrentRallyState() {
         LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
-        watchLinkService.syncWatch(
-            sessionId: watchSessionId,
-            gameType: gameType,
-            state: store.state,
-            detailedActions: store.actionTimeline
-        )
-    }
-
-    private func notifyLinkedFinishIfNeeded() {
-        guard let watchSessionId, watchLinkService.canEditLinkedMatch else { return }
-        let state = store.state
-        watchLinkService.notifyMatchFinished(
-            sessionId: watchSessionId,
-            snapshot: .rally(state),
-            recordId: store.sessionId.uuidString,
-            winnerSide: RallyFinishedScorePresentation.winnerSide(for: state),
-            manualEnd: manualFinishRequested,
-            startTime: store.startedAt,
-            totalScoreChanges: store.actionTimeline.count,
-            detailedActions: store.actionTimeline
-        )
     }
 
     private func handleVoiceAnnouncement(
@@ -3326,6 +3262,23 @@ struct RallyScoreboardView: View {
         guard !scoringLocked, !isStartingNewMatch else { return }
         cancelTerminalSetPresentation()
         isStartingNewMatch = true
+        if let watchSessionId {
+            defer { isStartingNewMatch = false }
+            do {
+                let current = try watchLinkService.prepareIntentMatch()
+                try watchLinkService.startNextIntentMatch(sessionId: watchSessionId)
+                guard let update = watchLinkService.latestRemoteSnapshot,
+                      update.sessionId == watchSessionId,
+                      update.matchGeneration > current.handle.matchGeneration else {
+                    showLinkedScoreSubmissionFailure()
+                    return
+                }
+                applyLinkedUpdate(update, startsNewMatch: true)
+            } catch {
+                showLinkedScoreSubmissionFailure()
+            }
+            return
+        }
         let finishedStore = store
         finishedStore.persistSnapshot { success in
             guard success else {
@@ -3336,29 +3289,24 @@ struct RallyScoreboardView: View {
             freshStore.persistSnapshot { freshSaved in
                 isStartingNewMatch = false
                 guard freshSaved else { return }
-                ParticipantIdentityStore.shared.copySelections(from: finishedStore.sessionId.uuidString, to: freshStore.sessionId.uuidString)
-                store = freshStore
-                bindMatchClock()
-                manualFinishRequested = false
-                didSpeakOpeningAnnouncement = false
-                pendingDoublesFlash = nil
-                flashSlots.removeAll()
-                showGameOverDialog = false
-                syncEditNamesFromState()
-                LocalScoreboardSyncCoordinator.shared.publishSnapshot()
-                if let watchSessionId {
-                    let participantNames = freshStore.state.doubles?.playerNames
-                        ?? [freshStore.state.leftName, freshStore.state.rightName]
-                    watchLinkService.prepareControllerForNewMatch(
-                        sessionId: watchSessionId,
-                        gameType: gameType,
-                        snapshot: .rally(freshStore.state),
-                        participantNames: participantNames
-                    )
-                }
-                speakOpeningAnnouncementIfNeeded()
+                installFreshMatchStore(freshStore)
             }
         }
+    }
+
+    private func installFreshMatchStore(_ freshStore: RallySessionStore) {
+        let finishedStore = store
+        ParticipantIdentityStore.shared.copySelections(from: finishedStore.sessionId.uuidString, to: freshStore.sessionId.uuidString)
+        detachedLinkedFinishedRecordID = nil
+        store = freshStore
+        bindMatchClock()
+        didSpeakOpeningAnnouncement = false
+        pendingDoublesFlash = nil
+        flashSlots.removeAll()
+        showGameOverDialog = false
+        syncEditNamesFromState()
+        LocalScoreboardSyncCoordinator.shared.publishSnapshot()
+        speakOpeningAnnouncementIfNeeded()
     }
 
     private func bindMatchClock() {
@@ -3388,12 +3336,26 @@ struct RallyScoreboardView: View {
               (!store.state.finished || terminalSetPresentation != nil) else { return }
         cancelTerminalSetPresentation()
         ScoreVoiceAnnouncer.shared.cancelPendingScore()
-        store.undo { success in
-            if success {
-                showToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
-            } else {
-                showToast(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
+        if let watchSessionId {
+            do {
+                let result = try watchLinkService.submitLocalIntent(.undo(targetOpId: nil), sessionId: watchSessionId)
+                if let update = watchLinkService.latestRemoteSnapshot { applyLinkedUpdate(update) }
+                if store.state.finished { showGameOverDialog = true }
+                showUndoResult(result.outcome == .accepted)
+            } catch {
+                if store.state.finished { showGameOverDialog = true }
+                showLinkedScoreSubmissionFailure()
             }
+            return
+        }
+        store.undo(completion: showUndoResult)
+    }
+
+    private func showUndoResult(_ success: Bool) {
+        if success {
+            showToast(NSLocalizedString("undone", value: "已撤销", comment: ""))
+        } else {
+            showToast(NSLocalizedString("no_undo_available", value: "没有可撤销的操作", comment: ""))
         }
     }
 }

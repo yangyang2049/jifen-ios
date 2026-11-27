@@ -420,3 +420,9 @@
 
 "watch_phone_shared_link_intro" = "Začněte na telefonu a zapisujte skóre na kterémkoli zařízení.";
 "linked_score_simultaneous_edit" = "Skóre se měnilo na obou zařízeních. Zkontrolujte ho.";
+"linked_score_pending_finish" = "Čeká na synchronizaci";
+"linked_score_resync" = "Sync Score";
+"linked_score_end" = "End link";
+"linked_score_excluded_operations" = "%d offline bodů se nezapočítalo";
+"linked_score_reconnect_to_continue" = "Znovu připojte iPhone a pokračujte ve skórování.";
+"linked_score_reset_unavailable" = "Při sdíleném počítání skóre nejprve ukončete aktuální zápas a pak začněte nový.";

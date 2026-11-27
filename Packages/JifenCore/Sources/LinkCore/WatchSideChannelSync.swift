@@ -185,86 +185,57 @@ public struct ConnectivityProbePayload: Codable, Equatable, Sendable {
     }
 }
 
-/// Watch→phone usage events are queued so picking/typing a player name works offline.
-public struct CommonNameUsagePayload: Codable, Equatable, Sendable {
-    public var names: [String]
-    public var nameType: String
 
-    public init(names: [String], nameType: String = "player") {
-        self.names = names
-        self.nameType = nameType
+/// Shared default/preset name library. Merged from the previously duplicated
+/// `WatchCommonNamesStore.presetNameKeys` (watch) and
+/// `CommonNamesManager.presetNameKeys` (phone), including simplified,
+/// traditional and English presets. Preset names never enter the synced
+/// common-name lists.
+public enum PresetCommonNames {
+    public static let all: Set<String> = {
+        let list = [
+            "红队", "蓝队", "红方", "蓝方", "主队", "客队", "左队", "右队", "A队", "B队",
+            "选手A", "选手B", "射手A", "射手B", "选手1", "选手2", "玩家1", "玩家2", "玩家3",
+            "红A", "红B", "蓝A", "蓝B", "红A / 红B", "蓝A / 蓝B", "红A/红B", "蓝A/蓝B",
+            "紅隊", "藍隊", "紅方", "藍方", "主隊", "客隊", "左隊", "右隊", "A隊", "B隊",
+            "選手A", "選手B", "射手A", "射手B", "選手1", "選手2",
+            "紅A", "紅B", "藍A", "藍B", "紅A / 紅B", "藍A / 藍B", "紅A/紅B", "藍A/藍B",
+            "red team", "blue team", "red", "blue", "home", "away", "team a", "team b",
+            "player a", "player b", "archer a", "archer b", "player 1", "player 2", "player 3",
+            "red a", "red b", "blue a", "blue b",
+            "red a / red b", "blue a / blue b", "red a/red b", "blue a/blue b",
+            "刘备", "关羽", "张飞", "诸葛亮", "劉備", "關羽", "張飛", "諸葛亮",
+            "liu bei", "guan yu", "zhang fei", "zhuge liang", "adam", "bob", "chris", "david"
+        ]
+        return Set(list.map { $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) })
+    }()
+
+    public static func isPreset(_ name: String) -> Bool {
+        all.contains(name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines))
     }
 }
 
-public struct WatchRecordParticipantPayload: Codable, Equatable, Sendable {
-    public var name: String
-    public var score: Int
-
-    public init(name: String, score: Int) {
-        self.name = name
-        self.score = score
+public extension CommonNamesSyncSnapshot {
+    /// Trim the snapshot until its JSON encoding fits `maxBytes` (default: the
+    /// 24KB common-names budget inside `applicationContext`). Newest entries
+    /// survive: teams and players are cut from their oldest tail.
+    func budgetConstrainedData(maxBytes: Int = LinkProtocol.commonNamesContextBudgetBytes) -> CommonNamesSyncSnapshot {
+        func encodedSize(_ snapshot: CommonNamesSyncSnapshot) -> Int {
+            (try? JSONEncoder().encode(snapshot))?.count ?? .max
+        }
+        var constrained = self
+        if encodedSize(constrained) <= maxBytes { return constrained }
+        while encodedSize(constrained) > maxBytes,
+              !(constrained.teams.isEmpty && constrained.players.isEmpty) {
+            if constrained.teams.count >= constrained.players.count, !constrained.teams.isEmpty {
+                constrained.teams = Array(constrained.teams.dropLast())
+            } else if !constrained.players.isEmpty {
+                constrained.players = Array(constrained.players.dropLast())
+            }
+        }
+        return constrained
     }
 }
 
-/// Watch→phone finished-record payload queued via `transferUserInfo`.
-public struct WatchRecordTransferPayload: Codable, Equatable, Sendable {
-    public var id: String
-    public var gameType: String
-    public var startTimeEpochMilliseconds: Int64
-    public var endTimeEpochMilliseconds: Int64
-    public var durationSeconds: Double
-    public var team1Name: String
-    public var team2Name: String
-    public var team1FinalScore: Int
-    public var team2FinalScore: Int
-    public var team1SetScore: Int
-    public var team2SetScore: Int
-    public var winner: String?
-    public var actions: [String]
-    /// Schema-v4 compatible actions; nil for older watch payloads.
-    public var detailedActions: [DetailedScoreAction]?
-    public var totalScoreChanges: Int
-    public var participants: [WatchRecordParticipantPayload]?
-    public var projectConfiguration: [String: String]?
-    public var basketballTraining: LinkedShotTrainingState?
-
-    public init(
-        id: String,
-        gameType: String,
-        startTimeEpochMilliseconds: Int64,
-        endTimeEpochMilliseconds: Int64,
-        durationSeconds: Double,
-        team1Name: String,
-        team2Name: String,
-        team1FinalScore: Int,
-        team2FinalScore: Int,
-        team1SetScore: Int,
-        team2SetScore: Int,
-        winner: String?,
-        actions: [String],
-        detailedActions: [DetailedScoreAction]? = nil,
-        totalScoreChanges: Int,
-        participants: [WatchRecordParticipantPayload]? = nil,
-        projectConfiguration: [String: String]? = nil,
-        basketballTraining: LinkedShotTrainingState? = nil
-    ) {
-        self.id = id
-        self.gameType = gameType
-        self.startTimeEpochMilliseconds = startTimeEpochMilliseconds
-        self.endTimeEpochMilliseconds = endTimeEpochMilliseconds
-        self.durationSeconds = durationSeconds
-        self.team1Name = team1Name
-        self.team2Name = team2Name
-        self.team1FinalScore = team1FinalScore
-        self.team2FinalScore = team2FinalScore
-        self.team1SetScore = team1SetScore
-        self.team2SetScore = team2SetScore
-        self.winner = winner
-        self.actions = actions
-        self.detailedActions = detailedActions
-        self.totalScoreChanges = totalScoreChanges
-        self.participants = participants
-        self.projectConfiguration = projectConfiguration
-        self.basketballTraining = basketballTraining
-    }
-}
+/// Watch-to-iPhone record body. The stored record ID is also the transfer ACK key.
+public typealias WatchRecordTransferPayload = CanonicalMatchRecord

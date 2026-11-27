@@ -1,5 +1,6 @@
 import Foundation
 import LinkCore
+import LinkSync
 import Observation
 import RecordCore
 import ScoreCore
@@ -8,39 +9,20 @@ import UIKit
 @MainActor
 @Observable
 final class PhoneWatchLinkService {
-    struct ReclaimConfirmationRequest: Equatable {
-        let messageId: UUID
-        let sessionId: UUID
-        let revision: UInt64
-    }
-
-    struct PendingPhoneTakeoverApplication: Equatable {
-        let messageId: UUID
-        let sessionId: UUID
-        let revision: UInt64
-        let snapshot: LinkedScoreboardSnapshot
-        let detailedActions: [DetailedScoreAction]
-    }
-
     struct LinkedResumeDescriptor: Equatable {
         let handle: LinkedMatchHandle
         let gameType: ScoreCore.GameType
         let setup: LinkedScoreboardSetup
-        let role: LinkControlRole
-        let authorityEpoch: UInt64
         let revision: UInt64
         let snapshot: LinkedScoreboardSnapshot
         let detailedActions: [DetailedScoreAction]
         let isReachable: Bool
-        let watchBackgrounded: Bool
     }
 
     struct ActiveSession {
         var handle: LinkedMatchHandle
         let gameType: ScoreCore.GameType
         var revision: UInt64
-        var role: LinkControlRole
-        var authorityEpoch: UInt64
         var setup: LinkedScoreboardSetup
         var completedMatchIds: Set<UUID>
 
@@ -52,68 +34,57 @@ final class PhoneWatchLinkService {
     let outboxStore: any LinkDataStore
     let recordSink: any PhoneLinkRecordSink
     let clock: any LinkClock
+    let intentProjectionStore: FileLinkDataStore
+    private let intentDirectoryURL: URL
+    @ObservationIgnored lazy var intentCoordinator = makeIntentCoordinator(directoryURL: intentDirectoryURL)
+    @ObservationIgnored lazy var intentSessionEngine = LinkSessionEngine(
+        localPeer: .phone, transport: transport, clock: clock,
+        fileTransfer: { [transport] data, kind in
+            try transport.transferFileData(data, metadata: [
+                WatchConnectivityTransport.transferFileKindKey: kind.rawValue,
+            ])
+        }
+    )
     var sequence: UInt64 = 0
     var activeSession: ActiveSession?
     /// Authoritative match/control lifecycle. `ActiveSession` keeps only the
     /// setup projection needed by existing scoreboards and is synchronized
     /// from this machine after every transition.
     var sessionMachine: LinkSessionStateMachine?
-    var pendingAck = LinkControlRetryQueue()
-    var terminalOutbox = LinkDurableOutbox()
     var peerSupportsCompressedFinish = false
-    @ObservationIgnored var retiredRecordSessions: LinkRetiredRecordSessions
-
-    var activeRecordSession: LinkRecordSession? {
-        guard let session = activeSession, sessionMachine?.lifecycle != .starting else { return nil }
-        return LinkRecordSession(
-            handle: session.handle, gameType: session.gameType,
-            authorityEpoch: session.authorityEpoch, completedMatchIds: session.completedMatchIds,
-            allowsPeerNextMatch: session.role == .phoneFollower || session.role == .shared
-        )
+    /// Capabilities agreed during the setup handshake.
+    var negotiatedPeerCapabilities: Set<LinkCapability> = []
+    /// Durable intent frames use `transferFile` only after the handshake
+    /// negotiated `.fileTransfer`. Without it they keep the existing
+    /// hold/outbox fallback instead of assuming the local transport can.
+    var peerSupportsFileTransfer: Bool {
+        negotiatedPeerCapabilities.contains(.fileTransfer)
     }
+    /// Reason reported by the watch when it refused the latest setup request.
+    internal(set) var lastSetupRejectionReason: LinkSetupRejectionReason?
     var setupContinuation: CheckedContinuation<UUID, Error>?
     var pendingSetupMessageId: UUID?
     var setupTimeoutTask: Task<Void, Never>?
     var setupAnalyticsGameType: String?
     var didTrackSetupAnalyticsResult = false
     var ackRetryTask: Task<Void, Never>?
-    var revisionGate = LinkRevisionGate()
-    var pendingTakeoverMessageId: UUID?
     var pendingStatusCorrelationId: UUID?
     var statusContinuations: [CheckedContinuation<LinkStatusPayload, Error>] = []
     var statusTimeoutTask: Task<Void, Never>?
-    var pendingReclaimGrantMessageId: UUID?
-    var reclaimTimeoutTask: Task<Void, Never>?
     var mergedDetailedActions: [DetailedScoreAction] = []
-    var publishedFinishedMatchIds: Set<UUID> = []
     let contextKey = "phone_link_context"
-    let terminalOutboxKey = "phone_link_terminal_outbox"
     let pendingSessionEndsKey = "phone_link_pending_session_ends"
-    let legacyCleanupMarkerKey = "phone_link_legacy_cleanup_v1"
     var pendingSessionEnds: [LinkPendingSessionEnd] = []
     var pendingSessionEndInFlight: Set<UUID> = []
 
     internal(set) var connectivityStatus: WatchConnectivityStatus
-    internal(set) var controlRole: LinkControlRole?
     internal(set) var latestRemoteSnapshot: LinkedSnapshotUpdate?
-    var sharedEditTracker = LinkSharedEditTracker()
-    var simultaneousEditNotice: UUID?
     internal(set) var finishedRecordId: String?
-    internal(set) var watchBackgrounded: Bool = false
     internal(set) var lastErrorMessage: String?
     /// Last watch record id auto-synced into phone records (for toast / UI).
     internal(set) var lastSyncedWatchRecordId: String?
     /// Guards against firing the catch-up pull repeatedly while one is in flight.
     var watchRecordCatchUpInFlight = false
-    internal(set) var pendingReclaimRequest: ReclaimConfirmationRequest?
-    internal(set) var pendingTakeoverApplication: PendingPhoneTakeoverApplication?
-    internal(set) var forceTakeoverConfirmationSessionId: UUID?
-
-    var isAuthorityTransferPending: Bool {
-        pendingTakeoverMessageId != nil
-            || pendingReclaimGrantMessageId != nil
-            || pendingTakeoverApplication != nil
-    }
 
     #if DEBUG
     var hasScheduledRetryForTesting: Bool { ackRetryTask != nil }
@@ -130,11 +101,7 @@ final class PhoneWatchLinkService {
         case watchAppNotForeground
         case setupRejected
         case setupTimedOut
-        case notController
-        case notFollower
         case statusQueryTimedOut
-        case noConfirmedSnapshot
-        case authorityTransferTimedOut
 
         var errorDescription: String? {
             switch self {
@@ -162,34 +129,10 @@ final class PhoneWatchLinkService {
                     value: "等待手表确认超时，请重试。",
                     comment: ""
                 )
-            case .notController:
-                return NSLocalizedString(
-                    "linked_score_not_controller",
-                    value: "当前不是主控端，无法执行该操作。",
-                    comment: ""
-                )
-            case .notFollower:
-                return NSLocalizedString(
-                    "linked_score_not_follower",
-                    value: "当前手机不是跟随端，无需接管。",
-                    comment: ""
-                )
             case .statusQueryTimedOut:
                 return NSLocalizedString(
                     "linked_score_status_timeout",
                     value: "等待手表状态响应超时。",
-                    comment: ""
-                )
-            case .noConfirmedSnapshot:
-                return NSLocalizedString(
-                    "linked_score_no_confirmed_snapshot",
-                    value: "没有已确认的比赛快照，无法安全强制接管。",
-                    comment: ""
-                )
-            case .authorityTransferTimedOut:
-                return NSLocalizedString(
-                    "linked_score_control_timeout",
-                    value: "控制权切换超时，请重试。",
                     comment: ""
                 )
             }
@@ -204,7 +147,7 @@ final class PhoneWatchLinkService {
         /// this is what distinguishes a fresh match from a stale snapshot.
         let matchGeneration: UInt64
         let snapshot: LinkedScoreboardSnapshot
-        let detailedActions: [DetailedScoreAction]
+        var detailedActions: [DetailedScoreAction]
 
         func beginsMatch(after previous: Self?) -> Bool {
             guard let previous, previous.sessionId == sessionId else { return false }
@@ -214,33 +157,43 @@ final class PhoneWatchLinkService {
 
     init(
         transport: any WatchLinkTransport = WatchConnectivityTransport(),
-        contextStore: any LinkDataStore = UserDefaultsLinkDataStore.standard,
-        outboxStore: any LinkDataStore = UserDefaultsLinkDataStore.standard,
+        contextStore: any LinkDataStore = FileLinkDataStore.phoneWatchLinkDefault(),
+        outboxStore: any LinkDataStore = FileLinkDataStore.phoneWatchLinkDefault(),
         recordSink: (any PhoneLinkRecordSink)? = nil,
-        clock: any LinkClock = SystemLinkClock()
+        clock: any LinkClock = SystemLinkClock(),
+        intentDirectoryURL: URL? = nil
     ) {
         self.transport = transport
         self.contextStore = contextStore
-        retiredRecordSessions = LinkRetiredRecordSessions(store: contextStore)
         self.outboxStore = outboxStore
         self.recordSink = recordSink ?? DefaultPhoneLinkRecordSink()
         self.clock = clock
+        let intentDirectory = intentDirectoryURL ?? FileManager.default
+            .urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("WatchLink/intent-v1", isDirectory: true)
+        self.intentDirectoryURL = intentDirectory
+        intentProjectionStore = FileLinkDataStore(directoryURL: intentDirectory.appendingPathComponent("projection", isDirectory: true))
         connectivityStatus = transport.status
-        if contextStore.data(forKey: legacyCleanupMarkerKey) == nil {
-            contextStore.removeObject(forKey: "phone_link_context_v1")
-            outboxStore.removeObject(forKey: "phone_link_terminal_outbox_v1")
-            outboxStore.removeObject(forKey: "phone_link_pending_ack_v1")
-            contextStore.set(Data([1]), forKey: legacyCleanupMarkerKey)
-        }
-        if let data = outboxStore.data(forKey: terminalOutboxKey),
-           let outbox = try? JSONDecoder().decode(LinkDurableOutbox.self, from: data) {
-            terminalOutbox = outbox
-        }
         if let data = outboxStore.data(forKey: pendingSessionEndsKey),
            let requests = try? JSONDecoder().decode([LinkPendingSessionEnd].self, from: data) {
             pendingSessionEnds = requests
         }
         restoreContext()
+        if let session = activeSession {
+            do {
+                // Old seeds that predate the durable names metadata inherit the
+                // names persisted with the active session, exactly once.
+                _ = try intentCoordinator.recoverActiveMatch(
+                    handle: session.handle,
+                    participantNames: session.setup.participantNames
+                )
+                try restoreIntentProjection(handle: session.handle)
+                try finishIntentRollover()
+            } catch {
+                clearSession()
+                lastErrorMessage = error.localizedDescription
+            }
+        }
         transport.onStatusChange = { [weak self] status in
             DispatchQueue.main.async {
                 self?.handleConnectivityStatusChange(status)
@@ -266,9 +219,9 @@ final class PhoneWatchLinkService {
                 self?.receivePendingWatchRecords(datas)
             }
         }
-        transport.onCommonNameUsageData = { [weak self] data in
+        transport.onReceivedFile = { [weak self] data, metadata in
             DispatchQueue.main.async {
-                self?.handleCommonNameUsage(data)
+                self?.handleReceivedFile(data, metadata: metadata)
             }
         }
         transport.onCommonNameMutationsData = { [weak self] data in
@@ -325,27 +278,19 @@ final class PhoneWatchLinkService {
         continuation?.resume(throwing: InteractiveStartError.setupRejected)
     }
 
-    var isFollower: Bool {
-        controlRole == .phoneFollower
-    }
-
-    var isController: Bool {
-        controlRole == .phoneController
-    }
-
+    /// 共享会话下两端都可计分；只有会话未建立时才只读。
     var canEditLinkedMatch: Bool {
-        isController || controlRole == .shared
+        guard let machine = sessionMachine else { return false }
+        return machine.lifecycle == .active || machine.lifecycle == .matchFinished
     }
 
+    /// Phone-confirmed state for either origin's operation.
     var incomingSnapshot: LinkedSnapshotUpdate? {
-        guard let update = latestRemoteSnapshot,
-              isFollower || (controlRole == .shared && LinkSharedRevision.writer(of: update.revision) == .watch)
-        else { return nil }
-        return update
+        canEditLinkedMatch ? latestRemoteSnapshot : nil
     }
 
     var peerFinishedSharedMatch: Bool {
-        controlRole == .shared && incomingSnapshot?.snapshot.isFinished == true
+        incomingSnapshot?.snapshot.isFinished == true
     }
 
     var activeSessionId: UUID? {
@@ -369,13 +314,10 @@ final class PhoneWatchLinkService {
             handle: session.handle,
             gameType: session.gameType,
             setup: session.setup,
-            role: session.role,
-            authorityEpoch: session.authorityEpoch,
             revision: session.revision,
             snapshot: snapshot,
             detailedActions: mergedDetailedActions,
-            isReachable: connectivityStatus.isReachable,
-            watchBackgrounded: watchBackgrounded
+            isReachable: connectivityStatus.isReachable
         )
     }
 
@@ -387,12 +329,9 @@ final class PhoneWatchLinkService {
             session.handle.sessionId.uuidString,
             session.handle.matchId.uuidString,
             String(session.handle.matchGeneration),
-            String(session.authorityEpoch),
             String(session.revision),
-            session.role.rawValue,
             pendingSessionEnds.contains { $0.handle.sessionId == session.sessionId }.description,
-            connectivityStatus.isReachable.description,
-            watchBackgrounded.description
+            connectivityStatus.isReachable.description
         ].joined(separator: ":")
     }
 
@@ -413,48 +352,28 @@ final class PhoneWatchLinkService {
         ackRetryTask = nil
         clearSession()
 
-        terminalOutbox = LinkDurableOutbox()
-        retiredRecordSessions.clear()
         pendingSessionEnds.removeAll()
         pendingSessionEndInFlight.removeAll()
         ackRetryTask?.cancel()
         ackRetryTask = nil
         mergedDetailedActions.removeAll()
-        publishedFinishedMatchIds.removeAll()
         finishedRecordId = nil
         lastSyncedWatchRecordId = nil
         lastErrorMessage = nil
 
         contextStore.removeObject(forKey: contextKey)
-        contextStore.removeObject(forKey: "phone_link_context_v1")
-        outboxStore.removeObject(forKey: terminalOutboxKey)
         outboxStore.removeObject(forKey: pendingSessionEndsKey)
-        outboxStore.removeObject(forKey: "phone_link_terminal_outbox_v1")
-        outboxStore.removeObject(forKey: "phone_link_pending_ack_v1")
-    }
-
-    func requestForceTakeoverConfirmation(_ sessionId: UUID) {
-        guard activeSession?.sessionId == sessionId,
-              activeSession?.role == .phoneFollower else {
-            lastErrorMessage = InteractiveStartError.notFollower.localizedDescription
-            return
-        }
-        forceTakeoverConfirmationSessionId = sessionId
-    }
-
-    func cancelForceTakeoverConfirmation() {
-        forceTakeoverConfirmationSessionId = nil
-    }
-
-    func confirmForceTakeover() {
-        guard let sessionId = forceTakeoverConfirmationSessionId else { return }
-        forceTakeoverConfirmationSessionId = nil
-        Task {
-            do {
-                try await forceTakeover(sessionId: sessionId)
-            } catch {
-                lastErrorMessage = error.localizedDescription
+        do {
+            if FileManager.default.fileExists(atPath: intentDirectoryURL.path) {
+                try FileManager.default.removeItem(at: intentDirectoryURL)
             }
+            try FileManager.default.createDirectory(
+                at: intentDirectoryURL.appendingPathComponent("projection", isDirectory: true),
+                withIntermediateDirectories: true
+            )
+            intentCoordinator = makeIntentCoordinator(directoryURL: intentDirectoryURL)
+        } catch {
+            lastErrorMessage = error.localizedDescription
         }
     }
 

@@ -1,5 +1,6 @@
 import FirebaseAnalytics
 import Foundation
+import RecordCore
 import ScoreCore
 import StoreKit
 import SwiftUI

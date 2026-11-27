@@ -78,10 +78,11 @@ enum SportsSetupWatchSessionLauncher {
                 participantNames: tennisParticipantNames
             )
         case .archery:
-            let archery = LinkedArcheryState(
+            let archery = ArcheryMatchState(
                 leftName: config.team1Name,
                 rightName: config.team2Name,
-                currentShooterIsLeft: config.servingSide != MatchSide.right.rawValue
+                currentShooterIsLeft: config.servingSide != MatchSide.right.rawValue,
+                openingShooterIsLeft: config.servingSide != MatchSide.right.rawValue
             )
             return try await service.startInteractiveOnWatch(
                 snapshot: .archery(archery),
@@ -138,7 +139,7 @@ enum SportsSetupWatchSessionLauncher {
             coreGameType = config.isSingles == false ? .foosballDoubles : .foosball
             rules = config.foosballRules
         case .basketballTraining:
-            let mode = LinkedShotTrainingMode(rawValue: config.basketballTrainingScoringMode ?? "") ?? .fixed1
+            let mode = ShotTrainingMode(rawValue: config.basketballTrainingScoringMode ?? "") ?? .fixed1
             return try await service.startInteractiveOnWatch(
                 snapshot: .basketballTraining(.init(mode: mode)),
                 gameType: .basketballTraining
@@ -147,16 +148,14 @@ enum SportsSetupWatchSessionLauncher {
             let fiveAside = gameType == .football5v5
             let halfLength = config.footballHalfLengthSeconds
                 ?? (fiveAside ? 20 * 60 : 45 * 60)
-            let timer = FootballTimerStateV2(
-                halfLengthSeconds: halfLength,
-                isRunning: !fiveAside,
-                savedWallClockMilliseconds: Int64(Date().timeIntervalSince1970 * 1_000)
-            )
-            let state = LinkedFootballState(
+            // 联动开局同样直接用 Reducer State：时钟锚点、分秒余量（此处为 0）、
+            // 补时与换边字段全部随状态下发，5 人制保留未开球态。
+            let state = FootballMatchReducer.initial(
                 leftName: config.team1Name,
                 rightName: config.team2Name,
-                timer: timer,
-                kickedOff: !fiveAside
+                isFiveAside: fiveAside,
+                halfLengthSeconds: halfLength,
+                at: Int64(Date().timeIntervalSince1970 * 1_000)
             )
             return try await service.startInteractiveOnWatch(
                 snapshot: .football(state),

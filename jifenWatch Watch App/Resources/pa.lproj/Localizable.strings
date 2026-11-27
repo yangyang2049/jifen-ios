@@ -420,3 +420,9 @@
 
 "watch_phone_shared_link_intro" = "ਫ਼ੋਨ ’ਤੇ ਸ਼ੁਰੂ ਕਰੋ ਅਤੇ ਕਿਸੇ ਵੀ ਡਿਵਾਈਸ ’ਤੇ ਸਕੋਰ ਦਰਜ ਕਰੋ।";
 "linked_score_simultaneous_edit" = "ਦੋਵਾਂ ਡਿਵਾਈਸਾਂ ’ਤੇ ਬਦਲਾਅ ਹੋਏ ਹਨ। ਸਕੋਰ ਦੀ ਜਾਂਚ ਕਰੋ।";
+"linked_score_pending_finish" = "ਸਿੰਕ ਬਾਕੀ";
+"linked_score_resync" = "Sync Score";
+"linked_score_end" = "End link";
+"linked_score_excluded_operations" = "%d ਔਫਲਾਈਨ ਸਕੋਰ ਸ਼ਾਮਲ ਨਹੀਂ ਕੀਤੇ ਗਏ";
+"linked_score_reconnect_to_continue" = "ਸਕੋਰ ਦਰਜ ਕਰਨਾ ਜਾਰੀ ਰੱਖਣ ਲਈ iPhone ਨਾਲ ਮੁੜ ਕਨੈਕਟ ਕਰੋ।";
+"linked_score_reset_unavailable" = "ਦੋਵਾਂ ਡਿਵਾਈਸਾਂ ’ਤੇ ਸਕੋਰ ਦਰਜ ਕਰਦੇ ਸਮੇਂ ਨਵਾਂ ਮੈਚ ਸ਼ੁਰੂ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਮੌਜੂਦਾ ਮੈਚ ਖ਼ਤਮ ਕਰੋ।";

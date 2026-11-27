@@ -13,6 +13,7 @@ struct WatchRootView: View {
     @State private var linkedSetup: LinkedScoreboardSetup?
     @State private var linkedSessionId: UUID?
     @State private var confirmDeadline: Date?
+    @State private var excludedOperationsNotice: Int?
     // Regenerated on every scoreboard launch. Applied as `.id(...)` to the pushed
     // destination so SwiftUI rebuilds the board (and its session store) from the
     // freshly received Setup instead of reusing a previously-mounted board's
@@ -37,20 +38,20 @@ struct WatchRootView: View {
         }
         .accentColor(WatchTheme.accent)
         .overlay(alignment: .bottom) {
-            if scoreboardRoute != nil, let linkedSessionId,
-               linkService.activeSessionId == linkedSessionId,
-               let notice = linkService.simultaneousEditNotice {
-                WatchToastView(message: NSLocalizedString(
-                    "linked_score_simultaneous_edit", value: "Both devices made changes. Check the score.", comment: ""
+            if let count = excludedOperationsNotice {
+                WatchToastView(message: String(
+                    format: NSLocalizedString(
+                        "linked_score_excluded_operations",
+                        value: "%d offline scores excluded",
+                        comment: "Count of offline score operations excluded from the finished match"
+                    ), count
                 ))
                 .padding(.bottom, 8)
-                .accessibilityIdentifier("linked_score_simultaneous_edit")
+                .accessibilityIdentifier("linked_score_excluded_operations")
                 .allowsHitTesting(false)
-                .task(id: notice) {
-                    do { try await Task.sleep(for: .seconds(2)) } catch { return }
-                    if linkService.simultaneousEditNotice == notice {
-                        linkService.simultaneousEditNotice = nil
-                    }
+                .task(id: count) {
+                    do { try await Task.sleep(for: .seconds(4)) } catch { return }
+                    if excludedOperationsNotice == count { excludedOperationsNotice = nil }
                 }
             }
         }
@@ -103,36 +104,23 @@ struct WatchRootView: View {
             }
         }
         .onChange(of: linkService.acceptedSetup) { _, request in
-            guard let request, let route = WatchScoreboardRoute(linkedSetup: request.setup) else { return }
-            // A pending resume session may still hold a stale team names bundle
-            // (e.g. from a previously linked match). Drop only the local resume
-            // cache here; linkService already holds the new context
-            // (acceptPendingSetup → persistContext), so do NOT call
-            // discardResumableSession/leaveSession — those would corrupt the
-            // new session's control role. The regenerated scoreboardLaunchID
-            // guarantees the board is rebuilt fresh from the received Setup.
-            resumeStore.clear()
-            activeResumeSession = nil
-            linkedSetup = request.setup
-            linkedSessionId = request.sessionId
-            scoreboardLaunchID = UUID()
-            scoreboardRoute = route
+            guard let request, request.handle == linkService.activeHandle else { return }
+            openLinkedBoard(setup: request.setup, handle: request.handle)
             linkService.clearAcceptedSetup()
         }
-        .onChange(of: linkService.controlRole) { _, role in
-            if role == nil, linkedSessionId != nil {
-                // Phone left — return home if still on linked board.
+        .onChange(of: linkService.intentSync.update) { previous, update in
+            noticeExcludedOperations(previous: previous, update: update)
+        }
+        .onChange(of: linkService.intentSync.retiredFinishUpdate) { previous, update in
+            noticeExcludedOperations(previous: previous, update: update)
+        }
+        .onChange(of: linkService.activeSessionId) { _, sessionId in
+            if sessionId == nil, linkedSessionId != nil {
+                // 联动会话已结束：清掉草稿与页面，回到手表首页。
                 resumeStore.clear()
                 linkedSetup = nil
                 linkedSessionId = nil
                 scoreboardRoute = nil
-            } else if role == .watchFollower,
-                      resumeStore.session == nil,
-                      scoreboardRoute == nil {
-                // Resume was discarded: the phone owns the still-live linked
-                // session, while watch navigation is now fully local.
-                linkedSetup = nil
-                linkedSessionId = nil
             }
         }
         .onChange(of: scoreboardRoute) { _, route in
@@ -141,9 +129,6 @@ struct WatchRootView: View {
             }
         }
         .onChange(of: scenePhase) { _, phase in
-            if phase == .background {
-                linkService.notifyBackgrounded()
-            }
             if phase == .background || phase == .inactive {
                 // 续玩写入是 750ms 防抖的；非活跃/挂起前必须落盘，否则最后一次
                 // 得分的续玩状态会随 Task 一起被冻结丢失。
@@ -152,38 +137,72 @@ struct WatchRootView: View {
         }
         .onAppear {
             resumeStore.retryPendingFinishedRecords()
-            restoreStoredLinkContextIfNeeded()
+            restoreLinkedBoardIfNeeded()
         }
     }
 
     private func resume(_ session: WatchResumeSession) {
         resumeStore.reload()
         guard let currentSession = resumeStore.session,
-              currentSession.startedAt == session.startedAt,
-              let route = WatchScoreboardRoute(resumeSession: currentSession) else {
+              currentSession.startedAt == session.startedAt else {
             resumeStore.clear()
             return
         }
-        if let context = currentSession.link {
-            linkService.restoreSuspendedSession(context)
-            linkedSetup = context.setup
-            linkedSessionId = context.sessionId
-        } else {
+
+        if let handle = currentSession.linkHandle {
+            guard handle == linkService.activeHandle, let setup = linkService.activeSetup else {
+                resumeStore.clear()
+                return
+            }
+            openLinkedBoard(setup: setup, handle: handle)
+            return
+        }
+        linkedSetup = nil
+        linkedSessionId = nil
+
+        guard let displaySession = resumeStore.session,
+              let route = WatchScoreboardRoute(resumeSession: displaySession) else {
+            resumeStore.clear()
             linkedSetup = nil
             linkedSessionId = nil
+            return
         }
-        activeResumeSession = currentSession
+        activeResumeSession = displaySession
         _ = resumeStore.consume()
         scoreboardLaunchID = UUID()
         scoreboardRoute = route
     }
 
-    private func restoreStoredLinkContextIfNeeded() {
-        guard linkService.resumeContext == nil,
-              let context = resumeStore.session?.link else { return }
-        linkService.restoreSuspendedSession(context)
-        linkedSetup = context.setup
-        linkedSessionId = context.sessionId
+    private func restoreLinkedBoardIfNeeded() {
+        guard scoreboardRoute == nil, let update = linkService.intentSync.update,
+              let setup = linkService.activeSetup, update.handle == linkService.activeHandle else { return }
+        let shouldReveal = resumeStore.session == nil || update.isPendingFinish
+            || (update.displayedSnapshot.isFinished && !update.confirmedSnapshot.isFinished)
+        if shouldReveal { openLinkedBoard(setup: setup, handle: update.handle) }
+    }
+
+    private func openLinkedBoard(setup: LinkedScoreboardSetup, handle: LinkedMatchHandle) {
+        guard let update = linkService.intentSync.update, update.handle == handle else { return }
+        let projected = LinkedScoreboardSetup(
+            gameType: setup.gameType, maxSets: setup.maxSets,
+            initialSnapshot: update.displayedSnapshot, detailedActions: update.detailedActions,
+            participantNames: setup.participantNames, capabilities: setup.capabilities
+        )
+        guard let route = WatchScoreboardRoute(linkedSetup: projected) else { return }
+        resumeStore.clear()
+        activeResumeSession = nil
+        linkedSetup = projected
+        linkedSessionId = handle.sessionId
+        scoreboardLaunchID = UUID()
+        scoreboardRoute = route
+    }
+
+    private func noticeExcludedOperations(previous: WatchLinkedIntentUpdate?, update: WatchLinkedIntentUpdate?) {
+        guard let update, update.confirmedSnapshot.isFinished,
+              update.excludedScoringOperationCount > 0,
+              previous?.handle != update.handle
+                  || previous?.excludedScoringOperationCount != update.excludedScoringOperationCount else { return }
+        excludedOperationsNotice = update.excludedScoringOperationCount
     }
 
     @ViewBuilder
@@ -296,8 +315,7 @@ struct WatchRootView: View {
                 WatchArcheryScoreView(
                     initialState: archeryInitialState(),
                     linkedSessionId: linkedSessionId,
-                    resumedState: archeryResumeState(),
-                    resumedUndoStates: archeryResumeUndoStates(),
+                    resumeBundle: archeryResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
                     resumedRestState: archeryResumeRestState(),
                     resumedActionLog: activeResumeSession?.actionLog
@@ -306,36 +324,37 @@ struct WatchRootView: View {
                 WatchBasketballTrainingView(
                     mode: mode,
                     linkedSessionId: linkedSessionId,
-                    resumedHistory: trainingResumeHistory(),
+                    resumeBundle: trainingResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedEarlierCounts: trainingResumeEarlierCounts()
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .eightBall:
                 WatchEightBallScoreView(
-                    initialState: eightBallResumeState() ?? eightBallInitialState(),
+                    initialState: eightBallInitialState(),
                     linkedSessionId: linkedSessionId,
                     leftName: eightBallResumeNames()?.left ?? linkedBilliardsNames()?.left,
                     rightName: eightBallResumeNames()?.right ?? linkedBilliardsNames()?.right,
-                    resumedUndoStates: eightBallResumeUndoStates(),
+                    resumeBundle: eightBallResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
                     resumedActionLog: activeResumeSession?.actionLog
                 )
             case .nineBall:
                 WatchNineBallScoreView(
-                    initialState: nineBallResumeState() ?? nineBallInitialState(),
+                    initialState: nineBallInitialState(),
                     linkedSessionId: linkedSessionId,
-                    resumedUndoStates: nineBallResumeUndoStates(),
+                    resumeBundle: nineBallResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
                     resumedActionLog: activeResumeSession?.actionLog
                 )
             case .snooker:
                 WatchSnookerScoreView(
-                    initialState: snookerResumeState() ?? snookerInitialState(),
+                    initialState: snookerInitialState(),
                     linkedSessionId: linkedSessionId,
                     leftName: snookerResumeNames()?.left ?? linkedBilliardsNames()?.left,
                     rightName: snookerResumeNames()?.right ?? linkedBilliardsNames()?.right,
-                    resumedUndoStates: snookerResumeUndoStates(),
-                    resumedStartTime: activeResumeSession?.startedAt
+                    resumeBundle: snookerResumeBundle(),
+                    resumedStartTime: activeResumeSession?.startedAt,
+                    resumedActionLog: activeResumeSession?.actionLog
                 )
             case .football(let halfLengthSeconds):
                 footballDestination(isFiveAside: false, halfLengthSeconds: halfLengthSeconds)
@@ -470,17 +489,19 @@ struct WatchRootView: View {
         WatchFootballScoreView(
             isFiveAside: isFiveAside,
             halfLengthSeconds: halfLengthSeconds,
-            leftName: footballResumeNames()?.left
-                ?? LinkedSetupConfirmCopy.leftName(from: linkedSetup),
-            rightName: footballResumeNames()?.right
-                ?? LinkedSetupConfirmCopy.rightName(from: linkedSetup),
-            resumedState: footballResumeState(),
-            resumedUndoStates: footballResumeUndoStates(),
+            leftName: LinkedSetupConfirmCopy.leftName(from: linkedSetup),
+            rightName: LinkedSetupConfirmCopy.rightName(from: linkedSetup),
+            resumeBundle: footballResumeBundle(),
+            initialState: footballInitialState(),
             resumedStartTime: activeResumeSession?.startedAt,
             resumedActionLog: activeResumeSession?.actionLog,
-            linkedSessionId: linkedSessionId,
-            linkedState: linkedFootballState()
+            linkedSessionId: linkedSessionId
         )
+    }
+
+    /// 联动开局直接复用 Reducer State 快照（时钟锚点与补时历史一并带入）。
+    private func footballInitialState() -> FootballMatchState? {
+        linkedSetup?.initialSnapshot?.footballState
     }
 
     private var localScoreboardRoute: Binding<WatchScoreboardRoute?> {
@@ -502,11 +523,22 @@ struct WatchRootView: View {
     }
 
     private func startLocalScoreboard(_ route: WatchScoreboardRoute) {
-        if let context = resumeStore.session?.link {
-            if linkService.resumeContext == nil {
-                linkService.restoreSuspendedSession(context)
+        if let handle = resumeStore.session?.linkHandle {
+            // 先匹配当前活跃上下文；只有完全没有 live 会话时才读存储。
+            // 旧磁盘上下文绝不覆盖另一个 live handle，引用失效则不复活。
+            let live = linkService.resumeContext
+            let matched: WatchLinkResumeContext?
+            if let live {
+                matched = live.handle == handle ? live : nil
+            } else {
+                matched = resumeStore.linkContextForResume(linkService.storedLinkContext)
             }
-            linkService.discardResumableSession(reason: .newScoreboardStart)
+            if let matched {
+                if linkService.resumeContext == nil {
+                    linkService.restoreSuspendedSession(matched)
+                }
+                linkService.discardResumableSession()
+            }
         } else if linkedSessionId != nil {
             linkService.leaveSession()
         }
@@ -547,106 +579,58 @@ struct WatchRootView: View {
         return restState
     }
 
-    private func archeryResumeState() -> ArcheryMatchState? {
+    private func archeryResumeBundle() -> WatchArcheryResumeBundle? {
         guard let activeResumeSession,
-              case .archery(let state, _, _) = activeResumeSession.payload else { return nil }
-        return state
-    }
-
-    private func archeryResumeUndoStates() -> [ArcheryMatchState] {
-        guard let activeResumeSession,
-              case .archery(_, let states, _) = activeResumeSession.payload else { return [] }
-        return states
+              case .archery(let bundle, _) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
     private func archeryResumeRestState() -> WatchRestState? {
         guard let activeResumeSession,
-              case .archery(_, _, let restState) = activeResumeSession.payload else { return nil }
+              case .archery(_, let restState) = activeResumeSession.payload else { return nil }
         return restState
     }
 
-    private func eightBallResumeState() -> EightBallState? {
+    private func eightBallResumeBundle() -> WatchEightBallResumeBundle? {
         guard let activeResumeSession,
-              case .eightBall(let state, _, _, _) = activeResumeSession.payload else { return nil }
-        return state
-    }
-
-    private func eightBallResumeUndoStates() -> [EightBallState] {
-        guard let activeResumeSession,
-              case .eightBall(_, let states, _, _) = activeResumeSession.payload else { return [] }
-        return states
+              case .eightBall(let bundle, _, _) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
     private func eightBallResumeNames() -> (left: String, right: String)? {
         guard let activeResumeSession,
-              case .eightBall(_, _, let left, let right) = activeResumeSession.payload else { return nil }
+              case .eightBall(_, let left, let right) = activeResumeSession.payload else { return nil }
         return (left, right)
     }
 
-    private func nineBallResumeState() -> NineBallChaseState? {
+    private func nineBallResumeBundle() -> WatchNineBallResumeBundle? {
         guard let activeResumeSession,
-              case .nineBall(let state, _) = activeResumeSession.payload else { return nil }
-        return state
+              case .nineBall(let bundle) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
-    private func nineBallResumeUndoStates() -> [NineBallChaseState] {
+    private func snookerResumeBundle() -> WatchSnookerResumeBundle? {
         guard let activeResumeSession,
-              case .nineBall(_, let states) = activeResumeSession.payload else { return [] }
-        return states
-    }
-
-    private func snookerResumeState() -> SnookerState? {
-        guard let activeResumeSession,
-              case .snooker(let state, _, _, _) = activeResumeSession.payload else { return nil }
-        return state
-    }
-
-    private func snookerResumeUndoStates() -> [SnookerState] {
-        guard let activeResumeSession,
-              case .snooker(_, let states, _, _) = activeResumeSession.payload else { return [] }
-        return states
+              case .snooker(let bundle, _, _) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
     private func snookerResumeNames() -> (left: String, right: String)? {
         guard let activeResumeSession,
-              case .snooker(_, _, let left, let right) = activeResumeSession.payload else { return nil }
+              case .snooker(_, let left, let right) = activeResumeSession.payload else { return nil }
         return (left, right)
     }
 
-    private func linkedFootballState() -> LinkedFootballState? {
-        linkedSetup?.initialSnapshot?.footballState
+    private func footballResumeBundle() -> WatchFootballResumeBundle? {
+        guard let activeResumeSession,
+              case .football(_, let bundle) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
-    private func footballResumeState() -> WatchFootballState? {
+    private func trainingResumeBundle() -> WatchShotTrainingResumeBundle? {
         guard let activeResumeSession,
-              case .football(_, let state, _, _, _) = activeResumeSession.payload else { return nil }
-        return state
-    }
-
-    private func footballResumeUndoStates() -> [WatchFootballUndoState] {
-        guard let activeResumeSession,
-              case .football(_, _, let states, _, _) = activeResumeSession.payload else { return [] }
-        return states
-    }
-
-    private func footballResumeNames() -> (left: String, right: String)? {
-        guard let activeResumeSession,
-              case .football(_, _, _, let left, let right) = activeResumeSession.payload else {
-            return nil
-        }
-        return (left, right)
-    }
-
-    private func trainingResumeEarlierCounts() -> ShotTrainingCounts {
-        guard let activeResumeSession,
-              case .basketballTraining(_, _, let totals) = activeResumeSession.payload else { return .init() }
-        return totals ?? .init()
-    }
-
-    private func trainingResumeHistory() -> [WatchBasketballTrainingShot] {
-        guard let activeResumeSession,
-              case .basketballTraining(_, let history, _) = activeResumeSession.payload else { return [] }
-        return history
+              case .basketballTraining(let bundle) = activeResumeSession.payload else { return nil }
+        return bundle
     }
 
     private func linkedBilliardsNames() -> (left: String, right: String)? {
@@ -748,7 +732,7 @@ struct WatchRootView: View {
         }
     }
 
-    private func archeryInitialState() -> LinkedArcheryState? {
+    private func archeryInitialState() -> ArcheryMatchState? {
         guard let linkedSetup, case .archery(let state)? = linkedSetup.initialSnapshot else { return nil }
         return state
     }

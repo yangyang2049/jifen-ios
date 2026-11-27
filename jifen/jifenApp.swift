@@ -490,32 +490,7 @@ struct jifenApp: App {
             } message: {
                 Text(NSLocalizedString("scoreboard_save_failed", value: "保存失败，请稍后重试", comment: ""))
             }
-            .alert(
-                NSLocalizedString("linked_score_force_takeover", value: "强制接管", comment: ""),
-                isPresented: Binding(
-                    get: { !watchLinkIntro.isCoveringHome && watchLinkService.forceTakeoverConfirmationSessionId != nil },
-                    set: { if !$0 { watchLinkService.cancelForceTakeoverConfirmation() } }
-                )
-            ) {
-                Button(
-                    NSLocalizedString("cancel", value: "取消", comment: ""),
-                    role: .cancel
-                ) {
-                    watchLinkService.cancelForceTakeoverConfirmation()
-                }
-                Button(
-                    NSLocalizedString("linked_score_force_takeover_confirm", value: "仍要接管", comment: ""),
-                    role: .destructive
-                ) {
-                    watchLinkService.confirmForceTakeover()
-                }
-            } message: {
-                Text(NSLocalizedString(
-                    "linked_score_force_takeover_warning",
-                    value: "未同步的手表操作可能丢失。手机会基于最后一次已确认的比分继续。",
-                    comment: ""
-                ))
-            }
+
         }
     }
 

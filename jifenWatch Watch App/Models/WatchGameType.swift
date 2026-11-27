@@ -3,11 +3,6 @@ import RecordCore
 import ScoreCore
 
 enum WatchGameType: String, Codable, CaseIterable {
-    /// Regulation basketball cases are retained only to decode and display historical records.
-    /// New phone-initiated linkage must not originate these cases, and they must not be added
-    /// to `WatchHomeItem` or `WatchSetupSport`.
-    case basketball
-    case threeBasketball = "three_basketball"
     case pingpong
     case badminton
     case shuttlecock
@@ -40,8 +35,6 @@ enum WatchGameType: String, Codable, CaseIterable {
         case .snooker: self = .snooker
         case .football: self = .football
         case .football5v5: self = .football5v5
-        case .basketball: self = .basketball
-        case .threeBasketball: self = .threeBasketball
         case .basketballTraining: self = .basketballTraining
         default: return nil
         }
@@ -49,10 +42,6 @@ enum WatchGameType: String, Codable, CaseIterable {
 
     var displayName: String {
         switch self {
-        case .basketball:
-            return NSLocalizedString("game_basketball", value: "篮球", comment: "Basketball")
-        case .threeBasketball:
-            return NSLocalizedString("game_three_basketball", value: "三人篮球", comment: "3x3 Basketball")
         case .pingpong:
             return NSLocalizedString("game_pingpong", comment: "Ping Pong")
         case .badminton:
@@ -88,8 +77,6 @@ enum WatchGameType: String, Codable, CaseIterable {
 
     var icon: String {
         switch self {
-        case .basketball, .threeBasketball:
-            return "🏀"
         case .pingpong:
             return "🏓"
         case .badminton, .shuttlecock:
@@ -117,8 +104,6 @@ enum WatchGameType: String, Codable, CaseIterable {
 
     var scoreCoreGameType: GameType? {
         switch self {
-        case .basketball: .basketball
-        case .threeBasketball: .threeBasketball
         case .pingpong: .pingpong
         case .badminton: .badminton
         case .shuttlecock: .shuttlecock
@@ -140,7 +125,7 @@ enum WatchGameType: String, Codable, CaseIterable {
     /// Uses point totals (not set scores) when rendering watch record list rows.
     var usesPointScoreInList: Bool {
         switch self {
-        case .basketball, .threeBasketball, .basketballTraining, .eightBall, .nineBall, .snooker,
+        case .basketballTraining, .eightBall, .nineBall, .snooker,
              .football, .football5v5, .counter:
             return true
         default:

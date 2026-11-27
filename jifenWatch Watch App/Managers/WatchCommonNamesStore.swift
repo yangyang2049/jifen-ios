@@ -9,20 +9,24 @@ enum WatchCommonNamesError: Error, Equatable {
     case presetName
 }
 
+/// `common-names/store.json` 单一原子文件的持久化状态。
+private struct WatchCommonNamesPersistedState: Codable {
+    var canonicalTeams: [String] = []
+    var canonicalPlayers: [String] = []
+    var updatedAtEpochMilliseconds: Int64 = 0
+    var revision: UInt64 = 0
+    var pendingMutations: [CommonNameMutation] = []
+    var lastSyncAtEpochMilliseconds: Int64 = 0
+    var hasUnresolvedConflict: Bool = false
+}
+
 /// Phone-canonical common names plus an optimistic, persistent watch mutation overlay.
+/// 7 个 UserDefaults key 收敛为 common-names/store.json 单一原子文件；
+/// 首发格式直接起算，store.json 缺失或损坏时重新起算干净状态。
 @MainActor
 @Observable
 final class WatchCommonNamesStore {
     static let shared = WatchCommonNamesStore()
-
-    private let teamsKey = "watch_common_team_names"
-    private let playersKey = "watch_common_player_names"
-    private let updatedAtKey = "watch_common_names_updated_at"
-    private let revisionKey = "watch_common_names_revision_v2"
-    private let pendingMutationsKey = "watch_common_names_pending_mutations_v1"
-    private let lastSyncAtKey = "watch_common_names_last_sync_at_v1"
-    private let unresolvedConflictKey = "watch_common_names_unresolved_conflict_v1"
-    private let defaults: UserDefaults
 
     private var canonicalTeams: [String]
     private var canonicalPlayers: [String]
@@ -38,38 +42,51 @@ final class WatchCommonNamesStore {
     static let maxNamesPerType = 50
     static let maxMutationsPerBatch = 50
 
-    private static let presetNameKeys: Set<String> = {
-        let names = [
-            "红队", "蓝队", "红方", "蓝方", "主队", "客队", "左队", "右队", "A队", "B队",
-            "选手A", "选手B", "射手A", "射手B", "选手1", "选手2", "玩家1", "玩家2", "玩家3",
-            "红A", "红B", "蓝A", "蓝B", "红A / 红B", "蓝A / 蓝B", "红A/红B", "蓝A/蓝B",
-            "red team", "blue team", "red", "blue", "home", "away", "team a", "team b",
-            "player a", "player b", "archer a", "archer b", "player 1", "player 2", "player 3",
-            "red a", "red b", "blue a", "blue b",
-            "red a / red b", "blue a / blue b", "red a/red b", "blue a/blue b"
-        ]
-        return Set(names.map { $0.lowercased() })
-    }()
+    private let storeFileURL: URL
 
-    init(defaults: UserDefaults = .standard) {
-        self.defaults = defaults
-        canonicalTeams = defaults.stringArray(forKey: teamsKey) ?? []
-        canonicalPlayers = defaults.stringArray(forKey: playersKey) ?? []
-        updatedAtEpochMilliseconds = Int64(defaults.integer(forKey: updatedAtKey))
-        if let number = defaults.object(forKey: revisionKey) as? NSNumber {
-            revision = number.uint64Value
+    /// - Parameter directoryURL: 存储目录；nil 使用 WatchStorageContainer.shared
+    ///   的 common-names/ 子目录（测试传临时目录隔离）。
+    init(directoryURL: URL? = nil) {
+        let directory = directoryURL ?? WatchStorageContainer.shared.commonNamesDirectory
+        storeFileURL = directory.appendingPathComponent("store.json", isDirectory: false)
+        if let data = try? Data(contentsOf: storeFileURL), !data.isEmpty,
+           let state = try? JSONDecoder().decode(WatchCommonNamesPersistedState.self, from: data) {
+            canonicalTeams = state.canonicalTeams
+            canonicalPlayers = state.canonicalPlayers
+            updatedAtEpochMilliseconds = state.updatedAtEpochMilliseconds
+            revision = state.revision
+            pendingMutations = state.pendingMutations
+            lastSyncAtEpochMilliseconds = state.lastSyncAtEpochMilliseconds
+            hasUnresolvedConflict = state.hasUnresolvedConflict
         } else {
-            revision = 0
+            // 缺失或损坏：重新起算干净状态（覆盖写回干净文件）。
+            let clean = WatchCommonNamesPersistedState()
+            canonicalTeams = clean.canonicalTeams
+            canonicalPlayers = clean.canonicalPlayers
+            updatedAtEpochMilliseconds = clean.updatedAtEpochMilliseconds
+            revision = clean.revision
+            pendingMutations = clean.pendingMutations
+            lastSyncAtEpochMilliseconds = clean.lastSyncAtEpochMilliseconds
+            hasUnresolvedConflict = clean.hasUnresolvedConflict
+            persistState(clean)
         }
-        if let data = defaults.data(forKey: pendingMutationsKey),
-           let mutations = try? JSONDecoder().decode([CommonNameMutation].self, from: data) {
-            pendingMutations = mutations
-        } else {
-            pendingMutations = []
-        }
-        lastSyncAtEpochMilliseconds = Int64(defaults.integer(forKey: lastSyncAtKey))
-        hasUnresolvedConflict = defaults.bool(forKey: unresolvedConflictKey)
         recomputeEffectiveNames()
+    }
+
+    /// 全量状态原子落盘（替代此前 7 个零散 UserDefaults key 的多次写入）。
+    private func persistState(_ state: WatchCommonNamesPersistedState? = nil) {
+        let state = state ?? WatchCommonNamesPersistedState(
+            canonicalTeams: canonicalTeams,
+            canonicalPlayers: canonicalPlayers,
+            updatedAtEpochMilliseconds: updatedAtEpochMilliseconds,
+            revision: revision,
+            pendingMutations: pendingMutations,
+            lastSyncAtEpochMilliseconds: lastSyncAtEpochMilliseconds,
+            hasUnresolvedConflict: hasUnresolvedConflict
+        )
+        if let data = try? JSONEncoder().encode(state) {
+            try? data.write(to: storeFileURL, options: .atomic)
+        }
     }
 
     var pendingCount: Int { pendingMutations.count }
@@ -85,7 +102,7 @@ final class WatchCommonNamesStore {
         }
         guard shouldAccept(snapshot) else { return false }
         applyCanonical(snapshot)
-        persistCanonical()
+        persistState()
         recomputeEffectiveNames()
         return true
     }
@@ -99,15 +116,12 @@ final class WatchCommonNamesStore {
             hasUnresolvedConflict = relevantResults.contains {
                 $0.status == .conflict || $0.status == .invalid
             }
-            defaults.set(hasUnresolvedConflict, forKey: unresolvedConflictKey)
         }
         if shouldAccept(acknowledgement.snapshot) {
             applyCanonical(acknowledgement.snapshot)
-            persistCanonical()
         }
         lastSyncAtEpochMilliseconds = nowMilliseconds()
-        persistPendingMutations()
-        defaults.set(Int(lastSyncAtEpochMilliseconds), forKey: lastSyncAtKey)
+        persistState()
         recomputeEffectiveNames()
     }
 
@@ -173,7 +187,7 @@ final class WatchCommonNamesStore {
 
     private func appendMutation(_ mutation: CommonNameMutation) {
         pendingMutations.append(mutation)
-        persistPendingMutations()
+        persistState()
         recomputeEffectiveNames()
     }
 
@@ -184,7 +198,6 @@ final class WatchCommonNamesStore {
         revision = max(revision, snapshot.revision)
         if pendingMutations.isEmpty {
             lastSyncAtEpochMilliseconds = nowMilliseconds()
-            defaults.set(Int(lastSyncAtEpochMilliseconds), forKey: lastSyncAtKey)
         }
     }
 
@@ -243,7 +256,7 @@ final class WatchCommonNamesStore {
     private func validatedName(_ raw: String) throws -> String {
         let normalized = normalize(raw)
         guard !normalized.isEmpty else { throw WatchCommonNamesError.emptyName }
-        guard !Self.presetNameKeys.contains(normalized.lowercased()) else {
+        guard !PresetCommonNames.isPreset(normalized) else {
             throw WatchCommonNamesError.presetName
         }
         return String(normalized.prefix(Self.maxNameLength))
@@ -262,21 +275,6 @@ final class WatchCommonNamesStore {
     private func contains(_ name: String, in names: [String]) -> Bool {
         let key = normalizedKey(name)
         return names.contains { normalizedKey($0) == key }
-    }
-
-    private func persistCanonical() {
-        defaults.set(canonicalTeams, forKey: teamsKey)
-        defaults.set(canonicalPlayers, forKey: playersKey)
-        defaults.set(Int(updatedAtEpochMilliseconds), forKey: updatedAtKey)
-        defaults.set(NSNumber(value: revision), forKey: revisionKey)
-    }
-
-    private func persistPendingMutations() {
-        if pendingMutations.isEmpty {
-            defaults.removeObject(forKey: pendingMutationsKey)
-        } else if let data = try? JSONEncoder().encode(pendingMutations) {
-            defaults.set(data, forKey: pendingMutationsKey)
-        }
     }
 
     private func nowMilliseconds() -> Int64 {

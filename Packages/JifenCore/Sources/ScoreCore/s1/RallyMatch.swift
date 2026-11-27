@@ -520,7 +520,7 @@ public struct RallyCurrentSetReplay: Codable, Equatable, Sendable {
     }
 }
 
-public enum RallyMatchIntent: Codable, Sendable {
+public enum RallyMatchIntent: Codable, Equatable, Sendable {
     case pointWon(MatchSide)
     case setNames(left: String, right: String)
     case adjustPoints(side: MatchSide, delta: Int)

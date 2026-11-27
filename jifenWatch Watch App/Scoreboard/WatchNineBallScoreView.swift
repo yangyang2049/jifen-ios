@@ -1,6 +1,8 @@
 import LinkCore
+import LinkSync
 import RecordCore
 import ScoreCore
+import SessionCore
 import SwiftUI
 
 enum WatchNineBallSecondarySelectionMode: Equatable {
@@ -78,13 +80,15 @@ struct WatchNineBallScoreView: View {
     @Environment(WatchResumeSessionStore.self) private var resumeStore
 
     let linkedSessionId: UUID?
+    @State private var linkedMatchHandle: LinkedMatchHandle?
+
     @State private var showRecordSaveFailure = false
-    @State private var state: NineBallChaseState
+    /// 通用同步宿主：比分、撤销栈、时间线与动作日志只有这一处真相。
+    @State private var store: WatchReducerSessionStore<NineBallChaseReducer>
     @State private var showMenu = false
     @State private var matchStartTime = Date()
-    @State private var didSaveFinishedRecord = false
+    @State private var localRecordID = "w_\(UUID().uuidString)"
     @State private var scoreboardLayout: String = "horizontal"
-    @State private var undoStack: [NineBallChaseState] = []
     @State private var eventPickerPlayer: Int?
     @State private var pendingPlayerSelection: WatchNineBallPendingSelection?
     @State private var showBreakerPicker = false
@@ -93,7 +97,6 @@ struct WatchNineBallScoreView: View {
     @State private var finishUndoAvailable = false
     @State private var finishTask: Task<Void, Never>?
     @State private var suppressTapAfterLongPress = false
-    @State private var actionLog: WatchScoreActionLog
     @State private var undoToastToken: UUID?
 
     private static let playerColors: [Color] = [
@@ -106,20 +109,120 @@ struct WatchNineBallScoreView: View {
     init(
         initialState: NineBallChaseState? = nil,
         linkedSessionId: UUID? = nil,
-        resumedUndoStates: [NineBallChaseState] = [],
+        resumeBundle: WatchNineBallResumeBundle? = nil,
         resumedStartTime: Date? = nil,
         resumedActionLog: WatchScoreActionLog? = nil
     ) {
         self.linkedSessionId = linkedSessionId
-        _state = State(initialValue: initialState ?? .initial())
-        _undoStack = State(initialValue: resumedUndoStates)
         let startedAt = resumedStartTime ?? Date()
+        let binding = WatchBoardBindings.nineBall()
+        let actionLog = resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt)
+        if let resumeBundle {
+            // 续玩只走标准 bundle：比分、撤销帧与时间线一并恢复。
+            _store = State(initialValue: WatchReducerSessionStore(
+                resumeBundle: resumeBundle,
+                reducer: NineBallChaseReducer(),
+                binding: binding,
+                actionLog: actionLog,
+                startedAt: startedAt
+            ))
+        } else {
+            let seed = initialState ?? NineBallChaseState.initial()
+            let descriptor = ScoreboardKernelRegistry.descriptor(for: .nineBall)
+            let session = ScoreSession<NineBallChaseState, NineBallChaseEvent>(
+                gameType: .nineBall,
+                ruleFamily: descriptor.ruleFamily,
+                reducerType: descriptor.reducerType,
+                state: seed,
+                participants: (0..<seed.playerCount).map { index in
+                    SessionParticipant(
+                        id: "player_\(index)",
+                        name: seed.resolvedName(at: index, fallback: "P\(index + 1)"),
+                        role: "player"
+                    )
+                }
+            )
+            _store = State(initialValue: WatchReducerSessionStore(
+                seedSession: session,
+                reducer: NineBallChaseReducer(),
+                binding: binding,
+                actionLog: actionLog,
+                startedAt: startedAt
+            ))
+        }
         _matchStartTime = State(initialValue: startedAt)
-        _actionLog = State(initialValue: resumedActionLog ?? WatchScoreActionLog(startedAt: startedAt))
     }
 
-    private var scoringLocked: Bool { linkedSessionId != nil && linkService.isFollower }
+    private var state: NineBallChaseState { store.state }
+
+    private var linkedMatchUnavailable: Bool {
+        guard linkedSessionId != nil else { return false }
+        guard let linkedMatchHandle, linkedMatchHandle == linkService.activeHandle,
+              store.linkedIntentUpdate?.handle == linkedMatchHandle else { return true }
+        return !linkService.canEditLinkedMatch
+    }
+
+    private var scoringLocked: Bool {
+        linkedMatchUnavailable || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed
+    }
+
+    private var canPlayAgain: Bool {
+        guard linkedSessionId != nil else { return true }
+        guard let handle = linkedMatchHandle, !linkedMatchUnavailable, store.isLinkedFinishConfirmed else { return false }
+        return store.savedRecordID == "w_\(handle.matchId.uuidString)"
+            && !linkService.intentSync.hasPendingOperations(for: handle)
+    }
+
+    private var linkedMenuActions: [WatchMenuExtraAction] {
+        guard linkedSessionId != nil, !linkedMatchUnavailable else { return [] }
+        return [
+            WatchMenuExtraAction(
+                id: "sync-linked-scores",
+                title: NSLocalizedString("linked_score_resync", value: "Sync score", comment: ""),
+                systemImage: "arrow.triangle.2.circlepath"
+            ) {
+                showMenu = false
+                linkService.syncLinkedScores()
+            },
+            WatchMenuExtraAction(
+                id: "end-score-link",
+                title: NSLocalizedString("linked_score_end", value: "End link", comment: ""),
+                systemImage: "link.badge.minus"
+            ) {
+                guard !store.isPendingLinkedFinish else { return }
+                showMenu = false
+                linkService.leaveSession()
+            }
+        ]
+    }
     private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
+
+    private var pendingFinishUndoAction: (() -> Void)? {
+        guard store.canUndo else { return nil }
+        return { undo() }
+    }
+
+    @ViewBuilder
+    private var finishLayer: some View {
+        if store.isPendingLinkedFinish {
+            WatchLinkedFinishWaitingOverlay(onSync: { linkService.syncLinkedScores() }, onUndo: pendingFinishUndoAction)
+        } else if showFinishedOverlay {
+            WatchFinishedOverlay(
+                title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
+                scoreItems: (0..<state.playerCount).map {
+                    WatchFinishedScoreItem(name: displayName(at: $0), score: playerPoints(at: $0))
+                },
+                undoAvailable: linkedSessionId == nil && finishUndoAvailable,
+                canPlayAgain: canPlayAgain,
+                onUndo: undoFinishedNineBall,
+                onPlayAgain: restartMatch,
+                onExit: {
+                    if linkedSessionId == nil, !finalizeNineBall() { return }
+                    exitNineBall()
+                }
+            )
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -141,13 +244,13 @@ struct WatchNineBallScoreView: View {
                     onReset: {
                         guard !scoringLocked else { return }
                         showMenu = false
-                        confirmation = .reset
+                        if linkedSessionId == nil {
+                            confirmation = .reset
+                        } else {
+                            restartMatch()
+                        }
                     },
-                    onReclaim: scoringLocked ? {
-                        linkService.requestReclaim()
-                        showMenu = false
-                    } : nil,
-                    extraActions: nineBallMenuExtraActions
+                    extraActions: nineBallMenuExtraActions + linkedMenuActions
                 )
             }
             if let eventPickerPlayer {
@@ -159,22 +262,7 @@ struct WatchNineBallScoreView: View {
             if showBreakerPicker {
                 nineBallBreakerPicker
             }
-            if showFinishedOverlay {
-                WatchFinishedOverlay(
-                    title: NSLocalizedString("watch_match_finished", value: "比赛结束", comment: ""),
-                    scoreItems: (0..<state.playerCount).map {
-                        WatchFinishedScoreItem(name: displayName(at: $0), score: playerPoints(at: $0))
-                    },
-                    undoAvailable: finishUndoAvailable,
-                    canPlayAgain: !scoringLocked,
-                    onUndo: undoFinishedNineBall,
-                    onPlayAgain: restartMatch,
-                    onExit: {
-                        guard finalizeNineBall() else { return }
-                        exitNineBall()
-                    }
-                )
-            }
+            finishLayer
             if let confirmation {
                 WatchConfirmationOverlay(
                     confirmation: confirmation,
@@ -193,27 +281,15 @@ struct WatchNineBallScoreView: View {
             guard state.playerCount < 4 else { return }
             scoreboardLayout = normalizedLayout(WatchPreferences.shared.scoreboardLayout)
         }
-        .onChange(of: linkService.latestSnapshot, initial: true) { previous, update in
-            guard linkService.incomingSnapshot != nil, let linkedSessionId, let update, update.sessionId == linkedSessionId,
-                  let remote = update.snapshot.nineBallState else { return }
-            if linkService.controlRole == .shared, update.beginsMatch(after: previous) {
-                matchStartTime = Date()
-                actionLog.reset(at: matchStartTime)
-            }
-            applyAuthoritativeNineBall(remote, detailedActions: update.detailedActions)
-        }
-        .onChange(of: linkService.pendingReclaimAcceptance) { _, pending in
-            guard let linkedSessionId, let pending, pending.sessionId == linkedSessionId,
-                  let remote = pending.snapshot.nineBallState else { return }
-            applyAuthoritativeNineBall(remote, detailedActions: pending.detailedActions)
-            linkService.completeReclaimAcceptance(messageId: pending.messageId)
+        .onChange(of: linkService.intentSync.update, initial: true) { _, update in
+            applyLinkedUpdate(update)
         }
         .onChange(of: state) { _, _ in
             persistResumeSession()
         }
         .onDisappear {
             finishTask?.cancel()
-            if state.finished { finalizeNineBall() }
+            if linkedSessionId == nil, state.finished { finalizeNineBall() }
             persistResumeSession()
         }
         .watchScoreboardGestures(
@@ -716,111 +792,31 @@ struct WatchNineBallScoreView: View {
     }
 
     private func apply(_ intent: NineBallChaseIntent) {
-        guard !scoringLocked, !state.finished else { return }
-        let timestamp = Date()
-        actionLog.beginUndoableMutation()
-        let result = NineBallChaseReducer().reduce(state: state, intent: intent, at: Int64(timestamp.timeIntervalSince1970 * 1_000))
-        guard result.accepted else {
-            actionLog.rejectUndoableMutation()
-            return
-        }
-        undoStack.append(state)
-        state = result.state
-        if case .resetScores = intent {
-            actionLog.reset(at: timestamp)
-        } else {
-            actionLog.append(contentsOf: WatchScoreActionProjector.nineBall(
-                events: result.events, state: state, timestamp: timestamp
-            ))
-        }
-        publish()
-        if state.finished {
-            beginNineBallFinish(manualEnd: false)
-        }
+        guard !scoringLocked, !state.finished, case .accepted = store.dispatch(intent) else { return }
+        if linkedSessionId == nil, state.finished { beginNineBallFinish(manualEnd: false) }
     }
 
     private func finishMatch() {
-        guard !state.finished else {
-            beginNineBallFinish(manualEnd: true)
+        guard !scoringLocked, !state.finished else { return }
+        if linkedSessionId != nil {
+            if store.requestLinkedFinish() { persistResumeSession() }
             return
         }
-        undoStack.append(state)
-        actionLog.beginUndoableMutation()
-        state.finished = true
-        let scores = Array(state.playerPoints.prefix(state.playerCount))
-        let maximum = scores.max()
-        let winningIndex = maximum.flatMap { value in
-            scores.filter { $0 == value }.count == 1 ? scores.firstIndex(of: value) : nil
-        }
-        actionLog.appendGameEndIfNeeded(
-            team1Score: playerPoints(at: 0),
-            team2Score: playerPoints(at: 1),
-            winner: winningIndex.flatMap { index in
-                switch index {
-                case 0: .team1
-                case 1: .team2
-                case 2: .team3
-                case 3: .team4
-                default: nil
-                }
-            }
-        )
-        publish()
+        guard case .accepted = store.dispatch(.finishMatch) else { return }
         beginNineBallFinish(manualEnd: true)
     }
 
-    private func publish() {
-        guard linkedSessionId != nil, linkService.canEditLinkedMatch else { return }
-        linkService.publishSnapshot(.nineBall(state), detailedActions: actionLog.detailedActions)
-    }
-
-    private func winnerSide() -> MatchSide? {
-        guard state.playerCount <= 2 else { return nil }
-        let left = playerPoints(at: 0)
-        let right = playerPoints(at: 1)
-        if left == right { return nil }
-        return left > right ? .left : .right
-    }
-
     private func saveLocalRecordIfNeeded() -> Bool {
-        guard linkedSessionId == nil, !didSaveFinishedRecord else { return true }
+        guard linkedSessionId == nil, store.savedRecordID == nil else { return true }
         guard hasNineBallProgress else { return true }
-        let end = Date()
-        let leftName = displayName(at: 0)
-        let rightName = state.playerCount > 1
-            ? displayName(at: 1)
-            : WatchDefaultTeamNames.resolve(for: .nineBall).right
-        let leftScore = playerPoints(at: 0)
-        let rightScore = state.playerCount > 1 ? playerPoints(at: 1) : 0
-        let winnerName: String? = {
-            if state.playerCount > 2 {
-                let best = (0..<state.playerCount).max(by: { playerPoints(at: $0) < playerPoints(at: $1) })
-                return best.map { displayName(at: $0) }
-            }
-            if leftScore == rightScore { return nil }
-            return leftScore > rightScore ? leftName : rightName
-        }()
-        let record = WatchScoreboardRecord(
-            id: "w_\(UUID().uuidString)",
+        return store.saveFinishedRecord(
+            into: resumeStore,
             gameType: .nineBall,
-            startTime: matchStartTime,
-            endTime: end,
-            duration: end.timeIntervalSince(matchStartTime),
-            team1Name: leftName,
-            team2Name: rightName,
-            team1FinalScore: leftScore,
-            team2FinalScore: rightScore,
-            team1SetScore: leftScore,
-            team2SetScore: rightScore,
-            winner: winnerName,
-            actions: actionLog.actions,
-            totalScoreChanges: actionLog.scoreChangeCount,
-            participants: (0..<state.playerCount).map {
-                WatchRecordParticipant(name: displayName(at: $0), score: playerPoints(at: $0))
-            },
-            projectConfiguration: ["playerCount": String(state.playerCount)]
+            recordID: localRecordID,
+            endTime: Date(),
+            participantNames: (0..<state.playerCount).map { displayName(at: $0) },
+            totalScoreChanges: store.actionLog.scoreChangeCount
         )
-        return resumeStore.saveFinishedRecord(record)
     }
 
     private func normalizedLayout(_ raw: String) -> String {
@@ -828,35 +824,37 @@ struct WatchNineBallScoreView: View {
     }
 
     private func undo() {
-        guard !scoringLocked, let previous = undoStack.popLast() else { return }
-        state = previous
-        actionLog.undo(team1Score: playerPoints(at: 0), team2Score: playerPoints(at: 1))
-        publish()
+        guard !linkedMatchUnavailable, !store.isLinkedFinishConfirmed, store.undo() else { return }
         undoToastToken = UUID()
     }
 
     private func restartMatch() {
-        guard !scoringLocked, finalizeNineBall() else { return }
+        if linkedSessionId != nil {
+            if canPlayAgain {
+                store.requestLinkedNextMatch()
+            } else if !scoringLocked, !state.finished {
+                linkService.lastLinkErrorMessage = NSLocalizedString(
+                    "linked_score_reset_unavailable",
+                    value: "Finish this match before starting a new one.",
+                    comment: "Live linked matches cannot be reset"
+                )
+            }
+            return
+        }
+        guard finalizeNineBall() else { return }
         resumeStore.clear()
         finishTask?.cancel()
-        let result = NineBallChaseReducer().reduce(state: state, intent: .resetScores, at: nowMs())
-        guard result.accepted else { return }
-        undoStack.removeAll()
-        state = result.state
         let restartedAt = Date()
-        actionLog.reset(at: restartedAt)
-        didSaveFinishedRecord = false
+        // `.resetScores` 已由 binding 的 resetsActionLog 清空动作日志与撤销栈。
+        guard case .accepted(_, _) = store.dispatch(.resetScores, at: restartedAt) else { return }
+        store.beginRemoteMatch(at: restartedAt)
+        // 新一局重新允许落库与续玩草稿写入。
+        store.clearSavedRecord()
+        localRecordID = "w_\(UUID().uuidString)"
         matchStartTime = restartedAt
         showFinishedOverlay = false
         finishUndoAvailable = false
-        if linkedSessionId != nil {
-            linkService.startNextMatch(snapshot: .nineBall(state))
-        } else {
-            publish()
-        }
     }
-
-    private func nowMs() -> Int64 { Int64(Date().timeIntervalSince1970 * 1_000) }
 
     private func playerPoints(at index: Int) -> Int {
         guard state.playerPoints.indices.contains(index) else { return 0 }
@@ -870,33 +868,47 @@ struct WatchNineBallScoreView: View {
     }
 
     private var menuGesturesEnabled: Bool {
-        !state.finished && !showMenu && eventPickerPlayer == nil
+        !store.isPendingLinkedFinish && !state.finished && !showMenu && eventPickerPlayer == nil
             && pendingPlayerSelection == nil && !showBreakerPicker
             && confirmation == nil && !showFinishedOverlay
     }
 
-    private func applyAuthoritativeNineBall(
-        _ remote: NineBallChaseState,
-        detailedActions: [DetailedScoreAction]
-    ) {
-        actionLog.merge(detailedActions: detailedActions)
-        state = remote
-        undoStack.removeAll()
-        eventPickerPlayer = nil
-        pendingPlayerSelection = nil
-        showBreakerPicker = false
-        if state.finished {
-            beginNineBallRemoteFinishPresentation()
+    private func applyLinkedUpdate(_ update: WatchLinkedIntentUpdate?) {
+        guard let linkedSessionId, let update, update.handle.sessionId == linkedSessionId,
+              update.handle == linkService.activeHandle, case .nineBall = update.displayedSnapshot else { return }
+        let previous = state
+        let wasConfirmed = store.isLinkedFinishConfirmed
+        if let linkedMatchHandle {
+            guard linkedMatchHandle == update.handle else { return }
+            store.applyLinkedIntentUpdate(update)
         } else {
+            linkedMatchHandle = update.handle
+            store.attachLinkedMatch(
+                update.handle, sync: linkService.intentSync, intent: { .nineBall($0) },
+                state: { $0.nineBallState }
+            )
+        }
+        guard store.linkedIntentUpdate?.presentationSequence == update.presentationSequence else { return }
+        matchStartTime = store.startedAt
+        if previous != state || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed {
+            showMenu = false
+            confirmation = nil
+            eventPickerPlayer = nil
+            pendingPlayerSelection = nil
+            showBreakerPicker = false
+        }
+        if store.isPendingLinkedFinish {
             finishTask?.cancel()
             showFinishedOverlay = false
             finishUndoAvailable = false
-            didSaveFinishedRecord = false
+        } else if store.isLinkedFinishConfirmed {
+            if !wasConfirmed { beginNineBallRemoteFinishPresentation() }
+        } else if showFinishedOverlay || previous.finished {
+            finishTask?.cancel()
+            showFinishedOverlay = false
+            finishUndoAvailable = false
         }
-    }
-
-    private var compactNineBallScore: String {
-        (0..<state.playerCount).map { "\(playerPoints(at: $0))" }.joined(separator: " · ")
+        persistResumeSession()
     }
 
     private func nineBallEventTitle(_ kind: NineBallChaseKind) -> String {
@@ -951,7 +963,7 @@ struct WatchNineBallScoreView: View {
         eventPickerPlayer = nil
         pendingPlayerSelection = nil
         showBreakerPicker = false
-        finishUndoAvailable = !undoStack.isEmpty
+        finishUndoAvailable = store.canUndo
         showFinishedOverlay = manualEnd
         finishTask = Task { @MainActor in
             if !manualEnd {
@@ -962,7 +974,7 @@ struct WatchNineBallScoreView: View {
             try? await Task.sleep(for: .seconds(WatchTiming.finishedUndoCountdown))
             guard !Task.isCancelled else { return }
             finishUndoAvailable = false
-            finalizeNineBall(manualEnd: manualEnd)
+            finalizeNineBall()
         }
     }
 
@@ -978,79 +990,66 @@ struct WatchNineBallScoreView: View {
     }
 
     @discardableResult
-    private func finalizeNineBall(manualEnd: Bool = false) -> Bool {
-        guard state.finished, !didSaveFinishedRecord, !scoringLocked else { return true }
+    private func finalizeNineBall() -> Bool {
+        guard linkedSessionId == nil, state.finished, store.savedRecordID == nil else { return true }
         finishUndoAvailable = false
-        let saved: Bool
-        if linkedSessionId != nil {
-            saved = linkService.publishMatchFinished(
-                snapshot: .nineBall(state),
-                recordId: "w_\(UUID().uuidString)",
-                winnerSide: winnerSide(),
-                manualEnd: manualEnd,
-                startTime: matchStartTime,
-                endTime: Date(),
-                totalScoreChanges: actionLog.scoreChangeCount,
-                detailedActions: actionLog.detailedActions,
-                participantNames: (0..<state.playerCount).map { displayName(at: $0) }
-            )
-        } else {
-            saved = saveLocalRecordIfNeeded()
-        }
-        guard saved else {
+        guard saveLocalRecordIfNeeded() else {
             showRecordSaveFailure = true
             return false
         }
-        didSaveFinishedRecord = true
         resumeStore.clear()
         return true
     }
 
     private func undoFinishedNineBall() {
-        guard finishUndoAvailable, let previous = undoStack.popLast() else { return }
+        guard linkedSessionId == nil, finishUndoAvailable else { return }
         finishTask?.cancel()
-        state = previous
-        state.finished = false
-        actionLog.undo(team1Score: playerPoints(at: 0), team2Score: playerPoints(at: 1))
+        // 完赛撤销窗内同样走宿主撤销：回到完赛前的比分与动作日志。
+        guard store.undo() else { return }
         showFinishedOverlay = false
         finishUndoAvailable = false
-        didSaveFinishedRecord = false
-        publish()
         undoToastToken = UUID()
     }
 
     private func exitNineBall() {
-        if let linkedSessionId { linkService.exitScoreboard(sessionId: linkedSessionId) }
+        guard !store.isPendingLinkedFinish else { return }
+        if let handle = linkedMatchHandle, handle == linkService.activeHandle {
+            linkService.exitScoreboard(sessionId: handle.sessionId)
+        }
         persistResumeSession()
         dismiss()
     }
 
     private func persistResumeSession() {
-        let scores = Array(state.playerPoints.prefix(state.playerCount))
-        if state.finished {
-            if didSaveFinishedRecord { resumeStore.clear() }
+        let context: WatchLinkResumeContext?
+        if linkedSessionId != nil {
+            guard let handle = linkedMatchHandle, handle == linkService.activeHandle,
+                  let linkedContext = linkService.resumeContext, linkedContext.handle == handle else { return }
+            if store.savedRecordID == "w_\(handle.matchId.uuidString)" {
+                if resumeStore.session?.linkHandle == handle { resumeStore.clear() }
+                return
+            }
+            context = linkedContext
+        } else {
+            if state.finished {
+                if store.savedRecordID != nil, resumeStore.session?.linkHandle == nil { resumeStore.clear() }
+                return
+            }
+            context = nil
+        }
+        guard hasNineBallProgress || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed else {
+            if linkedSessionId == nil, resumeStore.session?.linkHandle == nil { resumeStore.clear() }
             return
         }
-        guard scores.contains(where: { $0 != 0 }) || !undoStack.isEmpty else {
-            resumeStore.clear()
-            return
-        }
-        resumeStore.save(WatchResumeSession(
-            startedAt: matchStartTime,
-            scoreLine: compactNineBallScore,
-            emoji: "🎱",
-            payload: .nineBall(
-                state: state,
-                undoStates: undoStack
-            ),
-            actionLog: actionLog,
-            link: linkService.resumeContext
-        ))
+        store.persistResumeSession(
+            into: resumeStore, link: context, startedAt: matchStartTime,
+            payload: .nineBall(bundle: store.resumeBundle())
+        )
     }
 
     private var hasNineBallProgress: Bool {
         Array(state.playerPoints.prefix(state.playerCount)).contains(where: { $0 != 0 })
-            || !undoStack.isEmpty || state.finished
+            || store.canUndo || state.finished
     }
 
 }

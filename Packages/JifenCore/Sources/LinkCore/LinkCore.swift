@@ -8,21 +8,62 @@ import WatchConnectivity
 
 public enum LinkProtocol {
     public static let currentVersion = 1
-    public static let capabilities: Set<LinkCapability> = [
+    /// Oldest peer protocol version this build accepts in a handshake.
+    public static let minimumSupportedVersion = 1
+
+    /// Capabilities every peer must advertise before a linked session starts.
+    public static let requiredCapabilities: Set<LinkCapability> = [
         .independentMatches,
-        .authorityEpoch,
         .correlatedRequests,
         .durableTerminalQueue,
-        .latestSnapshotContext
+        .sharedIntentSync
     ]
+
+    /// `applicationContext` common-names partition byte budget (see
+    /// `CommonNamesSyncSnapshot.budgetConstrainedData`).
+    public static let commonNamesContextBudgetBytes = 24_000
+
+    /// Everything this build understands. Optional capabilities are enabled
+    /// only when advertised by both peers.
+    public static let capabilities: Set<LinkCapability> = [
+        .independentMatches,
+        .correlatedRequests,
+        .durableTerminalQueue,
+        .latestSnapshotContext,
+        .compressedFinish,
+        .deltaActions,
+        .fileTransfer,
+        .sharedIntentSync
+    ]
+
+    /// Open-subset handshake check: required capabilities must all be present,
+    /// unknown extra capabilities from a newer peer are tolerated (and simply
+    /// unused by this build). Returns the negotiated intersection.
+    public static func negotiate(
+        local: Set<LinkCapability>,
+        peer: Set<LinkCapability>
+    ) -> Set<LinkCapability>? {
+        guard requiredCapabilities.isSubset(of: peer) else { return nil }
+        return local.intersection(peer)
+    }
 }
 
-public enum LinkCapability: String, Codable, CaseIterable, Hashable, Sendable {
-    case independentMatches
-    case authorityEpoch
-    case correlatedRequests
-    case durableTerminalQueue
-    case latestSnapshotContext
+/// Open capability token. Unlike the previous closed enum, unknown values from
+/// a future peer decode fine and stay inert; capability sets are compared as
+/// string subsets, never by exhaustive equality.
+public struct LinkCapability: RawRepresentable, Codable, Hashable, Sendable {
+    public let rawValue: String
+
+    public init(rawValue: String) { self.rawValue = rawValue }
+
+    public static let independentMatches = Self(rawValue: "independentMatches")
+    public static let correlatedRequests = Self(rawValue: "correlatedRequests")
+    public static let durableTerminalQueue = Self(rawValue: "durableTerminalQueue")
+    public static let latestSnapshotContext = Self(rawValue: "latestSnapshotContext")
+    public static let compressedFinish = Self(rawValue: "compressedFinish")
+    public static let deltaActions = Self(rawValue: "deltaActions")
+    public static let fileTransfer = Self(rawValue: "fileTransfer")
+    public static let sharedIntentSync = Self(rawValue: "sharedIntentSync")
 }
 
 public struct LinkedMatchHandle: Codable, Equatable, Hashable, Sendable {
@@ -54,69 +95,11 @@ public enum LinkPeer: String, Codable, Sendable {
     case watch
 }
 
-public enum LinkControlRole: String, Codable, Sendable {
-    case phoneController
-    case phoneFollower
-    case watchController
-    case watchFollower
-    case shared
-}
-
-public struct LinkSharedEditTracker: Sendable {
-    private struct Edit: Sendable {
-        let handle: LinkedMatchHandle
-        let revision: UInt64
-        let baseRevision: UInt64
-        let sentAt: Int64
-    }
-
-    private var localEdit: Edit?
-    private var lastNoticedRevision: UInt64?
-
-    public init() {}
-
-    public mutating func recordLocalEdit(
-        handle: LinkedMatchHandle,
-        revision: UInt64,
-        baseRevision: UInt64,
-        sentAt: Int64
-    ) {
-        localEdit = Edit(handle: handle, revision: revision, baseRevision: baseRevision, sentAt: sentAt)
-        lastNoticedRevision = nil
-    }
-
-    public mutating func shouldShowNotice(
-        for envelope: LinkEnvelope<LinkedScoreboardSetup>,
-        now: Int64
-    ) -> Bool {
-        guard let localEdit, let baseRevision = envelope.baseSnapshotRevision,
-              localEdit.handle == envelope.handle,
-              envelope.sessionRevision > localEdit.baseRevision,
-              baseRevision < localEdit.revision,
-              lastNoticedRevision != localEdit.revision,
-              abs(Double(envelope.sentAtEpochMilliseconds) - Double(localEdit.sentAt)) <= 2_000,
-              abs(Double(now) - Double(envelope.sentAtEpochMilliseconds)) <= 2_000 else { return false }
-        lastNoticedRevision = localEdit.revision
-        return true
-    }
-}
-
-public enum LinkSharedRevision {
-    public static func writer(of revision: UInt64) -> LinkPeer? {
-        guard revision > 0 else { return nil }
-        return revision.isMultiple(of: 2) ? .watch : .phone
-    }
-}
-
-/// Manual score resync is intentionally one-way: the phone follower asks and
-/// the authoritative Watch controller answers with a fresh full snapshot.
+/// Manual score resync is bidirectional in a shared session: either device may
+/// ask the peer for a fresh full snapshot, and either device answers.
 public enum LinkManualResyncPolicy {
-    public static func phoneCanRequest(role: LinkControlRole?) -> Bool {
-        role == .phoneFollower
-    }
-
-    public static func watchCanRespond(role: LinkControlRole?) -> Bool {
-        role == .watchController
+    public static func canRequest(hasActiveSession: Bool) -> Bool {
+        hasActiveSession
     }
 }
 
@@ -130,62 +113,59 @@ public enum LinkMessageKind: String, Codable, Sendable {
     case statusQuery
     case statusResponse
     case resyncRequest
-    case takeoverByPhone
-    case reclaimRequest
-    case reclaimAccepted
-    case reclaimDenied
+    case intentSubmit
+    case intentCommit
+    case intentCheckpoint
     case matchFinished
     case recordAcknowledgement
     case scoreboardExitedToHome
-    case watchBackgrounded
-    case resumeDiscarded
     case sessionLeft
     case commonNamesSyncRequest
     case connectivityProbe
     case connectivityProbeResponse
 }
 
-/// Linked football state: both goal counts plus the anchored match clock.
-/// The clock keeps the same `FootballTimerStateV2` shape the phone and watch
-/// boards already use, so a linked session and a local match persist alike.
-public struct LinkedFootballState: Codable, Equatable, Sendable {
-    public var leftName: String
-    public var rightName: String
-    public var leftScore: Int
-    public var rightScore: Int
-    public var timer: FootballTimerStateV2
-    /// 5-a-side keeps a pre-kick-off state where no time is shown.
-    public var kickedOff: Bool
-    public var finished: Bool
+/// Why a setup request was refused. The phone surfaces the reason so the
+/// start dialog can tell a version mismatch from a user decline.
+public enum LinkSetupRejectionReason: String, Codable, Equatable, Sendable {
+    case userDeclined = "user_declined"
+    case unsupportedSport = "unsupported_sport"
+    case incompatibleProtocol = "incompatible_protocol"
+    case malformedSetup = "malformed_setup"
+}
 
-    public init(
-        leftName: String,
-        rightName: String,
-        leftScore: Int = 0,
-        rightScore: Int = 0,
-        timer: FootballTimerStateV2 = .init(),
-        kickedOff: Bool = true,
-        finished: Bool = false
-    ) {
-        self.leftName = leftName
-        self.rightName = rightName
-        self.leftScore = max(0, leftScore)
-        self.rightScore = max(0, rightScore)
-        self.timer = timer
-        self.kickedOff = kickedOff
-        self.finished = finished
+public struct LinkSetupRejectedPayload: Codable, Equatable, Sendable {
+    public let reason: LinkSetupRejectionReason
+    public let detail: String?
+
+    public init(reason: LinkSetupRejectionReason = .userDeclined, detail: String? = nil) {
+        self.reason = reason
+        self.detail = detail
     }
 }
 
+/// Metadata for files queued through `transferFile` on the reliable channel.
+public enum WatchTransferFileKind: String, Codable, Sendable {
+    case watchRecord = "watch_record"
+    case matchFinished = "match_finished"
+    case intentFrame = "intent_frame"
+}
+
+/// Linked snapshots carry the reducer state itself. Football therefore travels
+/// as the complete `FootballMatchState`: goal counts, half/stage, the wall-clock
+/// anchor (`timer.savedWallClockMilliseconds`), the carried minute/second
+/// remainder (`elapsedSubsecondMilliseconds`), regulation/extra lengths,
+/// stoppage history, kick-off, side swap and finish flags. Anything less cannot
+/// rebuild the same clock on the other device.
 public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
     case rally(RallyMatchState)
     case tennis(TennisMatchState)
-    case archery(LinkedArcheryState)
+    case archery(ArcheryMatchState)
     case eightBall(EightBallState)
     case nineBall(NineBallChaseState)
     case snooker(SnookerState)
-    case football(LinkedFootballState)
-    case basketballTraining(LinkedShotTrainingState)
+    case football(FootballMatchState)
+    case basketballTraining(ShotTrainingState)
 
     private enum CodingKeys: String, CodingKey {
         case kind
@@ -218,7 +198,7 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         case .tennis:
             self = .tennis(try container.decode(TennisMatchState.self, forKey: .tennis))
         case .archery:
-            self = .archery(try container.decode(LinkedArcheryState.self, forKey: .archery))
+            self = .archery(try container.decode(ArcheryMatchState.self, forKey: .archery))
         case .eightBall:
             self = .eightBall(try container.decode(EightBallState.self, forKey: .eightBall))
         case .nineBall:
@@ -226,9 +206,9 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         case .snooker:
             self = .snooker(try container.decode(SnookerState.self, forKey: .snooker))
         case .football:
-            self = .football(try container.decode(LinkedFootballState.self, forKey: .football))
+            self = .football(try container.decode(FootballMatchState.self, forKey: .football))
         case .basketballTraining:
-            self = .basketballTraining(try container.decode(LinkedShotTrainingState.self, forKey: .basketballTraining))
+            self = .basketballTraining(try container.decode(ShotTrainingState.self, forKey: .basketballTraining))
         }
     }
 
@@ -272,7 +252,7 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         return state
     }
 
-    public var archeryState: LinkedArcheryState? {
+    public var archeryState: ArcheryMatchState? {
         guard case .archery(let state) = self else { return nil }
         return state
     }
@@ -292,12 +272,12 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
         return state
     }
 
-    public var footballState: LinkedFootballState? {
+    public var footballState: FootballMatchState? {
         guard case .football(let state) = self else { return nil }
         return state
     }
 
-    public var basketballTrainingState: LinkedShotTrainingState? {
+    public var basketballTrainingState: ShotTrainingState? {
         guard case .basketballTraining(let state) = self else { return nil }
         return state
     }
@@ -307,21 +287,7 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
     /// treating any received finished snapshot as authoritative for the finish
     /// dialog regardless of delivery order or revision.
     public func matches(gameType: GameType) -> Bool {
-        switch (gameType, self) {
-        case (.pingpong, .rally), (.pingpongDoubles, .rally),
-             (.badminton, .rally), (.badmintonDoubles, .rally),
-             (.pickleball, .rally), (.pickleballDoubles, .rally),
-             (.foosball, .rally), (.foosballDoubles, .rally),
-             (.squash, .rally), (.shuttlecock, .rally),
-             (.tennis, .tennis), (.tennisDoubles, .tennis),
-             (.archeryDual, .archery), (.eightBall, .eightBall),
-             (.nineBall, .nineBall), (.snooker, .snooker),
-             (.football, .football), (.football5v5, .football),
-             (.basketballTraining, .basketballTraining):
-            return true
-        default:
-            return false
-        }
+        WatchSportRegistry.matchesSnapshot(self, for: gameType)
     }
 
     public var isFinished: Bool {
@@ -338,153 +304,9 @@ public enum LinkedScoreboardSnapshot: Codable, Equatable, Sendable {
     }
 }
 
-/// Lightweight archery sync DTO projected from `ArcheryMatchState`.
-public struct LinkedArcheryState: Codable, Equatable, Sendable {
-    public var leftName: String
-    public var rightName: String
-    public var leftSetPoints: Int
-    public var rightSetPoints: Int
-    public var leftArrowSum: Int
-    public var rightArrowSum: Int
-    public var currentShooterIsLeft: Bool
-    public var setNumber: Int
-    public var finished: Bool
-    public var sidesSwapped: Bool
-    public var arrowsLeftThisSet: Int
-    public var arrowsRightThisSet: Int
-    public var arrowsPerSet: Int
-    public var openingShooterIsLeft: Bool
-    public var pendingSetNumber: Int
-    public var pendingSetWinnerIsLeft: Bool?
-    public var pendingLeftSetPoints: Int
-    public var pendingRightSetPoints: Int
-    public var closestToCenterPending: Bool
-
-    public init(
-        leftName: String = "红方",
-        rightName: String = "蓝方",
-        leftSetPoints: Int = 0,
-        rightSetPoints: Int = 0,
-        leftArrowSum: Int = 0,
-        rightArrowSum: Int = 0,
-        currentShooterIsLeft: Bool = true,
-        setNumber: Int = 1,
-        finished: Bool = false,
-        sidesSwapped: Bool = false,
-        arrowsLeftThisSet: Int = 0,
-        arrowsRightThisSet: Int = 0,
-        arrowsPerSet: Int = 3,
-        openingShooterIsLeft: Bool = true,
-        pendingSetNumber: Int = 0,
-        pendingSetWinnerIsLeft: Bool? = nil,
-        pendingLeftSetPoints: Int = 0,
-        pendingRightSetPoints: Int = 0,
-        closestToCenterPending: Bool = false
-    ) {
-        self.leftName = leftName
-        self.rightName = rightName
-        self.leftSetPoints = leftSetPoints
-        self.rightSetPoints = rightSetPoints
-        self.leftArrowSum = leftArrowSum
-        self.rightArrowSum = rightArrowSum
-        self.currentShooterIsLeft = currentShooterIsLeft
-        self.setNumber = setNumber
-        self.finished = finished
-        self.sidesSwapped = sidesSwapped
-        self.arrowsLeftThisSet = arrowsLeftThisSet
-        self.arrowsRightThisSet = arrowsRightThisSet
-        self.arrowsPerSet = arrowsPerSet
-        self.openingShooterIsLeft = openingShooterIsLeft
-        self.pendingSetNumber = pendingSetNumber
-        self.pendingSetWinnerIsLeft = pendingSetWinnerIsLeft
-        self.pendingLeftSetPoints = pendingLeftSetPoints
-        self.pendingRightSetPoints = pendingRightSetPoints
-        self.closestToCenterPending = closestToCenterPending
-    }
-
-    public init(match: ArcheryMatchState) {
-        self.init(
-            leftName: match.leftName,
-            rightName: match.rightName,
-            leftSetPoints: match.leftSetPoints,
-            rightSetPoints: match.rightSetPoints,
-            leftArrowSum: match.leftArrowSum,
-            rightArrowSum: match.rightArrowSum,
-            currentShooterIsLeft: match.currentShooterIsLeft,
-            setNumber: match.currentSet,
-            finished: match.finished,
-            sidesSwapped: match.sidesSwapped,
-            arrowsLeftThisSet: match.arrowsLeftThisSet,
-            arrowsRightThisSet: match.arrowsRightThisSet,
-            arrowsPerSet: match.arrowsPerSet,
-            openingShooterIsLeft: match.openingShooterIsLeft,
-            pendingSetNumber: match.pendingSetNumber,
-            pendingSetWinnerIsLeft: match.pendingSetWinnerIsLeft,
-            pendingLeftSetPoints: match.pendingLeftSetPoints,
-            pendingRightSetPoints: match.pendingRightSetPoints,
-            closestToCenterPending: match.closestToCenterPending
-        )
-    }
-
-    public func applying(to match: inout ArcheryMatchState) {
-        match.leftName = leftName
-        match.rightName = rightName
-        match.leftSetPoints = leftSetPoints
-        match.rightSetPoints = rightSetPoints
-        match.leftArrowSum = leftArrowSum
-        match.rightArrowSum = rightArrowSum
-        match.currentShooterIsLeft = currentShooterIsLeft
-        match.currentSet = max(1, setNumber)
-        match.finished = finished
-        match.sidesSwapped = sidesSwapped
-        match.arrowsLeftThisSet = max(0, arrowsLeftThisSet)
-        match.arrowsRightThisSet = max(0, arrowsRightThisSet)
-        match.arrowsPerSet = max(1, arrowsPerSet)
-        match.openingShooterIsLeft = openingShooterIsLeft
-        match.pendingSetNumber = max(0, pendingSetNumber)
-        match.pendingSetWinnerIsLeft = pendingSetWinnerIsLeft
-        match.pendingLeftSetPoints = max(0, pendingLeftSetPoints)
-        match.pendingRightSetPoints = max(0, pendingRightSetPoints)
-        match.closestToCenterPending = closestToCenterPending
-        if finished {
-            match.pendingSetNumber = 0
-            match.closestToCenterPending = false
-        }
-    }
-}
 
 public struct EmptyLinkPayload: Codable, Equatable, Sendable {
     public init() {}
-}
-
-public struct LinkAuthorityTransferPayload: Codable, Equatable, Sendable {
-    public var snapshot: LinkedScoreboardSnapshot?
-    public var detailedActions: [DetailedScoreAction]
-    public var baseRevision: UInt64
-
-    public init(
-        snapshot: LinkedScoreboardSnapshot? = nil,
-        detailedActions: [DetailedScoreAction] = [],
-        baseRevision: UInt64
-    ) {
-        self.snapshot = snapshot
-        self.detailedActions = detailedActions
-        self.baseRevision = baseRevision
-    }
-}
-
-public enum LinkResumeDiscardReason: String, Codable, Sendable {
-    case resumeBarClose
-    case newScoreboardStart
-    case expired
-}
-
-public struct LinkResumeDiscardPayload: Codable, Equatable, Sendable {
-    public let reason: LinkResumeDiscardReason
-
-    public init(reason: LinkResumeDiscardReason) {
-        self.reason = reason
-    }
 }
 
 public struct LinkAcknowledgementPayload: Codable, Equatable, Sendable {
@@ -544,18 +366,15 @@ public struct LinkMatchFinishedPayload: Codable, Equatable, Sendable {
 }
 
 public struct LinkStatusPayload: Codable, Equatable, Sendable {
-    public var role: LinkControlRole
     public var revision: UInt64
     public var reachable: Bool
     public var capabilities: Set<LinkCapability>
 
     public init(
-        role: LinkControlRole,
         revision: UInt64,
         reachable: Bool = true,
         capabilities: Set<LinkCapability> = LinkProtocol.capabilities
     ) {
-        self.role = role
         self.revision = revision
         self.reachable = reachable
         self.capabilities = capabilities
@@ -565,8 +384,6 @@ public struct LinkStatusPayload: Codable, Equatable, Sendable {
 public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
     public var handle: LinkedMatchHandle
     public var setup: LinkedScoreboardSetup
-    public var role: LinkControlRole
-    public var authorityEpoch: UInt64
     public var revision: UInt64
     public var latestAuthoritativeSnapshot: LinkedScoreboardSnapshot?
     public var detailedActions: [DetailedScoreAction]
@@ -574,24 +391,26 @@ public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
     public var pendingTerminalMessageIds: Set<UUID>
     public var peerSupportsCompressedFinish: Bool?
     public var finishedRecordId: String?
+    /// Capability intersection agreed at handshake, persisted so restored
+    /// sessions keep routing to the same channels.
+    public var negotiatedPeerCapabilities: Set<LinkCapability>?
+    public var actionHistory: LinkSnapshotHistory?
 
     public init(
         handle: LinkedMatchHandle,
         setup: LinkedScoreboardSetup,
-        role: LinkControlRole,
-        authorityEpoch: UInt64,
         revision: UInt64,
         latestAuthoritativeSnapshot: LinkedScoreboardSnapshot?,
         detailedActions: [DetailedScoreAction],
         completedMatchIds: Set<UUID>,
         pendingTerminalMessageIds: Set<UUID>,
         finishedRecordId: String? = nil,
-        peerSupportsCompressedFinish: Bool? = nil
+        peerSupportsCompressedFinish: Bool? = nil,
+        negotiatedPeerCapabilities: Set<LinkCapability>? = nil,
+        actionHistory: LinkSnapshotHistory? = nil
     ) {
         self.handle = handle
         self.setup = setup
-        self.role = role
-        self.authorityEpoch = authorityEpoch
         self.revision = revision
         self.latestAuthoritativeSnapshot = latestAuthoritativeSnapshot
         self.detailedActions = detailedActions
@@ -599,43 +418,47 @@ public struct PhoneLinkResumeContext: Codable, Equatable, Sendable {
         self.pendingTerminalMessageIds = pendingTerminalMessageIds
         self.peerSupportsCompressedFinish = peerSupportsCompressedFinish
         self.finishedRecordId = finishedRecordId
+        self.negotiatedPeerCapabilities = negotiatedPeerCapabilities
+        self.actionHistory = actionHistory
     }
 }
 
 public struct WatchLinkResumeContext: Codable, Equatable, Sendable {
     public var handle: LinkedMatchHandle
     public var setup: LinkedScoreboardSetup
-    public var role: LinkControlRole
-    public var authorityEpoch: UInt64
     public var revision: UInt64
     public var latestAuthoritativeSnapshot: LinkedScoreboardSnapshot?
     public var detailedActions: [DetailedScoreAction]
     public var completedMatchIds: Set<UUID>
     public var pendingTerminalMessageIds: Set<UUID>
     public var peerSupportsCompressedFinish: Bool?
+    /// Capability intersection agreed at handshake, persisted so restored
+    /// sessions keep routing to the same channels.
+    public var negotiatedPeerCapabilities: Set<LinkCapability>?
+    public var actionHistory: LinkSnapshotHistory?
 
     public init(
         handle: LinkedMatchHandle,
         setup: LinkedScoreboardSetup,
-        role: LinkControlRole,
-        authorityEpoch: UInt64,
         revision: UInt64,
         latestAuthoritativeSnapshot: LinkedScoreboardSnapshot?,
         detailedActions: [DetailedScoreAction],
         completedMatchIds: Set<UUID>,
         pendingTerminalMessageIds: Set<UUID>,
-        peerSupportsCompressedFinish: Bool? = nil
+        peerSupportsCompressedFinish: Bool? = nil,
+        negotiatedPeerCapabilities: Set<LinkCapability>? = nil,
+        actionHistory: LinkSnapshotHistory? = nil
     ) {
         self.handle = handle
         self.setup = setup
-        self.role = role
-        self.authorityEpoch = authorityEpoch
         self.revision = revision
         self.latestAuthoritativeSnapshot = latestAuthoritativeSnapshot
         self.detailedActions = detailedActions
         self.completedMatchIds = completedMatchIds
         self.pendingTerminalMessageIds = pendingTerminalMessageIds
         self.peerSupportsCompressedFinish = peerSupportsCompressedFinish
+        self.negotiatedPeerCapabilities = negotiatedPeerCapabilities
+        self.actionHistory = actionHistory
     }
 }
 
@@ -702,10 +525,11 @@ public struct LinkControlRetryQueue: Equatable, Sendable {
     /// Returns data to resend when due; nil if nothing pending or still within interval / exhausted.
     public mutating func retryIfDue(
         nowEpochMilliseconds: Int64,
-        retainAfterExhaustion: Bool = false
+        retainAfterExhaustion: Bool = false,
+        sendImmediately: Bool = false
     ) -> Data? {
         guard var item = pending else { return nil }
-        guard nowEpochMilliseconds - item.lastSentAtEpochMilliseconds >= Self.retryIntervalMilliseconds else {
+        guard sendImmediately || nowEpochMilliseconds - item.lastSentAtEpochMilliseconds >= Self.retryIntervalMilliseconds else {
             return nil
         }
         guard item.attempts < Self.maxRetries else {
@@ -746,6 +570,10 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
         public var attempts: Int
         public var lastSentAtEpochMilliseconds: Int64
         public var pendingLocalRecord: LocalRecord?
+        /// Negotiated file-transfer snapshot captured at enqueue time. Retries
+        /// after a next-match transition or app restart route by this value —
+        /// never by whichever session happens to be active now.
+        public var peerSupportsFileTransfer: Bool?
 
         public init(
             messageId: UUID,
@@ -753,7 +581,8 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
             data: Data,
             attempts: Int = 0,
             lastSentAtEpochMilliseconds: Int64,
-            pendingLocalRecord: LocalRecord? = nil
+            pendingLocalRecord: LocalRecord? = nil,
+            peerSupportsFileTransfer: Bool? = nil
         ) {
             self.messageId = messageId
             self.handle = handle
@@ -761,6 +590,7 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
             self.attempts = attempts
             self.lastSentAtEpochMilliseconds = lastSentAtEpochMilliseconds
             self.pendingLocalRecord = pendingLocalRecord
+            self.peerSupportsFileTransfer = peerSupportsFileTransfer
         }
     }
 
@@ -815,6 +645,20 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
         return due
     }
 
+    /// Same retry bookkeeping as `retryDue`, returning the full items so the
+    /// caller can route each frame by its own negotiated-capability snapshot.
+    public mutating func retryDueItems(nowEpochMilliseconds: Int64) -> [Item] {
+        var due: [Item] = []
+        for index in items.indices {
+            guard nowEpochMilliseconds - items[index].lastSentAtEpochMilliseconds
+                    >= Self.retryIntervalMilliseconds else { continue }
+            items[index].attempts += 1
+            items[index].lastSentAtEpochMilliseconds = nowEpochMilliseconds
+            due.append(items[index])
+        }
+        return due
+    }
+
     public mutating func removeAll(sessionId: UUID) {
         items.removeAll { $0.handle.sessionId == sessionId }
     }
@@ -824,31 +668,28 @@ public struct LinkDurableOutbox: Codable, Equatable, Sendable {
 public struct LinkRecordSession: Codable, Sendable {
     public let handle: LinkedMatchHandle
     public let gameType: GameType
-    public let authorityEpoch: UInt64
     public fileprivate(set) var completedMatchIds: Set<UUID>
     public let allowsPeerNextMatch: Bool?
 
     public init(
         handle: LinkedMatchHandle,
         gameType: GameType,
-        authorityEpoch: UInt64,
         completedMatchIds: Set<UUID>,
         allowsPeerNextMatch: Bool? = nil
     ) {
         self.handle = handle
         self.gameType = gameType
-        self.authorityEpoch = authorityEpoch
         self.completedMatchIds = completedMatchIds
         self.allowsPeerNextMatch = allowsPeerNextMatch
     }
 
-    public func accepts(handle incoming: LinkedMatchHandle, authorityEpoch incomingEpoch: UInt64) -> Bool {
+    public func accepts(handle incoming: LinkedMatchHandle) -> Bool {
         guard incoming.sessionId == handle.sessionId else { return false }
         if incoming.matchGeneration < handle.matchGeneration { return true }
         if incoming.matchGeneration > handle.matchGeneration {
-            return allowsPeerNextMatch == true && incomingEpoch == authorityEpoch
+            return allowsPeerNextMatch == true
         }
-        return incoming == handle && incomingEpoch >= authorityEpoch
+        return incoming == handle
     }
 }
 
@@ -871,8 +712,7 @@ public struct LinkRetiredRecordSessions: Sendable {
         let id = session.handle.sessionId
         var retained = session
         if let existing = sessions[id] {
-            if existing.handle.matchGeneration > session.handle.matchGeneration
-                || (existing.handle == session.handle && existing.authorityEpoch > session.authorityEpoch) {
+            if existing.handle.matchGeneration > session.handle.matchGeneration {
                 retained = existing
             }
             retained.completedMatchIds.formUnion(existing.completedMatchIds)
@@ -887,7 +727,7 @@ public struct LinkRetiredRecordSessions: Sendable {
         session.completedMatchIds.insert(handle.matchId)
         if handle.matchGeneration > session.handle.matchGeneration {
             session = LinkRecordSession(
-                handle: handle, gameType: session.gameType, authorityEpoch: session.authorityEpoch,
+                handle: handle, gameType: session.gameType,
                 completedMatchIds: session.completedMatchIds, allowsPeerNextMatch: session.allowsPeerNextMatch
             )
         }
@@ -895,9 +735,8 @@ public struct LinkRetiredRecordSessions: Sendable {
         persist()
     }
 
-    public mutating func removeConfirmedSession(handle: LinkedMatchHandle, authorityEpoch: UInt64) {
-        guard let session = sessions[handle.sessionId], session.handle == handle,
-              authorityEpoch >= session.authorityEpoch else { return }
+    public mutating func removeConfirmedSession(handle: LinkedMatchHandle) {
+        guard let session = sessions[handle.sessionId], session.handle == handle else { return }
         sessions.removeValue(forKey: handle.sessionId)
         persist()
     }
@@ -918,16 +757,13 @@ public struct LinkRetiredRecordSessions: Sendable {
 /// for the same session has been acknowledged.
 public struct LinkPendingSessionEnd: Codable, Equatable, Sendable {
     public let handle: LinkedMatchHandle
-    public let authorityEpoch: UInt64
     public let revision: UInt64
 
     public init(
         handle: LinkedMatchHandle,
-        authorityEpoch: UInt64,
         revision: UInt64
     ) {
         self.handle = handle
-        self.authorityEpoch = authorityEpoch
         self.revision = revision
     }
 }
@@ -942,6 +778,14 @@ public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {
     public var detailedActions: [DetailedScoreAction]
     public let participantNames: [String]
     public let capabilities: Set<LinkCapability>
+    /// `true` marks append-only actions. `false` marks a history correction.
+    /// Only explicitly removed IDs are deleted, even if history spans several frames.
+    public var isDeltaActions: Bool?
+    public var removedActionIDs: [UUID]?
+
+    public var carriesHistory: Bool {
+        !detailedActions.isEmpty || removedActionIDs?.isEmpty == false
+    }
 
     public init(
         gameType: GameType,
@@ -949,7 +793,9 @@ public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {
         initialSnapshot: LinkedScoreboardSnapshot? = nil,
         detailedActions: [DetailedScoreAction] = [],
         participantNames: [String] = [],
-        capabilities: Set<LinkCapability> = LinkProtocol.capabilities
+        capabilities: Set<LinkCapability> = LinkProtocol.capabilities,
+        isDeltaActions: Bool? = nil,
+        removedActionIDs: [UUID]? = nil
     ) {
         self.gameType = gameType
         self.maxSets = maxSets
@@ -957,6 +803,8 @@ public struct LinkedScoreboardSetup: Codable, Equatable, Sendable {
         self.detailedActions = detailedActions
         self.participantNames = participantNames
         self.capabilities = capabilities
+        self.isDeltaActions = isDeltaActions
+        self.removedActionIDs = removedActionIDs
     }
 }
 
@@ -964,14 +812,12 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
     public let protocolVersion: Int
     public let capabilities: Set<LinkCapability>
     public let supportsCompressedFinish: Bool?
-    public let supportsSharedEditing: Bool?
     public let baseSnapshotRevision: UInt64?
     public let messageId: UUID
     public let correlationId: UUID?
     public let sessionId: UUID
     public let matchId: UUID
     public let matchGeneration: UInt64
-    public let authorityEpoch: UInt64
     public let kind: LinkMessageKind
     public let sender: LinkPeer
     public let senderSequence: UInt64
@@ -983,14 +829,12 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
         protocolVersion: Int = LinkProtocol.currentVersion,
         capabilities: Set<LinkCapability> = LinkProtocol.capabilities,
         supportsCompressedFinish: Bool? = nil,
-        supportsSharedEditing: Bool? = nil,
         baseSnapshotRevision: UInt64? = nil,
         messageId: UUID = UUID(),
         correlationId: UUID? = nil,
         sessionId: UUID,
         matchId: UUID? = nil,
         matchGeneration: UInt64 = 1,
-        authorityEpoch: UInt64 = 0,
         kind: LinkMessageKind,
         sender: LinkPeer,
         senderSequence: UInt64,
@@ -1001,14 +845,12 @@ public struct LinkEnvelope<Payload: Codable & Sendable>: Codable, Sendable {
         self.protocolVersion = protocolVersion
         self.capabilities = capabilities
         self.supportsCompressedFinish = supportsCompressedFinish
-        self.supportsSharedEditing = supportsSharedEditing
         self.baseSnapshotRevision = baseSnapshotRevision
         self.messageId = messageId
         self.correlationId = correlationId
         self.sessionId = sessionId
         self.matchId = matchId ?? sessionId
         self.matchGeneration = max(1, matchGeneration)
-        self.authorityEpoch = authorityEpoch
         self.kind = kind
         self.sender = sender
         self.senderSequence = senderSequence
@@ -1033,7 +875,6 @@ public struct LinkEnvelopeHead: Decodable, Sendable {
     public let sessionId: UUID
     public let matchId: UUID
     public let matchGeneration: UInt64
-    public let authorityEpoch: UInt64
     public let kind: LinkMessageKind
     public let sender: LinkPeer
     public let sessionRevision: UInt64
@@ -1064,21 +905,48 @@ public enum LinkEnvelopeEncoding {
         if let ackEnvelope = envelope as? LinkEnvelope<LinkAcknowledgementPayload> {
             return data(ackEnvelope, actionsKeyPath: \.detailedActions)
         }
-        if let transferEnvelope = envelope as? LinkEnvelope<LinkAuthorityTransferPayload> {
-            return data(transferEnvelope, actionsKeyPath: \.detailedActions)
-        }
         return data(envelope)
     }
 
     /// `WCSession.applicationContext` 与常用名称表共享 65,536 字节上限：
     /// 兜底快照只保留最新比分/规则状态，剥离 `detailedActions`（完整动作历史由
     /// `sendMessageData` 实时通道和 `matchFinished` 完赛通道传递，接收端按 id 并集合并）。
+    /// applicationContext 分区的轻量快照：剥离动作历史，并**重写 messageId**。
+    /// 轻量帧与实时帧必须使用不同 id：对端对轻量帧的回执不得清空实时帧的
+    /// pendingAck 与增量动作台账（轻量帧不含动作，从未把它们送达对端）。
     public static func applicationContextData(
         _ envelope: LinkEnvelope<LinkedScoreboardSetup>
     ) -> Data {
         var stripped = envelope
         stripped.payload.detailedActions = []
-        return data(stripped)
+        // checkpoint 不是权威替换帧：清除 delta 标记，接收端绝不会把
+        // 空检查点误当替换处理（替换帧随后同 revision 到达时才做替换）。
+        stripped.payload.isDeltaActions = nil
+        stripped.payload.removedActionIDs = nil
+        return data(Self.checkpointEnvelope(stripped))
+    }
+
+    /// 复制信封并分配全新 messageId（其余字段原样，供 context 帧独立回执）。
+    public static func checkpointEnvelope<Payload: Codable & Sendable>(
+        _ envelope: LinkEnvelope<Payload>
+    ) -> LinkEnvelope<Payload> {
+        LinkEnvelope(
+            protocolVersion: envelope.protocolVersion,
+            capabilities: envelope.capabilities,
+            supportsCompressedFinish: envelope.supportsCompressedFinish,
+            baseSnapshotRevision: envelope.baseSnapshotRevision,
+            messageId: UUID(),
+            correlationId: envelope.correlationId,
+            sessionId: envelope.sessionId,
+            matchId: envelope.matchId,
+            matchGeneration: envelope.matchGeneration,
+            kind: envelope.kind,
+            sender: envelope.sender,
+            senderSequence: envelope.senderSequence,
+            sessionRevision: envelope.sessionRevision,
+            sentAtEpochMilliseconds: envelope.sentAtEpochMilliseconds,
+            payload: envelope.payload
+        )
     }
 
     public static func applicationContextData<Payload: Codable & Sendable>(
@@ -1089,15 +957,11 @@ public enum LinkEnvelopeEncoding {
         }
         if var finishedEnvelope = envelope as? LinkEnvelope<LinkMatchFinishedPayload> {
             finishedEnvelope.payload.detailedActions = []
-            return data(finishedEnvelope)
+            return data(Self.checkpointEnvelope(finishedEnvelope))
         }
         if var ackEnvelope = envelope as? LinkEnvelope<LinkAcknowledgementPayload> {
             ackEnvelope.payload.detailedActions = []
             return data(ackEnvelope)
-        }
-        if var transferEnvelope = envelope as? LinkEnvelope<LinkAuthorityTransferPayload> {
-            transferEnvelope.payload.detailedActions = []
-            return data(transferEnvelope)
         }
         return data(envelope)
     }
@@ -1120,6 +984,49 @@ public enum LinkEnvelopeEncoding {
         }
         candidate.payload[keyPath: keyPath] = []
         return (try? JSONEncoder().encode(candidate)) ?? full
+    }
+
+    /// 与 `data(_:actionsKeyPath:byteLimit:)` 相同的编码与裁剪，返回最终 Data 与
+    /// **严格从最终 Data 解码得到**的实际上线动作（不按字节长度推断）。被预算
+    /// 裁剪掉的动作不进入发送台账，回执无法误清欠账；后续帧继续补发。
+    public struct SnapshotFrame {
+        public let data: Data
+        public let actions: [DetailedScoreAction]
+        public let removedActionIDs: [UUID]
+
+        public var carriesHistory: Bool { !actions.isEmpty || !removedActionIDs.isEmpty }
+    }
+
+    public static func snapshotFrame(
+        _ envelope: LinkEnvelope<LinkedScoreboardSetup>,
+        byteLimit: Int = defaultByteLimit
+    ) -> SnapshotFrame {
+        var candidate = envelope
+        let encoder = JSONEncoder()
+        var encoded = data(candidate, actionsKeyPath: \.detailedActions, byteLimit: byteLimit)
+        // A correction can contain more removals than will fit even without
+        // additions. The ACK records exactly the removals carried in this batch.
+        if encoded.count > byteLimit {
+            candidate.payload.detailedActions = []
+            while let removals = candidate.payload.removedActionIDs, !removals.isEmpty {
+                let remaining = removals.prefix(removals.count / 2)
+                candidate.payload.removedActionIDs = remaining.isEmpty ? nil : Array(remaining)
+                encoded = (try? encoder.encode(candidate)) ?? Data()
+                if encoded.count <= byteLimit { break }
+            }
+        }
+        guard !encoded.isEmpty, encoded.count <= byteLimit,
+              let wire = try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: encoded)
+        else { return SnapshotFrame(data: Data(), actions: [], removedActionIDs: []) }
+        return SnapshotFrame(data: encoded, actions: wire.payload.detailedActions, removedActionIDs: wire.payload.removedActionIDs ?? [])
+    }
+
+    public static func dataWithSentActions(
+        _ envelope: LinkEnvelope<LinkedScoreboardSetup>,
+        byteLimit: Int = defaultByteLimit
+    ) -> (data: Data, sentActions: [DetailedScoreAction]) {
+        let frame = snapshotFrame(envelope, byteLimit: byteLimit)
+        return (frame.data, frame.actions)
     }
 }
 
@@ -1225,73 +1132,33 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
         case ended
     }
 
-    public enum AuthorityTransferKind: String, Codable, Equatable, Sendable {
-        case phoneTakeover
-        case watchReclaim
-        case forcedPhoneTakeover
-    }
-
-    public struct PendingAuthorityTransfer: Codable, Equatable, Sendable {
-        public let correlationId: UUID
-        public let targetRole: LinkControlRole
-        public let kind: AuthorityTransferKind
-        public let previousEpoch: UInt64
-        public private(set) var preparedEpoch: UInt64?
-
-        fileprivate init(
-            correlationId: UUID,
-            targetRole: LinkControlRole,
-            kind: AuthorityTransferKind,
-            previousEpoch: UInt64
-        ) {
-            self.correlationId = correlationId
-            self.targetRole = targetRole
-            self.kind = kind
-            self.previousEpoch = previousEpoch
-            preparedEpoch = nil
-        }
-
-        fileprivate mutating func prepare(epoch: UInt64) {
-            preparedEpoch = epoch
-        }
-    }
-
     public enum Validation: Equatable, Sendable {
         case current
         case duplicateOrOlder
         case wrongSession
         case wrongMatch
-        case staleAuthority
         case endedSession
     }
 
     public private(set) var handle: LinkedMatchHandle
-    public private(set) var role: LinkControlRole
-    public private(set) var authorityEpoch: UInt64
     public private(set) var revision: UInt64
     public private(set) var completedMatchIds: Set<UUID>
     public private(set) var lifecycle: Lifecycle
     public private(set) var setupCorrelationId: UUID?
-    public private(set) var pendingAuthorityTransfer: PendingAuthorityTransfer?
     public private(set) var pendingAcknowledgementIds: Set<UUID>
 
     public init(
         handle: LinkedMatchHandle,
-        role: LinkControlRole,
-        authorityEpoch: UInt64 = 0,
         revision: UInt64 = 0,
         completedMatchIds: Set<UUID> = [],
         lifecycle: Lifecycle = .active,
         pendingAcknowledgementIds: Set<UUID> = []
     ) {
         self.handle = handle
-        self.role = role
-        self.authorityEpoch = authorityEpoch
         self.revision = revision
         self.completedMatchIds = completedMatchIds
         self.lifecycle = lifecycle
         setupCorrelationId = nil
-        pendingAuthorityTransfer = nil
         self.pendingAcknowledgementIds = pendingAcknowledgementIds
     }
 
@@ -1306,17 +1173,15 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
     @discardableResult
     public mutating func resolveSetup(
         correlationId: UUID,
-        acceptedRole: LinkControlRole?
+        accepted: Bool
     ) -> Bool {
         guard lifecycle == .starting,
               setupCorrelationId == correlationId else { return false }
         setupCorrelationId = nil
-        guard let acceptedRole else {
+        guard accepted else {
             lifecycle = .ended
-            pendingAuthorityTransfer = nil
             return true
         }
-        role = acceptedRole
         lifecycle = .active
         return true
     }
@@ -1327,33 +1192,17 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
         revision = 0
         lifecycle = .active
         setupCorrelationId = nil
-        pendingAuthorityTransfer = nil
         // 新一场比赛的 ACK 属于旧 matchId，不再等待。
         pendingAcknowledgementIds = []
         return handle
     }
 
-    @discardableResult
-    public mutating func advanceRevision(sender: LinkPeer? = nil) -> UInt64 {
-        if role == .shared, let sender {
-            // Each edit advances the logical round. Same-round edits have a
-            // stable order on both peers without relying on device clocks.
-            let round = revision / 2 + revision % 2
-            revision = round * 2 + (sender == .phone ? 1 : 2)
-        } else {
-            revision += 1
-        }
-        return revision
-    }
-
     public mutating func accept(
         handle incoming: LinkedMatchHandle,
-        authorityEpoch incomingEpoch: UInt64,
         revision incomingRevision: UInt64
     ) -> Validation {
         guard lifecycle != .ended else { return .endedSession }
         guard incoming.sessionId == handle.sessionId else { return .wrongSession }
-        guard incomingEpoch >= authorityEpoch else { return .staleAuthority }
         if incoming.matchGeneration < handle.matchGeneration {
             return .wrongMatch
         }
@@ -1363,106 +1212,14 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
         }
         if incoming.matchGeneration > handle.matchGeneration {
             handle = incoming
-            authorityEpoch = incomingEpoch
             revision = incomingRevision
             lifecycle = .active
             setupCorrelationId = nil
-            pendingAuthorityTransfer = nil
             return .current
         }
         guard incomingRevision > revision else { return .duplicateOrOlder }
-        authorityEpoch = incomingEpoch
         revision = incomingRevision
         return .current
-    }
-
-    @discardableResult
-    public mutating func transferAuthority(to role: LinkControlRole) -> UInt64 {
-        authorityEpoch += 1
-        self.role = role
-        lifecycle = .active
-        pendingAuthorityTransfer = nil
-        return authorityEpoch
-    }
-
-    public mutating func adoptAuthority(role: LinkControlRole, epoch: UInt64) -> Bool {
-        guard lifecycle != .ended else { return false }
-        guard epoch >= authorityEpoch else { return false }
-        authorityEpoch = epoch
-        self.role = role
-        lifecycle = .active
-        return true
-    }
-
-    @discardableResult
-    public mutating func beginAuthorityTransfer(
-        correlationId: UUID,
-        targetRole: LinkControlRole,
-        kind: AuthorityTransferKind
-    ) -> Bool {
-        guard lifecycle != .ended,
-              pendingAuthorityTransfer == nil else { return false }
-        pendingAuthorityTransfer = PendingAuthorityTransfer(
-            correlationId: correlationId,
-            targetRole: targetRole,
-            kind: kind,
-            previousEpoch: authorityEpoch
-        )
-        return true
-    }
-
-    @discardableResult
-    public mutating func prepareAuthorityTransfer(
-        correlationId: UUID,
-        epoch: UInt64
-    ) -> Bool {
-        guard var pending = pendingAuthorityTransfer,
-              pending.correlationId == correlationId,
-              epoch > authorityEpoch else { return false }
-        pending.prepare(epoch: epoch)
-        pendingAuthorityTransfer = pending
-        authorityEpoch = epoch
-        return true
-    }
-
-    @discardableResult
-    public mutating func commitAuthorityTransfer(correlationId: UUID) -> Bool {
-        guard let pending = pendingAuthorityTransfer,
-              pending.correlationId == correlationId,
-              let preparedEpoch = pending.preparedEpoch,
-              preparedEpoch == authorityEpoch else { return false }
-        authorityEpoch = preparedEpoch
-        role = pending.targetRole
-        lifecycle = .active
-        pendingAuthorityTransfer = nil
-        return true
-    }
-
-    @discardableResult
-    public mutating func rejectAuthorityTransfer(correlationId: UUID) -> Bool {
-        guard let pending = pendingAuthorityTransfer,
-              pending.correlationId == correlationId else {
-            return false
-        }
-        authorityEpoch = pending.previousEpoch
-        pendingAuthorityTransfer = nil
-        return true
-    }
-
-    @discardableResult
-    /// Forced authority transfer. `kind` is reserved for analytics/diagnostics;
-    /// every forced transfer behaves the same (raise the epoch, flip the role,
-    /// clear pending transfer state).
-    public mutating func forceAuthority(
-        to role: LinkControlRole,
-        kind: AuthorityTransferKind = .forcedPhoneTakeover
-    ) -> UInt64 {
-        _ = kind
-        authorityEpoch += 1
-        self.role = role
-        lifecycle = .active
-        pendingAuthorityTransfer = nil
-        return authorityEpoch
     }
 
     public mutating func registerPendingAcknowledgement(_ messageId: UUID) {
@@ -1486,7 +1243,6 @@ public struct LinkSessionStateMachine: Codable, Equatable, Sendable {
     public mutating func endSession() {
         lifecycle = .ended
         setupCorrelationId = nil
-        pendingAuthorityTransfer = nil
         pendingAcknowledgementIds = []
     }
 }
@@ -1503,6 +1259,12 @@ public protocol LinkDataStore: Sendable {
     func data(forKey key: String) -> Data?
     func set(_ data: Data, forKey key: String)
     func removeObject(forKey key: String)
+    /// Throwing variants are real requirements (NOT extension defaults): every
+    /// call through `any LinkDataStore` must surface the concrete store's write
+    /// failure, so terminal-queue persistence gates on the real disk result.
+    func setOrThrow(_ data: Data, forKey key: String) throws
+    @discardableResult
+    func removeOrThrow(forKey key: String) throws -> Bool
 }
 
 public final class UserDefaultsLinkDataStore: @unchecked Sendable, LinkDataStore {
@@ -1525,16 +1287,31 @@ public final class UserDefaultsLinkDataStore: @unchecked Sendable, LinkDataStore
     public func removeObject(forKey key: String) {
         defaults.removeObject(forKey: key)
     }
+
+    public func setOrThrow(_ data: Data, forKey key: String) throws {
+        defaults.set(data, forKey: key)
+    }
+
+    @discardableResult
+    public func removeOrThrow(forKey key: String) throws -> Bool {
+        let existed = defaults.data(forKey: key) != nil
+        defaults.removeObject(forKey: key)
+        return existed
+    }
 }
 
-#if canImport(WatchConnectivity)
+/// Transport failures shared by both peers. Declared outside the
+/// WatchConnectivity guard so the pure send helpers and their tests can use it.
 public enum WatchConnectivityTransportError: Error, Equatable, Sendable {
     case sessionNotActivated
     case peerNotReachable
     /// WCSession raises a native exception for payloads above 65,536 bytes;
     /// transports throw this Swift error instead so callers degrade gracefully.
     case payloadTooLarge(Int)
+    case payloadUnsupportedTypes
 }
+
+#if canImport(WatchConnectivity)
 
 public struct WatchConnectivityStatus: Equatable, Sendable {
     public let isSupported: Bool
@@ -1573,16 +1350,25 @@ public protocol WatchLinkTransport: AnyObject, LinkTransport {
     var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)? { get set }
     var onApplicationContext: (@Sendable ([String: Any]) -> Void)? { get set }
     var onWatchRecordData: (@Sendable (Data) -> Void)? { get set }
-    var onCommonNameUsageData: (@Sendable (Data) -> Void)? { get set }
     var onCommonNameMutationsData: (@Sendable (Data) -> Void)? { get set }
     var onCommonNameMutationAckData: (@Sendable (Data) -> Void)? { get set }
+    /// Reliable-channel file arrived. Implementations must read the incoming
+    /// file synchronously inside the delegate callback and hand the bytes over.
+    var onReceivedFile: (@Sendable (Data, [String: Any]) -> Void)? { get set }
+    /// Pairing-level file-transfer capability. The first-release link protocol
+    /// only pairs same-version apps, so the production transport always reports
+    /// true; standalone (never-handshaked) transfers rely on this instead of an
+    /// active session's negotiated capabilities.
+    var supportsFileTransfer: Bool { get }
 
     func activate()
     func refreshStatus()
     func sendInteractive(_ data: Data) throws
     func updateApplicationContext(_ context: [String: Any]) throws
     func transferWatchRecord(_ data: Data) throws
-    func transferCommonNameUsage(_ data: Data) throws
+    /// Reliable large-payload channel: queues a file whose metadata carries
+    /// the `WatchTransferFileKind` discriminator.
+    func transferFileData(_ data: Data, metadata: [String: Any]) throws
     func transferCommonNameMutations(_ data: Data) throws
     func transferCommonNameMutationAcknowledgement(_ data: Data) throws
 
@@ -1608,8 +1394,8 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
 
     private static let durableLinkPayloadKey = "jifen.link.terminal"
     private static let latestLinkSnapshotContextKey = "jifen.link.latest_snapshot"
-    /// Hard WCSession payload ceiling: larger payloads raise a native exception.
-    public static let maxPayloadBytes = 65_536
+    /// Maximum outbound payload size enforced by this transport.
+    public static let maxPayloadBytes = LinkPayloadBudget.maxBytes
 
     private static func ensurePayloadFits(_ data: Data) throws {
         guard data.count <= maxPayloadBytes else {
@@ -1618,8 +1404,11 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     }
     public static let commonNamesContextKey = "jifen.common_names.v1"
     public static let watchRecordUserInfoKey = "jifen.watch_record.v1"
-    public static let commonNameUsageUserInfoKey = "jifen.common_name_usage.v1"
     public static let commonNameMutationsUserInfoKey = "jifen.common_name_mutations.v1"
+    /// `transferFile` metadata key holding the `WatchTransferFileKind` raw value.
+    public static let transferFileKindKey = "jifen.transfer_file.kind"
+    /// Context budget for the common-names partition inside `applicationContext`.
+    public static let commonNamesContextBudgetBytes = 24_000
     public static let commonNameMutationAckUserInfoKey = "jifen.common_name_mutation_ack.v1"
     /// Phone → Watch: ask the watch for finished-record transfers it queued but the phone never received.
     public static let catchUpRequestMessageKey = "jifen.link.catch_up_request"
@@ -1629,6 +1418,11 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     public static let clearPendingMessageKey = "jifen.link.clear_pending"
 
     private let session: WCSession
+    /// Serializes both application-context write entry points through one
+    /// writer. The writer holds no dictionary: every call reads
+    /// `WCSession.applicationContext` afresh (Apple: it holds the most recent
+    /// dictionary this process set), so a paired-device change is observed.
+    private let contextWriter: LinkApplicationContextWriter
     public var onReceive: ReceiveHandler?
     public var onSendError: (@Sendable (Error) -> Void)?
     public var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)?
@@ -1636,8 +1430,8 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     public var onApplicationContext: DictionaryHandler?
     /// Queued watch→phone finished-record payloads.
     public var onWatchRecordData: ReceiveHandler?
-    /// Queued watch→phone common-name usage events.
-    public var onCommonNameUsageData: ReceiveHandler?
+    /// Reliable-channel file payloads (records, terminal frames).
+    public var onReceivedFile: (@Sendable (Data, [String: Any]) -> Void)?
     /// Offline-capable watch→phone common-name edit batches.
     public var onCommonNameMutationsData: ReceiveHandler?
     /// Offline-capable phone→watch canonical results for edit batches.
@@ -1649,8 +1443,17 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     /// Phone side: watch sent back pending record datas.
     public var onPendingRecords: (@Sendable ([Data]) -> Void)?
 
+    /// Same-version pairing is a first-release invariant: the link protocol
+    /// never shipped to users before this build, so any paired peer that can
+    /// receive our messages can also receive our files.
+    public var supportsFileTransfer: Bool { true }
+
     public init(session: WCSession = .default) {
         self.session = session
+        self.contextWriter = LinkApplicationContextWriter(
+            read: { session.applicationContext },
+            write: { try session.updateApplicationContext($0) }
+        )
         super.init()
     }
 
@@ -1725,9 +1528,7 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
             throw WatchConnectivityTransportError.sessionNotActivated
         }
         try Self.ensurePayloadFits(data)
-        var context = session.applicationContext
-        context[Self.latestLinkSnapshotContextKey] = data
-        try session.updateApplicationContext(context)
+        try withApplicationContextUpdate([Self.latestLinkSnapshotContextKey: data])
     }
 
     public func enqueueDurable(_ data: Data) throws {
@@ -1754,15 +1555,27 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
     }
 
     /// Push a small always-latest dictionary to the peer (used for common-names auto sync).
+    /// Measure the complete dictionary as a binary plist so the snapshot's
+    /// Data value and the nested common-names dictionary can coexist.
     public func updateApplicationContext(_ context: [String: Any]) throws {
         guard session.activationState == .activated else {
             throw WatchConnectivityTransportError.sessionNotActivated
         }
-        var merged = session.applicationContext
-        for (key, value) in context {
-            merged[key] = value
+        try withApplicationContextUpdate(context)
+    }
+
+    /// Both context write entry points share this lock, so concurrent
+    /// read/modify/write sequences cannot drop each other's keys regardless of
+    /// the calling queue. The dictionary is re-read from the session on every
+    /// call, so switching paired devices never republishes stale keys.
+    private func withApplicationContextUpdate(_ update: [String: Any]) throws {
+        do {
+            try contextWriter.merge(update)
+        } catch LinkApplicationContextError.tooLarge(let size) {
+            throw WatchConnectivityTransportError.payloadTooLarge(size)
+        } catch LinkApplicationContextError.invalidContext {
+            throw WatchConnectivityTransportError.payloadUnsupportedTypes
         }
-        try session.updateApplicationContext(merged)
     }
 
     /// Queue a finished watch record for delivery even when the peer is not reachable.
@@ -1774,18 +1587,26 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
         session.transferUserInfo([Self.watchRecordUserInfoKey: data])
     }
 
-    /// Queue a name-usage event even if the phone is currently unreachable.
-    public func transferCommonNameUsage(_ data: Data) throws {
+    /// Queue a large payload as a background file transfer. The bytes land on
+    /// disk first so `WCSession` never sees them as a dictionary payload; the
+    /// sender keeps the full payload until the receiver ACKs ingest.
+    public func transferFileData(_ data: Data, metadata: [String: Any]) throws {
         guard session.activationState == .activated else {
             throw WatchConnectivityTransportError.sessionNotActivated
         }
-        session.transferUserInfo([Self.commonNameUsageUserInfoKey: data])
+        guard !data.isEmpty else {
+            throw WatchConnectivityTransportError.payloadTooLarge(0)
+        }
+        let url = try LinkTemporaryTransferFile.makeURL()
+        try data.write(to: url, options: .atomic)
+        session.transferFile(url, metadata: metadata)
     }
 
     public func transferCommonNameMutations(_ data: Data) throws {
         guard session.activationState == .activated else {
             throw WatchConnectivityTransportError.sessionNotActivated
         }
+        try Self.ensureCommonNameControlFits(data)
         session.transferUserInfo([Self.commonNameMutationsUserInfoKey: data])
     }
 
@@ -1793,7 +1614,18 @@ public final class WatchConnectivityTransport: NSObject, @unchecked Sendable, Wa
         guard session.activationState == .activated else {
             throw WatchConnectivityTransportError.sessionNotActivated
         }
+        try Self.ensureCommonNameControlFits(data)
         session.transferUserInfo([Self.commonNameMutationAckUserInfoKey: data])
+    }
+
+    /// `transferUserInfo` carries a dictionary, so the body shares the 65,536-byte
+    /// ceiling with the key and plist wrapper. The Watch trims mutation batches
+    /// with `fittingPrefix`; an oversized call here is a programming error and
+    /// must fail loudly instead of trapping inside WatchConnectivity.
+    private static func ensureCommonNameControlFits(_ data: Data) throws {
+        guard LinkCommonNameControlBudget.fits(data) else {
+            throw WatchConnectivityTransportError.payloadTooLarge(data.count)
+        }
     }
 
     /// Phone side: ask the watch for queued finished-record transfers it queued but the phone never received.
@@ -1937,10 +1769,6 @@ extension WatchConnectivityTransport: WCSessionDelegate {
             onCommonNameMutationAckData?(acknowledgementData)
             return
         }
-        if let usageData = userInfo[Self.commonNameUsageUserInfoKey] as? Data {
-            onCommonNameUsageData?(usageData)
-            return
-        }
         if let recordData = userInfo[Self.watchRecordUserInfoKey] as? Data {
             #if DEBUG
             print("[LinkCore] didReceiveUserInfo: watchRecordUserInfoKey, size=\(recordData.count)")
@@ -1950,6 +1778,31 @@ extension WatchConnectivityTransport: WCSessionDelegate {
         }
         guard let data = userInfo[Self.durableLinkPayloadKey] as? Data else { return }
         onReceive?(data)
+    }
+
+    /// watchOS/iOS delete the incoming temp file as soon as this delegate call
+    /// returns, so the bytes must be captured synchronously right here.
+    public func session(_ session: WCSession, didReceive file: WCSessionFile) {
+        let data = (try? Data(contentsOf: file.fileURL)) ?? Data()
+        if data.isEmpty {
+            #if DEBUG
+            print("[LinkCore] didReceiveFile: empty or unreadable file at", file.fileURL.lastPathComponent)
+            #endif
+            return
+        }
+        onReceivedFile?(data, file.metadata ?? [:])
+    }
+
+    public func session(_ session: WCSession, didFinish fileTransfer: WCSessionFileTransfer, error: Error?) {
+        // The sender owns its staging file; WatchConnectivity only removes the
+        // received copy. Deleting is restricted to the dedicated directory so a
+        // peer-supplied path can never delete an unrelated file.
+        LinkTemporaryTransferFile.removeIfManaged(fileTransfer.file.fileURL)
+        if let error {
+            #if DEBUG
+            print("[LinkCore] didFinishFileTransfer error:", error.localizedDescription)
+            #endif
+        }
     }
 
     public func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {

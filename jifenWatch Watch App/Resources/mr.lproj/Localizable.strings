@@ -420,3 +420,9 @@
 
 "watch_phone_shared_link_intro" = "फोनवर सुरू करा आणि कोणत्याही डिव्हाइसवर स्कोअर नोंदवा.";
 "linked_score_simultaneous_edit" = "दोन्ही डिव्हाइसवर बदल झाले. स्कोअर तपासा.";
+"linked_score_pending_finish" = "सिंक बाकी";
+"linked_score_resync" = "Sync Score";
+"linked_score_end" = "End link";
+"linked_score_excluded_operations" = "%d ऑफलाइन स्कोअर वगळले";
+"linked_score_reconnect_to_continue" = "स्कोअर नोंदवणे सुरू ठेवण्यासाठी iPhone शी पुन्हा कनेक्ट करा.";
+"linked_score_reset_unavailable" = "दोन्ही डिव्हाइसवर स्कोअर नोंदवत असताना नवीन सामना सुरू करण्यापूर्वी चालू सामना संपवा.";

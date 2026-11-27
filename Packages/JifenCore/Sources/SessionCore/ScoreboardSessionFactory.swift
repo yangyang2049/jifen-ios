@@ -89,6 +89,37 @@ public enum ScoreboardSessionFactory {
         return ScoreSessionCore(seedSession: session, reducer: LineScoreReducer(), shouldFinish: { _, state in state.finished })
     }
 
+    public static func football(
+        gameType: GameType,
+        leftName: String,
+        rightName: String,
+        halfLengthSeconds: Int? = nil,
+        extraHalfLengthSeconds: Int = FootballGoalMinute.extraHalfMinutes * 60,
+        at epochMilliseconds: Int64
+    ) -> ScoreSessionCore<FootballMatchReducer>? {
+        guard let reducerType = ScoreboardKernelRegistry.footballReducerType(for: gameType) else { return nil }
+        let state = FootballMatchReducer.initial(
+            leftName: leftName,
+            rightName: rightName,
+            isFiveAside: gameType == .football5v5,
+            halfLengthSeconds: halfLengthSeconds,
+            extraHalfLengthSeconds: extraHalfLengthSeconds,
+            at: epochMilliseconds
+        )
+        let session = ScoreSession<FootballMatchState, FootballMatchEvent>(
+            gameType: gameType,
+            ruleFamily: ScoreboardKernelRegistry.descriptor(for: gameType).ruleFamily,
+            reducerType: reducerType,
+            state: state,
+            participants: participants(leftName, rightName)
+        )
+        return ScoreSessionCore(
+            seedSession: session,
+            reducer: FootballMatchReducer(),
+            shouldFinish: { _, state in state.finished }
+        )
+    }
+
     public static func boxing(
         leftName: String,
         rightName: String,
@@ -156,6 +187,27 @@ public enum ScoreboardSessionFactory {
         return ScoreSessionCore(
             seedSession: session,
             reducer: BasketballMatchReducer(),
+            shouldFinish: { _, state in state.finished }
+        )
+    }
+
+    public static func shotTraining(
+        mode: ShotTrainingMode,
+        at epochMilliseconds: Int64
+    ) -> ScoreSessionCore<ShotTrainingReducer> {
+        let descriptor = ScoreboardKernelRegistry.descriptor(for: .basketballTraining)
+        let session = ScoreSession<ShotTrainingState, ShotTrainingEvent>(
+            gameType: descriptor.gameType,
+            ruleFamily: descriptor.ruleFamily,
+            reducerType: descriptor.reducerType,
+            state: ShotTrainingState(
+                mode: mode,
+                startTime: Date(timeIntervalSince1970: Double(epochMilliseconds) / 1_000)
+            )
+        )
+        return ScoreSessionCore(
+            seedSession: session,
+            reducer: ShotTrainingReducer(),
             shouldFinish: { _, state in state.finished }
         )
     }

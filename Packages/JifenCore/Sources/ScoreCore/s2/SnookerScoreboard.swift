@@ -136,7 +136,7 @@ public struct SnookerState: Codable, Equatable, Sendable {
     }
 }
 
-public enum SnookerIntent: Codable, Sendable {
+public enum SnookerIntent: Codable, Equatable, Sendable {
     case confirmStriker(MatchSide)
     case potBallAsSide(side: MatchSide, points: Int)
     case foulFromSide(side: MatchSide, pointsToOpponent: Int, switchTurn: Bool)

@@ -174,22 +174,14 @@ struct UnfinishedGameSummary: Sendable {
             matchTitle = appGameType.displayName
         case .football(let state):
             scoreText = "\(state.leftScore) : \(state.rightScore)"
-            matchTitle = Self.namesTitle(names)
+            // Football team names are part of the live state (they can be edited
+            // during the match); the setup names may be stale.
+            matchTitle = Self.namesTitle([state.leftName, state.rightName])
         }
 
-        let linkMode: String
-        switch descriptor.role {
-        case .shared:
-            linkMode = NSLocalizedString("linked_score_shared_mode", value: "Score on both devices", comment: "")
-        case .phoneController:
-            linkMode = NSLocalizedString("linked_score_phone_controller", value: "手机主控", comment: "")
-        default:
-            linkMode = NSLocalizedString("linked_score_watch_controller", value: "手表主控", comment: "")
-        }
+        let linkMode = NSLocalizedString("linked_score_shared_mode", value: "Score on both devices", comment: "")
         let connection: String
-        if descriptor.watchBackgrounded {
-            connection = NSLocalizedString("linked_score_interrupted", value: "已中断", comment: "")
-        } else if descriptor.isReachable {
+        if descriptor.isReachable {
             connection = NSLocalizedString("linked_score_connected", value: "已连接", comment: "")
         } else {
             connection = NSLocalizedString("linked_score_disconnected", value: "已断开", comment: "")
@@ -271,7 +263,7 @@ struct UnfinishedGameSummary: Sendable {
             team2Name: fallbackNames.dropFirst().first ?? ""
         )
         result.linkedWatchSessionId = descriptor.handle.sessionId
-        result.startOnWatch = descriptor.role == .phoneFollower
+        result.startOnWatch = false
         result.isSingles = !descriptor.gameType.isDoublesScoreboard
 
         switch descriptor.snapshot {

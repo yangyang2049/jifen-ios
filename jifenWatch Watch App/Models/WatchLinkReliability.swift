@@ -1,48 +1,29 @@
 import Foundation
 import LinkCore
-import Observation
-import RecordCore
-import ScoreCore
+import LinkSync
+
+struct WatchActiveIntentContext: Codable {
+    let handle: LinkedMatchHandle
+    let setup: LinkedScoreboardSetup
+    let capabilities: Set<LinkCapability>
+}
 
 extension WatchLinkService {
-    func sendAck(
-        sessionId: UUID,
-        messageId: UUID,
-        revision: UInt64,
-        handle: LinkedMatchHandle? = nil,
-        authorityEpoch: UInt64? = nil,
-        recordAck: Bool = false,
-        authoritativeSnapshot: LinkedScoreboardSnapshot? = nil,
-        detailedActions: [DetailedScoreAction]? = nil
-    ) {
-        sequence += 1
-        let resolvedHandle = handle
-            ?? activeHandle
-            ?? LinkedMatchHandle(sessionId: sessionId, matchId: sessionId)
-        let envelope = LinkEnvelope(
-            correlationId: messageId,
-            sessionId: sessionId,
-            matchId: resolvedHandle.matchId,
-            matchGeneration: resolvedHandle.matchGeneration,
-            authorityEpoch: authorityEpoch ?? self.authorityEpoch,
-            kind: recordAck ? .recordAcknowledgement : .acknowledgement,
-            sender: .watch,
-            senderSequence: sequence,
-            sessionRevision: revision,
-            sentAtEpochMilliseconds: nowMs(),
-            payload: LinkAcknowledgementPayload(
-                acknowledgedMessageId: messageId,
-                acknowledgedRevision: revision,
-                authoritativeSnapshot: authoritativeSnapshot,
-                detailedActions: detailedActions ?? []
-            )
-        )
-        sendReportingError(envelope)
+    enum DeliveryFailure: LocalizedError {
+        case noChannel
+        case channelFailed(String)
+
+        var errorDescription: String? {
+            switch self {
+            case .noChannel:
+                NSLocalizedString("linked_score_sync_timeout", value: "比分同步超时，将在重新连接后继续同步。", comment: "")
+            case .channelFailed(let message):
+                message
+            }
+        }
     }
 
-    func sendReportingError<Payload: Codable & Sendable>(
-        _ envelope: LinkEnvelope<Payload>
-    ) {
+    func sendReportingError<Payload: Codable & Sendable>(_ envelope: LinkEnvelope<Payload>) {
         Task {
             do {
                 try await send(envelope)
@@ -53,36 +34,44 @@ extension WatchLinkService {
     }
 
     func send<Payload: Codable & Sendable>(_ envelope: LinkEnvelope<Payload>) async throws {
-        // 统一经类型分派裁剪：ACK/接管等信封若未来携带长动作历史也不会超限。
-        let data = LinkEnvelopeEncoding.encodedData(envelope)
-        switch envelope.kind {
-        case .stateSnapshot:
-            try transport.publishLatestSnapshot(
-                LinkEnvelopeEncoding.applicationContextData(envelope)
-            )
-            if transport.isReachable {
-                try await transport.sendRealtime(data)
-            }
-        case .matchFinished:
-            try transport.enqueueDurable(data)
-        default:
-            try await transport.sendRealtime(data)
-        }
+        let result = await intentSessionEngine.send(envelope)
+        try checkDelivery(result)
+    }
+
+    /// Returns true when the frame was queued on a durable channel. A sender
+    /// of ordered score operations waits for confirmation in that case.
+    @discardableResult
+    func sendReplayableIntentFrame(_ data: Data, peerSupportsFileTransfer: Bool) async throws -> Bool {
+        let result = await intentSessionEngine.sendReplayableFrame(
+            data, kind: .intentFrame, peerSupportsFileTransfer: peerSupportsFileTransfer
+        )
+        try checkDelivery(result)
+        return result.steps.contains(.durableFile) || result.steps.contains(.durableUserInfo)
+    }
+
+    private func checkDelivery(_ result: LinkSendOutcome) throws {
+        if result.steps.contains(where: { $0 != .hold && result.failures[$0] == nil }) { return }
+        if let message = result.firstErrorDescription { throw DeliveryFailure.channelFailed(message) }
+        throw DeliveryFailure.noChannel
     }
 
     func scheduleRetryIfNeeded() {
-        guard ackRetryTask == nil,
-              let delayNanoseconds = nextRetryDelayNanoseconds() else { return }
+        guard ackRetryTask == nil, transport.status.isActivated else { return }
+        let wantsReplay = transport.isReachable && intentSync.hasDurableRetryWork
+        let hasPendingEnd = pendingSessionEnds.contains {
+            !pendingSessionEndInFlight.contains($0.handle.sessionId)
+                && (transport.isReachable || !intentSync.hasPendingOperations(for: $0.handle))
+        }
+        let pendingEndDelay = intentSessionEngine.nextRetryDelayNanoseconds(hasPendingSessionEnd: hasPendingEnd)
+        guard let delay = pendingEndDelay ?? (wantsReplay ? 3_000_000_000 : nil) else { return }
+
         ackRetryTask = Task { [weak self] in
-            do {
-                try await Task.sleep(nanoseconds: delayNanoseconds)
-            } catch {
-                return
-            }
-            guard let self, !Task.isCancelled else { return }
-            self.ackRetryTask = nil
-            self.performRetryWork()
-            self.scheduleRetryIfNeeded()
+            do { try await Task.sleep(nanoseconds: delay) } catch { return }
+            guard let self else { return }
+            ackRetryTask = nil
+            if transport.isReachable { intentSync.retryPendingAfterReconnect() }
+            flushPendingSessionEnds()
+            scheduleRetryIfNeeded()
         }
     }
 
@@ -92,136 +81,61 @@ extension WatchLinkService {
         scheduleRetryIfNeeded()
     }
 
-    private func nextRetryDelayNanoseconds() -> UInt64? {
-        let now = nowMs()
-        var deadlines: [Int64] = []
-        if let pending = pendingAck.pending {
-            deadlines.append(
-                pending.lastSentAtEpochMilliseconds
-                    + LinkControlRetryQueue.retryIntervalMilliseconds
-            )
-        }
-        deadlines.append(contentsOf: terminalOutbox.items.map {
-            $0.lastSentAtEpochMilliseconds
-                + LinkDurableOutbox.retryIntervalMilliseconds
-        })
-        if pendingSessionEnds.contains(where: {
-            !pendingSessionEndInFlight.contains($0.handle.sessionId)
-        }) {
-            deadlines.append(now + 1_000)
-        }
-        guard let deadline = deadlines.min() else { return nil }
-        return UInt64(max(0, deadline - now)) * 1_000_000
-    }
-
-    private func performRetryWork() {
-        let pendingMessageId = pendingAck.pending?.messageId
-        if let data = pendingAck.retryIfDue(nowEpochMilliseconds: nowMs()) {
-            Task {
-                let shared = controlRole == .shared
-                guard transport.isReachable || !shared else { return }
-                do {
-                    try await transport.sendRealtime(data)
-                } catch {
-                    if !shared { lastLinkErrorMessage = error.localizedDescription }
-                }
-            }
-        } else if let pendingMessageId,
-                  pendingAck.pending == nil {
-            if var machine = sessionMachine {
-                _ = machine.acknowledge(messageId: pendingMessageId)
-                sessionMachine = machine
-            }
-            if controlRole != .shared {
-                lastLinkErrorMessage = NSLocalizedString(
-                    "linked_score_sync_timeout",
-                    value: "比分同步超时，将在重新连接后继续同步。",
-                    comment: ""
-                )
-            }
-        }
-        let dueTerminalData = terminalOutbox.retryDue(
-            nowEpochMilliseconds: nowMs()
-        )
-        if !dueTerminalData.isEmpty {
-            persistTerminalOutbox()
-            for data in dueTerminalData {
-                if let item = terminalOutbox.items.first(where: { $0.pendingLocalRecord != nil && $0.data == data }),
-                   !prepareLocalFinishedRecord(item) { continue }
-                do {
-                    try transport.enqueueDurable(data)
-                } catch {
-                    lastLinkErrorMessage = error.localizedDescription
-                }
-                if transport.isReachable {
-                    Task { try? await transport.sendRealtime(data) }
-                }
-            }
-        }
-        flushPendingSessionEnds()
-    }
-
-    func persistTerminalOutbox() {
-        guard !terminalOutbox.isEmpty else {
-            outboxStore.removeObject(forKey: terminalOutboxKey)
-            return
-        }
+    @discardableResult
+    func persistPendingSessionEnds() -> Bool {
         do {
-            let data = try JSONEncoder().encode(terminalOutbox)
-            outboxStore.set(data, forKey: terminalOutboxKey)
+            if pendingSessionEnds.isEmpty {
+                try outboxStore.removeOrThrow(forKey: pendingSessionEndsKey)
+            } else {
+                try outboxStore.setOrThrow(JSONEncoder().encode(pendingSessionEnds), forKey: pendingSessionEndsKey)
+            }
+            return true
         } catch {
             reportPersistenceError(error)
-        }
-    }
-
-    func persistPendingSessionEnds() {
-        guard !pendingSessionEnds.isEmpty else {
-            outboxStore.removeObject(forKey: pendingSessionEndsKey)
-            return
-        }
-        do {
-            let data = try JSONEncoder().encode(pendingSessionEnds)
-            outboxStore.set(data, forKey: pendingSessionEndsKey)
-        } catch {
-            reportPersistenceError(error)
+            return false
         }
     }
 
     func flushPendingSessionEnds() {
+        guard transport.status.isActivated, !pendingSessionEnds.isEmpty, persistPendingSessionEnds() else { return }
         for request in pendingSessionEnds {
-            let sessionId = request.handle.sessionId
-            guard !pendingSessionEndInFlight.contains(sessionId),
-                  !terminalOutbox.items.contains(where: {
-                      $0.handle.sessionId == sessionId
-                  }) else {
+            let handle = request.handle
+            guard !pendingSessionEndInFlight.contains(handle.sessionId) else { continue }
+            if intentSync.hasPendingOperations(for: handle) {
+                intentSync.replayPending(handle: handle)
                 continue
             }
-            pendingSessionEndInFlight.insert(sessionId)
+            if activeHandle == handle {
+                guard endLocalSession() else { continue }
+            } else {
+                do {
+                    try retireActiveIntentContext(handle)
+                } catch {
+                    reportPersistenceError(error)
+                    continue
+                }
+            }
+
+            pendingSessionEndInFlight.insert(handle.sessionId)
             sequence += 1
-            let envelope = LinkEnvelope(
-                sessionId: sessionId,
-                matchId: request.handle.matchId,
-                matchGeneration: request.handle.matchGeneration,
-                authorityEpoch: request.authorityEpoch,
-                kind: .sessionLeft,
-                sender: .watch,
-                senderSequence: sequence,
-                sessionRevision: request.revision,
-                sentAtEpochMilliseconds: nowMs(),
-                payload: EmptyLinkPayload()
+            let frame = LinkEnvelope(
+                sessionId: handle.sessionId, matchId: handle.matchId, matchGeneration: handle.matchGeneration,
+                kind: .sessionLeft, sender: .watch, senderSequence: sequence,
+                sessionRevision: request.revision, sentAtEpochMilliseconds: nowMs(), payload: EmptyLinkPayload()
             )
             Task {
                 defer {
-                    pendingSessionEndInFlight.remove(sessionId)
+                    pendingSessionEndInFlight.remove(handle.sessionId)
                     rescheduleRetryIfNeeded()
                 }
                 do {
-                    try await send(envelope)
+                    let data = try JSONEncoder().encode(frame)
+                    // The peer may be offline when the user leaves. Queuing
+                    // this small frame reliably is what permits local dequeue.
+                    try transport.enqueueDurable(data)
+                    let previous = pendingSessionEnds
                     pendingSessionEnds.removeAll { $0 == request }
-                    persistPendingSessionEnds()
-                    if activeHandle == request.handle {
-                        endLocalSession()
-                    }
+                    if !persistPendingSessionEnds() { pendingSessionEnds = previous }
                 } catch {
                     lastLinkErrorMessage = error.localizedDescription
                 }
@@ -229,78 +143,89 @@ extension WatchLinkService {
         }
     }
 
-    func nowMs() -> Int64 {
-        clock.nowEpochMilliseconds()
-    }
+    func nowMs() -> Int64 { clock.nowEpochMilliseconds() }
 
-
-    func persistContext() {
-        guard let handle = activeHandle,
-              let setup = activeSetup,
-              let role = controlRole else {
-            contextStore.removeObject(forKey: contextKey)
-            return
-        }
-        let context = WatchLinkResumeContext(
-            handle: handle,
-            setup: setup,
-            role: role,
-            authorityEpoch: authorityEpoch,
-            revision: activeRevision,
-            latestAuthoritativeSnapshot: latestSnapshot?.snapshot
-                ?? setup.initialSnapshot,
-            detailedActions: mergedDetailedActions,
-            completedMatchIds: publishedFinishedMatchIds,
-            pendingTerminalMessageIds: Set(terminalOutbox.items.map(\.messageId)),
-            peerSupportsCompressedFinish: peerSupportsCompressedFinish
-        )
+    var storedLinkContext: WatchLinkResumeContext? {
+        if let live = resumeContext { return live }
         do {
-            let data = try JSONEncoder().encode(context)
-            contextStore.set(data, forKey: contextKey)
+            guard let pointer = try activeIntentPointer() else { return nil }
+            return try intentSync.restoredContext(for: pointer)
         } catch {
             reportPersistenceError(error)
+            return nil
+        }
+    }
+
+    func persistActiveIntentContext(handle: LinkedMatchHandle, setup: LinkedScoreboardSetup, capabilities: Set<LinkCapability>) throws {
+        let descriptor = LinkedScoreboardSetup(
+            gameType: setup.gameType, maxSets: setup.maxSets,
+            participantNames: setup.participantNames, capabilities: setup.capabilities
+        )
+        let pointer = WatchActiveIntentContext(handle: handle, setup: descriptor, capabilities: capabilities)
+        try contextStore.setOrThrow(JSONEncoder().encode(pointer), forKey: contextKey)
+    }
+
+    func retireActiveIntentContext(_ handle: LinkedMatchHandle) throws {
+        try contextStore.setOrThrow(Data([1]), forKey: retiredIntentKey(handle))
+        do {
+            if let data = try storedContextData(forKey: contextKey),
+               try JSONDecoder().decode(WatchActiveIntentContext.self, from: data).handle == handle {
+                try contextStore.removeOrThrow(forKey: contextKey)
+            }
+        } catch {
+            // The durable tombstone still prevents this pointer from reopening.
+            reportPersistenceError(error)
+        }
+    }
+
+    func isRetiredIntentHandle(_ handle: LinkedMatchHandle) throws -> Bool {
+        try storedContextData(forKey: retiredIntentKey(handle)) != nil
+    }
+
+    private func retiredIntentKey(_ handle: LinkedMatchHandle) -> String {
+        "watch-intent-ended-\(handle.sessionId.uuidString)-\(handle.matchId.uuidString)-\(handle.matchGeneration)"
+    }
+
+    private func storedContextData(forKey key: String) throws -> Data? {
+        if let fileStore = contextStore as? FileLinkDataStore {
+            return try fileStore.dataOrThrow(forKey: key)
+        }
+        return contextStore.data(forKey: key)
+    }
+
+    private func activeIntentPointer() throws -> WatchActiveIntentContext? {
+        guard let data = try storedContextData(forKey: contextKey) else { return nil }
+        let pointer = try JSONDecoder().decode(WatchActiveIntentContext.self, from: data)
+        guard pointer.capabilities.contains(.sharedIntentSync), try !isRetiredIntentHandle(pointer.handle),
+              !pendingSessionEnds.contains(where: { $0.handle == pointer.handle }) else { return nil }
+        return pointer
+    }
+
+    func restoreContext() {
+        _ = restoreActiveIntentMatch()
+    }
+
+    @discardableResult
+    func restoreActiveIntentMatch(matching handle: LinkedMatchHandle? = nil) -> Bool {
+        do {
+            guard let pointer = try activeIntentPointer(),
+                  handle == nil || pointer.handle == handle,
+                  let context = try intentSync.restoredContext(for: pointer),
+                  try intentSync.restoreActiveMatch(handle: pointer.handle) else { return false }
+            installIntentMatch(handle: pointer.handle, setup: context.setup, capabilities: pointer.capabilities)
+            return true
+        } catch {
+            reportPersistenceError(error)
+            return false
         }
     }
 
     func reportPersistenceError(_ error: Error) {
         lastLinkErrorMessage = String(
             format: NSLocalizedString(
-                "linked_score_persistence_failed",
-                value: "无法保存联动恢复数据：%@",
-                comment: ""
+                "linked_score_persistence_failed", value: "无法保存联动恢复数据：%@", comment: ""
             ),
             error.localizedDescription
-        )
-    }
-
-    func restoreContext() {
-        guard let data = contextStore.data(forKey: contextKey),
-              let context = try? JSONDecoder().decode(
-                WatchLinkResumeContext.self,
-                from: data
-              ) else {
-            contextStore.removeObject(forKey: contextKey)
-            return
-        }
-        installStateMachine(from: context)
-        synchronizeSessionStateFromMachine()
-        activeGameType = context.setup.gameType
-        activeSetup = context.setup
-        peerSupportsCompressedFinish = context.peerSupportsCompressedFinish == true
-        phoneTookOver = context.role == .watchFollower
-        mergedDetailedActions = context.detailedActions
-        if let snapshot = context.latestAuthoritativeSnapshot {
-            latestSnapshot = LinkedSnapshotUpdate(
-                sessionId: context.handle.sessionId,
-                revision: context.revision,
-                matchGeneration: context.handle.matchGeneration,
-                snapshot: snapshot,
-                detailedActions: context.detailedActions
-            )
-        }
-        _ = revisionGate.beginMatch(
-            context.handle,
-            initialRevision: context.revision
         )
     }
 }

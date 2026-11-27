@@ -1,3 +1,4 @@
+import ScoreCore
 import SwiftUI
 
 enum ScoreboardExternalTemplate: String, Equatable {

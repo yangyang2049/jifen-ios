@@ -1,5 +1,7 @@
+import Foundation
 import XCTest
 import LinkCore
+import LinkSync
 import RecordCore
 import ScoreCore
 import SessionCore
@@ -7,149 +9,18 @@ import SessionCore
 
 @MainActor
 final class WatchLinkServiceTests: XCTestCase {
-    func testCancelFailedTrainingFinishLetsNextFinishSendUpdatedTraining() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let sink = RecordingWatchLinkSink()
-        let service = WatchLinkService(transport: transport, contextStore: store, outboxStore: store, recordSink: sink)
-        let handle = LinkedMatchHandle(sessionId: UUID())
-        let setup = LinkedScoreboardSetup(
-            gameType: .basketballTraining, maxSets: 1,
-            initialSnapshot: .basketballTraining(.init(mode: .fixed2))
-        )
-        let request = LinkEnvelope(
-            supportsCompressedFinish: true,
-            sessionId: handle.sessionId, matchId: handle.matchId, kind: .setupRequest,
-            sender: .phone, senderSequence: 1, sessionRevision: 0,
-            sentAtEpochMilliseconds: service.nowMs(), payload: setup
-        )
-        service.receive(try JSONEncoder().encode(request))
-        service.acceptPendingSetup()
-        XCTAssertEqual(service.activeHandle, handle)
-
-        func finish(attempts: Int) -> Bool {
-            service.publishMatchFinished(
-                snapshot: .basketballTraining(.init(
-                    mode: .fixed2, earlierCounts: .init(twoMade: attempts), finished: true
-                )),
-                recordId: "training", winnerSide: nil, manualEnd: true, totalScoreChanges: attempts
-            )
-        }
-        sink.canPersist = false
-        XCTAssertFalse(finish(attempts: 1))
-        XCTAssertEqual(service.terminalOutbox.items.first?.pendingLocalRecord?.payload.totalScoreChanges, 1)
-        XCTAssertTrue(transport.durableMessages.isEmpty)
-
-        service.cancelPendingTrainingFinish(handle: handle)
-        XCTAssertTrue(service.terminalOutbox.isEmpty)
-        XCTAssertTrue(service.publishedFinishedMatchIds.isEmpty)
-
-        sink.canPersist = true
-        XCTAssertTrue(finish(attempts: 2))
-        // Cancellation cannot remove a finish that already persisted and is awaiting ACK.
-        service.cancelPendingTrainingFinish(handle: handle)
-        await settleWatchLinkService()
-        let terminalMessages = transport.durableMessages.compactMap { LinkFinishedEncoding.decode($0) }
-        XCTAssertEqual(terminalMessages.count, 1)
-        let terminal = try XCTUnwrap(terminalMessages.first)
-        XCTAssertEqual(terminal.payload.totalScoreChanges, 2)
-        XCTAssertTrue(service.terminalOutbox.contains(sessionId: handle.sessionId, matchId: handle.matchId))
-        XCTAssertEqual(sink.ingested.count, 1)
-    }
-
-    func testSharedLinkAcceptsPhoneScoresAndKeepsWatchEditingEnabled() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let sink = RecordingWatchLinkSink()
-        let service = WatchLinkService(transport: transport, contextStore: store, outboxStore: store, recordSink: sink)
-        let start = makeWatchLinkSetup(supportsSharedEditing: true)
-        service.receive(try JSONEncoder().encode(start.envelope))
-        service.acceptPendingSetup()
-        await settleWatchLinkService()
-        let accepted = try XCTUnwrap(transport.realtimeMessages.compactMap {
-            try? JSONDecoder().decode(LinkEnvelope<EmptyLinkPayload>.self, from: $0)
-        }.first { $0.kind == .setupAccepted })
-        XCTAssertEqual(accepted.supportsSharedEditing, true)
-        XCTAssertTrue(service.canEditLinkedMatch)
-        XCTAssertFalse(service.isFollower)
-
-        var phoneState = try XCTUnwrap(start.snapshot.rallyState)
-        phoneState.leftPoints = 1
-        func setup(for state: RallyMatchState) -> LinkedScoreboardSetup {
-            .init(gameType: .badminton, maxSets: state.rules.maxSets, initialSnapshot: .rally(state))
-        }
-        service.receive(try JSONEncoder().encode(LinkEnvelope(
-            baseSnapshotRevision: 0, sessionId: accepted.sessionId, matchId: accepted.matchId,
-            kind: .stateSnapshot, sender: .phone, senderSequence: 2,
-            sessionRevision: 1, sentAtEpochMilliseconds: service.nowMs(), payload: setup(for: phoneState)
-        )))
-        XCTAssertEqual(service.incomingSnapshot?.snapshot, .rally(phoneState))
-        XCTAssertTrue(service.canEditLinkedMatch)
-
-        var watchState = phoneState
-        watchState.rightPoints = 1
-        service.publishSnapshot(.rally(watchState))
-        await settleWatchLinkService()
-        let watchEdit = try XCTUnwrap(transport.realtimeMessages.compactMap {
-            try? JSONDecoder().decode(LinkEnvelope<LinkedScoreboardSetup>.self, from: $0)
-        }.last { $0.kind == .stateSnapshot })
-        XCTAssertEqual(watchEdit.sessionRevision, 4)
-        XCTAssertEqual(watchEdit.baseSnapshotRevision, 1)
-        XCTAssertNil(service.incomingSnapshot)
-        XCTAssertNil(service.simultaneousEditNotice)
-
-        phoneState.leftPoints = 2
-        service.receive(try JSONEncoder().encode(LinkEnvelope(
-            baseSnapshotRevision: 1, sessionId: accepted.sessionId, matchId: accepted.matchId,
-            kind: .stateSnapshot, sender: .phone, senderSequence: 3,
-            sessionRevision: 3, sentAtEpochMilliseconds: service.nowMs(), payload: setup(for: phoneState)
-        )))
-        XCTAssertEqual(service.latestSnapshot?.snapshot, .rally(watchState))
-        XCTAssertNotNil(service.simultaneousEditNotice)
-
-        let restored = WatchLinkService(
-            transport: WatchLinkTestTransport(), contextStore: store, outboxStore: store, recordSink: sink
-        )
-        XCTAssertEqual(restored.controlRole, .shared)
-        XCTAssertEqual(restored.latestSnapshot?.snapshot, .rally(watchState))
-        XCTAssertNil(restored.incomingSnapshot)
-    }
-
-    func testMergeDetailedActionsKeepsConcurrentLocalActionsAndDeduplicates() {
-        let service = WatchLinkService(
-            transport: WatchLinkTestTransport(),
-            contextStore: WatchLinkTestDataStore(),
-            outboxStore: WatchLinkTestDataStore()
-        )
-
-        let localOld = DetailedScoreAction(
-            id: UUID(), type: .scoreChanged, epochMilliseconds: 1_000,
-            team: .team1, scores: [1, 0]
-        )
-        let localNew = DetailedScoreAction(
-            id: UUID(), type: .scoreChanged, epochMilliseconds: 3_000,
-            team: .team2, scores: [1, 1]
-        )
-        service.mergeDetailedActions([localOld, localNew])
-
-        let watchNew = DetailedScoreAction(
-            id: UUID(), type: .scoreChanged, epochMilliseconds: 2_000,
-            team: .team1, scores: [2, 1]
-        )
-        let replayedLocalOld = DetailedScoreAction(
-            id: localOld.id, type: .scoreChanged, epochMilliseconds: 1_000,
-            team: .team1, scores: [1, 0]
-        )
-        service.mergeDetailedActions([replayedLocalOld, watchNew])
-
-        XCTAssertEqual(
-            service.mergedDetailedActions.map(\.id),
-            [localOld.id, watchNew.id, localNew.id]
-        )
+    /// WatchResumeSessionStore 的文件存储测试目录（每用例独立临时目录）。
+    private func makeResumeStoreDirectory() -> URL {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("WatchLinkServiceTests.\(UUID().uuidString)", isDirectory: true)
+        try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        return url
     }
 
     func testWatchLinkRejectsMismatchedModeBeforeShowingConfirmation() async throws {
-        let store = WatchLinkTestDataStore()
+        let directory = makeResumeStoreDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = FileLinkDataStore(directoryURL: directory)
         let transport = WatchLinkTestTransport()
         let service = WatchLinkService(
             transport: transport,
@@ -183,211 +54,67 @@ final class WatchLinkServiceTests: XCTestCase {
         let rejection = try XCTUnwrap(
             transport.realtimeMessages.compactMap {
                 try? JSONDecoder().decode(
-                    LinkEnvelope<EmptyLinkPayload>.self,
+                    LinkEnvelope<LinkSetupRejectedPayload>.self,
                     from: $0
                 )
             }.last
         )
+        XCTAssertEqual(rejection.payload.reason, .unsupportedSport)
         XCTAssertEqual(rejection.kind, .setupRejected)
         XCTAssertEqual(rejection.correlationId, envelope.messageId)
     }
 
-    func testWatchLinkNextMatchCreatesFreshIdentityAndRevision() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let service = WatchLinkService(
-            transport: transport,
-            contextStore: store,
-            outboxStore: store
-        )
-        let setup = makeWatchLinkSetup()
-        transport.deliver(try JSONEncoder().encode(setup.envelope))
-        await settleWatchLinkService()
-        service.acceptPendingSetup()
-        let firstHandle = try XCTUnwrap(service.resumeContext?.handle)
-
-        service.startNextMatch(snapshot: setup.snapshot)
-        await settleWatchLinkService()
-
-        let next = try XCTUnwrap(service.resumeContext)
-        XCTAssertEqual(next.handle.sessionId, firstHandle.sessionId)
-        XCTAssertEqual(next.handle.matchGeneration, firstHandle.matchGeneration + 1)
-        XCTAssertNotEqual(next.handle.matchId, firstHandle.matchId)
-        XCTAssertEqual(next.revision, 1)
-        XCTAssertEqual(next.role, .watchController)
-        XCTAssertEqual(transport.publishedSnapshots.count, 1)
-    }
-
-    func testWatchCanStartNextMatchWithEarlierTerminalStillAwaitingACK() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let sink = RecordingWatchLinkSink()
-        let service = WatchLinkService(transport: transport, contextStore: store, outboxStore: store, recordSink: sink)
-        let start = makeWatchLinkSetup()
-        service.receive(try JSONEncoder().encode(start.envelope))
-        service.acceptPendingSetup()
-        let first = try XCTUnwrap(service.activeHandle)
-        var state = try XCTUnwrap(start.snapshot.rallyState)
-        state.leftPoints = 21
-        state.finished = true
-
-        sink.canPersist = false
-        XCTAssertFalse(service.publishMatchFinished(snapshot: .rally(state), recordId: "first", winnerSide: .left, manualEnd: true))
-        let staged = try XCTUnwrap(service.terminalOutbox.items.first)
-        XCTAssertNotNil(staged.pendingLocalRecord)
-        XCTAssertFalse(service.publishedFinishedMatchIds.contains(first.matchId))
-        await settleWatchLinkService()
-        XCTAssertTrue(transport.durableMessages.isEmpty)
-
-        let recoveredTransport = WatchLinkTestTransport()
-        let recovered = WatchLinkService(transport: recoveredTransport, contextStore: store, outboxStore: store, recordSink: sink)
-        sink.canPersist = true
-        XCTAssertTrue(recovered.publishMatchFinished(snapshot: .rally(state), recordId: "changed", winnerSide: .left, manualEnd: true))
-        XCTAssertEqual(sink.ingested.map(\.recordId), ["first"])
-        recovered.startNextMatch(snapshot: start.snapshot)
-        let next = try XCTUnwrap(recovered.activeHandle)
-        XCTAssertEqual(next.matchGeneration, first.matchGeneration + 1)
-        XCTAssertEqual(recovered.terminalOutbox.items.map(\.handle), [first])
-        await settleWatchLinkService()
-        XCTAssertEqual(recoveredTransport.publishedSnapshots.count, 1)
-        XCTAssertEqual(recoveredTransport.durableMessages.first.flatMap(LinkFinishedEncoding.decode)?.messageId, staged.messageId)
-
-        let ack = LinkEnvelope(
-            correlationId: staged.messageId, sessionId: first.sessionId, matchId: first.matchId,
-            matchGeneration: first.matchGeneration, kind: .recordAcknowledgement, sender: .phone,
-            senderSequence: 8, sessionRevision: 1, sentAtEpochMilliseconds: 6_000,
-            payload: LinkAcknowledgementPayload(acknowledgedMessageId: staged.messageId, acknowledgedRevision: 1)
-        )
-        recovered.receive(try JSONEncoder().encode(ack))
-        XCTAssertEqual(recovered.activeHandle, next)
-        XCTAssertTrue(recovered.terminalOutbox.isEmpty)
-        XCTAssertEqual(sink.markedSyncedRecordIds, ["first"])
-    }
-
-    func testNextPhoneFinishCanArriveBeforeSnapshotAndRetiredSessionDoesNotReopen() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let sink = RecordingWatchLinkSink()
-        let fixture = makeWatchLinkSetup()
-        let first = fixture.envelope.handle
-        let context = WatchLinkResumeContext(
-            handle: first, setup: fixture.envelope.payload, role: .watchFollower,
-            authorityEpoch: 1, revision: 2, latestAuthoritativeSnapshot: fixture.snapshot,
-            detailedActions: [], completedMatchIds: [], pendingTerminalMessageIds: []
-        )
-        store.set(try JSONEncoder().encode(context), forKey: "watch_link_context")
-        let service = WatchLinkService(transport: transport, contextStore: store, outboxStore: store, recordSink: sink)
-        let next = first.nextMatch()
-        var state = try XCTUnwrap(fixture.snapshot.rallyState)
-        state.leftPoints = 21
-        state.finished = true
-        func finish(_ handle: LinkedMatchHandle) -> Data {
-            LinkFinishedEncoding.encode(LinkEnvelope(
-                sessionId: handle.sessionId, matchId: handle.matchId, matchGeneration: handle.matchGeneration,
-                authorityEpoch: 1, kind: .matchFinished, sender: .phone, senderSequence: 4,
-                sessionRevision: 3, sentAtEpochMilliseconds: 4_000,
-                payload: LinkMatchFinishedPayload(snapshot: .rally(state), recordId: handle.matchId.uuidString)
-            ), compress: true)
-        }
-
-        service.receive(finish(next))
-        XCTAssertEqual(service.activeHandle, next)
-        XCTAssertEqual(service.latestSnapshot?.snapshot, .rally(state))
-        let lateSnapshot = LinkEnvelope(
-            sessionId: next.sessionId, matchId: next.matchId, matchGeneration: next.matchGeneration,
-            authorityEpoch: 1, kind: .stateSnapshot, sender: .phone,
-            senderSequence: 5, sessionRevision: 4, sentAtEpochMilliseconds: 4_010,
-            payload: fixture.envelope.payload
-        )
-        service.receive(try JSONEncoder().encode(lateSnapshot))
-        XCTAssertEqual(service.latestSnapshot?.snapshot, .rally(state))
-        service.endLocalSession()
-        let third = next.nextMatch()
-        service.receive(finish(third))
-        service.receive(finish(first))
-        service.receive(finish(third))
-        await settleWatchLinkService()
-
-        XCTAssertNil(service.activeHandle)
-        XCTAssertEqual(sink.ingested.map(\.matchId), [next.matchId, third.matchId, first.matchId])
-        let acks = transport.realtimeMessages.compactMap {
-            try? JSONDecoder().decode(LinkEnvelope<LinkAcknowledgementPayload>.self, from: $0)
-        }.filter { $0.kind == .recordAcknowledgement }
-        XCTAssertEqual(acks.filter { $0.handle == third }.count, 2)
-    }
-
-    func testTrainingRejectsPhoneWithoutFinishSupport() async throws {
-        let store = WatchLinkTestDataStore()
+    func testSetupNegotiatesKnownCapabilitiesAndRejectsUnsupportedProtocol() async throws {
+        let directory = makeResumeStoreDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = FileLinkDataStore(directoryURL: directory)
         let transport = WatchLinkTestTransport()
         let service = WatchLinkService(transport: transport, contextStore: store, outboxStore: store)
-        let setup = LinkEnvelope(
-            sessionId: UUID(), kind: .setupRequest, sender: .phone, senderSequence: 1,
-            sessionRevision: 0, sentAtEpochMilliseconds: 1,
-            payload: LinkedScoreboardSetup(gameType: .basketballTraining, initialSnapshot: .basketballTraining(.init(mode: .free)))
-        )
-        service.receive(try JSONEncoder().encode(setup))
-        await settleWatchLinkService()
-        XCTAssertNil(service.pendingConfirmRequest)
-        XCTAssertTrue(transport.realtimeMessages.contains { data in
-            (try? JSONDecoder().decode(LinkEnvelopeHead.self, from: data))?.kind == .setupRejected
-        })
-    }
+        let fixture = makeWatchLinkSetup()
+        let offered = LinkProtocol.requiredCapabilities.union([
+            .fileTransfer, LinkCapability(rawValue: "futureCapability")
+        ])
+        func request(version: Int, capabilities: Set<LinkCapability>) -> LinkEnvelope<LinkedScoreboardSetup> {
+            LinkEnvelope(
+                protocolVersion: version, capabilities: capabilities, sessionId: UUID(),
+                kind: .setupRequest, sender: .phone, senderSequence: 1,
+                sessionRevision: 0, sentAtEpochMilliseconds: 1,
+                payload: LinkedScoreboardSetup(
+                    gameType: .badminton, initialSnapshot: fixture.snapshot, capabilities: capabilities
+                )
+            )
+        }
 
-    func testWatchLinkTakeoverIsCorrelatedIdempotentAndRestoresFollower() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let service = WatchLinkService(
-            transport: transport,
-            contextStore: store,
-            outboxStore: store
-        )
-        let setup = makeWatchLinkSetup()
-        transport.deliver(try JSONEncoder().encode(setup.envelope))
-        await settleWatchLinkService()
+        for invalid in [
+            request(version: LinkProtocol.currentVersion + 1, capabilities: offered),
+            request(version: LinkProtocol.currentVersion, capabilities: offered.subtracting([.sharedIntentSync]))
+        ] {
+            service.receive(try JSONEncoder().encode(invalid))
+            await settleWatchLinkService()
+            XCTAssertNil(service.pendingConfirmRequest)
+            let refusal = try JSONDecoder().decode(
+                LinkEnvelope<LinkSetupRejectedPayload>.self,
+                from: try XCTUnwrap(transport.realtimeMessages.last)
+            )
+            XCTAssertEqual(refusal.correlationId, invalid.messageId)
+            XCTAssertEqual(refusal.payload.reason, .incompatibleProtocol)
+        }
+
+        let valid = request(version: LinkProtocol.currentVersion, capabilities: offered)
+        service.receive(try JSONEncoder().encode(valid))
+        let negotiated = offered.intersection(LinkProtocol.capabilities)
+        XCTAssertEqual(service.pendingConfirmRequest?.peerCapabilities, negotiated)
         service.acceptPendingSetup()
-        let handle = try XCTUnwrap(service.resumeContext?.handle)
-        let takeover = LinkEnvelope(
-            sessionId: handle.sessionId,
-            matchId: handle.matchId,
-            matchGeneration: handle.matchGeneration,
-            authorityEpoch: 0,
-            kind: .takeoverByPhone,
-            sender: .phone,
-            senderSequence: 2,
-            sessionRevision: 0,
-            sentAtEpochMilliseconds: 2,
-            payload: LinkAuthorityTransferPayload(
-                snapshot: setup.snapshot,
-                baseRevision: 0
-            )
-        )
-        let takeoverData = try JSONEncoder().encode(takeover)
-
-        transport.deliver(takeoverData)
         await settleWatchLinkService()
-        transport.deliver(takeoverData)
-        await settleWatchLinkService()
-
-        let context = try XCTUnwrap(service.resumeContext)
-        XCTAssertEqual(context.role, .watchFollower)
-        XCTAssertEqual(context.authorityEpoch, 1)
-        let acknowledgements = transport.realtimeMessages.compactMap {
-            try? JSONDecoder().decode(
-                LinkEnvelope<LinkAcknowledgementPayload>.self,
-                from: $0
-            )
-        }.filter { $0.correlationId == takeover.messageId }
-        XCTAssertEqual(acknowledgements.count, 2)
-        XCTAssertTrue(acknowledgements.allSatisfy { $0.authorityEpoch == 1 })
-
-        let restored = WatchLinkService(
-            transport: WatchLinkTestTransport(),
-            contextStore: store,
-            outboxStore: store
+        let response = try JSONDecoder().decode(
+            LinkEnvelope<EmptyLinkPayload>.self,
+            from: try XCTUnwrap(transport.realtimeMessages.last)
         )
-        XCTAssertEqual(restored.resumeContext?.role, .watchFollower)
-        XCTAssertEqual(restored.resumeContext?.authorityEpoch, 1)
-        XCTAssertEqual(restored.resumeContext?.handle, handle)
+        XCTAssertEqual(response.kind, .setupAccepted)
+        XCTAssertEqual(response.correlationId, valid.messageId)
+        XCTAssertEqual(response.capabilities, negotiated)
+        XCTAssertTrue(service.peerSupportsFileTransfer)
+        XCTAssertTrue(service.canEditLinkedMatch)
     }
 
     func testWatchLinkAcceptsNewlyUnlockedSportsAndValidatesDoublesContracts() {
@@ -401,16 +128,16 @@ final class WatchLinkServiceTests: XCTestCase {
         let foosballSingles = RallyMatchEngine.initial(leftName: "甲", rightName: "乙", rules: .foosball())
         var foosballDoubles = RallyMatchEngine.initial(leftName: "甲/丙", rightName: "乙/丁", rules: .foosball())
         foosballDoubles.doubles = .foosball(playerNames: ["甲", "乙", "丙", "丁"])
-        let football11 = LinkedFootballState(
+        let football11 = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
             timer: FootballTimerStateV2(halfLengthSeconds: 2700)
         )
-        let football5 = LinkedFootballState(
+        let football5 = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
             timer: FootballTimerStateV2(halfLengthSeconds: 1200),
-            kickedOff: false
+            isFiveAside: true, kickedOff: false
         )
 
         let validSetups: [LinkedScoreboardSetup] = [
@@ -458,13 +185,14 @@ final class WatchLinkServiceTests: XCTestCase {
     }
 
     func testWatchResumeSessionSupportsNewlyUnlockedSportsAndAppliesLinkedFootballSnapshot() throws {
-        let suiteName = "WatchLinkServiceTests.Resume.\(UUID().uuidString)"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("WatchLinkServiceTests.Resume.\(UUID().uuidString)", isDirectory: true)
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
 
-        let store = WatchResumeSessionStore(defaults: defaults)
+        let store = WatchResumeSessionStore(directoryURL: directory)
         let handle = LinkedMatchHandle(sessionId: UUID(), matchId: UUID())
-        let initialFootball = LinkedFootballState(
+        let initialFootball = FootballMatchState(
             leftName: "红队",
             rightName: "蓝队",
             leftScore: 0,
@@ -479,11 +207,9 @@ final class WatchLinkServiceTests: XCTestCase {
             initialSnapshot: .football(initialFootball),
             participantNames: ["红队", "蓝队"]
         )
-        let linkContext = WatchLinkResumeContext(
+        var linkContext = WatchLinkResumeContext(
             handle: handle,
             setup: setup,
-            role: .watchFollower,
-            authorityEpoch: 1,
             revision: 1,
             latestAuthoritativeSnapshot: .football(initialFootball),
             detailedActions: [],
@@ -494,22 +220,11 @@ final class WatchLinkServiceTests: XCTestCase {
             startedAt: Date(),
             scoreLine: "0 - 0",
             emoji: "⚽",
-            payload: .football(
-                isFiveAside: false,
-                state: WatchFootballState(
-                    leftScore: 0,
-                    rightScore: 0,
-                    clock: initialFootball.timer,
-                    kickedOff: true
-                ),
-                undoStates: [],
-                leftName: "红队",
-                rightName: "蓝队"
-            ),
-            link: linkContext
+            payload: .football(isFiveAside: false, bundle: footballBundle(initialFootball)),
+            linkHandle: linkContext.handle
         ))
 
-        let remoteFootball = LinkedFootballState(
+        let remoteFootball = FootballMatchState(
             leftName: "红队",
             rightName: "蓝队",
             leftScore: 2,
@@ -518,16 +233,19 @@ final class WatchLinkServiceTests: XCTestCase {
             kickedOff: true,
             finished: false
         )
+        linkContext.revision += 1
+        linkContext.latestAuthoritativeSnapshot = .football(remoteFootball)
         store.applyLinkedSnapshot(.football(remoteFootball), context: linkContext)
 
         let updated = try XCTUnwrap(store.session)
         XCTAssertEqual(updated.scoreLine, "2 - 1")
-        if case .football(let isFiveAside, let state, _, let leftName, let rightName) = updated.payload {
+        if case .football(let isFiveAside, let bundle) = updated.payload {
+            let state = bundle.currentSession.state
             XCTAssertFalse(isFiveAside)
             XCTAssertEqual(state.leftScore, 2)
             XCTAssertEqual(state.rightScore, 1)
-            XCTAssertEqual(leftName, "红队")
-            XCTAssertEqual(rightName, "蓝队")
+            XCTAssertEqual(state.leftName, "红队")
+            XCTAssertEqual(state.rightName, "蓝队")
         } else {
             XCTFail("Expected .football resume payload")
         }
@@ -557,83 +275,6 @@ final class WatchLinkServiceTests: XCTestCase {
         }
     }
 
-    func testWatchPublishSnapshotStripsDetailedActionsFromApplicationContextAndPreservesOnEmptyReceive() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let service = WatchLinkService(
-            transport: transport,
-            contextStore: store,
-            outboxStore: store
-        )
-        let setup = makeWatchLinkSetup()
-        transport.deliver(try JSONEncoder().encode(setup.envelope))
-        await settleWatchLinkService()
-        service.acceptPendingSetup()
-
-        let action = DetailedScoreAction(
-            id: UUID(),
-            type: .scoreChanged,
-            epochMilliseconds: 2_000,
-            team: .team1,
-            scores: [1, 0]
-        )
-        service.publishSnapshot(setup.snapshot, detailedActions: [action])
-        await settleWatchLinkService()
-
-        let contextEnvelope = try JSONDecoder().decode(
-            LinkEnvelope<LinkedScoreboardSetup>.self,
-            from: try XCTUnwrap(transport.publishedSnapshots.last)
-        )
-        let realtimeEnvelope = try JSONDecoder().decode(
-            LinkEnvelope<LinkedScoreboardSetup>.self,
-            from: try XCTUnwrap(transport.realtimeMessages.last)
-        )
-        XCTAssertTrue(contextEnvelope.payload.detailedActions.isEmpty)
-        XCTAssertEqual(realtimeEnvelope.payload.detailedActions.map(\.id), [action.id])
-
-        // Transfer to phone controller, then receive a stripped applicationContext
-        // snapshot with detailedActions == []; local merged actions must be preserved.
-        let handle = try XCTUnwrap(service.resumeContext?.handle)
-        let takeover = LinkEnvelope(
-            sessionId: handle.sessionId,
-            matchId: handle.matchId,
-            matchGeneration: handle.matchGeneration,
-            authorityEpoch: 0,
-            kind: .takeoverByPhone,
-            sender: .phone,
-            senderSequence: 2,
-            sessionRevision: 1,
-            sentAtEpochMilliseconds: 2_500,
-            payload: LinkAuthorityTransferPayload(snapshot: setup.snapshot, baseRevision: 1)
-        )
-        transport.deliver(try JSONEncoder().encode(takeover))
-        await settleWatchLinkService()
-
-        let strippedFromPhone = LinkEnvelope(
-            sessionId: handle.sessionId,
-            matchId: handle.matchId,
-            matchGeneration: handle.matchGeneration,
-            authorityEpoch: 1,
-            kind: .stateSnapshot,
-            sender: .phone,
-            senderSequence: 3,
-            sessionRevision: 2,
-            sentAtEpochMilliseconds: 3_000,
-            payload: LinkedScoreboardSetup(
-                gameType: .badminton,
-                maxSets: 3,
-                initialSnapshot: setup.snapshot,
-                detailedActions: [],
-                participantNames: ["甲", "乙"]
-            )
-        )
-        transport.deliver(try JSONEncoder().encode(strippedFromPhone))
-        await settleWatchLinkService()
-
-        XCTAssertEqual(service.mergedDetailedActions.map(\.id), [action.id])
-        XCTAssertEqual(service.activeSetup?.detailedActions.map(\.id), [action.id])
-    }
-
     func testTrainingLinkRoutesAndReturnsTheWatchRecord() throws {
         let start = Date(timeIntervalSince1970: 1_700_000_000)
         let state = LinkedShotTrainingState(
@@ -648,7 +289,7 @@ final class WatchLinkServiceTests: XCTestCase {
         let snapshot = LinkedScoreboardSnapshot.basketballTraining(state)
         let setup = LinkedScoreboardSetup(gameType: .basketballTraining, initialSnapshot: snapshot)
         XCTAssertTrue(WatchLinkService.isValidLinkedSetup(setup))
-        XCTAssertEqual(WatchScoreboardRoute(linkedSetup: setup), .basketballTraining(mode: .twoPoint))
+        XCTAssertEqual(WatchScoreboardRoute(linkedSetup: setup), .basketballTraining(mode: .fixed2))
         XCTAssertFalse(WatchLinkService.isValidLinkedSetup(.init(gameType: .football, initialSnapshot: snapshot)))
         let matchId = UUID()
         let record = try XCTUnwrap(WatchLinkedRecordIngestor.makeRecord(
@@ -661,19 +302,16 @@ final class WatchLinkServiceTests: XCTestCase {
             matchId: matchId
         ))
         XCTAssertEqual(record.totalScoreChanges, 2)
-        XCTAssertEqual(record.basketballTrainingDetails?.count(points: 2, made: true), 1)
-        XCTAssertEqual(record.basketballTrainingDetails?.count(points: 2, made: false), 1)
+        XCTAssertEqual(record.basketballTrainingDetails?.counts.count(points: 2, made: true), 1)
+        XCTAssertEqual(record.basketballTrainingDetails?.counts.count(points: 2, made: false), 1)
         let transfer = try XCTUnwrap(WatchRecordManager.shared.transferPayload(for: record))
         XCTAssertEqual(transfer.basketballTraining, state)
-        XCTAssertTrue(transfer.actions.isEmpty)
+        XCTAssertEqual(transfer.detailedActions, record.actions)
     }
 
     func testSuspendedTrainingFollowsPhoneShotsAndPersistsUpdatedTotals() throws {
-        let suite = "watch-linked-training-\(UUID().uuidString)"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-        defer { defaults.removePersistentDomain(forName: suite) }
         let now = Date()
-        let resumeStore = WatchResumeSessionStore(defaults: defaults, now: { now })
+        let resumeStore = WatchResumeSessionStore(directoryURL: makeResumeStoreDirectory(), now: { now })
         let state = LinkedShotTrainingState(
             mode: .free,
             startTime: now,
@@ -684,20 +322,23 @@ final class WatchLinkServiceTests: XCTestCase {
         let context = WatchLinkResumeContext(
             handle: LinkedMatchHandle(sessionId: UUID()),
             setup: .init(gameType: .basketballTraining, initialSnapshot: snapshot),
-            role: .watchFollower,
-            authorityEpoch: 1,
             revision: 2,
             latestAuthoritativeSnapshot: snapshot,
             detailedActions: [],
             completedMatchIds: [],
             pendingTerminalMessageIds: []
         )
+        let training = ScoreSession<ShotTrainingState, ShotTrainingEvent>(
+            gameType: .basketballTraining, ruleFamily: ScoreboardKernelRegistry.descriptor(for: .basketballTraining).ruleFamily,
+            reducerType: ScoreboardKernelRegistry.descriptor(for: .basketballTraining).reducerType,
+            state: ShotTrainingState(mode: .free, startTime: now)
+        )
         resumeStore.save(.init(
-            startedAt: now,
-            scoreLine: "0/1 = 0%",
-            emoji: "🏀",
-            payload: .basketballTraining(mode: .free, history: []),
-            link: context
+            startedAt: now, scoreLine: "0/1 = 0%", emoji: "🏀",
+            payload: .basketballTraining(bundle: .init(
+                replaySeed: training, currentSession: training, undoFrames: [], timeline: []
+            )),
+            linkHandle: context.handle
         ))
 
         resumeStore.applyLinkedSnapshot(snapshot, context: context)
@@ -705,12 +346,13 @@ final class WatchLinkServiceTests: XCTestCase {
 
         let resumed = try XCTUnwrap(resumeStore.session)
         XCTAssertEqual(resumed.scoreLine, "1/2 = 50%")
-        guard case .basketballTraining(let mode, let shots, let earlierCounts) = resumed.payload else {
+        guard case .basketballTraining(let bundle) = resumed.payload else {
             return XCTFail("Expected a training resume payload")
         }
-        XCTAssertEqual(mode, .free)
-        XCTAssertEqual(shots.first?.points, 3)
-        XCTAssertEqual(earlierCounts?.twoMiss, 1)
+        let restoredState = bundle.currentSession.state
+        XCTAssertEqual(restoredState.mode, .free)
+        XCTAssertEqual(restoredState.shots.first?.points, 3)
+        XCTAssertEqual(restoredState.earlierCounts.twoMiss, 1)
     }
 
     func testWatchLinkedRecordIngestorProjectsAllEighteenLinkedTypesAndRoundTrips() throws {
@@ -748,13 +390,13 @@ final class WatchLinkServiceTests: XCTestCase {
         tennisDoubles.rightGames = 3
         tennisDoubles.finished = true
 
-        let archery = LinkedArcheryState(
+        let archery = ArcheryMatchState(
             leftName: "红方",
             rightName: "蓝方",
-            leftSetPoints: 6,
-            rightSetPoints: 2,
             leftArrowSum: 29,
             rightArrowSum: 25,
+            leftSetPoints: 6,
+            rightSetPoints: 2,
             finished: true
         )
         var eightBall = EightBallState.initial(targetPoints: 5)
@@ -770,7 +412,7 @@ final class WatchLinkServiceTests: XCTestCase {
         snooker.leftFrames = 3
         snooker.rightFrames = 1
         snooker.finished = true
-        let football11 = LinkedFootballState(
+        let football11 = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
             leftScore: 2,
@@ -779,13 +421,13 @@ final class WatchLinkServiceTests: XCTestCase {
             kickedOff: true,
             finished: true
         )
-        let football5 = LinkedFootballState(
+        let football5 = FootballMatchState(
             leftName: "主队",
             rightName: "客队",
             leftScore: 4,
             rightScore: 2,
             timer: FootballTimerStateV2(halfLengthSeconds: 1200),
-            kickedOff: true,
+            isFiveAside: true, kickedOff: true,
             finished: true
         )
 
@@ -848,7 +490,7 @@ final class WatchLinkServiceTests: XCTestCase {
             XCTAssertEqual(record.id, payload.recordId)
             XCTAssertEqual(record.gameType, expectedWatchType)
             XCTAssertEqual(record.actions.count, 1)
-            XCTAssertEqual(record.actions.first?.id, action.id.uuidString)
+            XCTAssertEqual(record.actions.first?.id, action.id)
             XCTAssertEqual(record.projectConfiguration?["scoreCoreGameType"], scoreCoreType.rawValue)
 
             let roundTripped = try decoder.decode(
@@ -858,239 +500,6 @@ final class WatchLinkServiceTests: XCTestCase {
             XCTAssertEqual(roundTripped.id, record.id)
             XCTAssertEqual(roundTripped.gameType, expectedWatchType)
         }
-    }
-
-    func testWatchLinkPersistsLinkedRecordWhenPhoneFinishesAndIsIdempotent() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let sink = RecordingWatchLinkSink()
-        let service = WatchLinkService(
-            transport: transport,
-            contextStore: store,
-            outboxStore: store,
-            recordSink: sink
-        )
-        let setup = makeWatchLinkSetup()
-        transport.deliver(try JSONEncoder().encode(setup.envelope))
-        await settleWatchLinkService()
-        service.acceptPendingSetup()
-        let handle = try XCTUnwrap(service.resumeContext?.handle)
-
-        var finishedState = RallyMatchEngine.initial(leftName: "甲", rightName: "乙", rules: .badminton())
-        finishedState.leftPoints = 21
-        finishedState.rightPoints = 15
-        finishedState.leftSets = 2
-        finishedState.rightSets = 0
-        finishedState.finished = true
-        let action = DetailedScoreAction(
-            id: UUID(),
-            type: .scoreChanged,
-            epochMilliseconds: 1_700_000_010_000,
-            team: .team1,
-            scores: [21, 15],
-            setScores: [2, 0]
-        )
-        let finishedEnvelope = LinkEnvelope(
-            sessionId: handle.sessionId,
-            matchId: handle.matchId,
-            matchGeneration: handle.matchGeneration,
-            authorityEpoch: 1,
-            kind: .matchFinished,
-            sender: .phone,
-            senderSequence: 3,
-            sessionRevision: 2,
-            sentAtEpochMilliseconds: 1_700_000_060_000,
-            payload: LinkMatchFinishedPayload(
-                snapshot: .rally(finishedState),
-                recordId: "phone-finished-record",
-                winnerSide: .left,
-                manualEnd: false,
-                startTimeEpochMilliseconds: 1_700_000_000_000,
-                endTimeEpochMilliseconds: 1_700_000_060_000,
-                durationSeconds: 60,
-                totalScoreChanges: 1,
-                detailedActions: [action],
-                participantNames: ["甲", "乙"]
-            )
-        )
-        let encoded = try JSONEncoder().encode(finishedEnvelope)
-        sink.canPersist = false
-        transport.deliver(encoded)
-        await settleWatchLinkService()
-        XCTAssertFalse(service.publishedFinishedMatchIds.contains(handle.matchId))
-        service.exitScoreboard(sessionId: handle.sessionId)
-        XCTAssertTrue(service.pendingSessionEnds.isEmpty)
-        XCTAssertFalse(transport.realtimeMessages.contains { data in
-            (try? JSONDecoder().decode(LinkEnvelope<LinkAcknowledgementPayload>.self, from: data))?.kind
-                == .recordAcknowledgement
-        })
-        sink.canPersist = true
-        transport.deliver(encoded)
-        await settleWatchLinkService()
-        // Duplicate delivery (e.g. realtime + transferUserInfo) must not persist twice.
-        transport.deliver(encoded)
-        await settleWatchLinkService()
-
-        XCTAssertEqual(sink.ingested.count, 1)
-        XCTAssertEqual(sink.ingested.first?.recordId, "phone-finished-record")
-        XCTAssertEqual(sink.ingested.first?.syncState, .sent)
-        XCTAssertEqual(sink.ingested.first?.actionCount, 1)
-
-        let recordAcks = transport.realtimeMessages.compactMap {
-            try? JSONDecoder().decode(LinkEnvelope<LinkAcknowledgementPayload>.self, from: $0)
-        }.filter { $0.kind == .recordAcknowledgement && $0.correlationId == finishedEnvelope.messageId }
-        XCTAssertEqual(recordAcks.count, 2)
-    }
-
-    func testDelayedPhoneFinishPersistsAfterNewSessionAndRestart() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let previousHandler = WatchRecordManager.shared.recordTransferHandler
-        let service = WatchLinkService(transport: transport, contextStore: store, outboxStore: store)
-        let old = makeWatchLinkSetup().envelope
-        service.receive(try JSONEncoder().encode(old))
-        service.acceptPendingSetup()
-
-        let training = LinkedScoreboardSnapshot.basketballTraining(.init(mode: .free))
-        let newSetup = LinkEnvelope(
-            supportsCompressedFinish: true,
-            sessionId: UUID(), kind: .setupRequest, sender: .phone, senderSequence: 1,
-            sessionRevision: 0, sentAtEpochMilliseconds: 3_000,
-            payload: LinkedScoreboardSetup(gameType: .basketballTraining, initialSnapshot: training)
-        )
-        service.receive(try JSONEncoder().encode(newSetup))
-        service.acceptPendingSetup()
-        XCTAssertEqual(service.activeHandle, newSetup.handle)
-
-        let records = WatchRecordManager.shared
-        let recordID = "w_late_\(UUID().uuidString)"
-        defer {
-            _ = records.deleteRecord(id: recordID)
-            records.recordTransferHandler = previousHandler
-        }
-        var badminton = try XCTUnwrap(old.payload.initialSnapshot?.rallyState)
-        badminton.leftPoints = 21
-        badminton.rightPoints = 14
-        badminton.leftSets = 2
-        badminton.finished = true
-        let finished = LinkEnvelope(
-            sessionId: old.sessionId, matchId: old.matchId, matchGeneration: old.matchGeneration,
-            authorityEpoch: 1, kind: .matchFinished, sender: .phone, senderSequence: 3,
-            sessionRevision: 3, sentAtEpochMilliseconds: 3_100,
-            payload: LinkMatchFinishedPayload(
-                snapshot: .rally(badminton), recordId: recordID, winnerSide: .left,
-                startTimeEpochMilliseconds: 1_700_000_000_000, endTimeEpochMilliseconds: 1_700_000_060_000,
-                durationSeconds: 60
-            )
-        )
-        let data = try JSONEncoder().encode(finished)
-        let receiver = WatchLinkTestTransport()
-        let restored = WatchLinkService(transport: receiver, contextStore: store, outboxStore: store)
-        restored.receive(data)
-        let record = try XCTUnwrap(records.getRecord(id: recordID))
-        XCTAssertEqual(record.gameType, .badminton)
-        XCTAssertEqual(record.team1FinalScore, 21)
-        XCTAssertEqual(records.syncState(for: recordID), .sent)
-        XCTAssertEqual(restored.activeHandle, newSetup.handle)
-        XCTAssertEqual(restored.resumeContext?.latestAuthoritativeSnapshot, training)
-        XCTAssertFalse(restored.publishedFinishedMatchIds.contains(old.matchId))
-        await settleWatchLinkService()
-        let ack = try XCTUnwrap(receiver.realtimeMessages.compactMap {
-            try? JSONDecoder().decode(LinkEnvelope<LinkAcknowledgementPayload>.self, from: $0)
-        }.first { $0.kind == .recordAcknowledgement })
-        XCTAssertEqual(ack.handle, old.handle)
-        XCTAssertEqual(ack.correlationId, finished.messageId)
-
-        XCTAssertTrue(records.deleteRecord(id: recordID))
-        let retryTransport = WatchLinkTestTransport()
-        let restarted = WatchLinkService(transport: retryTransport, contextStore: store, outboxStore: store)
-        restarted.receive(data)
-        XCTAssertNil(records.getRecord(id: recordID))
-        await settleWatchLinkService()
-        XCTAssertTrue(retryTransport.realtimeMessages.contains {
-            let ack = try? JSONDecoder().decode(LinkEnvelope<LinkAcknowledgementPayload>.self, from: $0)
-            return ack?.kind == .recordAcknowledgement && ack?.correlationId == finished.messageId
-        })
-    }
-
-    func testWatchLinkPersistsLinkedRecordWhenWatchFinishesAndMarksSyncedOnRecordAck() async throws {
-        let store = WatchLinkTestDataStore()
-        let transport = WatchLinkTestTransport()
-        let sink = RecordingWatchLinkSink()
-        let service = WatchLinkService(
-            transport: transport,
-            contextStore: store,
-            outboxStore: store,
-            recordSink: sink
-        )
-        let setup = makeWatchLinkSetup()
-        transport.deliver(try JSONEncoder().encode(setup.envelope))
-        await settleWatchLinkService()
-        service.acceptPendingSetup()
-        let handle = try XCTUnwrap(service.resumeContext?.handle)
-
-        var finishedState = RallyMatchEngine.initial(leftName: "甲", rightName: "乙", rules: .badminton())
-        finishedState.leftPoints = 21
-        finishedState.rightPoints = 16
-        finishedState.leftSets = 2
-        finishedState.rightSets = 0
-        finishedState.finished = true
-        let action = DetailedScoreAction(
-            id: UUID(),
-            type: .scoreChanged,
-            epochMilliseconds: 1_700_000_010_000,
-            team: .team1,
-            scores: [21, 16],
-            setScores: [2, 0]
-        )
-
-        service.publishMatchFinished(
-            snapshot: .rally(finishedState),
-            recordId: "w_watch_finished_1",
-            winnerSide: .left,
-            manualEnd: false,
-            startTime: Date(timeIntervalSince1970: 1_700_000_000),
-            endTime: Date(timeIntervalSince1970: 1_700_000_060),
-            totalScoreChanges: 1,
-            detailedActions: [action]
-        )
-        service.exitScoreboard(sessionId: handle.sessionId)
-        XCTAssertTrue(service.terminalOutbox.contains(sessionId: handle.sessionId, matchId: handle.matchId))
-        XCTAssertEqual(service.activeSessionId, handle.sessionId)
-        await settleWatchLinkService()
-
-        XCTAssertEqual(sink.ingested.count, 1)
-        XCTAssertEqual(sink.ingested.first?.recordId, "w_watch_finished_1")
-        XCTAssertEqual(sink.ingested.first?.syncState, .pending)
-        XCTAssertEqual(transport.durableMessages.count, 1)
-
-        let realtimeFinished = try XCTUnwrap(
-            transport.realtimeMessages.compactMap {
-                try? JSONDecoder().decode(LinkEnvelope<LinkMatchFinishedPayload>.self, from: $0)
-            }.first { $0.kind == .matchFinished }
-        )
-        XCTAssertEqual(realtimeFinished.payload.recordId, "w_watch_finished_1")
-
-        let phoneAck = LinkEnvelope(
-            correlationId: realtimeFinished.messageId,
-            sessionId: handle.sessionId,
-            matchId: handle.matchId,
-            matchGeneration: handle.matchGeneration,
-            authorityEpoch: realtimeFinished.authorityEpoch,
-            kind: .recordAcknowledgement,
-            sender: .phone,
-            senderSequence: 4,
-            sessionRevision: realtimeFinished.sessionRevision,
-            sentAtEpochMilliseconds: 1_700_000_061_000,
-            payload: LinkAcknowledgementPayload(
-                acknowledgedMessageId: realtimeFinished.messageId,
-                acknowledgedRevision: realtimeFinished.sessionRevision
-            )
-        )
-        transport.deliver(try JSONEncoder().encode(phoneAck))
-        await settleWatchLinkService()
-
-        XCTAssertEqual(sink.markedSyncedRecordIds, ["w_watch_finished_1"])
     }
 
     func testWatchLinkedRecordIngestorSavesToWatchRecordManagerWithoutStandaloneTransfer() throws {
@@ -1137,11 +546,382 @@ final class WatchLinkServiceTests: XCTestCase {
         XCTAssertEqual(stored.gameType, .badminton)
         XCTAssertEqual(stored.team1SetScore, 2)
         XCTAssertEqual(stored.team2SetScore, 0)
-        XCTAssertEqual(stored.winner, "甲")
+        XCTAssertEqual(stored.winnerIdentity, .team(.team0))
+        XCTAssertEqual(stored.winnerName, "甲")
         XCTAssertEqual(WatchRecordManager.shared.syncState(for: recordId), .sent)
     }
 
-    private func makeWatchLinkSetup(supportsSharedEditing: Bool? = nil) -> (
+    func testOfflineWatchFinishRestoresQueueAndReplaysExistingOperationIDsInOrder() async throws {
+        let directory = makeResumeStoreDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let fixture = makeWatchLinkSetup()
+        let handle = fixture.envelope.handle
+        let sink = RecordingWatchLinkSink()
+        let offline = WatchLinkTestTransport()
+        offline.setReachable(false)
+        let pending: [LinkOperation]
+        do {
+            let watch = makeService(directory: directory, transport: offline, sink: sink)
+            try open(fixture.envelope, on: watch)
+            pending = try queueOfflineFinish(on: watch, handle: handle)
+            let update = try XCTUnwrap(watch.intentSync.update)
+            XCTAssertTrue(update.isPendingFinish)
+            XCTAssertEqual(update.displayedSnapshot.rallyState?.rightPoints, 2)
+            XCTAssertEqual(update.confirmedSnapshot.rallyState?.rightPoints, 0)
+            XCTAssertNil(update.savedRecordID)
+            XCTAssertTrue(offline.operations.isEmpty)
+            XCTAssertTrue(sink.ingested.isEmpty)
+        }
+
+        let reconnected = WatchLinkTestTransport()
+        reconnected.setReachable(false)
+        let watch = makeService(directory: directory, transport: reconnected, sink: sink)
+        XCTAssertEqual(watch.activeHandle, handle)
+        XCTAssertEqual(watch.intentSync.update?.startEpochMilliseconds, fixture.envelope.sentAtEpochMilliseconds)
+        XCTAssertEqual(watch.intentSync.update?.isPendingFinish, true)
+        XCTAssertEqual(watch.intentSync.update?.displayedSnapshot.rallyState?.rightPoints, 2)
+        XCTAssertNil(watch.intentSync.update?.savedRecordID)
+
+        reconnected.setReachable(true)
+        await waitFor { reconnected.operations.count >= pending.count }
+        XCTAssertEqual(Array(reconnected.operations.prefix(pending.count)), pending)
+        XCTAssertEqual(reconnected.operations.prefix(pending.count).map(\.clientSeq), [1, 2, 3])
+
+        let host = try WatchTestHost(launch: fixture.envelope)
+        for operation in pending {
+            let commit = try host.process(operation)
+            XCTAssertEqual(commit.outcome, .accepted)
+            try deliverCommit(commit, to: watch)
+        }
+        let update = try XCTUnwrap(watch.intentSync.update)
+        XCTAssertFalse(update.isPendingFinish)
+        XCTAssertEqual(update.confirmedSnapshot, host.snapshot)
+        XCTAssertEqual(update.confirmedSnapshot.rallyState?.rightPoints, 2)
+        XCTAssertEqual(update.savedRecordID, "w_\(handle.matchId.uuidString)")
+        XCTAssertFalse(watch.intentSync.hasPendingOperations(for: handle))
+        XCTAssertEqual(sink.ingested.map(\.matchId), [handle.matchId])
+    }
+
+    func testPhoneFirstFinishRecoveryPersistsExactHistoryBeforeAcknowledgingAndCountsOnlyScores() async throws {
+        let directory = makeResumeStoreDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let fixture = makeWatchLinkSetup()
+        let handle = fixture.envelope.handle
+        let sink = RecordingWatchLinkSink()
+        sink.canPersist = false
+        let transport = WatchLinkTestTransport()
+        transport.setReachable(false)
+        let host = try WatchTestHost(launch: fixture.envelope)
+        let opening = try host.phone(.rally(.pointWon(.left)))
+        let finish = try host.phone(.finish)
+        let payload: LinkIntentRecoveryPayload
+        do {
+            let watch = makeService(directory: directory, transport: transport, sink: sink)
+            try open(fixture.envelope, on: watch)
+            let pending = try queueOfflineFinish(on: watch, handle: handle)
+            let late = try pending.map { try host.process($0) }
+            XCTAssertTrue(late.allSatisfy {
+                $0.rejectionReason == LinkOperationRejectionReason.matchFinished.rawValue
+            })
+            payload = try host.recovery(results: late, terminalCommit: finish)
+            XCTAssertTrue(payload.finishedPayload?.detailedActions.isEmpty == true)
+            XCTAssertEqual(payload.detailedActions, opening.deltaActions + finish.deltaActions)
+
+            let frame = phoneFrame(.intentCheckpoint, handle: handle, revision: payload.checkpoint.committedRevision, payload: payload)
+            try transport.deliverIntentFile(JSONEncoder().encode(frame))
+            await waitFor { sink.attemptedRecordIDs.count == 1 }
+            XCTAssertEqual(watch.intentSync.update?.confirmedSnapshot, host.snapshot)
+            XCTAssertEqual(watch.intentSync.update?.excludedScoringOperationCount, 2)
+            XCTAssertNil(watch.intentSync.update?.savedRecordID)
+            XCTAssertFalse(watch.intentSync.hasPendingOperations(for: handle))
+            XCTAssertFalse(transport.acknowledged(frame.messageId))
+        }
+
+        sink.canPersist = true
+        let retry = WatchLinkTestTransport()
+        retry.setReachable(false)
+        let restored = makeService(directory: directory, transport: retry, sink: sink)
+        let recordID = "w_\(handle.matchId.uuidString)"
+        XCTAssertEqual(restored.intentSync.update?.savedRecordID, recordID)
+        XCTAssertEqual(restored.intentSync.update?.excludedScoringOperationCount, 2)
+        XCTAssertEqual(sink.ingested.map(\.recordId), [recordID])
+        XCTAssertEqual(sink.payloads.first?.detailedActions, payload.detailedActions)
+        XCTAssertEqual(sink.payloads.first?.endTimeEpochMilliseconds, finish.effectiveEpochMilliseconds)
+
+        let duplicate = phoneFrame(.intentCheckpoint, handle: handle, revision: payload.checkpoint.committedRevision, payload: payload)
+        try retry.deliverIntentFile(JSONEncoder().encode(duplicate))
+        await waitFor { retry.acknowledged(duplicate.messageId) }
+        XCTAssertTrue(retry.acknowledged(duplicate.messageId))
+        XCTAssertEqual(restored.intentSync.update?.excludedScoringOperationCount, 2)
+        XCTAssertEqual(restored.intentSync.update?.confirmedSnapshot.rallyState?.leftPoints, 1)
+        XCTAssertEqual(restored.intentSync.update?.confirmedSnapshot.rallyState?.rightPoints, 0)
+        XCTAssertEqual(sink.ingested.map(\.recordId), [recordID])
+    }
+
+    func testWrongHandleAndGapKeepPendingUntilCheckpointHasMatchingReceipts() async throws {
+        let directory = makeResumeStoreDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let fixture = makeWatchLinkSetup()
+        let handle = fixture.envelope.handle
+        let stillPending: LinkOperation
+        let confirmedRevision: UInt64
+        do {
+            let transport = WatchLinkTestTransport()
+            let watch = makeService(directory: directory, transport: transport)
+            try open(fixture.envelope, on: watch)
+            let local = try watch.intentSync.submit(
+                .rally(.pointWon(.right)), handle: handle, createdAtEpochMilliseconds: 1_100
+            )
+            stillPending = try watch.intentSync.submit(
+                .rally(.pointWon(.right)), handle: handle, createdAtEpochMilliseconds: 1_200
+            )
+            let host = try WatchTestHost(launch: fixture.envelope)
+            let first = try host.phone(.rally(.pointWon(.left)))
+            let skipped = try host.process(local)
+            let gapped = try host.phone(.rally(.pointWon(.left)))
+            confirmedRevision = gapped.committedRevision
+
+            let wrongHandle = LinkedMatchHandle(
+                sessionId: handle.sessionId, matchId: UUID(), matchGeneration: handle.matchGeneration
+            )
+            try deliver(phoneFrame(
+                .intentCommit, handle: wrongHandle, revision: first.committedRevision, payload: first
+            ), to: watch)
+            XCTAssertEqual(watch.intentSync.update?.committedRevision, 0)
+            XCTAssertTrue(watch.intentSync.hasPendingOperations(for: handle))
+
+            let badHash = LinkOperationCommitPayload(
+                committedRevision: first.committedRevision, op: first.op, outcome: first.outcome,
+                effectiveEpochMilliseconds: first.effectiveEpochMilliseconds, timeWasClamped: first.timeWasClamped,
+                stateHash: first.stateHash ^ 1, authoritativeSnapshot: first.authoritativeSnapshot
+            )
+            try deliverCommit(badHash, to: watch)
+            XCTAssertEqual(watch.intentSync.update?.committedRevision, 0)
+            XCTAssertTrue(watch.intentSync.hasPendingOperations(for: handle))
+            try deliverCommit(first, to: watch)
+            try deliverCommit(gapped, to: watch)
+            XCTAssertEqual(watch.intentSync.update?.committedRevision, first.committedRevision)
+            await waitFor {
+                transport.recoveryRequests.contains { $0.payload.pendingOperationIds == [local.opId, stillPending.opId] }
+            }
+            XCTAssertTrue(transport.recoveryRequests.contains {
+                $0.handle == handle && $0.payload.pendingOperationIds == [local.opId, stillPending.opId]
+            })
+
+            let missingReceipt = try host.recovery(results: [])
+            try deliver(phoneFrame(
+                .intentCheckpoint, handle: handle, revision: missingReceipt.checkpoint.committedRevision, payload: missingReceipt
+            ), to: watch)
+            XCTAssertEqual(watch.intentSync.update?.committedRevision, first.committedRevision)
+            XCTAssertTrue(watch.intentSync.hasPendingOperations(for: handle))
+
+            let complete = try host.recovery(results: [skipped])
+            try deliver(phoneFrame(
+                .intentCheckpoint, handle: handle, revision: complete.checkpoint.committedRevision, payload: complete
+            ), to: watch)
+            XCTAssertEqual(watch.intentSync.update?.committedRevision, confirmedRevision)
+            XCTAssertEqual(watch.intentSync.update?.confirmedSnapshot, host.snapshot)
+            XCTAssertEqual(watch.intentSync.update?.confirmedSnapshot.rallyState?.rightPoints, 1)
+            XCTAssertEqual(watch.intentSync.update?.displayedSnapshot.rallyState?.rightPoints, 2)
+            transport.setReachable(false)
+            await settleWatchLinkService()
+        }
+
+        let restartedTransport = WatchLinkTestTransport()
+        let restarted = makeService(directory: directory, transport: restartedTransport)
+        XCTAssertEqual(restarted.activeHandle, handle)
+        XCTAssertEqual(restarted.intentSync.update?.committedRevision, confirmedRevision)
+        XCTAssertEqual(restarted.intentSync.update?.displayedSnapshot.rallyState?.rightPoints, 2)
+        await waitFor { !restartedTransport.operations.isEmpty }
+        XCTAssertEqual(restartedTransport.operations.first, stillPending)
+    }
+
+    func testPendingFinishBlocksFreshSetupAndRolloverKeepsOldQueueAfterRestart() async throws {
+        let directory = makeResumeStoreDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let fixture = makeWatchLinkSetup()
+        let handle = fixture.envelope.handle
+        let next = handle.nextMatch()
+        let sink = RecordingWatchLinkSink()
+        let host = try WatchTestHost(launch: fixture.envelope)
+        _ = try host.phone(.rally(.pointWon(.left)))
+        let finish = try host.phone(.finish)
+        let rollover = try host.phone(.nextMatch(matchId: next.matchId, matchGeneration: next.matchGeneration))
+        XCTAssertEqual(rollover.outcome, .accepted)
+        let pending: [LinkOperation]
+        do {
+            let transport = WatchLinkTestTransport()
+            transport.setReachable(false)
+            let watch = makeService(directory: directory, transport: transport, sink: sink)
+            try open(fixture.envelope, on: watch)
+            pending = try queueOfflineFinish(on: watch, handle: handle)
+            transport.setReachable(true)
+
+            // The exact setup retransmission must not reset a durable score.
+            try deliver(fixture.envelope, to: watch)
+            XCTAssertNil(watch.pendingConfirmRequest)
+            XCTAssertEqual(watch.intentSync.update?.displayedSnapshot.rallyState?.rightPoints, 2)
+
+            let fresh = makeWatchLinkSetup().envelope
+            try deliver(fresh, to: watch)
+            XCTAssertNil(watch.pendingConfirmRequest)
+            XCTAssertEqual(watch.activeHandle, handle)
+            await waitFor {
+                transport.setupRejections.contains {
+                    $0.correlationId == fresh.messageId && $0.payload.detail == "finish_pending"
+                }
+            }
+            XCTAssertTrue(transport.setupRejections.contains {
+                $0.correlationId == fresh.messageId && $0.payload.detail == "finish_pending"
+            })
+
+            let start = phoneFrame(.matchStarted, handle: next, revision: 0, at: 2_000, payload: fixture.envelope.payload)
+            try deliver(start, to: watch)
+            XCTAssertEqual(watch.activeHandle, next)
+            XCTAssertEqual(watch.acceptedSetup?.handle, next)
+            XCTAssertTrue(watch.intentSync.hasPendingOperations(for: handle))
+            XCTAssertEqual(watch.intentSync.update?.displayedSnapshot.rallyState?.rightPoints, 0)
+            transport.setReachable(false)
+            await settleWatchLinkService()
+        }
+
+        let reconnected = WatchLinkTestTransport()
+        reconnected.setReachable(false)
+        let restored = makeService(directory: directory, transport: reconnected, sink: sink)
+        XCTAssertEqual(restored.activeHandle, next)
+        XCTAssertTrue(restored.intentSync.hasPendingOperations(for: handle))
+        reconnected.setReachable(true)
+        await waitFor { reconnected.operations.filter { $0.handle == handle }.count >= pending.count }
+        XCTAssertEqual(Array(reconnected.operations.filter { $0.handle == handle }.prefix(pending.count)), pending)
+
+        let late = try pending.map { try host.process($0, isActiveMatch: false) }
+        let recovery = try host.recovery(results: late, terminalCommit: finish)
+        try deliver(phoneFrame(.intentCheckpoint, handle: handle, revision: recovery.checkpoint.committedRevision, payload: recovery), to: restored)
+        XCTAssertEqual(restored.activeHandle, next)
+        XCTAssertEqual(restored.intentSync.update?.committedRevision, 0)
+        XCTAssertEqual(restored.intentSync.retiredFinishUpdate?.handle, handle)
+        XCTAssertEqual(restored.intentSync.retiredFinishUpdate?.excludedScoringOperationCount, 2)
+        XCTAssertEqual(sink.ingested.map(\.matchId), [handle.matchId])
+        XCTAssertFalse(restored.intentSync.hasPendingOperations(for: handle))
+    }
+
+    func testOfflineQueueAgeLimitKeepsExistingScoreAndReservesFinish() throws {
+        let directory = makeResumeStoreDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let transport = WatchLinkTestTransport()
+        transport.setReachable(false)
+        let watch = makeService(directory: directory, transport: transport)
+        let fixture = makeWatchLinkSetup()
+        let handle = fixture.envelope.handle
+        try open(fixture.envelope, on: watch)
+        let first = try watch.intentSync.submit(
+            .rally(.pointWon(.left)), handle: handle, createdAtEpochMilliseconds: 1_100
+        )
+        let later: Int64 = first.createdAtEpochMilliseconds + 7 * 24 * 60 * 60 * 1_000 + 1
+        XCTAssertThrowsError(try watch.intentSync.submit(
+            .rally(.pointWon(.right)), handle: handle, createdAtEpochMilliseconds: later
+        )) { XCTAssertEqual($0 as? WatchReplayQueueError, .queueTooOld) }
+
+        let finish = try watch.intentSync.submit(.finish, handle: handle, createdAtEpochMilliseconds: later)
+        XCTAssertEqual(finish.clientSeq, 2)
+        XCTAssertEqual(watch.intentSync.update?.displayedSnapshot.rallyState?.leftPoints, 1)
+        XCTAssertEqual(watch.intentSync.update?.displayedSnapshot.rallyState?.rightPoints, 0)
+        XCTAssertEqual(watch.intentSync.update?.isPendingFinish, true)
+    }
+
+    func testStandaloneRecordTransferAndAcknowledgementDoNotRequireLinkedSession() async throws {
+        let directory = makeResumeStoreDirectory()
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let payload = WatchRecordTransferPayload(
+            id: "watch-standalone-\(UUID().uuidString)", kind: .sport(.badminton), source: .watchLocal,
+            startEpochMilliseconds: 1_000, endEpochMilliseconds: 2_000, durationSeconds: 1,
+            team1Name: "甲", team2Name: "乙", team1FinalScore: 1, team2FinalScore: 0
+        )
+        do {
+            let transport = WatchLinkTestTransport()
+            transport.setReachable(false)
+            let watch = makeService(directory: directory, transport: transport)
+            watch.transferFinishedRecord(payload)
+            XCTAssertNil(watch.activeHandle)
+            XCTAssertEqual(watch.pendingWatchRecords, [payload])
+            let frame = try XCTUnwrap(transport.standaloneRecords.first)
+            XCTAssertEqual(try JSONDecoder().decode(WatchRecordTransferPayload.self, from: frame), payload)
+            XCTAssertTrue(transport.operations.isEmpty)
+        }
+
+        let transport = WatchLinkTestTransport()
+        transport.setReachable(false)
+        let watch = makeService(directory: directory, transport: transport)
+        XCTAssertEqual(watch.pendingWatchRecords, [payload])
+        transport.deliverStandaloneRecordAcknowledgement([payload.id])
+        await waitFor { watch.pendingWatchRecords.isEmpty }
+        XCTAssertTrue(watch.pendingWatchRecords.isEmpty)
+        XCTAssertNil(watch.activeHandle)
+    }
+
+    private func footballBundle(
+        _ state: FootballMatchState
+    ) -> ScoreSessionResumeBundle<FootballMatchState, FootballMatchEvent, FootballMatchIntent> {
+        let descriptor = ScoreboardKernelRegistry.descriptor(for: .football)
+        let session = ScoreSession<FootballMatchState, FootballMatchEvent>(
+            gameType: .football, ruleFamily: descriptor.ruleFamily, reducerType: descriptor.reducerType, state: state
+        )
+        return .init(replaySeed: session, currentSession: session, undoFrames: [], timeline: [])
+    }
+
+    private func makeService(
+        directory: URL, transport: WatchLinkTestTransport, sink: RecordingWatchLinkSink? = nil
+    ) -> WatchLinkService {
+        let store = FileLinkDataStore(directoryURL: directory)
+        return WatchLinkService(
+            transport: transport, contextStore: store, outboxStore: store,
+            recordSink: sink ?? RecordingWatchLinkSink(), intentStore: store
+        )
+    }
+
+    private func open(_ setup: LinkEnvelope<LinkedScoreboardSetup>, on watch: WatchLinkService) throws {
+        try deliver(setup, to: watch)
+        XCTAssertEqual(watch.pendingConfirmRequest?.handle, setup.handle)
+        watch.acceptPendingSetup()
+        XCTAssertEqual(watch.activeHandle, setup.handle)
+    }
+
+    private func queueOfflineFinish(on watch: WatchLinkService, handle: LinkedMatchHandle) throws -> [LinkOperation] {
+        [
+            try watch.intentSync.submit(.rally(.pointWon(.right)), handle: handle, createdAtEpochMilliseconds: 1_100),
+            try watch.intentSync.submit(.rally(.pointWon(.right)), handle: handle, createdAtEpochMilliseconds: 1_200),
+            try watch.intentSync.submit(.finish, handle: handle, createdAtEpochMilliseconds: 1_300)
+        ]
+    }
+
+    private func deliverCommit(_ result: LinkOperationCommitPayload, to watch: WatchLinkService) throws {
+        try deliver(phoneFrame(.intentCommit, handle: result.op.handle, revision: result.committedRevision, payload: result), to: watch)
+    }
+
+    private func deliver<Value: Codable & Sendable>(_ frame: LinkEnvelope<Value>, to watch: WatchLinkService) throws {
+        watch.receive(try JSONEncoder().encode(frame))
+    }
+
+    private func phoneFrame<Value: Codable & Sendable>(
+        _ kind: LinkMessageKind, handle: LinkedMatchHandle,
+        revision: UInt64, at timestamp: Int64 = 1_500, payload: Value
+    ) -> LinkEnvelope<Value> {
+        LinkEnvelope(
+            sessionId: handle.sessionId, matchId: handle.matchId, matchGeneration: handle.matchGeneration,
+            kind: kind, sender: .phone, senderSequence: revision + 1, sessionRevision: revision,
+            sentAtEpochMilliseconds: timestamp, payload: payload
+        )
+    }
+
+    private func waitFor(_ condition: () -> Bool, file: StaticString = #filePath, line: UInt = #line) async {
+        for _ in 0..<100 {
+            if condition() { return }
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        XCTAssertTrue(condition(), "Expected service work was not observed", file: file, line: line)
+    }
+
+    private func makeWatchLinkSetup() -> (
         envelope: LinkEnvelope<LinkedScoreboardSetup>,
         snapshot: LinkedScoreboardSnapshot
     ) {
@@ -1154,7 +934,6 @@ final class WatchLinkServiceTests: XCTestCase {
         let handle = LinkedMatchHandle(sessionId: UUID())
         return (
             LinkEnvelope(
-                supportsSharedEditing: supportsSharedEditing,
                 sessionId: handle.sessionId,
                 matchId: handle.matchId,
                 matchGeneration: handle.matchGeneration,
@@ -1190,6 +969,8 @@ private final class RecordingWatchLinkSink: WatchLinkRecordSink {
     }
 
     private(set) var ingested: [Entry] = []
+    private(set) var payloads: [LinkMatchFinishedPayload] = []
+    private(set) var attemptedRecordIDs: [String] = []
     private(set) var markedSyncedRecordIds: [String] = []
     var canPersist = true
 
@@ -1200,8 +981,10 @@ private final class RecordingWatchLinkSink: WatchLinkRecordSink {
         matchId: UUID,
         syncState: WatchRecordSyncState
     ) -> String? {
-        guard canPersist else { return nil }
         let id = payload.recordId.isEmpty ? "w_\(matchId.uuidString)" : payload.recordId
+        attemptedRecordIDs.append(id)
+        guard canPersist else { return nil }
+        payloads.append(payload)
         ingested.append(.init(
             recordId: id,
             gameType: gameType,
@@ -1217,74 +1000,176 @@ private final class RecordingWatchLinkSink: WatchLinkRecordSink {
     }
 }
 
-private final class WatchLinkTestDataStore: @unchecked Sendable, LinkDataStore {
-    private var values: [String: Data] = [:]
+/// Drives the real Phone sequencer without using WatchConnectivity's iOS process.
+@MainActor
+private final class WatchTestHost {
+    private let launch: LinkEnvelope<LinkedScoreboardSetup>
+    private let adapter: LinkedReducerAdapter
+    private var sequencer: PhoneHostSequencer<LinkedReducerState>
+    private var receipts: [UUID: LinkOperationCommitPayload] = [:]
+    private var ordered: [LinkOperationCommitPayload] = []
 
-    func data(forKey key: String) -> Data? {
-        values[key]
+    init(launch: LinkEnvelope<LinkedScoreboardSetup>) throws {
+        self.launch = launch
+        let snapshot = try XCTUnwrap(launch.payload.initialSnapshot)
+        let adapter = LinkedReducerAdapter()
+        self.adapter = adapter
+        let state = try XCTUnwrap(adapter.state(gameType: launch.payload.gameType, from: snapshot))
+        sequencer = PhoneHostSequencer(
+            checkpoint: PhoneHostCheckpoint(
+                handle: launch.handle, state: state, initialEpochMilliseconds: launch.sentAtEpochMilliseconds
+            ),
+            snapshot: adapter.snapshot, isFinished: adapter.isFinished, transition: adapter.transition
+        )
     }
 
-    func set(_ data: Data, forKey key: String) {
-        values[key] = data
+    var snapshot: LinkedScoreboardSnapshot { adapter.snapshot(sequencer.checkpoint.state) }
+
+    func phone(_ intent: LinkedScoreboardIntent) throws -> LinkOperationCommitPayload {
+        let checkpoint = sequencer.checkpoint
+        return try process(LinkOperation(
+            opId: UUID(), handle: launch.handle, origin: .phone,
+            clientSeq: checkpoint.phoneClientSeq + 1, baseRevision: checkpoint.committedRevision,
+            createdAtEpochMilliseconds: checkpoint.effectiveEpochMilliseconds + 100, intent: intent
+        ))
     }
 
-    func removeObject(forKey key: String) {
-        values.removeValue(forKey: key)
+    func process(_ op: LinkOperation, isActiveMatch: Bool = true) throws -> LinkOperationCommitPayload {
+        let known = receipts
+        let result = try sequencer.process(
+            op, from: op.origin, phoneClockReferenceEpochMilliseconds: op.createdAtEpochMilliseconds,
+            isActiveMatch: isActiveMatch, lookup: { known[$0] }, persist: { _, _ in }
+        )
+        if receipts.updateValue(result, forKey: op.opId) == nil { ordered.append(result) }
+        return result
+    }
+
+    func recovery(
+        results: [LinkOperationCommitPayload], terminalCommit: LinkOperationCommitPayload? = nil
+    ) throws -> LinkIntentRecoveryPayload {
+        let checkpoint = try sequencer.authoritativeCheckpoint(watchResults: results)
+        let actions = ordered.flatMap(\.deltaActions)
+        let finished: LinkMatchFinishedPayload?
+        if let terminalCommit {
+            finished = LinkMatchFinishedPayload(
+                snapshot: checkpoint.snapshot, recordId: "w_\(launch.handle.matchId.uuidString)",
+                manualEnd: terminalCommit.op.intent == .finish,
+                startTimeEpochMilliseconds: launch.sentAtEpochMilliseconds,
+                endTimeEpochMilliseconds: terminalCommit.effectiveEpochMilliseconds,
+                durationSeconds: Double(terminalCommit.effectiveEpochMilliseconds - launch.sentAtEpochMilliseconds) / 1_000,
+                totalScoreChanges: actions.filter { $0.type != .undo }.count,
+                detailedActions: [], participantNames: launch.payload.participantNames
+            )
+        } else {
+            finished = nil
+        }
+        return LinkIntentRecoveryPayload(
+            checkpoint: checkpoint, detailedActions: actions,
+            nextMatchHandle: sequencer.checkpoint.nextMatchHandle, finishedPayload: finished
+        )
     }
 }
 
 private final class WatchLinkTestTransport: @unchecked Sendable, WatchLinkTransport {
-    var status = WatchConnectivityStatus(
-        isSupported: true,
-        isActivated: true,
-        isPaired: true,
-        isWatchAppInstalled: true,
-        isReachable: true
-    )
-    var receivedApplicationContext: [String: Any] = [:]
+    private let lock = NSLock()
+    private var storedStatus = WatchLinkTestTransport.status(reachable: true)
+    private var storedContext: [String: Any] = [:]
+    private var realtime: [Data] = []
+    private var durable: [Data] = []
+    private var files: [(data: Data, metadata: [String: Any])] = []
+    private var records: [Data] = []
+
+    var status: WatchConnectivityStatus { lock.withLock { storedStatus } }
+    var receivedApplicationContext: [String: Any] { lock.withLock { storedContext } }
     var isReachable: Bool { status.isReachable }
+    var realtimeMessages: [Data] { lock.withLock { realtime } }
+    var standaloneRecords: [Data] { lock.withLock { records } }
 
     var onReceive: (@Sendable (Data) -> Void)?
     var onSendError: (@Sendable (Error) -> Void)?
     var onStatusChange: (@Sendable (WatchConnectivityStatus) -> Void)?
     var onApplicationContext: (@Sendable ([String: Any]) -> Void)?
     var onWatchRecordData: (@Sendable (Data) -> Void)?
-    var onCommonNameUsageData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationsData: (@Sendable (Data) -> Void)?
     var onCommonNameMutationAckData: (@Sendable (Data) -> Void)?
     var onCatchUpRequest: (@Sendable () -> Void)?
     var onClearPendingRequest: (@Sendable ([String]) -> Void)?
     var onPendingRecords: (@Sendable ([Data]) -> Void)?
+    var onReceivedFile: (@Sendable (Data, [String: Any]) -> Void)?
+    let supportsFileTransfer = true
 
-    private(set) var realtimeMessages: [Data] = []
-    private(set) var publishedSnapshots: [Data] = []
-    private(set) var durableMessages: [Data] = []
+    private static func status(reachable: Bool) -> WatchConnectivityStatus {
+        WatchConnectivityStatus(
+            isSupported: true, isActivated: true, isPaired: true,
+            isWatchAppInstalled: true, isReachable: reachable
+        )
+    }
+
+    func setReachable(_ reachable: Bool) {
+        let next = Self.status(reachable: reachable)
+        lock.withLock { storedStatus = next }
+        onStatusChange?(next)
+    }
+
+    var operations: [LinkOperation] {
+        envelopes(LinkOperation.self, kind: .intentSubmit).map(\.payload)
+    }
+
+    var recoveryRequests: [LinkEnvelope<LinkIntentRecoveryRequest>] {
+        envelopes(LinkIntentRecoveryRequest.self, kind: .resyncRequest)
+    }
+
+    var setupRejections: [LinkEnvelope<LinkSetupRejectedPayload>] {
+        envelopes(LinkSetupRejectedPayload.self, kind: .setupRejected)
+    }
+
+    func acknowledged(_ messageId: UUID) -> Bool {
+        envelopes(LinkAcknowledgementPayload.self, kind: .acknowledgement).contains {
+            $0.correlationId == messageId && $0.payload.acknowledgedMessageId == messageId
+        }
+    }
+
+    private func envelopes<Value: Codable & Sendable>(
+        _ type: Value.Type, kind: LinkMessageKind
+    ) -> [LinkEnvelope<Value>] {
+        let frames = lock.withLock { realtime + durable + files.map(\.data) }
+        return frames.compactMap {
+            try? JSONDecoder().decode(LinkEnvelope<Value>.self, from: $0)
+        }.filter { $0.kind == kind }
+    }
 
     func activate() {}
     func refreshStatus() { onStatusChange?(status) }
 
     func sendRealtime(_ data: Data) async throws {
-        realtimeMessages.append(data)
+        try lock.withLock {
+            guard storedStatus.isReachable else { throw WatchConnectivityTransportError.peerNotReachable }
+            realtime.append(data)
+        }
     }
 
-    func publishLatestSnapshot(_ data: Data) throws {
-        publishedSnapshots.append(data)
-    }
+    func publishLatestSnapshot(_ data: Data) throws {}
 
     func enqueueDurable(_ data: Data) throws {
-        durableMessages.append(data)
+        lock.withLock { durable.append(data) }
     }
 
     func sendInteractive(_ data: Data) throws {
-        realtimeMessages.append(data)
+        lock.withLock { realtime.append(data) }
     }
 
     func updateApplicationContext(_ context: [String: Any]) throws {
-        receivedApplicationContext.merge(context) { _, latest in latest }
+        lock.withLock { storedContext.merge(context) { _, latest in latest } }
     }
 
-    func transferWatchRecord(_ data: Data) throws {}
-    func transferCommonNameUsage(_ data: Data) throws {}
+    func transferWatchRecord(_ data: Data) throws {
+        lock.withLock { records.append(data) }
+    }
+
+    func transferFileData(_ data: Data, metadata: [String: Any]) throws {
+        lock.withLock { files.append((data, metadata)) }
+    }
+
     func transferCommonNameMutations(_ data: Data) throws {}
     func transferCommonNameMutationAcknowledgement(_ data: Data) throws {}
     func requestPendingWatchRecords() {}
@@ -1293,5 +1178,15 @@ private final class WatchLinkTestTransport: @unchecked Sendable, WatchLinkTransp
 
     func deliver(_ data: Data) {
         onReceive?(data)
+    }
+
+    func deliverStandaloneRecordAcknowledgement(_ ids: [String]) {
+        onClearPendingRequest?(ids)
+    }
+
+    func deliverIntentFile(_ data: Data) {
+        onReceivedFile?(data, [
+            WatchConnectivityTransport.transferFileKindKey: WatchTransferFileKind.intentFrame.rawValue
+        ])
     }
 }
