@@ -2,6 +2,140 @@ import CoreGraphics
 import Foundation
 import XCTest
 
+final class DuoFullscreenToolsUITests: XCTestCase {
+    override func setUpWithError() throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["SIMULATOR_MODEL_IDENTIFIER"] == "iPhone19,4", "Requires iPhone Duo")
+        continueAfterFailure = false
+    }
+
+    func testToolbarsAndBarrageReturn() {
+        let app = launchApp(opening: "-UITestOpenTools")
+        defer { app.terminate() }
+
+        let dice = openTool("dice", in: app)
+        let count = app.buttons["dice_count_menu"].firstMatch
+        XCTAssertTrue(count.waitForExistence(timeout: 10))
+        XCTAssertTrue(count.isHittable)
+        attachScreenshot("Dice toolbar", in: app)
+        count.tap()
+        let threeDice = app.buttons["3颗"].firstMatch
+        XCTAssertTrue(threeDice.waitForExistence(timeout: 5))
+        threeDice.tap()
+        XCTAssertTrue(count.label.contains("3颗"))
+        returnFromTool("骰子", to: dice, in: app)
+
+        let coin = openTool("flip_coin", in: app)
+        XCTAssertTrue(app.webViews.firstMatch.waitForExistence(timeout: 10))
+        attachScreenshot("Coin toolbar", in: app)
+        returnFromTool("抛硬币", to: coin, in: app)
+
+        let whistle = openTool("whistle", in: app)
+        let shortWhistle = app.buttons["哨声"].firstMatch
+        let buzzer = app.buttons["蜂鸣"].firstMatch
+        XCTAssertTrue(shortWhistle.waitForExistence(timeout: 5))
+        XCTAssertTrue(shortWhistle.isHittable)
+        XCTAssertTrue(buzzer.isHittable)
+        attachScreenshot("Whistle toolbar", in: app)
+        shortWhistle.tap()
+        XCTAssertTrue(buzzer.wait(for: \.isEnabled, toEqual: true, timeout: 3))
+        buzzer.tap()
+        XCTAssertTrue(shortWhistle.wait(for: \.isEnabled, toEqual: true, timeout: 3))
+        returnFromTool("哨子", to: whistle, in: app)
+
+        _ = openTool("fullscreen_barrage", in: app)
+        let message = app.textFields["barrage_message_field"].firstMatch
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        message.tap()
+        message.typeText("DUO")
+        app.buttons["barrage_finish_input"].firstMatch.tap()
+        app.buttons["barrage_start_static"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["DUO"].firstMatch.waitForExistence(timeout: 5))
+        let back = app.buttons["返回"].firstMatch
+        let rotate = app.buttons["旋转屏幕"].firstMatch
+        let edit = app.buttons["编辑"].firstMatch
+        assertAlignedTopRow([back, rotate, edit], in: app)
+        attachScreenshot("Barrage controls", in: app)
+        back.tap()
+        XCTAssertTrue(message.waitForExistence(timeout: 5))
+        XCTAssertFalse(rotate.exists)
+    }
+
+    func testCubeControlsKeepDoubleTapExit() {
+        let app = launchApp(opening: "-UITestOpenTimer")
+        defer { app.terminate() }
+
+        let cube = app.descendants(matching: .any)["timer_dest_cube"].firstMatch
+        XCTAssertTrue(cube.waitForExistence(timeout: 15))
+        cube.tap()
+        let confirm = app.buttons["确认"].firstMatch
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+        confirm.tap()
+
+        let back = app.buttons["chevron.left"].firstMatch
+        XCTAssertTrue(back.waitForExistence(timeout: 5))
+        assertAlignedTopRow([back, app.buttons["camera"].firstMatch, app.buttons["arrow.counterclockwise"].firstMatch], in: app)
+        attachScreenshot("Cube controls", in: app)
+        back.tap()
+        XCTAssertTrue(app.staticTexts["再次轻触退出"].exists)
+        back.tap()
+        XCTAssertTrue(cube.waitForExistence(timeout: 5))
+    }
+
+    private func launchApp(opening route: String) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent", "-UITestSkipScoreboardUsageHints",
+            "-UITestFakeSession", "-UITestSportsVoiceMissing", route
+        ]
+        app.launch()
+        return app
+    }
+
+    @discardableResult
+    private func openTool(_ id: String, in app: XCUIApplication) -> XCUIElement {
+        let card = app.descendants(matching: .any)["tool_card_" + id].firstMatch
+        for _ in 0..<4 where !card.isHittable {
+            app.scrollViews.firstMatch.swipeUp()
+        }
+        XCTAssertTrue(card.isHittable)
+        card.tap()
+        return card
+    }
+
+    private func returnFromTool(_ title: String, to card: XCUIElement, in app: XCUIApplication) {
+        let navigationBar = app.navigationBars[title].firstMatch
+        XCTAssertTrue(navigationBar.waitForExistence(timeout: 5))
+        // Duo can expose the back button in its vertical bar outside NavigationBar.
+        let back = app.buttons.matching(NSPredicate(
+            format: "identifier == %@ OR label IN %@", "BackButton", ["工具", "返回", "Back"]
+        )).firstMatch
+        XCTAssertTrue(back.isHittable, app.debugDescription)
+        back.tap()
+        XCTAssertTrue(card.waitForExistence(timeout: 5))
+    }
+
+    private func assertAlignedTopRow(_ buttons: [XCUIElement], in app: XCUIApplication) {
+        let screen = app.windows.firstMatch.frame
+        guard let first = buttons.first else { return }
+        for button in buttons {
+            XCTAssertTrue(button.isHittable)
+            XCTAssertTrue(screen.contains(button.frame))
+            XCTAssertGreaterThanOrEqual(button.frame.minY - screen.minY, 20)
+            XCTAssertEqual(button.frame.midY, first.frame.midY, accuracy: 1)
+        }
+    }
+
+    private func attachScreenshot(_ name: String, in app: XCUIApplication) {
+        let windowFrame = app.windows.firstMatch.frame
+        print("DUO_TOOLS_WINDOW \(name) \(windowFrame)")
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+}
+
 /// Walks the real tools list and its production destinations. The host owns
 /// folding, PNG capture, video recording, and deletion of the capture-file ACK.
 final class DuoToolsWalkthroughUITests: XCTestCase {

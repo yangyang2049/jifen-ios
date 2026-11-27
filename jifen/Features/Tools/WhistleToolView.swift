@@ -37,7 +37,39 @@ struct WhistleToolView: View {
     @State private var isPlayingShort = false
     @State private var isPlayingLong = false
 
+    private var isPlaying: Bool { isPlayingShort || isPlayingLong }
+
     var body: some View {
+        Group {
+            if DuoToolLayout.isDuo {
+                soundCards.buttonStyle(WhistleCardButtonStyle())
+            } else {
+                soundCards.buttonStyle(.plain)
+            }
+        }
+        .safeAreaInset(edge: .bottom) {
+            Text(MediaVolumeHint.message)
+                .font(.footnote)
+                .foregroundStyle(Theme.textSecondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 480)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+                .background(Theme.backgroundColor)
+                .accessibilityIdentifier("whistle_media_volume_hint")
+        }
+        .toolbar(DuoToolLayout.isDuo ? .visible : .hidden, for: .navigationBar)
+        .overlay(alignment: .topLeading) {
+            if !DuoToolLayout.isDuo {
+                FloatingBackButton { dismiss() }
+                    .padding(.leading, 16)
+                    .padding(.top, 4)
+            }
+        }
+    }
+
+    private var soundCards: some View {
         GeometryReader { geometry in
             ZStack {
                 Theme.backgroundColor.ignoresSafeArea()
@@ -64,24 +96,6 @@ struct WhistleToolView: View {
                     .padding(.horizontal, 32)
                 }
             }
-        }
-        .safeAreaInset(edge: .bottom) {
-            Text(MediaVolumeHint.message)
-                .font(.footnote)
-                .foregroundStyle(Theme.textSecondary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: 480)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity)
-                .background(Theme.backgroundColor)
-                .accessibilityIdentifier("whistle_media_volume_hint")
-        }
-        .toolbar(.hidden, for: .navigationBar)
-        .overlay(alignment: .topLeading) {
-            FloatingBackButton { dismiss() }
-                .padding(.leading, 16)
-                .padding(.top, 4)
         }
     }
 
@@ -121,8 +135,7 @@ struct WhistleToolView: View {
                     )
             )
         }
-        .buttonStyle(PlainButtonStyle())
-        .disabled(isPlayingShort || isPlayingLong)
+        .disabled(isPlaying)
     }
     
     @ViewBuilder
@@ -161,12 +174,11 @@ struct WhistleToolView: View {
                     )
             )
         }
-        .buttonStyle(PlainButtonStyle())
-        .disabled(isPlayingShort || isPlayingLong)
+        .disabled(isPlaying)
     }
     
     private func playShortWhistle() {
-        guard !isPlayingShort && !isPlayingLong else { return }
+        guard !isPlaying else { return }
         AppAnalytics.track(.toolAction, parameters: [
             .itemID: .string("whistle"),
             .actionName: .string("short_whistle")
@@ -182,7 +194,7 @@ struct WhistleToolView: View {
     }
     
     private func playLongWhistle() {
-        guard !isPlayingShort && !isPlayingLong else { return }
+        guard !isPlaying else { return }
         AppAnalytics.track(.toolAction, parameters: [
             .itemID: .string("whistle"),
             .actionName: .string("long_whistle")
@@ -195,6 +207,13 @@ struct WhistleToolView: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             isPlayingLong = false
         }
+    }
+}
+
+private struct WhistleCardButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        // The label already shows playback. Disabled buttons keep that appearance.
+        configuration.label
     }
 }
 

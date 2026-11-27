@@ -1,5 +1,23 @@
 import SwiftUI
 
+enum DuoToolLayout {
+    // A hardware check covers both displays, including the inner portrait layout.
+    static let isDuo: Bool = {
+        #if targetEnvironment(simulator)
+        let model = ProcessInfo.processInfo.environment["SIMULATOR_MODEL_IDENTIFIER"]
+        #else
+        var deviceInfo = utsname()
+        guard uname(&deviceInfo) == 0 else { return false }
+        let model = withUnsafeBytes(of: &deviceInfo.machine) { bytes in
+            String(decoding: bytes.prefix { $0 != 0 }, as: UTF8.self)
+        }
+        #endif
+        return model == "iPhone19,4"
+    }()
+
+    static let extraTopPadding: CGFloat = isDuo ? 16 : 0
+}
+
 // MARK: - ToolItem Definition
 struct ToolItem: Identifiable, Hashable {
     let id: String

@@ -64,22 +64,30 @@ struct DiceToolView: View {
             }
         }
         .animation(.easeInOut(duration: 0.35), value: webVisible)
-        // 骰子页无导航栏：悬浮返回与颗数选择器同排放置在顶部一行。
-        .toolbar(.hidden, for: .navigationBar)
-        .overlay(alignment: .top) {
-            HStack {
-                // 纯黑页面必须用显式亮色配色：自适应配色在浅色主题下解析为黑色，会隐入背景。
-                FloatingBackButton(
-                    iconColor: .white.opacity(0.85),
-                    circleColor: Color.white.opacity(0.14)
-                ) {
-                    dismiss()
+        .toolbar(DuoToolLayout.isDuo ? .visible : .hidden, for: .navigationBar)
+        .toolbar {
+            if DuoToolLayout.isDuo {
+                ToolbarItem(placement: .primaryAction) {
+                    diceCountMenu
                 }
-                Spacer()
-                diceCountButton
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 4)
+        }
+        .overlay(alignment: .top) {
+            if !DuoToolLayout.isDuo {
+                HStack {
+                    // 纯黑页面必须用显式亮色配色，避免返回按钮隐入背景。
+                    FloatingBackButton(
+                        iconColor: .white.opacity(0.85),
+                        circleColor: Color.white.opacity(0.14)
+                    ) {
+                        dismiss()
+                    }
+                    Spacer()
+                    diceCountButton
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 4)
+            }
         }
         .preferredColorScheme(.dark)
         .onAppear {
@@ -92,6 +100,25 @@ struct DiceToolView: View {
                 showEnterToast = false
             }
         }
+    }
+
+    private var diceCountMenu: some View {
+        Menu {
+            ForEach(1...3, id: \.self) { count in
+                Button {
+                    selectDiceCount(count)
+                } label: {
+                    if count == diceCount {
+                        Label(diceCountLabel(count), systemImage: "checkmark")
+                    } else {
+                        Text(diceCountLabel(count))
+                    }
+                }
+            }
+        } label: {
+            Label(diceCountLabel(diceCount), systemImage: "dice")
+        }
+        .accessibilityIdentifier("dice_count_menu")
     }
 
     private var diceCountButton: some View {

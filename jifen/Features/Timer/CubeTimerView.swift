@@ -83,7 +83,16 @@ struct CubeTimerView: View {
                 }
 
                 if !hideButtons {
-                    bottomButtons
+                    if DuoToolLayout.isDuo {
+                        controls
+                            .padding(.top, ScoreboardConstants.buttonPadding + DuoToolLayout.extraTopPadding)
+                            .frame(maxHeight: .infinity, alignment: .top)
+                    } else {
+                        controls
+                            .padding(.bottom, ScoreboardConstants.buttonPadding)
+                            .frame(maxHeight: .infinity, alignment: .bottom)
+                            .ignoresSafeArea(.all, edges: [.bottom, .leading, .trailing])
+                    }
                 }
 
                 if isTwoInOne {
@@ -188,26 +197,21 @@ struct CubeTimerView: View {
         return 250
     }
 
-    private var bottomButtons: some View {
-        VStack {
-            Spacer()
-            HStack(spacing: 0) {
-                floatingButton(icon: "chevron.left") {
-                    handleExitClick()
-                }
-                Spacer()
-                floatingButton(icon: "camera") {
-                    prepareScreenshot()
-                }
-                .padding(.trailing, 12)
-                floatingButton(icon: "arrow.counterclockwise") {
-                    resetTimer()
-                }
+    private var controls: some View {
+        HStack(spacing: 0) {
+            floatingButton(icon: "chevron.left") {
+                handleExitClick()
             }
-            .padding(.horizontal, ScoreboardConstants.buttonPadding)
-            .padding(.bottom, ScoreboardConstants.buttonPadding)
+            Spacer()
+            floatingButton(icon: "camera") {
+                prepareScreenshot()
+            }
+            .padding(.trailing, 12)
+            floatingButton(icon: "arrow.counterclockwise") {
+                resetTimer()
+            }
         }
-        .ignoresSafeArea(.all, edges: [.bottom, .leading, .trailing])
+        .padding(.horizontal, ScoreboardConstants.buttonPadding)
     }
 
     private func floatingButton(icon: String, action: @escaping () -> Void) -> some View {

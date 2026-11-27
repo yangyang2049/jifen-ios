@@ -53,6 +53,20 @@ struct TimeoutCountdownView: View {
 
     private let quickPresets = [30, 60, 180, 300, 600]
 
+    // Use the hardware identifier so the same navigation applies on both Duo displays.
+    private static let usesSystemNavigation: Bool = {
+        #if targetEnvironment(simulator)
+        let model = ProcessInfo.processInfo.environment["SIMULATOR_MODEL_IDENTIFIER"]
+        #else
+        var deviceInfo = utsname()
+        guard uname(&deviceInfo) == 0 else { return false }
+        let model = withUnsafeBytes(of: &deviceInfo.machine) { bytes in
+            String(decoding: bytes.prefix { $0 != 0 }, as: UTF8.self)
+        }
+        #endif
+        return model == "iPhone19,4"
+    }()
+
     private var sports: [CountdownSport] {
         [
             CountdownSport(
@@ -115,7 +129,9 @@ struct TimeoutCountdownView: View {
                 Theme.backgroundColor.ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    topBar
+                    if !Self.usesSystemNavigation {
+                        topBar
+                    }
 
                     VStack(spacing: compactHeight ? 4 : 10) {
                         Spacer(minLength: compactHeight ? 0 : 12)
@@ -163,7 +179,7 @@ struct TimeoutCountdownView: View {
                 }
             }
         }
-        .toolbar(.hidden, for: .navigationBar)
+        .toolbar(Self.usesSystemNavigation ? .visible : .hidden, for: .navigationBar)
         .sheet(isPresented: $showsCustomEditor) {
             customEditor
                 .onAppear(perform: syncCustomFields)
@@ -186,6 +202,7 @@ struct TimeoutCountdownView: View {
             Spacer()
             if UIDevice.current.userInterfaceIdiom == .phone {
                 toolbarCircleButton(systemName: "rectangle.portrait.rotate", action: rotateScreen)
+                    .accessibilityIdentifier("countdown_rotate_button")
             } else {
                 Color.clear.frame(width: 60, height: 60)
             }

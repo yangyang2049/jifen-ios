@@ -151,7 +151,7 @@ struct FullscreenBarrageView: View {
                 }
                 .frame(maxWidth: 560)
                 .padding(.horizontal, Theme.padding)
-                .padding(.top, 76)
+                .padding(.top, 76 + DuoToolLayout.extraTopPadding)
                 .padding(.bottom, 32)
                 .frame(maxWidth: .infinity)
             }
@@ -165,7 +165,7 @@ struct FullscreenBarrageView: View {
                     Spacer()
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 8)
+                .padding(.top, 8 + DuoToolLayout.extraTopPadding)
                 Spacer()
             }
         }
@@ -220,7 +220,7 @@ struct FullscreenBarrageView: View {
                     runningEditor(maxHeight: height * 0.6)
                         .padding(.leading, overlayPadding.leading)
                         .padding(.trailing, overlayPadding.trailing)
-                        .padding(.top, overlayPadding.top)
+                        .padding(.top, overlayPadding.top + DuoToolLayout.extraTopPadding)
                         .transition(.move(edge: .top).combined(with: .opacity))
                 } else {
                     runningOverlayButtons(padding: overlayPadding)
@@ -279,7 +279,7 @@ struct FullscreenBarrageView: View {
         }
         .padding(.leading, padding.leading)
         .padding(.trailing, padding.trailing)
-        .padding(.top, padding.top)
+        .padding(.top, padding.top + DuoToolLayout.extraTopPadding)
     }
 
     private func runningEditor(maxHeight: CGFloat) -> some View {

@@ -175,11 +175,13 @@ struct FlipCoinView: View {
                 .allowsHitTesting(false)
             }
         }
-        .toolbar(.hidden, for: .navigationBar)
+        .toolbar(DuoToolLayout.isDuo ? .visible : .hidden, for: .navigationBar)
         .overlay(alignment: .topLeading) {
-            FloatingBackButton { dismiss() }
-                .padding(.leading, 16)
-                .padding(.top, 4)
+            if !DuoToolLayout.isDuo {
+                FloatingBackButton { dismiss() }
+                    .padding(.leading, 16)
+                    .padding(.top, 4)
+            }
         }
         .onAppear {
             checkAndShowHint()
