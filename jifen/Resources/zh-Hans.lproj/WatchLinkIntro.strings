@@ -1,3 +1,4 @@
 "intro_title" = "手机手表，双端计分";
 "intro_message" = "用 iPhone 发起联动，Apple Watch 确认后，两端都可以计分。结束后 iPhone 会保存记录。";
 "intro_done" = "知道了";
+"intro_open_settings" = "去看看";

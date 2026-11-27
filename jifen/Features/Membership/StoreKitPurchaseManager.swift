@@ -156,11 +156,12 @@ final class StoreKitPurchaseManager: PurchaseProviding {
     }
 
     func purchase(_ product: Product) async {
+        let revenueCatIdentity = RevenueCatMembership.identity(for: .shared)
         AppAnalytics.trackPurchaseFlow(.started, flow: "purchase", itemID: product.id)
         // Guideline 5.1.1(v)：不允许把注册/登录作为购买前提。未登录时直接走 StoreKit，
         // 权益由 Apple ID 提供；交易 JWS 暂存本地，登录后补验并同步到账号。
         guard SessionStore.shared.isAuthenticated else {
-            await purchaseWithoutAccount(product)
+            await purchaseWithoutAccount(product, revenueCatIdentity: revenueCatIdentity)
             return
         }
         state = .purchasing(product.id)
@@ -178,6 +179,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
             case .success(let verification):
                 let transaction = try verified(verification)
                 AppAnalytics.trackVerifiedStoreKitPurchase(transaction)
+                RevenueCatMembership.record(result, for: revenueCatIdentity)
                 try await acknowledgeAndFinish(
                     transaction,
                     signedTransactionInfo: verification.jwsRepresentation
@@ -248,7 +250,10 @@ final class StoreKitPurchaseManager: PurchaseProviding {
 
     /// 未登录购买：不经过业务服务端（无 appAccountToken、不做服务端验证），
     /// 会员权益由 Apple ID 的 StoreKit 交易直接提供。
-    private func purchaseWithoutAccount(_ product: Product) async {
+    private func purchaseWithoutAccount(
+        _ product: Product,
+        revenueCatIdentity: RevenueCatMembership.Identity
+    ) async {
         state = .purchasing(product.id)
         message = nil
         do {
@@ -257,6 +262,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
             case .success(let verification):
                 let transaction = try verified(verification)
                 AppAnalytics.trackVerifiedStoreKitPurchase(transaction)
+                RevenueCatMembership.record(result, for: revenueCatIdentity)
                 try await storePendingJWSAndFinish(
                     transaction,
                     signedTransactionInfo: verification.jwsRepresentation
@@ -391,6 +397,7 @@ final class StoreKitPurchaseManager: PurchaseProviding {
     }
 
     func restorePurchases() async {
+        let revenueCatIdentity = RevenueCatMembership.identity(for: .shared)
         AppAnalytics.trackPurchaseFlow(.started, flow: "restore")
         state = .loading
         message = nil
@@ -418,11 +425,14 @@ final class StoreKitPurchaseManager: PurchaseProviding {
                     // 对仍未 finish 的有效交易也及时结束；对已结束交易重复调用是幂等的。
                     await transaction.finish()
                 }
-                await refreshLocalEntitlement()
             }
+            await refreshLocalEntitlement()
             state = .succeeded
             AppAnalytics.trackPurchaseFlow(.success, flow: "restore")
             message = NSLocalizedString("membership_restore_done", value: "恢复购买完成", comment: "")
+            if hasLocalEntitlement {
+                RevenueCatMembership.syncRestoredPurchases(for: revenueCatIdentity)
+            }
         } catch {
             AppAnalytics.trackPurchaseFlow(.failed, flow: "restore")
             fail(error.localizedDescription)

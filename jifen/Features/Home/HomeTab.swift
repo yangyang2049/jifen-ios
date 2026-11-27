@@ -139,11 +139,14 @@ struct HomeResumeSessionScanner<Candidate> {
 struct HomeTab: View {
     var onNavigateToTab: ((Int, GameType?) -> Void)? = nil
     @Binding var groupInvitation: GroupInvitation?
+    let allowsWeekendMembershipPresentation: Bool
 
     init(onNavigateToTab: ((Int, GameType?) -> Void)? = nil,
-         groupInvitation: Binding<GroupInvitation?> = .constant(nil)) {
+         groupInvitation: Binding<GroupInvitation?> = .constant(nil),
+         allowsWeekendMembershipPresentation: Bool) {
         self.onNavigateToTab = onNavigateToTab
         _groupInvitation = groupInvitation
+        self.allowsWeekendMembershipPresentation = allowsWeekendMembershipPresentation
     }
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -264,10 +267,17 @@ struct HomeTab: View {
                     )
 
                     ScrollView(showsIndicators: false) {
-                        buildContent(isWide: isWide, contentWidth: contentWidth)
-                            .padding(.horizontal, HomeLayoutPolicy.horizontalInset(size: geo.size, horizontalSizeClass: horizontalSizeClass))
-                            .padding(.top, Theme.sectionSpacing)
-                            .padding(.bottom, Theme.tabContentBottomPadding + unfinishedBarClearance)
+                        VStack(spacing: 0) {
+                            // Keep the sheet host alive when the Duo switches between Home layouts.
+                            WeekendMembershipEntry(
+                                isHomeVisible: canPresentWeekendMembership,
+                                hasPlayed: !scoreboardVM.records.isEmpty
+                            )
+                            buildContent(isWide: isWide, contentWidth: contentWidth)
+                        }
+                        .padding(.horizontal, HomeLayoutPolicy.horizontalInset(size: geo.size, horizontalSizeClass: horizontalSizeClass))
+                        .padding(.top, Theme.sectionSpacing)
+                        .padding(.bottom, Theme.tabContentBottomPadding + unfinishedBarClearance)
                     }
                     .overlay(alignment: .bottom) {
                         unfinishedGameBar
@@ -1184,6 +1194,14 @@ struct HomeTab: View {
                 buildRecentRecordsSection()
             }
         }
+    }
+
+    private var canPresentWeekendMembership: Bool {
+        allowsWeekendMembershipPresentation && path.isEmpty && scenePhase == .active
+            && homeSheet == nil && groupInvitation == nil && groupPush.destination == nil
+            && groupReminders.destination == nil && !showNewGameDialog && !showQuickStartEditSheet
+            && !showCreateBookingSheet && !showGroupNoticeLogin && !showHomeQRScan
+            && pendingScoreboardSetupItem == nil && resumeLoadErrorMessage == nil
     }
 
     @ViewBuilder

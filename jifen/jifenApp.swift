@@ -426,6 +426,7 @@ struct jifenApp: App {
         PreferencesManager.shared.resetIPadOrientationPreferencesForUITestsIfRequested()
         #endif
         AppReviewPrompt.recordLaunchIfAllowed()
+        WeekendMembershipCampaign.recordLaunch()
         // v1 intentionally does NOT present the First Launch Legal Screen (code removed).
         // Consent is treated as implicitly accepted at launch (same effect as tapping "同意")
         // so analytics/session flow run.
@@ -455,6 +456,9 @@ struct jifenApp: App {
                 guard hasAcceptedLegal || shouldSkipLegalForUITests else { return }
                 guard AppFeatureFlags.accountFeaturesEnabled else { return }
                 await sessionStore.restore()
+            }
+            .task(id: RevenueCatMembership.identity(for: sessionStore)) {
+                await RevenueCatMembership.sessionDidChange()
             }
             .onReceive(NotificationCenter.default.publisher(for: .scoreboardPersistenceFailed)) { _ in
                 showPersistenceFailure = true

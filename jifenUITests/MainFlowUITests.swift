@@ -2,6 +2,142 @@ import UIKit
 import XCTest
 
 @MainActor
+final class WeekendMembershipPreviewUITests: XCTestCase {
+    func testAutomaticPreviewOnlyShowsForReturningSimplifiedChineseUsersOncePerWeekend() throws {
+        let key = try requireSDKKey()
+        continueAfterFailure = false
+
+        let app = XCUIApplication()
+        app.launchEnvironment["JIFEN_REVENUECAT_SDK_KEY"] = key
+        let title = app.staticTexts["周末尽兴，快乐不限时"]
+        let entry = app.buttons["home_weekend_membership"]
+        let homeScan = app.buttons["home_scan_button"]
+        defer { app.terminate() }
+
+        func launch(
+            _ date: String,
+            returning: Bool = true,
+            language: String = "zh-Hans",
+            reset: Bool = false,
+            extraArguments: [String] = []
+        ) throws {
+            let timestamp = try XCTUnwrap(ISO8601DateFormatter().date(from: date))
+            app.launchArguments = [
+                "-AppleLanguages", "(\(language))", "-AppleLocale", "zh_CN",
+                "-UITestSkipLegalConsent", "-UITestFakeSession", "-UITestRecordFixtures",
+                "-PreviewWeekendMembershipAutomatically",
+                "-weekend_membership_preview_date", String(Int(timestamp.timeIntervalSince1970)),
+                "-weekend_membership_has_opened_app", returning ? "YES" : "NO"
+            ]
+            if reset { app.launchArguments.append("-ResetWeekendMembershipPreview") }
+            app.launchArguments += extraArguments
+            app.launch()
+        }
+
+        func verifyNoPresentation() {
+            XCTAssertTrue(homeScan.waitForExistence(timeout: 15))
+            XCTAssertFalse(entry.exists)
+            XCTAssertFalse(title.waitForExistence(timeout: 3))
+        }
+
+        let friday = "2026-11-27T09:00:00+08:00"
+        try launch(friday, returning: false, reset: true)
+        verifyNoPresentation()
+
+        try launch(friday, language: "zh-Hant")
+        verifyNoPresentation()
+
+        try launch(friday, extraArguments: [
+            "-UITestWatchLinkIntro", "-watch_link_intro_seen_3.4.4", "NO",
+            "-phone_link_context", "UITest"
+        ])
+        let watchIntro = app.staticTexts["watch_link_intro_title"]
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            XCTAssertTrue(watchIntro.waitForExistence(timeout: 15))
+            XCTAssertFalse(title.waitForExistence(timeout: 3))
+            app.buttons["watch_link_intro_done"].tap()
+            XCTAssertTrue(watchIntro.waitForNonExistence(timeout: 5))
+        }
+        XCTAssertTrue(title.waitForExistence(timeout: 20))
+        XCTAssertFalse(watchIntro.exists)
+        XCTAssertTrue(app.buttons["立即开通"].isHittable)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "RevenueCat automatically presented weekend membership"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+
+        try launch("2026-11-28T09:00:00+08:00")
+        verifyNoPresentation()
+
+        try launch("2026-12-04T09:00:00+08:00")
+        XCTAssertTrue(title.waitForExistence(timeout: 20))
+    }
+
+    func testPreviewRequiresTapAndShowsNativePaywall() throws {
+        let key = try requireSDKKey()
+        continueAfterFailure = false
+
+        let app = XCUIApplication()
+        app.launchEnvironment["JIFEN_REVENUECAT_SDK_KEY"] = key
+        app.launchArguments = [
+            "-AppleLanguages", "(zh-Hans)", "-AppleLocale", "zh_CN",
+            "-UITestSkipLegalConsent", "-UITestFakeSession", "-PreviewWeekendMembership"
+        ]
+        app.launch()
+        defer { app.terminate() }
+
+        let entry = app.buttons["home_weekend_membership"]
+        let previewStatus = app.staticTexts["weekend_membership_preview_status"]
+        let title = app.staticTexts["周末尽兴，快乐不限时"]
+        let didLoad = entry.waitForExistence(timeout: 25)
+        XCTAssertTrue(didLoad, previewStatus.exists ? previewStatus.label : "The weekend offering did not load.")
+        XCTAssertFalse(title.exists)
+        entry.tap()
+        XCTAssertTrue(title.waitForExistence(timeout: 10))
+        let restore = app.buttons["weekend_membership_restore"]
+        XCTAssertTrue(restore.waitForExistence(timeout: 5))
+        XCTAssertTrue(restore.isHittable)
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "RevenueCat weekend membership paywall"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+        XCTAssertTrue(app.staticTexts["终身会员"].exists)
+        XCTAssertTrue(app.buttons["立即开通"].isHittable)
+        let consent = app.buttons["weekend_membership_accept_terms"]
+        XCTAssertTrue(consent.isHittable)
+        XCTAssertFalse(consent.isSelected)
+        if key.hasPrefix("test_") {
+            restore.tap()
+            let alert = app.alerts["未找到可恢复的终身会员购买"]
+            XCTAssertTrue(alert.waitForExistence(timeout: 15))
+            alert.buttons.firstMatch.tap()
+            XCTAssertFalse(consent.isSelected)
+        }
+        consent.tap()
+        XCTAssertTrue(consent.isSelected)
+
+        app.terminate()
+        app.launchArguments.removeAll { $0 == "-PreviewWeekendMembership" }
+        app.launch()
+        let settings = app.descendants(matching: .any)["main_tab_4"].firstMatch
+        XCTAssertTrue(settings.waitForExistence(timeout: 10))
+        settings.tap()
+        let membership = app.descendants(matching: .any).matching(identifier: "settings_membership_entry").firstMatch
+        XCTAssertTrue(membership.waitForExistence(timeout: 10))
+        membership.tap()
+        XCTAssertTrue(app.buttons["恢复购买"].waitForExistence(timeout: 20))
+    }
+
+    private func requireSDKKey() throws -> String {
+        guard let key = ProcessInfo.processInfo.environment["JIFEN_REVENUECAT_SDK_KEY"],
+              key.hasPrefix("test_") || key.hasPrefix("appl_") else {
+            throw XCTSkip("This preview requires a RevenueCat public SDK key.")
+        }
+        return key
+    }
+}
+
+@MainActor
 final class WatchLinkIntroUITests: XCTestCase {
     func testWatchLinkIntroTakesPriorityAndIsShownOnlyOnce() {
         continueAfterFailure = false
@@ -17,12 +153,17 @@ final class WatchLinkIntroUITests: XCTestCase {
         defer { app.terminate() }
 
         let title = app.staticTexts["watch_link_intro_title"]
+        let openSettings = app.buttons["watch_link_intro_open_settings"]
         let done = app.buttons["watch_link_intro_done"]
         let bindingPrompt = app.staticTexts["wechat_binding_prompt_title"]
         XCTAssertTrue(title.waitForExistence(timeout: 12))
         XCTAssertEqual(title.label, "手机手表，双端计分")
+        XCTAssertTrue(openSettings.isHittable)
+        XCTAssertEqual(openSettings.label, "去看看")
         XCTAssertTrue(done.isHittable)
         XCTAssertEqual(done.label, "知道了")
+        XCTAssertLessThan(done.frame.midX, openSettings.frame.midX)
+        XCTAssertEqual(done.frame.midY, openSettings.frame.midY, accuracy: 1)
         XCTAssertFalse(bindingPrompt.exists)
 
         let preview = XCTAttachment(screenshot: app.screenshot())
@@ -32,7 +173,8 @@ final class WatchLinkIntroUITests: XCTestCase {
 
         done.tap()
         XCTAssertTrue(title.waitForNonExistence(timeout: 5))
-        XCTAssertFalse(bindingPrompt.exists)
+        XCTAssertFalse(app.navigationBars["手表联动"].exists)
+        XCTAssertTrue(bindingPrompt.waitForExistence(timeout: 5))
         XCTAssertFalse(app.alerts.firstMatch.exists)
 
         app.terminate()
@@ -41,6 +183,55 @@ final class WatchLinkIntroUITests: XCTestCase {
 
         XCTAssertTrue(bindingPrompt.waitForExistence(timeout: 12))
         XCTAssertFalse(title.exists)
+    }
+
+    func testLocalizedIntroOpensWatchLinkSettings() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        defer { app.terminate() }
+
+        for (language, locale, title, action, done, settingsTitle) in [
+            ("zh-Hans", "zh_CN", "手机手表，双端计分", "去看看", "知道了", "手表联动"),
+            ("zh-Hant", "zh_TW", "手機手錶，雙端計分", "去看看", "知道了", "手錶聯動"),
+            ("en", "en_US", "Score on both devices", "Take a Look", "Got It", "Watch Link")
+        ] {
+            app.launchArguments = introArguments(language: language, locale: locale)
+            app.launch()
+
+            let heading = app.staticTexts["watch_link_intro_title"]
+            XCTAssertTrue(heading.waitForExistence(timeout: 12))
+            XCTAssertEqual(heading.label, title)
+            let openSettings = app.buttons["watch_link_intro_open_settings"]
+            XCTAssertTrue(openSettings.isHittable)
+            XCTAssertEqual(openSettings.label, action)
+            XCTAssertTrue(app.buttons["watch_link_intro_done"].isHittable)
+            XCTAssertEqual(app.buttons["watch_link_intro_done"].label, done)
+
+            openSettings.tap()
+            XCTAssertTrue(heading.waitForNonExistence(timeout: 5))
+            let settings = app.navigationBars[settingsTitle]
+            XCTAssertTrue(settings.waitForExistence(timeout: 5))
+            settings.buttons.firstMatch.tap()
+            XCTAssertTrue(app.buttons["settings_watch_link_entry"].waitForExistence(timeout: 5))
+            app.terminate()
+        }
+    }
+
+    func testIntroSkipsUnsupportedAppLanguage() {
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        app.launchArguments = introArguments(language: "ja", locale: "ja_JP")
+        app.launch()
+        defer { app.terminate() }
+
+        XCTAssertTrue(app.buttons["home_scan_button"].waitForExistence(timeout: 12))
+        XCTAssertFalse(app.staticTexts["watch_link_intro_title"].waitForExistence(timeout: 3))
+    }
+
+    private func introArguments(language: String, locale: String) -> [String] {
+        ["-AppleLanguages", "(\(language))", "-AppleLocale", locale,
+         "-UITestSkipLegalConsent", "-UITestWatchLinkIntro", "-phone_link_context", "UITest",
+         "-watch_link_intro_seen_3.4.4", "NO"]
     }
 }
 
@@ -2178,8 +2369,35 @@ final class MainFlowUITests: XCTestCase {
         XCTAssertTrue(runningBarrage.exists)
     }
 
+    func testDuoCountdownUsesSystemBackWithoutManualRotation() throws {
+        try XCTSkipUnless(ProcessInfo.processInfo.environment["SIMULATOR_MODEL_IDENTIFIER"] == "iPhone19,4", "Requires iPhone Duo")
+        let app = launchChineseApp(arguments: ["-UITestOpenTimer", "-UITestSportsVoiceMissing"])
+        defer { app.terminate() }
+
+        let countdown = app.descendants(matching: .any)["timer_dest_timeout"]
+        XCTAssertTrue(scrollUntilExists(countdown, in: app))
+        countdown.tap()
+        let start = app.buttons["countdown_main_button"]
+        XCTAssertTrue(start.waitForExistence(timeout: 5))
+
+        let back = app.buttons["BackButton"].firstMatch
+        XCTAssertTrue(back.waitForExistence(timeout: 5))
+        XCTAssertTrue(back.isHittable)
+        XCTAssertFalse(app.buttons["countdown_rotate_button"].exists)
+        XCTAssertFalse(app.buttons["chevron.left"].exists)
+
+        let screenshot = XCTAttachment(screenshot: app.screenshot())
+        screenshot.name = "Duo Countdown"
+        screenshot.lifetime = .keepAlways
+        add(screenshot)
+
+        back.tap()
+        XCTAssertTrue(countdown.waitForExistence(timeout: 5))
+        XCTAssertFalse(start.exists)
+    }
+
     func testCountdownChipsRespondAcrossTheirVisibleArea() {
-        let app = launchChineseApp(arguments: ["-UITestOpenTimer"])
+        let app = launchChineseApp(arguments: ["-UITestOpenTimer", "-UITestSportsVoiceMissing"])
         defer { app.terminate() }
 
         let countdown = app.descendants(matching: .any)["timer_dest_timeout"]

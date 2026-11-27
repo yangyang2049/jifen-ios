@@ -1,0 +1,161 @@
+<!doctype html><html lang="zh-Hans"><head><meta charset="utf-8"><style>
+  * { box-sizing: border-box; }
+  html,body { margin:0; padding:0; }
+  body {
+    font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", sans-serif;
+    background: #F4F5F7; color: #1D2129; padding: 34px 38px 30px;
+  }
+  .title { font-size: 27px; font-weight: 700; letter-spacing: .2px; }
+  .sub { font-size: 13.5px; color: #6B7280; margin-top: 7px; }
+  .kicker { display:inline-block; font-size: 11.5px; font-weight: 600; letter-spacing: .6px;
+    color:#0B6B45; background:#E3F3EA; border-radius: 4px; padding: 2px 7px; margin-bottom: 9px; }
+
+  .wrap { width: 1300px; }
+  .laneTitle { font-size: 11.5px; font-weight: 700; letter-spacing: 1px; color:#8A9099; margin: 0 0 8px 2px; }
+  .row { display:flex; gap: 16px; }
+  .app { flex:1; background:#fff; border:1px solid #E1E4E8; border-radius: 12px; padding: 15px 17px 14px;
+    box-shadow: 0 1px 2px rgba(16,24,40,.05); }
+  .app h3 { margin:0 0 3px; font-size: 15.5px; }
+  .app .tag { font-size: 11px; color:#6B7280; margin-bottom: 10px; }
+  .item { font-size: 12.6px; line-height: 1.55; margin: 5px 0; padding-left: 13px; position: relative; color:#2B3440;}
+  .item::before { content:''; position:absolute; left:0; top:7px; width:5px; height:5px; border-radius:50%; background:#C3C9D2; }
+  .item b { font-weight: 600; }
+  .code { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 11.4px; color:#0B5FFF;
+    background:#F1F5FF; border-radius:3px; padding:0 3px; }
+  .muted { color:#77808C; }
+  .phone { border-top: 3px solid #2C6E49; }
+  .watch { border-top: 3px solid #B35C00; }
+
+  .channels { display:flex; gap: 12px; margin: 14px 0 6px; }
+  .ch { flex:1; background:#fff; border:1px dashed #C9CFD8; border-radius: 10px; padding: 11px 13px; }
+  .ch .n { font-size: 11px; font-weight: 700; color:#7A5AF8; }
+  .ch .nm { font-size: 13px; font-weight: 600; margin: 2px 0 5px; }
+  .ch .d { font-size: 11.6px; color:#5A6473; line-height: 1.5; }
+  .ch .b { font-size: 11px; color:#8A9099; margin-top: 5px; }
+
+  .flow { text-align:center; font-size: 12px; color:#A0A7B3; letter-spacing: 2px; margin: 6px 0; }
+
+  .core { background:#fff; border:1px solid #E1E4E8; border-radius: 14px; padding: 14px 16px 15px;
+    box-shadow: 0 2px 10px rgba(16,24,40,.05); }
+  .coreHead { display:flex; align-items:baseline; gap:10px; margin-bottom: 10px; }
+  .coreHead h2 { margin:0; font-size: 16px; }
+  .coreHead span { font-size: 12px; color:#6B7280; }
+  .mods { display:grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .mod { background:#FAFBFC; border:1px solid #E8EBEF; border-radius: 9px; padding: 10px 11px; }
+  .mod .mh { font-size: 12.6px; font-weight: 700; color:#1D2129; }
+  .mod .mh i { font-style: normal; font-size: 10.5px; color:#8A9099; font-weight: 600; }
+  .mod ul { margin: 7px 0 0; padding: 0 0 0 13px; }
+  .mod li { font-size: 11.3px; line-height: 1.5; color:#4A5460; margin: 3px 0; }
+  .mod.hi { background:#FFF9F0; border-color:#F2D9B8; }
+
+  .redlines { margin-top: 12px; display:flex; gap: 10px; }
+  .rl { flex:1; font-size: 11.3px; color:#7A3E00; background:#FFF6E9; border:1px solid #F5DFC4;
+    border-radius: 8px; padding: 7px 10px; line-height: 1.45; }
+  .legend { font-size: 11px; color:#8A9099; margin-top: 10px; }
+</style></head><body><div class="wrap">
+  <div class="kicker">WATCH ARCHITECTURE V2 · 目标结构</div>
+  <div class="title">手表数据层与双端协作层 v2：单一事实来源 + 双端薄壳 + 三通道</div>
+  <div class="sub">共享包 JifenCore 承担全部业务真相；手机与手表 App 只保留状态绑定与端特有钩子；WCSession 按“实时 / 兜底 / 离线大包”分三通道。</div>
+
+  <div class="row" style="margin-top:18px">
+    <div class="app phone">
+      <h3>iPhone · jifen</h3>
+      <div class="tag">薄 @Observable 外观 + 定序者</div>
+      <div class="item"><b>PhoneWatchLinkService</b> <span class="muted">现 461 行（同目录 4 文件共 4,040 行）→ 更薄的状态绑定层</span></div>
+      <div class="item"><b>PhoneHostSequencer</b> · 计分与结束的唯一真相源<span class="muted">（opId 幂等 · baseRev 校验 · 足球时钟单调钳制 · committedRevision）</span></div>
+      <div class="item"><b>WatchCanonicalRecordAdapter</b> → <span class="code">ScoreboardRecord</span> v5 <span class="muted">（手机存量/云同步/跨端 JSON 完全不动）</span></div>
+      <div class="item muted">本地持久化与 CloudSync / 投屏继续走原链路</div>
+    </div>
+    <div class="app watch">
+      <h3>Apple Watch · jifenWatch</h3>
+      <div class="tag">薄 @Observable 外观 + 统一状态宿主</div>
+      <div class="item"><b>WatchLinkService</b> · 只做 UI 状态与端特有钩子 <span class="muted">（现 715 行，同目录 5 文件 2,527 行）</span></div>
+      <div class="item"><b>WatchReducerSessionStore&lt;R&gt;</b> · 8 块计分板共用 <span class="muted">（同步 dispatch，不再每次点击开 Task）</span></div>
+      <div class="item"><b>WatchStorageContainer</b> · <span class="code">Application Support/jifen-watch-v1/</span> <span class="muted">records · resume · link · common-names · outbox</span></div>
+      <div class="item muted">乐观重放：confirmedState + pendingLocalOps → displayedState</div>
+    </div>
+  </div>
+
+  <div class="flow">▲ ▼ WCSession 三通道（每条都做字节预算校验）▲ ▼</div>
+
+  <div class="channels">
+    <div class="ch">
+      <div class="n">通道 ①</div>
+      <div class="nm">实时交互 · sendMessageData</div>
+      <div class="d">setupRequest / Accepted / Rejected、<b>intentSubmit</b>、<b>intentCommit</b>、增量 stateSnapshot、resyncRequest、connectivityProbe、sessionLeft</div>
+      <div class="b">≤ 60,000 B（常态 &lt; 4 KB）· 仅前台可达时使用</div>
+    </div>
+    <div class="ch">
+      <div class="n">通道 ②</div>
+      <div class="nm">最新状态兜底 · updateApplicationContext</div>
+      <div class="d">latestLinkSnapshot（剥离动作历史，只留轻状态/checkpoint）+ commonNames 轻量快照</div>
+      <div class="b">总字典 &lt; 60 KB · 常用名分区 ≤ 24 KB 独立预算</div>
+    </div>
+    <div class="ch">
+      <div class="n">通道 ③</div>
+      <div class="nm">离线可靠大包 · transferUserInfo + transferFile</div>
+      <div class="d">matchFinished、手表独立记录 CanonicalWatchRecordTransfer、常用名变更批次；超限自动降级文件传输</div>
+      <div class="b">≤ 32 KB 走 userInfo；&gt; 32 KB 走 transferFile，收端落库回执才出队</div>
+    </div>
+  </div>
+
+  <div class="flow">▼ 调用 ▼</div>
+
+  <div class="core">
+    <div class="coreHead"><h2>Packages/JifenCore</h2><span>共享单一事实来源 · 5 个模块</span></div>
+    <div class="mods">
+      <div class="mod">
+        <div class="mh">ScoreCore</div>
+        <ul>
+          <li>GameType / TeamID / 8 类 Reducer</li>
+          <li>新增 <b>FootballMatchReducer</b></li>
+          <li>新增 <b>ShotTrainingReducer</b></li>
+          <li>纯函数：禁 Date()/UUID()</li>
+        </ul>
+      </div>
+      <div class="mod">
+        <div class="mh">SessionCore</div>
+        <ul>
+          <li><b>ScoreSessionMachine</b> 同步值类型</li>
+          <li>undo / timeline / rebase</li>
+          <li>ScoreSessionCore actor 保留</li>
+          <li>手机侧零破坏</li>
+        </ul>
+      </div>
+      <div class="mod">
+        <div class="mh">RecordCore</div>
+        <ul>
+          <li><b>CanonicalMatchRecord</b></li>
+          <li>ScoreActionProjector</li>
+          <li>MatchRecordProjector</li>
+          <li>ScoreboardWinnerIdentity</li>
+        </ul>
+      </div>
+      <div class="mod">
+        <div class="mh">PersistenceCore</div>
+        <ul>
+          <li>AtomicJSONFileStore</li>
+          <li>index.json + 单记录原子文件</li>
+          <li>StorageContainer 目录抽象</li>
+          <li>索引损坏可重建</li>
+        </ul>
+      </div>
+      <div class="mod hi">
+        <div class="mh">LinkCore <i>改动最大</i></div>
+        <ul>
+          <li>LinkSessionEngine</li>
+          <li>PhoneHostSequencer + WatchOptimisticReplayEngine</li>
+          <li>WatchSportRegistry（19 项）</li>
+          <li>FileLinkDataStore · 开放式 LinkCapability · 压缩帧前置路由</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="redlines">
+    <div class="rl">红线：不新增 .entitlements / App Group / HealthKit，容器只做代码层抽象</div>
+    <div class="rl">红线：手机 ScoreboardRecord v5 与 DetailedScoreAction 字段零改动</div>
+    <div class="rl">红线：文件接收在回调返回前同步读取/搬运，否则临时文件被系统删除</div>
+  </div>
+  <div class="legend">本次是目标结构：代码目前仍在左列描述的旧实现上，M1–M5 均未开工。</div>
+</div></body></html>

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>小组「发起活动」表单：iOS vs 安卓/鸿蒙</title>
+<style>
+  :root{
+    --bg:#eef0f3; --ink:#111; --muted:#6c6c70;
+    --ios-bg:#f2f2f7; --ios-border:#d1d1d6;
+    --and-bg:#f4f5f7; --and-field:#eceef1; --and-placeholder:#9aa0a6; --and-ink:#1f1f1f;
+    --green:#2e9e5b; --green-deep:#1f7a44;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,"SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif;
+    padding:26px 24px 40px;}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:#5b6068;font-size:13px;margin-bottom:16px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:#4a4f57;margin-bottom:20px}
+  .legend b{color:#111}
+  .stage{display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap}
+  .col{display:flex;flex-direction:column;gap:8px}
+  .colhead{display:flex;align-items:baseline;gap:8px}
+  .colhead h2{font-size:14px;margin:0}
+  .colhead span{font-size:12px;color:#6b7078}
+  .phone{width:392px;background:#fff;border-radius:36px;padding:10px;
+    box-shadow:0 12px 34px rgba(16,20,28,.16), 0 2px 6px rgba(16,20,28,.08);}
+  .screen{border-radius:28px;overflow:hidden;position:relative}
+  .status{height:30px;display:flex;align-items:center;justify-content:space-between;
+    padding:0 18px;font-size:12px;font-weight:600}
+  .navbar{height:44px;display:flex;align-items:center;justify-content:center;position:relative;font-size:16px;font-weight:600}
+  .navbar .back{position:absolute;left:14px;font-size:19px;font-weight:400;color:#1f7a44}
+  .body{padding:10px 0 10px}
+  .footer{padding:6px 16px 14px;display:flex;gap:10px}
+
+  .ios .status{background:var(--ios-bg);color:#111}
+  .ios .navbar{background:var(--ios-bg)}
+  .ios .body{background:var(--ios-bg);padding:12px 14px 10px 18px}
+  .ios .group{background:#fff;border-radius:12px;padding:10px 12px;margin-bottom:12px;
+    border:1px solid rgba(0,0,0,.04)}
+  .ios .lbl{font-size:13px;color:var(--muted);margin:2px 0 6px}
+  .ios .input{height:44px;border:1px solid var(--ios-border);border-radius:10px;background:#fff;
+    display:flex;align-items:center;padding:0 12px;font-size:16px;color:#111}
+  .ios .hint{font-size:12px;color:#8a8a90;line-height:1.45;margin:6px 0 2px}
+  .ios .row2{display:flex;gap:10px}
+  .ios .row2>*{flex:1}
+  .ios .link{color:var(--green-deep);font-size:13px;padding:8px 0 2px}
+  .ios .chips{display:flex;gap:8px;margin:2px 0 2px}
+  .ios .chip{flex:1;height:38px;border-radius:10px;border:1px solid var(--ios-border);
+    display:flex;align-items:center;justify-content:center;font-size:14px;color:#3a3a3c;background:#fff}
+  .ios .chip.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+  .ios .stepper{display:flex;align-items:center;justify-content:space-between;
+    border:1px solid var(--ios-border);border-radius:10px;height:40px;overflow:hidden;background:#fff}
+  .ios .stepper .val{font-size:16px}
+  .ios .stepper .btn{width:44px;height:40px;display:flex;align-items:center;justify-content:center;
+    font-size:20px;color:#3a3a3c;background:#f6f6f8}
+  .ios .area{height:74px;border:1px solid var(--ios-border);border-radius:10px;background:#fff}
+  .ios .footer .btn{flex:1;height:46px;border-radius:23px;display:flex;align-items:center;justify-content:center;
+    font-size:16px;font-weight:600}
+  .ios .footer .btn.sec{background:#e9e9ee;color:#1c1c1e}
+  .ios .footer .btn.pri{background:var(--green);color:#fff}
+
+  .and .status{background:#fff;color:#1f1f1f}
+  .and .navbar{background:#fff;color:#1f1f1f}
+  .and .body{background:var(--and-bg);padding:10px 14px 8px 18px}
+  .and .field{height:48px;border-radius:12px;background:var(--and-field);display:flex;align-items:center;
+    gap:10px;padding:0 12px;font-size:16px;color:var(--and-ink);margin-bottom:12px}
+  .and .field .ph{color:var(--and-placeholder);flex:1}
+  .and .field .val{flex:1}
+  .and .field svg.ico{width:17px;height:17px;flex:0 0 17px;stroke:#6f747a;fill:none;stroke-width:1.7;
+    stroke-linecap:round;stroke-linejoin:round}
+  .and .field svg.chev{width:15px;height:15px;flex:0 0 15px;stroke:#9aa0a6;fill:none;stroke-width:2;
+    stroke-linecap:round;stroke-linejoin:round}
+  .and .field .chev{color:#9aa0a6;font-size:16px}
+  .and .field .q{width:22px;height:22px;border-radius:11px;border:1.4px solid #b6bac0;color:#8b9096;
+    font-size:13px;display:flex;align-items:center;justify-content:center;font-weight:600}
+  .and .chips{display:flex;gap:8px;margin:-6px 0 12px}
+  .and .chip{padding:0 18px;height:36px;border-radius:10px;background:var(--and-field);
+    display:flex;align-items:center;font-size:14px;color:#3c4043}
+  .and .chip.on{background:#e2f2e8;color:var(--green-deep);font-weight:600;
+    box-shadow:inset 0 0 0 1px rgba(46,158,91,.45)}
+  .and .inline-link{color:var(--green-deep);font-size:13px;margin:-4px 0 12px 2px}
+  .and .area{height:74px;border-radius:12px;background:var(--and-field);padding:12px;font-size:15px;color:#b9bec4}
+  .and .footer .btn{flex:1;height:46px;border-radius:23px;display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:600}
+  .and .footer .btn.sec{background:#eceef1;color:#1f1f1f}
+  .and .footer .btn.pri{background:var(--green);color:#fff}
+
+  .badge{position:absolute;left:0;width:16px;height:16px;border-radius:8px;
+    background:#111;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;
+    justify-content:center;transform:translateX(-17px);z-index:5}
+  .badge.hollow{background:#fff;color:#111;border:1px solid #111}
+  .wrap{position:relative}
+
+  .stats{display:flex;gap:14px;margin:24px 0 6px;flex-wrap:wrap}
+  .stat{background:#fff;border-radius:12px;padding:12px 16px;box-shadow:0 2px 8px rgba(16,20,28,.06)}
+  .stat .k{font-size:11px;color:#6b7078;letter-spacing:.03em}
+  .stat .v{font-size:22px;font-weight:700;margin-top:2px}
+  table{border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;
+    box-shadow:0 2px 8px rgba(16,20,28,.06);font-size:13px;margin-top:14px;width:100%;max-width:1180px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid #eef0f3;vertical-align:top}
+  th{background:#f7f8fa;font-size:12px;color:#4a4f57;font-weight:600}
+  td.no{color:#8b9096;width:34px;font-variant-numeric:tabular-nums}
+  tr:last-child td{border-bottom:none}
+  code{background:#f4f5f7;border-radius:4px;padding:1px 4px;font-size:12px}
+  .note{font-size:13px;color:#4a4f57;max-width:1180px;line-height:1.6;margin-top:16px}
+  .note b{color:#111}
+</style>
+</head>
+<body>
+<h1>小组「发起活动」表单：iOS 现状 vs 安卓 / 鸿蒙现状</h1>
+<div class="sub">同一份文案、同样是 390pt 宽的屏幕。右边那张就是「iOS 1:1 照抄安卓」之后的样子。</div>
+<div class="legend">
+  <span><b>左</b> iOS 3.4.4（<code>GroupActivityCreateView</code>）</span>
+  <span><b>右</b> 安卓 3.5 / 鸿蒙 3.2（<code>GroupActivityFormFields</code>）</span>
+  <span><b>黑底数字</b> 两侧同一处的对应关系，与下表编号一致</span>
+</div>
+
+<div class="stage">
+  <div class="col">
+    <div class="colhead"><h2>iOS 现状</h2><span>标签在框外 · 描边输入框 · 白色卡片分组</span></div>
+    <div class="phone ios">
+      <div class="screen">
+        <div class="status"><span>9:41</span><span>●●●</span></div>
+        <div class="navbar"><span class="back">‹</span>发起活动</div>
+        <div class="body" id="iosBody">
+          <div class="wrap">
+            <div class="group">
+              <div class="badge hollow" style="top:12px;left:0">1</div>
+              <div class="lbl">活动名称（选填）</div>
+              <div class="input"></div>
+              <div class="hint">不填写时，将按日期自动生成，例如“11月10日活动”。</div>
+            </div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:18px">3</div>
+            <div class="group">
+              <div class="row2">
+                <div><div class="lbl">日期</div><div class="input">2026-11-28</div></div>
+                <div><div class="lbl">开始时间</div><div class="input">19:30</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:18px">4</div>
+            <div class="group">
+              <div class="lbl">报名截止时间</div>
+              <div class="input">2026-11-28 19:30</div>
+              <div class="link">恢复为活动开始时</div>
+            </div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:18px">5</div>
+            <div class="group">
+              <div class="lbl">地点</div>
+              <div class="input">朝阳体育中心<span style="margin-left:auto;color:#9a9aa0">›</span></div>
+            </div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:18px">2</div>
+            <div class="group">
+              <div class="lbl">玩法</div>
+              <div class="chips"><div class="chip on">单打</div><div class="chip">双打</div></div>
+            </div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:18px">6</div>
+            <div class="group">
+              <div class="lbl">报名人数</div>
+              <div class="stepper"><div class="btn">−</div><div class="val">8</div><div class="btn">＋</div></div>
+              <div class="hint">一个活动可安排多场比赛。成员先报名活动，再在排阵时为每场单打选择 2 人、每场双打选择 4 人参赛。</div>
+            </div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:18px">7</div>
+            <div class="group" style="margin-bottom:4px">
+              <div class="lbl">备注（选填）</div>
+              <div class="area"></div>
+            </div>
+          </div>
+        </div>
+        <div class="footer"><div class="btn sec">取消</div><div class="btn pri">发起活动</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="colhead"><h2>安卓 / 鸿蒙现状 ＝ iOS 照抄后</h2><span>不分组卡片 · placeholder 当标签 · 行尾问号</span></div>
+    <div class="phone and">
+      <div class="screen">
+        <div class="status"><span>9:41</span><span>●●●</span></div>
+        <div class="navbar"><span class="back">‹</span>发起活动</div>
+        <div class="body" id="andBody">
+          <div class="wrap">
+            <div class="badge" style="top:13px">1</div>
+            <div class="field"><span class="ph">活动名称（选填）</span><span class="q">?</span></div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:4px">2</div>
+            <div class="chips"><div class="chip on">单打</div><div class="chip">双打</div></div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:13px">3</div>
+            <div class="field"><svg class="ico" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v3.2M16 3v3.2M3.5 10h17"/></svg><span class="val">2026-11-28</span><svg class="chev" viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg></div>
+            <div class="field"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3.1 1.9"/></svg><span class="val">19:30</span><svg class="chev" viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg></div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:13px">4</div>
+            <div class="field" style="margin-bottom:4px">
+              <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.6"/><path d="M12 7.4V12l3.1 1.9"/></svg>
+              <span class="val" style="flex:0 0 auto">报名截止时间</span>
+              <span class="val" style="text-align:right">2026-11-28 19:30</span>
+              <svg class="chev" viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>
+            </div>
+            <div class="inline-link">恢复为活动开始时</div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:13px">5</div>
+            <div class="field"><svg class="ico" viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg><span class="val">朝阳体育中心</span><svg class="chev" viewBox="0 0 24 24"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg></div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:13px">6</div>
+            <div class="field"><span class="val">报名人数</span><span class="val" style="text-align:right">8</span><span class="q">?</span></div>
+          </div>
+          <div class="wrap">
+            <div class="badge" style="top:13px">7</div>
+            <div class="area">备注（选填）</div>
+          </div>
+        </div>
+        <div class="footer"><div class="btn sec">取消</div><div class="btn pri">发起活动</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="k">iOS 表单内容高度（本页实测）</div><div class="v" id="iosH">—</div></div>
+  <div class="stat"><div class="k">安卓 / 鸿蒙（本页实测）</div><div class="v" id="andH">—</div></div>
+  <div class="stat"><div class="k">iOS 多占的高度</div><div class="v" id="diffH">—</div></div>
+  <div class="stat"><div class="k">字段 / 校验 / 文案差异</div><div class="v">0 处</div></div>
+</div>
+
+<table>
+  <thead><tr><th class="no">#</th><th>位置</th><th>iOS 现状</th><th>安卓 / 鸿蒙</th><th>1:1 照抄要改什么</th></tr></thead>
+  <tbody>
+    <tr><td class="no">1</td><td>活动名称</td><td>标签「活动名称（选填）」独占一行在框外；下面再挂一行自动命名说明</td><td>placeholder 就在填充块里；自动命名说明收进行尾「?」气泡</td><td>去掉外层 label 与常驻说明行，改用 placeholder + 复用 iOS 已有 popover 帮助（<code>CustomDialogs.swift:62-89</code>）</td></tr>
+    <tr><td class="no">2</td><td>玩法（单打 / 双打）</td><td>排在日期、报名截止、地点之后（第 5 屏位）</td><td>紧跟名称下方，第一眼就能选</td><td>行序调整，同时挪 <code>onChange(of: format)</code> 的人数联动位置</td></tr>
+    <tr><td class="no">3</td><td>日期 / 开始时间</td><td>半宽并排两个系统 <code>DatePicker</code> 字段（窄屏 <code>ViewThatFits</code> 才转竖排）</td><td>两个整行填充块，行首图标 + 行尾箭头</td><td>换成自绘行 + 底部弹层选择器</td></tr>
+    <tr><td class="no">4</td><td>报名截止时间</td><td>独立标签 + 系统字段；「恢复为活动开始时」另起一行</td><td>一行三段「图标 + 标签 + 值右对齐 + 箭头」，恢复按钮内联在下一行</td><td>合并成单行三段布局，值右对齐</td></tr>
+    <tr><td class="no">5</td><td>地点</td><td>标签 + 输入框 + 行尾小箭头（打开常用地点）</td><td>整行块 + 行首地点图标 + 行尾箭头</td><td>加行首图标，去掉标签行</td></tr>
+    <tr><td class="no">6</td><td>报名人数</td><td>标签 + 系统 <code>Stepper</code>（− 8 ＋）；多人比赛说明常驻一行</td><td>单行「报名人数 …… 8  ?」，说明进气泡</td><td><code>Stepper</code> 换行内数值 + 气泡；说明从常驻行移进气泡</td></tr>
+    <tr><td class="no">7</td><td>备注</td><td>标签 + 多行描边输入框</td><td>填充块，placeholder 当标签</td><td>同 1</td></tr>
+    <tr><td class="no">8</td><td>分组容器</td><td>每个字段一张白色圆角卡片 + 卡片间距</td><td>没有卡片，所有行直接在灰底上等距排列</td><td>去掉 <code>.group</code> 容器与卡片描边，统一 12pt 行距</td></tr>
+  </tbody>
+</table>
+
+<div class="note">
+  <b>结论</b>：差别只有两类 —— ①<b>字段名放哪</b>（iOS 在框外独占一行；两端放进框内当 placeholder，说明收进行尾问号气泡）；②<b>行长什么样</b>（iOS 是「标签 + 描边输入框 + 白卡片」；两端是 48 高填充块 + 行首图标 + 行尾箭头，且不分组）。
+  字段集合、校验规则、文案、提交接口<b>完全一致</b>，所以 1:1 照抄是纯视觉改造，不动业务逻辑。<br>
+  <b>照抄必须同时补两件事</b>，否则是净退步：① 填了内容后字段名不可见 → 每行补 <code>accessibilityLabel</code>（安卓靠 <code>.semantics{ contentDescription }</code>，见 <code>GroupActivityForm.kt:133</code>）；② 表单从系统 <code>Form</code> 变成自绘滚动容器后，键盘避让、<code>scrollDismissesKeyboard</code>、iPad 宽度上限都要自己接管。
+</div>
+
+<script>
+  const iosH = document.getElementById('iosBody').getBoundingClientRect().height;
+  const andH = document.getElementById('andBody').getBoundingClientRect().height;
+  document.getElementById('iosH').textContent = Math.round(iosH) + ' pt';
+  document.getElementById('andH').textContent = Math.round(andH) + ' pt';
+  document.getElementById('diffH').textContent = '+' + Math.round(iosH - andH) + ' pt';
+  const audit = [];
+  document.querySelectorAll('.field, .group, .chip, .area, .badge, .footer').forEach(el => {
+    const r = el.getBoundingClientRect();
+    audit.push([el.className, Math.round(r.x), Math.round(r.y), Math.round(r.width), Math.round(r.height)]);
+  });
+  document.body.dataset.audit = JSON.stringify(audit);
+  document.body.dataset.pageh = Math.ceil(document.documentElement.scrollHeight);
+  document.body.dataset.overflow = String(document.documentElement.scrollWidth - document.documentElement.clientWidth);
+</script>
+</body>
+</html>

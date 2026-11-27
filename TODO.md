@@ -10,6 +10,13 @@
 
 ## 待办
 
+### 下一版本（3.5）已登记
+
+- [ ] **App 分享邀请闭环**：谷歌安卓已有完整实现（`jifen-android-google` `AppSharePrompt.kt` + `AppShareInviteDialog.kt`），国内安卓 / 鸿蒙 / iOS 都没有。iOS 从零新建，规则与验收见 `docs/next-version-todo-2026-11-26.md` §1。
+- [ ] **麻将玩法**：安卓已有 31 个文件 / 478 处引用，iOS 零实现（`Mahjong|麻将` 0 命中），需整套重建，落地顺序与风险见 `docs/next-version-todo-2026-11-26.md` §2。
+- [x] **关于页开源许可**（2026-11-26 已完成）：iOS `jifen/Features/Me/OpenSourceLicensesView.swift` + `Resources/licenses/license-*.txt`，鸿蒙 `pages/me/OpenSourceLicensesPage.ets` + `rawfile/licenses/`；入口都在「关于」。守门用例 `jifenTests/OpenSourceLicensesTests.swift`（6 例）钉死「新增字体/背景图必须登记许可」。细节见 `docs/next-version-todo-2026-11-26.md` §3。
+- [ ] **小组「发起活动」表单字段语言**：安卓与鸿蒙已统一为填充块 + 问号气泡，iOS 内部还有两套（台球用系统 `Form`，其它球类用 `GroupAlignedField`）。结论与分阶段方案见 `docs/group-activity-form-analysis-2026-11-26.md`。
+
 ### 下次测试提醒
 
 - [ ] **照片主题背景图授权核验**：乒乓球默认照片的设置页显示 KeepActive.com.au 署名和原图链接，原图页列明 CC BY-SA 4.0。发版前核对裁切、压暗和 App Store 分发时的授权说明。

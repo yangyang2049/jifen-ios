@@ -60,6 +60,10 @@ private enum SettingsSheetDestination: String, Identifiable {
 }
 
 struct SettingsView: View {
+    enum Route: Hashable {
+        case watchLink
+    }
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.requestReview) private var requestReview
     @Environment(\.openURL) private var openURL
@@ -67,6 +71,7 @@ struct SettingsView: View {
     @Environment(SessionStore.self) private var session
     @Environment(PhoneWatchLinkService.self) private var watchLinkService
     var isTabRoot: Bool = false
+    @Binding var path: NavigationPath
     @State private var showClearConfirm = false
     @State private var showAppShareSheet = false
     @State private var showAccountLoginSheet = false
@@ -77,7 +82,7 @@ struct SettingsView: View {
     @State private var soundEffectsEnabled = PreferencesManager.shared.soundEnabled
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ZStack {
                 Theme.backgroundColor.ignoresSafeArea()
 
@@ -170,6 +175,11 @@ struct SettingsView: View {
             }
             .navigationDestination(for: SettingsSheetDestination.self) {
                 settingsDestinationView($0)
+            }
+            .navigationDestination(for: Route.self) { route in
+                switch route {
+                case .watchLink: WatchLinkSettingsView()
+                }
             }
             .inAppWebLinkDestination()
         }
@@ -328,7 +338,7 @@ struct SettingsView: View {
         if AppFeatureFlags.watchLinkEntryEnabled
             && AppFeatureFlags.isWatchLinkSupportedOnCurrentDevice {
             SettingsSection {
-                NavigationLink { WatchLinkSettingsView() } label: {
+                NavigationLink(value: Route.watchLink) {
                     SettingsNavigationRow(title: NSLocalizedString("watch_link_title", value: "手表联动", comment: ""))
                 }
                 .accessibilityIdentifier("settings_watch_link_entry")
@@ -529,8 +539,10 @@ private extension SettingsSheetDestination {
 }
 
 struct MeTab: View {
+    @Binding var path: NavigationPath
+
     var body: some View {
-        SettingsView(isTabRoot: true)
+        SettingsView(isTabRoot: true, path: $path)
             // 宿主必须挂在读 openInAppWebLink 的那个视图之上：挂在 SettingsView 自己
             // body 的输出上等于自我注入，它本身读到的仍是默认空 action（点了没反应）。
             .inAppWebLinks()
@@ -1023,6 +1035,12 @@ private struct FAQView: View {
     }
 }
 
+/// 关于页里用值驱动 push 的本地路由。新增子页面时在这里加一个 case，
+/// 不要用闭包式 `NavigationLink { 页面 }`（会与网页 item push 抢同一条栈）。
+enum AboutRoute: Hashable {
+    case openSourceLicenses
+}
+
 private struct AboutUsView: View {
     @State private var toastMessage: String?
 
@@ -1065,6 +1083,17 @@ private struct AboutUsView: View {
                             accessibilityIdentifier: "settings_about_feedback_link",
                             tracksLegalAnalytics: false
                         )
+                        // 开源许可：与安卓「关于 → 开源许可证」同位，正文原样展示包内 licenses/*.txt。
+                        SettingsRowDivider()
+                        // 与上面几条外链同一条栈：用值驱动的 NavigationLink，
+                        // 闭包式 push 会在「关于 → 开源许可 → 网页 → 返回」时被一起退掉。
+                        NavigationLink(value: AboutRoute.openSourceLicenses) {
+                            SettingsNavigationRow(
+                                title: NSLocalizedString("about_open_source_licenses", value: "开源许可证", comment: "")
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier("settings_about_open_source_licenses_link")
                         if isChineseLocale {
                             SettingsRowDivider()
                             webLinkRow(
@@ -1102,6 +1131,11 @@ private struct AboutUsView: View {
                 ToastView(message: toastMessage)
                     .transition(.opacity)
                     .zIndex(1)
+            }
+        }
+        .navigationDestination(for: AboutRoute.self) { route in
+            switch route {
+            case .openSourceLicenses: OpenSourceLicensesView()
             }
         }
         .navigationTitle(NSLocalizedString("about_us_title", value: "关于我们", comment: ""))
@@ -1227,5 +1261,6 @@ struct InfoRow: View {
 }
 
 #Preview {
-    SettingsView()
+    @Previewable @State var path = NavigationPath()
+    SettingsView(path: $path)
 }

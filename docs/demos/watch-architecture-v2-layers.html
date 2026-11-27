@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<title>JifenCore / 手机 / 手表 / Link 结构关系图</title>
+<style>
+  :root{
+    --phone:#2C6E49; --watch:#B35C00; --core:#4B3FA8; --link:#7A5AF8;
+    --ink:#1D2129; --sub:#6B7280; --line:#9AA3AF; --bg:#F4F5F7;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,"PingFang SC","Hiragino Sans GB","Helvetica Neue",sans-serif;}
+  .page{width:1680px;padding:36px 0 60px;margin:0 auto;}
+  h1{font-size:26px;margin:0 0 6px;}
+  .lead{font-size:13.5px;color:var(--sub);line-height:1.6;margin-bottom:26px;}
+  section{margin-bottom:40px;}
+  h2{font-size:16px;margin:0 0 4px;}
+  .h2sub{font-size:12.5px;color:var(--sub);margin-bottom:12px;}
+  .canvas{position:relative;background:#fff;border:1px solid #E1E4E8;border-radius:14px;
+    box-shadow:0 1px 2px rgba(16,24,40,.05);}
+  .canvas > svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;}
+
+  /* 分组容器 */
+  .grp{position:absolute;border-radius:12px;border:1.5px solid;padding:10px 12px;}
+  .grp > .gt{font-size:13px;font-weight:700;letter-spacing:.2px;}
+  .grp > .gs{font-size:11px;color:var(--sub);margin-top:3px;}
+  .grp.phone{border-color:#BFDCC9;background:#F7FCF9;}
+  .grp.watch{border-color:#F0D9BF;background:#FFFBF6;}
+  .grp.core{border-color:#CFC9F0;background:#FBFAFF;}
+  .grp .gt.phone{color:var(--phone);} .grp .gt.watch{color:var(--watch);}
+  .grp .gt.core{color:var(--core);}
+
+  /* 盒子 */
+  .b{position:absolute;background:#fff;border:1px solid #DDE2E8;border-radius:9px;
+    padding:8px 10px;overflow:hidden;}
+  .b .t{font-size:12.5px;font-weight:650;line-height:1.35;}
+  .b .s{font-size:10.8px;color:var(--sub);line-height:1.45;margin-top:3px;}
+  .b .s b{color:#3D4652;font-weight:600;}
+  .b.ph{border-left:3px solid var(--phone);}
+  .b.wa{border-left:3px solid var(--watch);}
+  .b.co{border:1px solid #D8D3EE;background:#FCFBFF;}
+  .b.co .t{color:var(--core);}
+  .b.link{border:1.5px solid #9A8BE8;background:#F6F4FF;box-shadow:0 0 0 3px rgba(122,90,248,.07);}
+  .b.link .t{color:#4B3FA8;font-size:13px;}
+  .b.storage{background:#F7F8FA;border-style:dashed;}
+
+  /* 数据归属矩阵 */
+  table.dm{width:100%;border-collapse:separate;border-spacing:0;font-size:11.8px;background:#fff;
+    border:1px solid #E1E4E8;border-radius:12px;overflow:hidden;}
+  table.dm th,table.dm td{border-bottom:1px solid #EEF0F3;padding:8px 12px;text-align:left;vertical-align:top;}
+  table.dm thead th{background:#FAFBFC;font-size:11.5px;color:#5A6473;font-weight:650;letter-spacing:.2px;}
+  table.dm tbody th{font-weight:600;font-size:11.8px;background:#FCFCFD;}
+  table.dm td{color:#4A5460;}
+  table.dm tr:last-child td, table.dm tr:last-child th{border-bottom:none;}
+  .dot{font-weight:700;margin-right:5px;}
+  .own{color:#0B6B45}.copy{color:#6B7280}.none{color:#C2C8D0}
+  .tagx{display:inline-block;font-size:10px;font-weight:700;border-radius:3px;padding:1px 5px;margin-left:6px;}
+  .tag-a{background:#E8F5EE;color:#0B6B45}.tag-c{background:#F1F3F6;color:#5A6473}
+
+  /* 图例 */
+  .legend{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:12px;font-size:11.6px;color:#4A5460;}
+  .legend .li{display:flex;align-items:center;gap:7px;}
+  .sw{width:26px;height:0;border-top:2px solid var(--line);}
+  .sw.dash{border-top:2px dashed var(--line);}
+  .sw.bi{position:relative;}
+  .sw.red{border-top:2px dashed #C0392B;}
+  .badge-demo{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;
+    background:#fff;border:1.4px solid #7A5AF8;font-size:10.5px;font-weight:700;color:#4B3FA8;}
+  @media (max-width:1739px){ .page{zoom:.85} }
+  .notes{margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .note{background:#fff;border:1px dashed #CFD5DE;border-radius:8px;padding:8px 11px;font-size:11.5px;line-height:1.55;color:#4A5460;}
+  .note b{color:#1D2129;}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>JifenCore · 手机 · 手表 · Link 的结构关系</h1>
+  <div class="lead">
+    三张图回答三个问题：<b>谁被谁包纳、谁依赖谁</b>（图 1）· <b>运行时一次点击怎么交接</b>（图 2）· <b>每份状态归谁所有</b>（图 3）。
+    编号箭头与下方图例一一对应。
+  </div>
+
+  <!-- ============ 图 1 ============ -->
+  <section>
+    <h2>图 1 · 包纳与依赖（编译边界）</h2>
+    <div class="h2sub">两个 App 各自是薄壳；唯一共享的是 JifenCore 包。手机与手表之间没有任何 import，横向只靠 WCSession 在运行时互通。</div>
+    <div class="canvas" id="c1" style="height:840px">
+      <svg>
+        <g id="isolation">
+          <path d="M400,108 L400,50 L1000,50 L1000,108" fill="none" stroke="#C0392B" stroke-width="1.3" stroke-dasharray="6 5"/>
+          <rect x="612" y="37" width="424" height="25" rx="5" fill="#fff"/>
+          <text x="824" y="55" text-anchor="middle" font-size="11" fill="#A03A2E"
+                font-family="-apple-system,PingFang SC,sans-serif">✕ 无 import：两端只经 WCSession 在运行时交互</text>
+        </g>
+      </svg>
+
+      <!-- 手机组 -->
+      <div class="grp phone" style="left:40px;top:96px;width:360px;height:648px">
+        <div class="gt phone">jifen · iPhone App</div>
+        <div class="gs">已发布 3.4.x · 薄壳：UI 状态绑定 + 端特有钩子</div>
+      </div>
+
+      <!-- 核心包 -->
+      <div class="grp core" style="left:470px;top:70px;width:460px;height:704px">
+        <div class="gt core">Packages/JifenCore（本地 Swift Package）</div>
+        <div class="gs">唯一被双端链接的代码 · 单一事实来源</div>
+      </div>
+
+      <!-- 手表组 -->
+      <div class="grp watch" style="left:1000px;top:96px;width:360px;height:648px">
+        <div class="gt watch">jifenWatch Watch App</div>
+        <div class="gs">未发布 · 首发 v2 格式，无旧数据迁移</div>
+      </div>
+
+      <!-- 手机内部 -->
+      <div class="b ph" id="ph-views" style="left:60px;top:150px;width:320px;height:62px">
+        <div class="t">8 个计分板 View · 会话菜单</div>
+        <div class="s">只渲染与派发，不含业务真相</div>
+      </div>
+      <div class="b ph" id="ph-store" style="left:60px;top:234px;width:320px;height:72px">
+        <div class="t">6 个 Store / ViewModel</div>
+        <div class="s">Rally · Tennis · Archery · Billiards · Football · ShotTraining</div>
+      </div>
+      <div class="b ph" id="ph-service" style="left:60px;top:328px;width:320px;height:78px">
+        <div class="t">PhoneWatchLinkService</div>
+        <div class="s">薄 @Observable 外观 · 握手指令 · 清理 hook · 侧通道队列</div>
+      </div>
+      <div class="b ph" id="ph-adapter" style="left:60px;top:428px;width:320px;height:78px">
+        <div class="t">WatchCanonicalRecordAdapter</div>
+        <div class="s">CanonicalMatchRecord → <b>ScoreboardRecord v5</b>（字段零改动）</div>
+      </div>
+      <div class="b ph" id="ph-resume" style="left:60px;top:528px;width:320px;height:62px">
+        <div class="t">ResumeSessionRepository · CloudSync · 投屏</div>
+        <div class="s">既有手机链路，本次不动</div>
+      </div>
+      <div class="b ph storage" id="ph-storage" style="left:60px;top:612px;width:320px;height:104px">
+        <div class="t">手机本地存储</div>
+        <div class="s">Application Support/&lt;bundleId&gt;/：<br><b>Records/</b>（v5 记录）· <b>WatchLink/</b>（会话/outbox/退役场次）<br>RecordSyncOutbox · 独立续玩草稿</div>
+      </div>
+
+      <!-- Core 内部 -->
+      <div class="b co" id="co-score" style="left:490px;top:132px;width:420px;height:86px">
+        <div class="t">ScoreCore</div>
+        <div class="s">GameType / TeamID / 8 类纯 DomainReducer<br>新增 FootballMatchReducer · ShotTrainingReducer（19 项运动全覆盖）</div>
+      </div>
+      <div class="b co" id="co-session" style="left:490px;top:232px;width:420px;height:84px">
+        <div class="t">SessionCore</div>
+        <div class="s">ScoreSessionMachine（同步值类型：dispatch / undo / rebase）<br>ScoreSessionCore（actor，手机侧零破坏）</div>
+      </div>
+      <div class="b co" id="co-record" style="left:490px;top:330px;width:420px;height:86px">
+        <div class="t">RecordCore</div>
+        <div class="s">CanonicalMatchRecord · ScoreActionProjector · MatchRecordProjector<br>ScoreboardWinnerIdentity（修同名队高亮）</div>
+      </div>
+      <div class="b co" id="co-persist" style="left:490px;top:430px;width:420px;height:84px">
+        <div class="t">PersistenceCore</div>
+        <div class="s">AtomicJSONFileStore · 索引 + 单记录原子文件<br>StorageContainer 目录抽象（本次不加 entitlement）</div>
+      </div>
+      <div class="b link" id="co-link" style="left:490px;top:528px;width:420px;height:214px">
+        <div class="t">LinkCore</div>
+        <div class="s">
+          <b>LinkSessionEngine</b> — 双端共享会话引擎（入场/续赛/完赛/重试）<br>
+          <b>LinkedIntentSync</b> — LinkOperation / intentSubmit / intentCommit<br>
+          <b>PhoneHostSequencer</b> — 唯一真相源定序（仅手机使用）<br>
+          <b>WatchOptimisticReplayEngine</b> — confirmedState + pendingLocalOps<br>
+          <b>WatchSportRegistry</b>（19 项）· <b>FileLinkDataStore</b> · 开放式 LinkCapability<br>
+          依赖 → ScoreCore · SessionCore · RecordCore · PersistenceCore（单向，无环）
+        </div>
+      </div>
+
+      <!-- 手表内部 -->
+      <div class="b wa" id="wa-views" style="left:1020px;top:150px;width:320px;height:62px">
+        <div class="t">8 块手表计分板 View</div>
+        <div class="s">只管渲染、手势与 260ms 消抖</div>
+      </div>
+      <div class="b wa" id="wa-reducer" style="left:1020px;top:234px;width:320px;height:76px">
+        <div class="t">WatchReducerSessionStore&lt;R&gt;</div>
+        <div class="s">同步 dispatch（无 Task）· 乐观重放 · 待同步确认浮层</div>
+      </div>
+      <div class="b wa" id="wa-service" style="left:1020px;top:332px;width:320px;height:76px">
+        <div class="t">WatchLinkService</div>
+        <div class="s">薄 @Observable 外观 · 端特有钩子 · 侧通道记录队列</div>
+      </div>
+      <div class="b wa" id="wa-records" style="left:1020px;top:430px;width:320px;height:62px">
+        <div class="t">WatchRecordManager · 记录列表/详情</div>
+        <div class="s">读轻量索引，正文按条读取</div>
+      </div>
+      <div class="b wa" id="wa-prefs" style="left:1020px;top:514px;width:320px;height:62px">
+        <div class="t">WatchPreferences · 常用名 · 声音/触感</div>
+        <div class="s">轻配置，仍走 Key-Value</div>
+      </div>
+      <div class="b wa storage" id="wa-storage" style="left:1020px;top:598px;width:320px;height:96px">
+        <div class="t">WatchStorageContainer</div>
+        <div class="s">Application Support/<b>jifen-watch-v1/</b><br>records/ · resume/ · link/ · common-names/ · outbox/</div>
+      </div>
+    </div>
+
+    <div class="legend">
+      <div class="li"><span class="badge-demo">1</span> Store → SessionCore：调用 ScoreSessionCore</div>
+      <div class="li"><span class="badge-demo">2</span> 手机外观 → LinkCore：调用 LinkSessionEngine</div>
+      <div class="li"><span class="badge-demo">3</span> 适配层 → RecordCore：解码 CanonicalMatchRecord</div>
+      <div class="li"><span class="badge-demo">4</span> 手机存储 → PersistenceCore（虚线=接口实现，落地路径不变）</div>
+      <div class="li"><span class="badge-demo">5</span> 手表外观 → LinkCore：调用 LinkSessionEngine</div>
+      <div class="li"><span class="badge-demo">6</span> 手表 Store → SessionCore：使用 ScoreSessionMachine</div>
+      <div class="li"><span class="badge-demo">7</span> 手表记录 → RecordCore：CanonicalMatchRecord</div>
+      <div class="li"><span class="badge-demo">8</span> 手表存储 → PersistenceCore（虚线=接口实现）</div>
+      <div class="li"><span class="badge-demo">9</span> 端内：用户点击 → Store → 外观（双向）</div>
+      <div class="li"><span class="badge-demo">10</span> 手表端内：View → Store → 外观（双向）</div>
+      <div class="li"><span class="sw red"></span> ✕ 手机与手表之间：无 import、无代码依赖</div>
+      <div class="li"><span class="sw"></span> 实线=调用/使用 &nbsp; <span class="sw dash"></span> 虚线=协议实现</div>
+    </div>
+  </section>
+
+  <!-- ============ 图 2 ============ -->
+  <section>
+    <h2>图 2 · 运行时交接（一次「加分 → 完赛」的时序）</h2>
+    <div class="h2sub">手表本地先发生（乐观），手机随后定序确认；不可达时降级到通道 ②/③，但顺序与幂等键不变。</div>
+    <div class="canvas" style="height:900px">
+      <svg width="1640" height="900" viewBox="0 0 1640 900" style="position:static;pointer-events:none">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#4A5460"/>
+          </marker>
+          <marker id="arw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#B35C00"/>
+          </marker>
+          <marker id="arp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#2C6E49"/>
+          </marker>
+          <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#C0392B"/>
+          </marker>
+        </defs>
+        <g font-family="-apple-system,PingFang SC,sans-serif">
+          <!-- lifelines -->
+          <g stroke="#D5DAE1" stroke-dasharray="4 5">
+            <line x1="230" y1="112" x2="230" y2="852"/>
+            <line x1="586" y1="112" x2="586" y2="852"/>
+            <line x1="912" y1="112" x2="912" y2="852"/>
+            <line x1="1244" y1="112" x2="1244" y2="852"/>
+            <line x1="1520" y1="112" x2="1520" y2="852"/>
+          </g>
+          <!-- headers -->
+          <g>
+            <rect x="96" y="34" width="268" height="66" rx="10" fill="#FFFBF6" stroke="#F0D9BF"/>
+            <text x="230" y="60" text-anchor="middle" font-size="12.5" font-weight="700" fill="#B35C00">手表 UI</text>
+            <text x="230" y="80" text-anchor="middle" font-size="10.8" fill="#77808C">8 块计分板 View · dispatch</text>
+
+            <rect x="420" y="34" width="332" height="66" rx="10" fill="#FFFBF6" stroke="#F0D9BF"/>
+            <text x="586" y="60" text-anchor="middle" font-size="12.5" font-weight="700" fill="#B35C00">WatchReducerSessionStore · WatchLinkService</text>
+            <text x="586" y="80" text-anchor="middle" font-size="10.8" fill="#77808C">pendingLocalOps / confirmedState / 待同步确认</text>
+
+            <rect x="770" y="34" width="284" height="66" rx="10" fill="#F6F4FF" stroke="#C9C0F0"/>
+            <text x="912" y="60" text-anchor="middle" font-size="12.5" font-weight="700" fill="#4B3FA8">WCSession 三通道</text>
+            <text x="912" y="80" text-anchor="middle" font-size="10.8" fill="#77808C">① 实时 ② 兜底 ③ 文件大包</text>
+
+            <rect x="1078" y="34" width="332" height="66" rx="10" fill="#F7FCF9" stroke="#BFDCC9"/>
+            <text x="1244" y="60" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2C6E49">PhoneHostSequencer（LinkCore）</text>
+            <text x="1244" y="80" text-anchor="middle" font-size="10.8" fill="#77808C">唯一真相源 · opId 幂等 · committedRevision</text>
+
+            <rect x="1372" y="34" width="252" height="66" rx="10" fill="#F7FCF9" stroke="#BFDCC9"/>
+            <text x="1498" y="60" text-anchor="middle" font-size="12.5" font-weight="700" fill="#2C6E49">手机 UI + 落库</text>
+            <text x="1498" y="80" text-anchor="middle" font-size="10.8" fill="#77808C">ScoreboardRecord v5</text>
+          </g>
+
+          <!-- steps -->
+          <!-- 1 -->
+          <g>
+            <line x1="230" y1="146" x2="578" y2="146" stroke="#B35C00" stroke-width="1.4" marker-end="url(#arw)"/>
+            <text x="404" y="138" text-anchor="middle" font-size="11.2" fill="#4A5460">点「+1」→ dispatch(intent, at:)</text>
+          </g>
+          <!-- 2 note -->
+          <g>
+            <path d="M586,164 h26 v20 h-26" fill="none" stroke="#B35C00" stroke-width="1.2" marker-end="url(#arw)"/>
+            <rect x="628" y="154" width="322" height="34" rx="6" fill="#FFFDF9" stroke="#F0D9BF"/>
+            <text x="638" y="176" font-size="11" fill="#4A5460">① 追加 pendingLocalOps 并落盘 ② 乐观重放，表盘零延迟</text>
+          </g>
+          <!-- 3 -->
+          <g>
+            <line x1="586" y1="208" x2="904" y2="208" stroke="#B35C00" stroke-width="1.4" marker-end="url(#arw)"/>
+            <text x="745" y="200" text-anchor="middle" font-size="11.2" fill="#4A5460">sendMessageData(.intentSubmit) · 通道①</text>
+          </g>
+          <!-- 4 -->
+          <g>
+            <line x1="912" y1="242" x2="1236" y2="242" stroke="#4A5460" stroke-width="1.2" marker-end="url(#ar)"/>
+            <text x="1074" y="234" text-anchor="middle" font-size="11.2" fill="#4A5460">→ PhoneWatchLinkService → submitOperation</text>
+          </g>
+          <!-- 5 note -->
+          <g>
+            <path d="M1244,260 h26 v20 h-26" fill="none" stroke="#2C6E49" stroke-width="1.2" marker-end="url(#arp)"/>
+            <rect x="1286" y="250" width="330" height="34" rx="6" fill="#FBFDFC" stroke="#BFDCC9"/>
+            <text x="1296" y="272" font-size="11" fill="#4A5460">幂等判重 → 校验 baseRev/时钟钳制 → reduce → rev+1</text>
+          </g>
+          <!-- 6 -->
+          <g>
+            <line x1="1244" y1="304" x2="1512" y2="304" stroke="#2C6E49" stroke-width="1.2" marker-end="url(#arp)"/>
+            <text x="1378" y="296" text-anchor="middle" font-size="11.2" fill="#4A5460">落库 v5 + 投影 DetailedScoreAction</text>
+          </g>
+          <!-- 7 -->
+          <g>
+            <line x1="1244" y1="338" x2="596" y2="338" stroke="#4A5460" stroke-width="1.2" marker-end="url(#ar)"/>
+            <text x="920" y="330" text-anchor="middle" font-size="11.2" fill="#4A5460">sendMessageData(.intentCommit)：outcome · stateHash · 每 10 次附快照</text>
+          </g>
+          <!-- 8 note -->
+          <g>
+            <path d="M586,356 h26 v20 h-26" fill="none" stroke="#B35C00" stroke-width="1.2" marker-end="url(#arw)"/>
+            <rect x="628" y="346" width="322" height="34" rx="6" fill="#FFFDF9" stroke="#F0D9BF"/>
+            <text x="638" y="368" font-size="11" fill="#4A5460">弹出 opId → 推进 confirmedState → 重放剩余 op</text>
+          </g>
+          <!-- 9 offline fallback -->
+          <g>
+            <line x1="912" y1="402" x2="596" y2="402" stroke="#C0392B" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arg)"/>
+            <text x="754" y="394" text-anchor="middle" font-size="11.2" fill="#A03A2E">不可达时降级：② latestLinkSnapshot · ③ transferFile</text>
+          </g>
+          <!-- 10 finish -->
+          <g>
+            <line x1="586" y1="446" x2="1512" y2="446" stroke="#B35C00" stroke-width="1.4" marker-end="url(#arw)"/>
+            <circle cx="912" cy="446" r="3" fill="#B35C00"/>
+            <circle cx="1244" cy="446" r="3" fill="#B35C00"/>
+            <text x="1049" y="438" text-anchor="middle" font-size="11.2" fill="#4A5460">完赛：结束请求排在计分之后 · transferFile(matchFinished) · 通道③</text>
+          </g>
+          <!-- 11 ack -->
+          <g>
+            <line x1="1512" y1="498" x2="596" y2="498" stroke="#2C6E49" stroke-width="1.2" marker-end="url(#arp)"/>
+            <circle cx="1244" cy="498" r="3" fill="#2C6E49"/>
+            <circle cx="912" cy="498" r="3" fill="#2C6E49"/>
+            <text x="1054" y="490" text-anchor="middle" font-size="11.2" fill="#4A5460">recordAcknowledgement 落库回执 → 手表出队、两端各留一条同 ID 记录</text>
+          </g>
+          <!-- 12 phone local -->
+          <g>
+            <line x1="1512" y1="550" x2="1252" y2="550" stroke="#2C6E49" stroke-width="1.2" marker-end="url(#arp)"/>
+            <text x="1382" y="542" text-anchor="middle" font-size="11.2" fill="#4A5460">手机本地点击 → submitLocalIntent</text>
+            <text x="1382" y="566" text-anchor="middle" font-size="10.4" fill="#8A9099">与手表 op 同一入口、同一 revision 序列</text>
+          </g>
+          <!-- 13 branch -->
+          <g>
+            <rect x="96" y="600" width="1528" height="112" rx="10" fill="#FFFAF6" stroke="#F0D6C4" stroke-dasharray="6 5"/>
+            <text x="116" y="626" font-size="11.6" font-weight="700" fill="#9A3412">分支 A · 手机已先确认完赛</text>
+            <text x="116" y="648" font-size="11.2" fill="#4A5460">手表补发的离线 op 返回「本场已结束」各自的结果 → 对齐手机结果，显示「有 N 笔离线操作未纳入本场成绩」；重复投递不重复计数，两端仍各一条同 ID 记录。</text>
+            <text x="116" y="676" font-size="11.6" font-weight="700" fill="#0B6B45">分支 B · 手表独立开局（不走联动）</text>
+            <text x="116" y="698" font-size="11.2" fill="#4A5460">直接写 WatchStorageContainer/records/，不经 PhoneHostSequencer，断连也能保存。</text>
+          </g>
+          <!-- legend -->
+          <g font-size="10.8" fill="#77808C">
+            <line x1="96" y1="760" x2="136" y2="760" stroke="#B35C00" stroke-width="1.4" marker-end="url(#arw)"/>
+            <text x="144" y="764">手表 → 手机（op / 完赛）</text>
+            <line x1="340" y1="760" x2="380" y2="760" stroke="#2C6E49" stroke-width="1.2" marker-end="url(#arp)"/>
+            <text x="388" y="764">手机 → 手表（commit / 回执）</text>
+            <line x1="600" y1="760" x2="640" y2="760" stroke="#C0392B" stroke-width="1.2" stroke-dasharray="5 4" marker-end="url(#arg)"/>
+            <text x="648" y="764">降级兜底（不可达时）</text>
+            <circle cx="820" cy="760" r="3" fill="#B35C00"/>
+            <text x="832" y="764">中间端点＝经该端转发/确认</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+    <div class="notes">
+      <div class="note"><b>顺序保证：</b>同一场内所有 op 按 <code>clientSeq</code> 单调，结束请求永远排在本场计分之后——这是「先处理计分再确认结束」的唯一机制。</div>
+      <div class="note"><b>幂等键：</b><code>opId</code> 管操作、<code>matchId</code> 管记录、<code>messageId</code> 管回执，三者分开，重复投递不会多记一笔。</div>
+      <div class="note"><b>不可达时的边界：</b>通道②只保证「最新快照」最终到；完整动作与完赛必须走通道③，否则动作会丢。</div>
+    </div>
+  </section>
+
+  <!-- ============ 图 3 ============ -->
+  <section>
+    <h2>图 3 · 数据归属（谁写、谁读、谁是权威）</h2>
+    <div class="h2sub">同一份状态只有一个权威写入方；另一侧只是副本 + 待确认队列。手机侧 v5 是兼容边界，手表侧首发即 v2 格式。</div>
+    <table class="dm">
+      <thead>
+        <tr><th style="width:250px">数据项</th><th>手表内存</th><th>手表磁盘</th><th>手机内存</th><th>手机磁盘</th><th>云端 / 跨端</th><th style="width:300px">权威与交接</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>本场计分动作（op 流）</th>
+          <td><span class="dot own">●</span>pendingLocalOps</td>
+          <td><span class="dot own">●</span>link/pending-ops.json</td>
+          <td><span class="dot own">●</span>processedOpIds 滑窗</td>
+          <td><span class="dot copy">○</span>随记录落盘</td>
+          <td><span class="dot none">—</span></td>
+          <td>手表先写、手机定序后转正<span class="tagx tag-a">唯一权威：手机</span></td>
+        </tr>
+        <tr>
+          <th>已确认状态 / revision</th>
+          <td><span class="dot copy">○</span>confirmedState</td>
+          <td><span class="dot none">—</span>（可重放得出）</td>
+          <td><span class="dot own">●</span>committedRevision</td>
+          <td><span class="dot none">—</span></td>
+          <td><span class="dot none">—</span></td>
+          <td>手机产生，手表对齐<span class="tagx tag-a">权威：手机</span></td>
+        </tr>
+        <tr>
+          <th>比赛记录</th>
+          <td><span class="dot copy">○</span>展示用</td>
+          <td><span class="dot own">●</span>records/index.json + 单条文件<br><span style="color:#8A9099">（含独立开局记录）</span></td>
+          <td><span class="dot copy">○</span>列表缓存</td>
+          <td><span class="dot own">●</span>Records/ ScoreboardRecord v5</td>
+          <td><span class="dot copy">○</span>记录 JSON</td>
+          <td>联动：同 matchId 两端各一条；独立：手表先存、可选回传</td>
+        </tr>
+        <tr>
+          <th>续赛草稿</th>
+          <td><span class="dot own">●</span>WatchResumeSession</td>
+          <td><span class="dot own">●</span>resume/current.json</td>
+          <td><span class="dot own">●</span>PhoneLinkResumeContext</td>
+          <td><span class="dot own">●</span>WatchLink/（手机侧）</td>
+          <td><span class="dot none">—</span></td>
+          <td>各自持有，互不覆盖；断连重启各自恢复</td>
+        </tr>
+        <tr>
+          <th>待发送 / 待确认队列</th>
+          <td><span class="dot own">●</span>pendingEnds</td>
+          <td><span class="dot own">●</span>link/ + outbox/</td>
+          <td><span class="dot own">●</span>pendingAck</td>
+          <td><span class="dot own">●</span>WatchLink/outbox</td>
+          <td><span class="dot none">—</span></td>
+          <td>出队条件：对端落库回执（recordAcknowledgement）</td>
+        </tr>
+        <tr>
+          <th>常用名 / 偏好</th>
+          <td><span class="dot copy">○</span></td>
+          <td><span class="dot own">●</span>common-names/store.json<br><span style="color:#8A9099">偏好仍走 Key-Value</span></td>
+          <td><span class="dot own">●</span>CommonNamesManager</td>
+          <td><span class="dot own">●</span>既有存储</td>
+          <td><span class="dot none">—</span></td>
+          <td>手机为主，单向推送（≤24KB 预算裁剪）</td>
+        </tr>
+        <tr>
+          <th>跨端档案（安卓 / 鸿蒙）</th>
+          <td><span class="dot none">—</span></td>
+          <td><span class="dot none">—</span></td>
+          <td><span class="dot copy">○</span></td>
+          <td><span class="dot own">●</span>RecordSyncOutbox</td>
+          <td><span class="dot copy">○</span></td>
+          <td>手机既有链路不动，本次不触碰<span class="tagx tag-c">只读参考</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="legend" style="margin-top:10px">
+      <div class="li"><span class="dot own">●</span> 唯一权威写入方</div>
+      <div class="li"><span class="dot copy">○</span> 副本 / 只读 / 可重放得到</div>
+      <div class="li"><span class="dot none">—</span> 不存在或不该存在</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  const NS = "http://www.w3.org/2000/svg";
+
+  function mk(tag, attrs){
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  function links(canvasId, defs){
+    const canvas = document.getElementById(canvasId);
+    const svg = canvas.querySelector("svg");
+    const cw = canvas.clientWidth, ch = canvas.clientHeight;
+    svg.setAttribute("viewBox", "0 0 " + cw + " " + ch);
+
+    const d = mk("defs", {});
+    [["a","#4A5460"],["w","#B35C00"],["p","#2C6E49"],["g","#8A93A0"],["r","#C0392B"]].forEach(function(m){
+      const mk2 = mk("marker", {id:"m-"+m[0], viewBox:"0 0 10 10", refX:"9", refY:"5",
+        markerWidth:"6", markerHeight:"6", orient:"auto-start-reverse"});
+      mk2.appendChild(mk("path", {d:"M0,0 L10,5 L0,10 z", fill:m[1]}));
+      d.appendChild(mk2);
+    });
+    svg.appendChild(d);
+
+    defs.forEach(function(l){
+      const A = document.getElementById(l.from);
+      const B = document.getElementById(l.to);
+      if (!A || !B) return;
+      const ax = A.offsetLeft, ay = A.offsetTop, aw = A.offsetWidth, ah = A.offsetHeight;
+      const bx = B.offsetLeft, by = B.offsetTop, bw = B.offsetWidth, bh = B.offsetHeight;
+
+      let p1, p2, c1, c2;
+      if (l.kind === "v"){
+        p1 = {x: ax + aw/2, y: ay + ah}; p2 = {x: bx + bw/2, y: by};
+        c1 = {x: p1.x, y: p1.y + 22}; c2 = {x: p2.x, y: p2.y - 22};
+      } else if (l.kind === "up"){
+        p1 = {x: ax + aw/2, y: ay}; p2 = {x: bx + bw/2, y: by + bh};
+        c1 = {x: p1.x, y: p1.y - 22}; c2 = {x: p2.x, y: p2.y + 22};
+      } else {
+        const ty = (l.toY !== undefined) ? l.toY : (by + bh/2);
+        if (l.dir === "l2r"){
+          p1 = {x: ax + aw, y: ay + ah/2};
+          p2 = {x: bx, y: ty};
+          const dx = Math.max(28, (p2.x - p1.x) * 0.5);
+          c1 = {x: p1.x + dx, y: p1.y}; c2 = {x: p2.x - dx, y: p2.y};
+        } else {
+          p1 = {x: ax, y: ay + ah/2};
+          p2 = {x: bx + bw, y: ty};
+          const dx = Math.max(28, (p1.x - p2.x) * 0.5);
+          c1 = {x: p1.x - dx, y: p1.y}; c2 = {x: p2.x + dx, y: p2.y};
+        }
+      }
+
+      const path = mk("path", {
+        d: "M" + p1.x + "," + p1.y + " C" + c1.x + "," + c1.y + " " + c2.x + "," + c2.y + " " + p2.x + "," + p2.y,
+        fill: "none", stroke: l.color, "stroke-width": l.width || 1.3,
+        "stroke-dasharray": l.dash || "", "marker-end": "url(#m-" + l.marker + ")",
+        "marker-start": l.bi ? "url(#m-" + l.marker + ")" : ""
+      });
+      svg.appendChild(path);
+
+      if (l.n){
+        const len = path.getTotalLength();
+        const pt = path.getPointAtLength(len * 0.5);
+        const g = mk("g", {});
+        g.appendChild(mk("circle", {cx: pt.x, cy: pt.y, r: 8.6, fill: "#fff",
+          stroke: l.color, "stroke-width": 1.3}));
+        const t = mk("text", {x: pt.x, y: pt.y + 3.6, "text-anchor": "middle",
+          "font-size": "10px", "font-weight": "700", fill: l.color});
+        t.textContent = l.n;
+        g.appendChild(t);
+        svg.appendChild(g);
+      }
+    });
+  }
+
+  // 图 1 的连接线（编号对应图例）
+  links("c1", [
+    {from:"ph-store",  to:"co-session", n:"1", dir:"l2r", color:"#4A5460", marker:"a"},
+    {from:"ph-service",to:"co-link",   n:"2", dir:"l2r", color:"#4A5460", marker:"a", toY:620},
+    {from:"ph-adapter",to:"co-record", n:"3", dir:"l2r", color:"#4A5460", marker:"a"},
+    {from:"ph-storage",to:"co-persist",n:"4", dir:"l2r", color:"#8A93A0", marker:"g", dash:"5 4", toY:472},
+    {from:"wa-service",to:"co-link",   n:"5", dir:"r2l", color:"#4A5460", marker:"a", toY:632},
+    {from:"wa-reducer",to:"co-session",n:"6", dir:"r2l", color:"#4A5460", marker:"a"},
+    {from:"wa-records",to:"co-record", n:"7", dir:"r2l", color:"#4A5460", marker:"a"},
+    {from:"wa-storage",to:"co-persist",n:"8", dir:"r2l", color:"#8A93A0", marker:"g", dash:"5 4", toY:472},
+    {from:"ph-views",  to:"ph-store",  n:"9", kind:"v", color:"#2C6E49", marker:"p", bi:true},
+    {from:"ph-store",  to:"ph-service",n:"9", kind:"v", color:"#2C6E49", marker:"p", bi:true},
+    {from:"wa-views",  to:"wa-reducer",n:"10",kind:"v", color:"#B35C00", marker:"w", bi:true},
+    {from:"wa-reducer",to:"wa-service",n:"10",kind:"v", color:"#B35C00", marker:"w", bi:true}
+  ]);
+})();
+</script>
+</body>
+</html>

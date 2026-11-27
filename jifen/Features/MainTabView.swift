@@ -11,6 +11,7 @@ struct MainTabView: View {
     @State private var bindingRequested = false
     @State private var previewsWechatBindingPrompt = false
     @State private var hasOpenedBindingPreview = false
+    @State private var settingsPath = NavigationPath()
     @State private var selectedTab = ProcessInfo.processInfo.arguments.contains("-UITestOpenTimer") ? 3 : 0
     @State private var selectedGame: GameType? = nil
     @State private var navigatingFromTab: Int? = nil
@@ -31,8 +32,11 @@ struct MainTabView: View {
         .tint(Theme.accentColor)
         .sheet(isPresented: watchLinkIntroBinding, onDismiss: { watchLinkIntro?.dismiss() }) {
             if let artwork = watchLinkIntro?.artwork {
-                WatchLinkIntroSheet(artwork: artwork)
-                    .onAppear { watchLinkIntro?.sheetDidAppear() }
+                WatchLinkIntroSheet(artwork: artwork) {
+                    settingsPath.append(SettingsView.Route.watchLink)
+                    selectedTab = 4
+                }
+                .onAppear { watchLinkIntro?.sheetDidAppear() }
             }
         }
         // 兜底：下拉关闭、或 present 之后被系统收起时也复位遮罩状态，
@@ -50,7 +54,8 @@ struct MainTabView: View {
         }
         .sheet(isPresented: Binding(
             get: {
-                guard watchLinkIntro?.reservesLaunchPresentation != true else { return false }
+                guard watchLinkIntro?.reservesLaunchPresentation != true,
+                      selectedTab != 4 || settingsPath.isEmpty else { return false }
                 return previewsWechatBindingPrompt || (
                     session.presentsWechatUpgradePrompt && selectedGame == nil
                         && groupInvitation == nil && !VipCommunityAvailability.shared.isPresenting
@@ -115,6 +120,14 @@ struct MainTabView: View {
         )
     }
 
+    private var allowsWeekendMembershipPresentation: Bool {
+        selectedTab == 0 && selectedGame == nil && watchLinkService?.activeSessionId == nil
+            && watchLinkIntro?.reservesLaunchPresentation != true
+            && !session.presentsWechatUpgradePrompt && !previewsWechatBindingPrompt
+            && !bindingRequested && !showWechatBinding && !showBindingLogin
+            && !VipCommunityAvailability.shared.isPresenting
+    }
+
     private func dismissBindingPrompt() {
         previewsWechatBindingPrompt = false
         session.presentsWechatUpgradePrompt = false
@@ -129,17 +142,21 @@ struct MainTabView: View {
     ) -> some View {
         TabView(selection: selectedTab) {
             tabItem(tag: 0, titleKey: "tab_home", systemImage: "house.fill", screen: .homeTab) {
-                HomeTab(onNavigateToTab: { index, game in
-                    navigatingFromTab.wrappedValue = selectedTab.wrappedValue
-                    selectedTab.wrappedValue = index
-                    if index == 3 {
-                        pendingTimerGameType.wrappedValue = game
-                        selectedGame.wrappedValue = nil
-                    } else {
-                        pendingTimerGameType.wrappedValue = nil
-                        selectedGame.wrappedValue = game
-                    }
-                }, groupInvitation: $groupInvitation)
+                HomeTab(
+                    onNavigateToTab: { index, game in
+                        navigatingFromTab.wrappedValue = selectedTab.wrappedValue
+                        selectedTab.wrappedValue = index
+                        if index == 3 {
+                            pendingTimerGameType.wrappedValue = game
+                            selectedGame.wrappedValue = nil
+                        } else {
+                            pendingTimerGameType.wrappedValue = nil
+                            selectedGame.wrappedValue = game
+                        }
+                    },
+                    groupInvitation: $groupInvitation,
+                    allowsWeekendMembershipPresentation: allowsWeekendMembershipPresentation
+                )
             }
             tabItem(tag: 1, titleKey: "tab_records", systemImage: "list.bullet.clipboard.fill", screen: .recordsTab) {
                 RecordsTab()
@@ -155,7 +172,7 @@ struct MainTabView: View {
             tabItem(tag: 3, titleKey: "tab_timer", systemImage: "timer", screen: .timerTab) {
                 TimerTab(pendingTimerGameType: pendingTimerGameType)
             }
-            MeTab()
+            MeTab(path: $settingsPath)
                 .appAnalyticsScreen(.meTab)
                 .tag(4)
                 .tabItem {

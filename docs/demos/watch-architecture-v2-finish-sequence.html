@@ -1,0 +1,91 @@
+<!doctype html><html lang="zh-Hans"><head><meta charset="utf-8"><style>
+  * { box-sizing: border-box; }
+  html,body { margin:0; padding:0; }
+  body { font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Helvetica Neue", sans-serif;
+    background:#F4F5F7; color:#1D2129; padding: 34px 38px 30px; }
+  .title { font-size: 26px; font-weight: 700; }
+  .sub { font-size: 13.5px; color:#6B7280; margin-top: 7px; line-height:1.5; }
+  .kicker { display:inline-block; font-size: 11.5px; font-weight: 600; letter-spacing:.6px; color:#0B6B45;
+    background:#E3F3EA; border-radius:4px; padding:2px 7px; margin-bottom:9px; }
+
+  .wrap { width: 1306px; }
+  .phase { font-size: 11.5px; font-weight: 700; letter-spacing: .8px; color:#8A9099; margin: 16px 0 7px 2px; }
+  .seq { display:grid; grid-template-columns: 1fr 214px 1fr; gap: 9px 10px; align-items: stretch; }
+  .card { background:#fff; border:1px solid #E1E4E8; border-radius: 10px; padding: 10px 13px; font-size: 12.4px;
+    line-height: 1.55; box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+  .card .h { font-size: 12.8px; font-weight: 700; margin-bottom: 3px; }
+  .card.w { border-left: 3px solid #B35C00; }
+  .card.p { border-left: 3px solid #2C6E49; }
+  .card .muted { color:#77808C; }
+  .card b { font-weight: 600; }
+  .code { font-family:"SF Mono", ui-monospace, Menlo, monospace; font-size: 11.2px; color:#0B5FFF;
+    background:#F1F5FF; border-radius:3px; padding:0 3px; }
+  .mid { display:flex; align-items:center; justify-content:center; font-size: 11.5px; color:#7A5AF8;
+    text-align:center; line-height:1.35; }
+  .arrow { font-size: 15px; }
+  .spacer { }
+  .badge { display:inline-block; font-size: 10.8px; font-weight:700; border-radius: 4px; padding: 1px 6px;
+    background:#FEF0E6; color:#A34E00; margin-right: 6px; }
+  .badge.p { background:#E8F5EE; color:#0B6B45; }
+  .note { margin-top: 14px; display:flex; gap: 10px; }
+  .n { flex:1; font-size: 11.6px; line-height:1.5; background:#fff; border:1px dashed #CFD5DE; border-radius: 8px; padding: 8px 11px; color:#4A5460; }
+  .n b { color:#1D2129; }
+</style></head><body><div class="wrap">
+  <div class="kicker">D-1 落地口径 · 完赛时序</div>
+  <div class="title">离线计分 / 离线结束 → 手机定序确认 → 两端各存一条同 ID 记录</div>
+  <div class="sub">Watch 不再是“只读跟随端”；结束请求由手机定序，但记录不靠镜像复制，而是两端用同一个 <span class="code">matchId</span> 各自幂等落库。</div>
+
+  <div class="phase">① 断连中（isReachable == false）</div>
+  <div class="seq">
+    <div class="card w"><div class="h"><span class="badge">离线</span>点「+1」× N</div>
+      <span class="muted">生成</span> LinkOperation(origin: .watch, clientSeq++, baseRevision) → 追加 <b>pendingLocalOps</b> 并落盘<br>
+      <b>乐观重放</b> displayedState，表盘/动作日志零延迟刷新</div>
+    <div class="mid"><span class="arrow">→</span></div>
+    <div class="spacer"></div>
+
+    <div class="card w"><div class="h"><span class="badge">离线</span>再点「结束」</div>
+      结束请求排在 N 笔之后、<b>同一队列</b>持久化；界面进入「<b>待同步确认</b>」；杀进程重启后恢复该状态（不是丢失，也不是本地先落库）</div>
+    <div class="mid"><span class="arrow">→</span></div>
+    <div class="spacer"></div>
+  </div>
+
+  <div class="phase">② 重连补发（按 clientSeq 顺序，结束永远最后）</div>
+  <div class="seq">
+    <div class="spacer"></div>
+    <div class="mid"><span class="arrow">→</span><br>sendMessageData<br><span class="code">.intentSubmit</span></div>
+    <div class="card p"><div class="h"><span class="badge p">手机</span>PhoneHostSequencer（唯一真相源）</div>
+      ① <b>opId 幂等判重</b>（滑窗 1,000）<br>
+      ② 校验 baseRevision；足球按 <span class="code">max(op.createdAt, lastCommitted)</span> 单调钳制<br>
+      ③ 对应 Reducer 执行 → committedRevision += 1<br>
+      ④ 投影 DetailedScoreAction、更新 confirmedSnapshot 与 stateHash<br>
+      ⑤ 先处理完 N 笔计分，<b>再确认结束</b>（matchId 作幂等键）</div>
+
+    <div class="card w" style="grid-column:1"><div class="h"><span class="badge">重连</span>手表收到 <span class="code">.intentCommit</span></div>
+      弹出已确认 opId → 推进 confirmedState → 重放剩余 pendingLocalOps；跳号或 hash 不一致则自动 <span class="code">.resyncRequest</span><br>
+      <span class="muted">commit 携带 outcome / committedRevision / stateHash，每 10 次或 undo·nextMatch 附权威快照</span></div>
+    <div class="mid"><span class="arrow">←</span></div>
+    <div class="card p"><div class="h"><span class="badge p">手机</span>定序结果回传</div>
+      4,700+ 行双端胶水收敛成同一入口；手表只做“确认 + 重放”，不再自持权威快照比对逻辑</div>
+  </div>
+
+  <div class="phase">③ 收敛结果</div>
+  <div class="seq">
+    <div class="card w"><div class="h">手表：以同一 matchId 保存联动记录</div>
+      <span class="muted">比分与动作来自手机确认态</span></div>
+    <div class="mid"><span class="arrow">⇄</span><br>同 ID<br>各一条</div>
+    <div class="card p"><div class="h">手机：同一 matchId 落一条 ScoreboardRecord v5</div>
+      <span class="muted">走 WatchCanonicalRecordAdapter，字段与存量记录一致</span></div>
+
+    <div class="card w"><div class="h"><span class="badge">分支</span>手机已先确认完赛</div>
+      手表对齐手机结果，按唯一 opId 统计未纳入的离线操作 → 显示「<b>有 2 笔离线操作未纳入本场成绩</b>」；重复回执/重复结束请求不重复计数</div>
+    <div class="mid">⟂</div>
+    <div class="card p"><div class="h"><span class="badge p">分支</span>手机侧稳定性</div>
+      既有记录的比分与动作保持稳定；迟到 op 各自返回处理结果，不再追加到已完赛比赛</div>
+  </div>
+
+  <div class="note">
+    <div class="n"><b>独立开局不受影响：</b>Watch 不走联动时仍走本地直接保存，断连也能存。</div>
+    <div class="n"><b>状态从哪来：</b>「待同步确认」= 队列里还有未确认 op；不新增持久化标记，靠 pending-ops.json + 完赛确认标志推导。</div>
+    <div class="n"><b>规范未写的边角：</b>手机长期不回来时待同步态没有超时/降级出口，需在 M5 前补口径。</div>
+  </div>
+</div></body></html>

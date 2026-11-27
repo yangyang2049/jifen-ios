@@ -6,10 +6,11 @@ import UIKit
 final class WatchLinkIntroPresentation {
     static let releaseVersion = "3.4.4"
     static let seenKey = "watch_link_intro_seen_" + releaseVersion
-    /// 素材命名：WatchLinkIntroArtwork-<locale>，缺当前语言时回退 en。
+    /// 素材命名：WatchLinkIntroArtwork-<locale>。
     /// 三套素材由 scripts/compose_watch_link_intro_artwork.py 合成，
     /// 由 WatchLinkIntroLaunchTests 在版本号等于 releaseVersion 时强制校验存在。
     static let artworkNamePrefix = "WatchLinkIntroArtwork-"
+    private static let supportedLocalizations = ["zh-Hans", "zh-Hant", "en"]
 
     let hasLaunchPriority: Bool
     let artwork: UIImage?
@@ -29,13 +30,13 @@ final class WatchLinkIntroPresentation {
     ) {
         self.defaults = defaults
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
-        let locale = Bundle.main.preferredLocalizations.first ?? "en"
-        let artwork = UIImage(named: Self.artworkNamePrefix + locale)
-            ?? UIImage(named: Self.artworkNamePrefix + "en")
+        let locale = Bundle.main.preferredLocalizations.first ?? ""
+        let supportsLocale = Self.supportedLocalizations.contains(locale)
+        let artwork = supportsLocale ? UIImage(named: Self.artworkNamePrefix + locale) : nil
         #if DEBUG
         let previewsIntro = arguments.contains("-UITestWatchLinkIntro")
         // Exercise the sheet's presentation in UI tests without bundling device artwork.
-        self.artwork = artwork ?? (previewsIntro ? UIImage(systemName: "photo") : nil)
+        self.artwork = artwork ?? (previewsIntro && supportsLocale ? UIImage(systemName: "photo") : nil)
         #else
         let previewsIntro = false
         self.artwork = artwork
@@ -74,6 +75,7 @@ final class WatchLinkIntroPresentation {
 
 struct WatchLinkIntroSheet: View {
     let artwork: UIImage
+    let onOpenSettings: () -> Void
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
@@ -81,7 +83,7 @@ struct WatchLinkIntroSheet: View {
     @ScaledMetric(relativeTo: .subheadline) private var messageSize = 15.0
     @ScaledMetric(relativeTo: .body) private var actionSize = 17.0
 
-    private static let compactDetent = PresentationDetent.height(460)
+    private static let compactDetent = PresentationDetent.height(480)
 
     var body: some View {
         ScrollView {
@@ -108,20 +110,40 @@ struct WatchLinkIntroSheet: View {
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
 
-                Button {
-                    dismiss()
-                } label: {
-                    Text(String(localized: "intro_done", table: "WatchLinkIntro"))
-                        .font(.system(size: actionSize, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 12)
-                        .frame(maxWidth: .infinity, minHeight: 50)
-                        .background(Color(hex: "24823E"), in: Capsule())
-                        .contentShape(Capsule())
+                HStack(spacing: 12) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Text(String(localized: "intro_done", table: "WatchLinkIntro"))
+                            .font(.system(size: actionSize, weight: .medium))
+                            .foregroundStyle(Theme.textSecondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 12)
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                            .overlay { Capsule().strokeBorder(Theme.divider) }
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("watch_link_intro_done")
+
+                    Button {
+                        onOpenSettings()
+                        dismiss()
+                    } label: {
+                        Text(String(localized: "intro_open_settings", table: "WatchLinkIntro"))
+                            .font(.system(size: actionSize, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 12)
+                            .frame(maxWidth: .infinity, minHeight: 50)
+                            .background(Color(hex: "24823E"), in: Capsule())
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("watch_link_intro_open_settings")
                 }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("watch_link_intro_done")
             }
             .frame(maxWidth: 400)
             .padding(.horizontal, 24)
@@ -132,6 +154,6 @@ struct WatchLinkIntroSheet: View {
         .scrollBounceBehavior(.basedOnSize)
         .presentationDetents(dynamicTypeSize.isAccessibilitySize ? [.large] : [Self.compactDetent, .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Theme.adaptive(Color(hex: "FCFEFA"), Color(hex: "1C1C1E")))
+        .presentationBackground(Theme.dialogSurfaceBackground)
     }
 }

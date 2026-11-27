@@ -109,9 +109,16 @@
 | 手表单测 | `-scheme 'jifenWatch Watch App' -only-testing:'jifenWatch Watch AppTests'`（只传 destination，别传 `-sdk`） | 135 通过 |
 | 手表 UI | `-scheme jifenWatchUITests -only-testing:'jifenWatch Watch AppUITests/WatchDialogConsistencyUITests'` | 7 通过（无配对设备时需先处理系统「联动失败」alert） |
 | 本地化 | `jifenTests/LocalizationIntegrityTests` + `python3 scripts/localization/watch_coverage.py --check` | 47 语种键集、占位符、专用表一致 |
-| **多人计分发布门禁** | `python3 scripts/verify_multi_score_release.py --simulator <iPhone-UDID>` | 3 例全过（首击/滑动、50 人分页、边缘返回与双击退出）；失败/跳过/缺结果一律阻断提审与发布（AGENTS.md 强制项，2026-11-26 已实测通过） |
+| **多人计分发布门禁** | `python3 scripts/verify_multi_score_release.py --simulator <iPhone-UDID>` | 2026-11-26 在 iPhone 模拟器复验 3.4.4 (89)，源码为 `02e8b8f1` 加当前工作区未提交变更，3 例通过，0 失败，0 跳过。最终候选源码定版后以该 checkout 的门禁结果为准。 |
 | 四机型 | `./run_automation_four_destinations.sh` | iPhone/iPad × iOS 18/26 全过 |
 | 归档 | `xcodebuild archive` + `-exportArchive`（app-store-connect） | 包内手机/手表均 3.4.4 (89)、签名严格校验通过、无 ITMS 拒绝 |
+
+#### RevenueCat 周末会员发布检查
+
+- 主 App 的 Debug 和 Release 共用 `Configuration/RevenueCat.xcconfig` 中的 App Store 公钥。Debug 可用 `xcodebuild` 的 `JIFEN_REVENUECAT_SDK_KEY` 构建参数替换成 Test Store 公钥。Release 运行时只接受 App Store 公钥。3.4.4 (89) 的 Release 模拟器包检查已通过。
+- 已发布 `weekend_lifetime` 的 Paywall。使用 App Store 公钥读回确认，iOS 3.4.4 匹配到 `weekend_membership`，返回单一 `$rc_lifetime` 套餐、`iscoreboard_lifetime_vip` 商品和 `weekend_membership: true`。iOS 3.4.3 保留 `default` 回退。活动仍按上海时间周五至周日展示，可选的活动时间窗使用成对的 Unix 秒数。[RevenueCat 投放规则](https://app.revenuecat.com/projects/f6314102/targeting/SHE1hQ6_M7)
+- 2026-11-26 已公开同步隐私披露。官网简中、繁中和英语政策均更新至 2026.11.26，新增 RevenueCat 购买历史和账号标识符条目。App Store 的公开隐私标签已确认购买历史和用户 ID 均与用户身份关联。购买历史用于 App 功能和分析，用户 ID 已增加 App 功能用途。[官网隐私政策](https://jifenqi.com/privacy) [App Store 产品页](https://apps.apple.com/us/app/id6759768784)
+- 针对性单测共 51 例通过，含完整的 `LocalizationIntegrityTests`、活动投放、SDK 公钥校验、许可对账和 StoreKit 回归。App Store 和 Test Store 弹窗 UI 共 3 例通过，Test Store 验证了没有购买记录时的恢复提示。真机购买和恢复已有购买仍待验收。原始证据在本机测试产物批次 `20261126T133309653401Z-revenuecat-audit-fix` 和 `20261126T140501348084Z-multi-score-release`，按测试产物保留规则到期清理。
 
 ### 5.2 建议补的自动化（本批缺口）
 
