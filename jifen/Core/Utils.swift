@@ -33,9 +33,7 @@ func formatDuration(_ duration: TimeInterval) -> String {
 }
 
 func formatDisplayDate(_ dateStr: String) -> String {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd"
-    guard let date = dateFormatter.date(from: dateStr) else {
+    guard let date = RecordDateFormatters.date(dateStr, format: "yyyy-MM-dd") else {
         return dateStr
     }
     
@@ -46,8 +44,35 @@ func formatDisplayDate(_ dateStr: String) -> String {
     } else if calendar.isDateInYesterday(date) {
         return NSLocalizedString("yesterday", comment: "Yesterday")
     } else {
-        let monthDayFormatter = DateFormatter()
-        monthDayFormatter.dateFormat = "MMMM d"
-        return monthDayFormatter.string(from: date)
+        return RecordDateFormatters.string(date, format: "MMMM d")
+    }
+}
+
+/// Record dates are stored as timestamps and formatted only when they are
+/// displayed, so a list rendered after a year or time-zone change shows the
+/// current local date. Formatters are cached per format, locale and time zone;
+/// the cache key keeps a system change from reusing a stale calendar.
+enum RecordDateFormatters {
+    private static let lock = NSLock()
+    private nonisolated(unsafe) static var cache: [String: DateFormatter] = [:]
+
+    static func string(_ date: Date, format: String) -> String {
+        formatter(format).string(from: date)
+    }
+
+    static func date(_ string: String, format: String) -> Date? {
+        formatter(format).date(from: string)
+    }
+
+    private static func formatter(_ format: String) -> DateFormatter {
+        let key = "\(format)|\(TimeZone.current.identifier)|\(Locale.current.identifier)"
+        lock.lock()
+        defer { lock.unlock() }
+        if let cached = cache[key] { return cached }
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        if cache.count >= 32 { cache.removeAll() }
+        cache[key] = formatter
+        return formatter
     }
 }

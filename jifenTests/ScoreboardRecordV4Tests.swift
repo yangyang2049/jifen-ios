@@ -576,6 +576,34 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: root.path).filter { $0.hasSuffix(".record.json") }.count, 2)
     }
 
+    func testInterruptedLegacyMigrationRebuildsSummariesFromTheWrittenRecords() throws {
+        let root = temporaryRecordRoot("summary-legacy-migration")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        let first = makeRecordWithStart(id: "first", startTime: 1_700_000_000)
+        let second = makeRecordWithStart(id: "second", startTime: 1_700_000_001)
+        try store.save(first)
+        try store.save(second)
+        let blockedURL = try recordBodyURL(in: root, id: second.id, decoder: decoder())
+        try FileManager.default.removeItem(at: blockedURL)
+        try FileManager.default.createDirectory(at: blockedURL, withIntermediateDirectories: false)
+        var updated = first
+        updated.team1FinalScore = 21
+        let legacyData = try encode([updated, second])
+
+        XCTAssertThrowsError(try store.migrateIfNeeded(legacyData: legacyData))
+
+        let reopened = ScoreboardRecordFileStore(rootURL: root)
+        XCTAssertEqual(reopened.loadRecord(id: first.id)?.team1FinalScore, 21)
+        XCTAssertEqual(reopened.loadSummaries().map(\.team1FinalScore), [21])
+        XCTAssertFalse(FileManager.default.fileExists(atPath: root.appendingPathComponent("migration-v4-complete").path))
+
+        try FileManager.default.removeItem(at: blockedURL)
+        try reopened.migrateIfNeeded(legacyData: legacyData)
+        XCTAssertEqual(reopened.loadSummaries().map(\.id), [second.id, first.id])
+        XCTAssertEqual(reopened.loadSummaries().last?.team1FinalScore, 21)
+    }
+
     func testCorruptedRecordIsSkippedWithoutLosingHealthyRecord() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent("record-corrupt-\(UUID().uuidString)", isDirectory: true)
         defer { try? FileManager.default.removeItem(at: root) }
@@ -2250,6 +2278,405 @@ final class ScoreboardRecordV4Tests: XCTestCase {
         XCTAssertEqual(manager.getRecords().map(\.id), ["new"])
         XCTAssertEqual(try Data(contentsOf: root.appendingPathComponent("legacy-corrupt.json")), corrupt)
         XCTAssertNil(defaults.data(forKey: "timer_records"))
+    }
+
+    // MARK: - Record summary index (list reads one file, record bodies stay closed)
+
+    func testSummaryTimestampAndOrderingMatchThePersistedRecordsAfterRebuild() throws {
+        let root = temporaryRecordRoot("summary-timestamp")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        let earlier = makeRecordWithStart(id: "a", startTime: 1_700_000_000.125)
+        let later = makeRecordWithStart(id: "z", startTime: 1_700_000_000.875)
+        try store.save(earlier)
+        try store.save(later)
+
+        let expected = store.loadRecords().map { ScoreboardRecordSummary(from: $0) }
+        XCTAssertEqual(expected.first?.timestamp, 1_700_000_000)
+        XCTAssertEqual(store.loadSummaries(), expected)
+
+        let indexURL = root.appendingPathComponent("index.json")
+        try FileManager.default.removeItem(at: indexURL)
+        XCTAssertEqual(store.loadSummaries(), expected)
+    }
+
+    func testVersionOneSummaryIndexIsRebuiltWithThePersistedTimestamp() throws {
+        struct PreviousSummaryIndex: Encodable {
+            let version = 1
+            let entries: [ScoreboardRecordSummaryIndexEntry]
+        }
+
+        let root = temporaryRecordRoot("summary-version-one")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        let record = makeRecordWithStart(id: "record", startTime: 1_700_000_000.875)
+        try store.save(record)
+        let expected = try Data(contentsOf: root.appendingPathComponent("index.json"))
+        let bodyURL = try recordBodyURL(in: root, id: record.id, decoder: decoder())
+        let oldEntry = ScoreboardRecordSummaryIndexEntry(
+            fileName: bodyURL.lastPathComponent,
+            summary: ScoreboardRecordSummary(from: record)
+        )
+        let indexURL = root.appendingPathComponent("index.json")
+        try encode(PreviousSummaryIndex(entries: [oldEntry])).write(to: indexURL, options: .atomic)
+
+        let reopened = ScoreboardRecordFileStore(rootURL: root)
+        XCTAssertEqual(reopened.loadSummaries().first?.timestamp, 1_700_000_000)
+        XCTAssertEqual(try Data(contentsOf: indexURL), expected)
+    }
+
+    func testLocalAndCloudRecordsUseTheSameDayKeyAcrossYears() throws {
+        let calendar = Calendar.current
+        let year = calendar.component(.year, from: Date())
+        let january = try XCTUnwrap(calendar.date(from: DateComponents(year: year, month: 1, day: 2, hour: 12)))
+        let december = try XCTUnwrap(calendar.date(from: DateComponents(year: year - 1, month: 12, day: 31, hour: 12)))
+        let recent = makeRecordWithStart(id: "recent", startTime: january.timeIntervalSince1970)
+        let previous = makeRecordWithStart(id: "previous", startTime: december.timeIntervalSince1970)
+        let local = RecordsTabRecordItem.scoreboard(ScoreboardRecordSummary(from: recent))
+        let timer = RecordsTabRecordItem.timer(
+            GameRecordSummary(id: "timer", gameType: .chess, timestamp: january.timeIntervalSince1970)
+        )
+        let cloud = RecordsTabRecordItem.cloud(.init(
+            libraryId: "library", recordKey: "cloud", kind: "score", project: "pingpong",
+            playedAt: Int64(january.timeIntervalSince1970 * 1_000),
+            participantMode: "individual", participants: [], summary: [:],
+            origin: .init(nativeSchemaVersion: 1), nativePayload: [:], assetIds: []
+        ))
+
+        XCTAssertGreaterThan(local.dateString, RecordsTabRecordItem.scoreboard(ScoreboardRecordSummary(from: previous)).dateString)
+        XCTAssertEqual(local.dateString, timer.dateString)
+        XCTAssertEqual(local.dateString, cloud.dateString)
+        XCTAssertEqual(ScoreboardRecordSummary(from: recent).date, local.dateString)
+    }
+
+    func testSummaryIndexServesTheListWithoutReopeningRecordFiles() throws {
+        let root = temporaryRecordRoot("summary-index-read")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.migrateIfNeeded(legacyData: nil)
+        try store.save(makeRecordWithStart(id: "older", startTime: 1_700_000_000))
+        try store.save(makeRecordWithStart(id: "newer", startTime: 1_700_000_500))
+
+        // Damage every record body: a list read must still answer from the one
+        // lightweight index instead of opening and decoding the files.
+        for url in try FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)
+        where url.lastPathComponent.hasSuffix(".record.json") {
+            try Data("not-json".utf8).write(to: url, options: .atomic)
+        }
+
+        XCTAssertEqual(store.loadSummaries().map(\.id), ["newer", "older"])
+        XCTAssertTrue(FileManager.default.fileExists(atPath: root.appendingPathComponent("index.json").path))
+    }
+
+    func testSummaryEqualityDetectsSameIDContentChanges() {
+        var record = makeRecord(id: "same")
+        let original = ScoreboardRecordSummary(from: record)
+        XCTAssertEqual(original, ScoreboardRecordSummary(from: record))
+
+        // A score correction keeps the record id; the row must still differ.
+        record.team2FinalScore = 9
+        XCTAssertNotEqual(original, ScoreboardRecordSummary(from: record))
+
+        let renamed = makeRecord(id: "same", team1Name: "Someone else")
+        XCTAssertNotEqual(original, ScoreboardRecordSummary(from: renamed))
+
+        var seated = makeRecord(id: "same")
+        seated.extraData = [
+            "players": AnyCodable([AnyCodable(["name": AnyCodable("A"), "score": AnyCodable(11)])])
+        ]
+        let seatedSummary = ScoreboardRecordSummary(from: seated)
+        XCTAssertNotEqual(original, seatedSummary)
+        XCTAssertEqual(seatedSummary, ScoreboardRecordSummary(from: seated), "nested AnyCodable values compare by content")
+
+        // 文字备注不参与摘要：只改备注不得让列表行看起来变了。
+        var noted = makeRecord(id: "same")
+        noted.note = ScoreboardRecordNote.normalize("只改备注")
+        XCTAssertEqual(original, ScoreboardRecordSummary(from: noted))
+    }
+
+    func testFailedSummaryIndexWriteKeepsTheRecordAndRebuildsOnRestart() throws {
+        let root = temporaryRecordRoot("summary-index-failure")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.migrateIfNeeded(legacyData: nil)
+        try store.save(makeRecordWithStart(id: "kept", startTime: 1_700_000_000))
+
+        store.testFailureHook = { $0 == .indexReplacement }
+        let corrected = makeRecordWithStart(id: "corrected", startTime: 1_700_000_300, team1FinalScore: 21, team2FinalScore: 19)
+        XCTAssertThrowsError(try store.save(corrected)) { error in
+            XCTAssertTrue(
+                error is ScoreboardRecordIndexWriteFailure,
+                "only the derived index may fail once the record body has landed"
+            )
+        }
+        store.testFailureHook = nil
+
+        // The authoritative body is durable, and because the index was
+        // invalidated before it, the next read rebuilds instead of serving the
+        // old rows - immediately and after a restart.
+        XCTAssertEqual(store.loadRecord(id: "corrected")?.team1FinalScore, 21)
+        let summaries = store.loadSummaries()
+        XCTAssertEqual(summaries.map(\.id), ["corrected", "kept"])
+        XCTAssertEqual(summaries.first?.team1FinalScore, 21)
+
+        let restarted = ScoreboardRecordFileStore(rootURL: root)
+        XCTAssertEqual(restarted.loadSummaries().first?.team1FinalScore, 21)
+    }
+
+    func testInterruptedSummaryIndexWriteRecoversFromRecordFilesOnRestart() throws {
+        let root = temporaryRecordRoot("summary-index-interrupted")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.migrateIfNeeded(legacyData: nil)
+        try store.save(makeRecordWithStart(id: "first", startTime: 1_700_000_000))
+
+        // A directory where the index belongs: the body still lands while the
+        // index can be neither invalidated nor replaced - the interrupted state.
+        let indexURL = root.appendingPathComponent("index.json")
+        try FileManager.default.removeItem(at: indexURL)
+        try FileManager.default.createDirectory(at: indexURL, withIntermediateDirectories: true)
+        XCTAssertThrowsError(try store.save(makeRecordWithStart(id: "second", startTime: 1_700_000_900))) { error in
+            XCTAssertTrue(
+                error is ScoreboardRecordIndexWriteFailure,
+                "a path that provably cannot hold an index must not reject the body write"
+            )
+        }
+        XCTAssertNotNil(store.loadRecord(id: "second"))
+
+        try FileManager.default.removeItem(at: indexURL)
+        let restarted = ScoreboardRecordFileStore(rootURL: root)
+        XCTAssertEqual(restarted.loadSummaries().map(\.id), ["second", "first"])
+    }
+
+    func testIndexInvalidationFailureKeepsThePreviousRecordAndSummary() throws {
+        let root = temporaryRecordRoot("summary-index-stale")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.migrateIfNeeded(legacyData: nil)
+        try store.save(makeRecordWithStart(
+            id: "kept",
+            startTime: 1_700_000_000,
+            team1FinalScore: 11,
+            team2FinalScore: 7
+        ))
+
+        // The index is a regular file that cannot be replaced and its state
+        // cannot be confirmed, so the change is refused before the body write:
+        // record and summary both stay on the previous value.
+        store.testFailureHook = { $0 == .indexInvalidation }
+        XCTAssertThrowsError(try store.save(makeRecordWithStart(
+            id: "kept",
+            startTime: 1_700_000_000,
+            team1FinalScore: 21,
+            team2FinalScore: 19
+        ))) { error in
+            XCTAssertTrue(error is ScoreboardRecordIndexInvalidationFailure)
+        }
+        store.testFailureHook = nil
+
+        XCTAssertEqual(store.loadRecord(id: "kept")?.team1FinalScore, 11, "the body keeps the previous score")
+        XCTAssertEqual(store.loadRecord(id: "kept")?.team2FinalScore, 7)
+        let summaries = store.loadSummaries()
+        XCTAssertEqual(summaries.count, 1)
+        XCTAssertEqual(summaries.first?.team1FinalScore, 11, "the previous summary is preserved")
+
+        let restarted = ScoreboardRecordFileStore(rootURL: root)
+        XCTAssertEqual(restarted.loadSummaries().first?.team1FinalScore, 11)
+    }
+
+    func testAbsentIndexPathIsNotTreatedAsAStaleIndex() throws {
+        let root = temporaryRecordRoot("summary-index-absent")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.migrateIfNeeded(legacyData: nil)
+        try store.save(makeRecordWithStart(id: "kept", startTime: 1_700_000_000, team1FinalScore: 11, team2FinalScore: 7))
+
+        // Nothing on disk can be trusted back: the index file is gone and both
+        // index writes fail. A missing path is not a stale index, so the
+        // authoritative write must still go through instead of being refused.
+        let indexURL = root.appendingPathComponent("index.json")
+        try FileManager.default.removeItem(at: indexURL)
+        store.testFailureHook = { $0 == .indexInvalidation || $0 == .indexReplacement }
+        XCTAssertThrowsError(try store.save(makeRecordWithStart(
+            id: "kept",
+            startTime: 1_700_000_000,
+            team1FinalScore: 21,
+            team2FinalScore: 19
+        ))) { error in
+            XCTAssertTrue(error is ScoreboardRecordIndexWriteFailure, "the change is published, not rejected")
+        }
+        store.testFailureHook = nil
+
+        XCTAssertEqual(store.loadRecord(id: "kept")?.team1FinalScore, 21)
+        XCTAssertEqual(store.loadSummaries().first?.team1FinalScore, 21)
+    }
+
+    func testClearAllStoredDataRefusesWhenTheIndexCannotBeInvalidated() throws {
+        let root = temporaryRecordRoot("summary-index-clear")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.migrateIfNeeded(legacyData: nil)
+        try store.save(makeRecordWithStart(id: "kept", startTime: 1_700_000_000))
+
+        // A recursive clear that fails halfway would leave a valid index
+        // describing files that are already gone, so the reset is refused
+        // while the index cannot be invalidated.
+        store.testFailureHook = { $0 == .indexInvalidation }
+        XCTAssertThrowsError(try store.clearAllStoredData()) { error in
+            XCTAssertTrue(error is ScoreboardRecordIndexInvalidationFailure)
+        }
+        store.testFailureHook = nil
+
+        XCTAssertEqual(store.loadSummaries().map(\.id), ["kept"])
+        XCTAssertNotNil(store.loadRecord(id: "kept"))
+
+        // With the placeholder writable again the same reset succeeds.
+        try store.clearAllStoredData()
+        XCTAssertTrue(store.loadSummaries().isEmpty)
+        XCTAssertNil(store.loadRecord(id: "kept"))
+    }
+    func testRecordRemovalFailureKeepsTheSurvivingRecordIndexed() throws {
+        let root = temporaryRecordRoot("summary-index-remove")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.migrateIfNeeded(legacyData: nil)
+        let first = makeRecordWithStart(id: "first", startTime: 1_700_000_000)
+        let second = makeRecordWithStart(id: "second", startTime: 1_700_000_500)
+        try store.save(first)
+        try store.save(second)
+
+        store.testFailureHook = { $0 == .recordRemoval("second") }
+        let removedAll = store.removeRecords([first, second])
+        store.testFailureHook = nil
+
+        XCTAssertFalse(removedAll, "one removal failed")
+        XCTAssertNil(store.loadRecord(id: "first"))
+        XCTAssertNotNil(store.loadRecord(id: "second"), "the record that could not be removed is still on disk")
+        XCTAssertEqual(store.loadSummaries().map(\.id), ["second"], "and it keeps its row in the derived index")
+
+        let restarted = ScoreboardRecordFileStore(rootURL: root)
+        XCTAssertEqual(restarted.loadSummaries().map(\.id), ["second"])
+    }
+
+    func testTemporarilyUnreadableRecordKeepsItsRowAndIsRetried() throws {
+        let root = temporaryRecordRoot("summary-index-unreadable-body")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.migrateIfNeeded(legacyData: nil)
+        try store.save(makeRecordWithStart(id: "healthy", startTime: 1_700_000_100))
+        try store.save(makeRecordWithStart(id: "held", startTime: 1_700_000_200))
+
+        let bodyDecoder = JSONDecoder()
+        bodyDecoder.dateDecodingStrategy = .iso8601
+        let heldURL = try recordBodyURL(in: root, id: "held", decoder: bodyDecoder)
+        let heldBody = try Data(contentsOf: heldURL)
+        try Data("not-json".utf8).write(to: heldURL, options: .atomic)
+
+        // A body that exists but cannot be read keeps its row: the list still
+        // shows it, the full read retries it, and the index stays trusted.
+        XCTAssertEqual(store.loadSummaries().map(\.id), ["held", "healthy"])
+        XCTAssertEqual(store.loadRecords().map(\.id), ["healthy"])
+        XCTAssertEqual(store.loadSummaries().map(\.id), ["held", "healthy"])
+        XCTAssertTrue(FileManager.default.fileExists(atPath: heldURL.path))
+
+        try heldBody.write(to: heldURL, options: .atomic)
+        XCTAssertEqual(store.loadRecords().map(\.id), ["held", "healthy"])
+    }
+
+    func testIncompleteRebuildIsNotPersistedAsAVersionedIndex() throws {
+        let root = temporaryRecordRoot("summary-index-incomplete")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.migrateIfNeeded(legacyData: nil)
+        try store.save(makeRecordWithStart(id: "healthy", startTime: 1_700_000_100))
+        try store.save(makeRecordWithStart(id: "held", startTime: 1_700_000_200))
+
+        let bodyDecoder = JSONDecoder()
+        bodyDecoder.dateDecodingStrategy = .iso8601
+        let heldURL = try recordBodyURL(in: root, id: "held", decoder: bodyDecoder)
+        let heldBody = try Data(contentsOf: heldURL)
+        try Data("not-json".utf8).write(to: heldURL, options: .atomic)
+
+        // An untrusted index (an earlier build's plain entries array) plus one
+        // unreadable body: the rebuild may answer with the readable row, but it
+        // must not persist a version that is missing the other one.
+        let indexURL = root.appendingPathComponent("index.json")
+        let completeIndex = try Data(contentsOf: indexURL)
+        try Data("[{\"id\":\"held\",\"fileName\":\"x.record.json\"}]".utf8)
+            .write(to: indexURL, options: .atomic)
+
+        XCTAssertEqual(store.loadSummaries().map(\.id), ["healthy"])
+        XCTAssertTrue(FileManager.default.fileExists(atPath: heldURL.path), "repairing must not delete the record")
+
+        try heldBody.write(to: heldURL, options: .atomic)
+        XCTAssertEqual(store.loadSummaries().map(\.id), ["held", "healthy"], "the retry picks the row up again")
+        XCTAssertEqual(try Data(contentsOf: indexURL), completeIndex)
+    }
+
+    func testUnlistableDirectoryIsNotPersistedAsAnEmptyLibrary() throws {
+        let root = temporaryRecordRoot("summary-index-unreadable")
+        defer {
+            try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: root.path)
+            try? FileManager.default.removeItem(at: root)
+        }
+        let store = ScoreboardRecordFileStore(rootURL: root)
+        try store.migrateIfNeeded(legacyData: nil)
+        try store.save(makeRecordWithStart(id: "kept", startTime: 1_700_000_000))
+        let indexURL = root.appendingPathComponent("index.json")
+        try FileManager.default.removeItem(at: indexURL)
+
+        // Write + execute without read: the store cannot list the directory but
+        // can still read a known path. Some volumes ignore this; skip there.
+        try FileManager.default.setAttributes([.posixPermissions: 0o300], ofItemAtPath: root.path)
+        try XCTSkipIf(
+            (try? FileManager.default.contentsOfDirectory(atPath: root.path)) != nil,
+            "directory read permissions are not enforced on this volume"
+        )
+
+        XCTAssertTrue(store.loadSummaries().isEmpty)
+        XCTAssertFalse(
+            FileManager.default.fileExists(atPath: indexURL.path),
+            "a failed directory read must never be recorded as an empty library"
+        )
+
+        try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: root.path)
+        XCTAssertEqual(store.loadSummaries().map(\.id), ["kept"])
+    }
+
+    private func recordBodyURL(in root: URL, id: String, decoder: JSONDecoder) throws -> URL {
+        let bodies = try FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil)
+            .filter { $0.lastPathComponent.hasSuffix(".record.json") }
+        return try XCTUnwrap(bodies.first { url in
+            (try? Data(contentsOf: url))
+                .flatMap { try? decoder.decode(ScoreboardRecord.self, from: $0) }?.id == id
+        })
+    }
+
+    private func temporaryRecordRoot(_ label: String) -> URL {
+        FileManager.default.temporaryDirectory
+            .appendingPathComponent("\(label)-\(UUID().uuidString)", isDirectory: true)
+    }
+
+    private func makeRecordWithStart(
+        id: String,
+        startTime: TimeInterval,
+        team1FinalScore: Int = 11,
+        team2FinalScore: Int = 7
+    ) -> ScoreboardRecord {
+        ScoreboardRecord(
+            id: id,
+            gameType: .pingpong,
+            startTime: Date(timeIntervalSince1970: startTime),
+            endTime: Date(timeIntervalSince1970: startTime + 60),
+            duration: 60,
+            team1Name: "A",
+            team2Name: "B",
+            team1FinalScore: team1FinalScore,
+            team2FinalScore: team2FinalScore,
+            winner: "left",
+            actions: [],
+            totalScoreChanges: 0
+        )
     }
 
     private func makeRecord(

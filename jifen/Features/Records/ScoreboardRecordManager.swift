@@ -4,6 +4,8 @@
 //
 //  Schema-v4 finished-record persistence. Full records live in individual
 //  atomic JSON files; active games are owned by ResumeSessionRepository.
+//  index.json holds one summary row per finished record, so the records list
+//  and Home read a single lightweight file instead of every record body.
 //
 
 import Foundation
@@ -33,6 +35,15 @@ enum ScoreboardPersistenceFailureReporter {
     )
     nonisolated private static let lock = NSLock()
     private nonisolated(unsafe) static var lastPresentationAt: Date?
+
+    /// Logs a failure that recovers by itself (a derived index rebuild) without
+    /// presenting the "保存失败" banner, which would misreport the durable write.
+    nonisolated static func note(_ error: Error, context: String) {
+        logger.error("\(context, privacy: .public): \(String(describing: error), privacy: .public)")
+        #if DEBUG
+        print("[ScoreboardPersistence] 索引待重建：\(context) - \(String(describing: error))")
+        #endif
+    }
 
     nonisolated static func report(_ error: Error, context: String, forcePresentation: Bool = false) {
         logger.error("\(context, privacy: .public): \(String(describing: error), privacy: .public)")
@@ -342,14 +353,61 @@ enum ScoreboardLifecyclePersistence {
     }
 }
 
-struct ScoreboardRecordIndexEntry: Codable, Equatable {
-    let id: String
+/// One row of the lightweight list index: every field the records list renders
+/// plus the file the row belongs to. Listing a library decodes only this file;
+/// individual `.record.json` bodies stay closed for detail and cloud sync.
+struct ScoreboardRecordSummaryIndexEntry: Codable, Equatable {
     let fileName: String
-    let startTime: Date
-    let status: ScoreboardRecordStatus
+    var summary: ScoreboardRecordSummary
 }
 
+/// On-disk envelope for the summary index. The version is what makes an
+/// interrupted write safe: a payload that is not the current version is never
+/// trusted and is rebuilt from the record files instead.
+private struct ScoreboardRecordSummaryIndexFile: Codable {
+    // Version 1 stored the incoming timestamp before the record was encoded.
+    static let currentVersion = 2
+    var version: Int
+    var entries: [ScoreboardRecordSummaryIndexEntry]
+}
+
+/// The authoritative record file is durable, but replacing the derived list
+/// index failed. Callers must keep (and publish) the record change; the next
+/// read rebuilds the index from the record files.
+struct ScoreboardRecordIndexWriteFailure: Error {
+    let recordID: String
+    let underlying: Error
+}
+
+/// The derived index could not be invalidated, so a restart could still read the
+/// previous rows. The change is rejected *before* the authoritative write, which
+/// keeps the stored record and its summary on the old value.
+struct ScoreboardRecordIndexInvalidationFailure: Error {
+    /// The record whose change was rejected, or nil for a whole-library operation.
+    let recordID: String?
+}
+
+/// One read of the derived index. `isComplete` is false when a record body
+/// exists but could not be read: that row must not be dropped, and such a
+/// snapshot must never be persisted as if it were the whole library.
+private struct ScoreboardRecordIndexSnapshot {
+    var entries: [ScoreboardRecordSummaryIndexEntry]
+    var isComplete: Bool
+}
+
+/// Two files per library:
+/// - `<safe-id>.record.json` - the authoritative body, written atomically;
+/// - `index.json` - derived summary rows (`ScoreboardRecordSummaryIndexFile`),
+///   read once by the list and never trusted without a matching version.
+///
+/// Crash safety follows from write order: the index is invalidated before the
+/// body is written and rebuilt from the bodies afterwards. A crash or a failed
+/// index write therefore falls back to a scan of the real files instead of a
+/// stale index that would report old scores or hide a new record.
 final class ScoreboardRecordFileStore {
+    /// Record bodies are the only authoritative files in the store.
+    static let recordFileSuffix = ".record.json"
+
     private let rootURL: URL
     private let indexURL: URL
     private let migrationMarkerURL: URL
@@ -371,6 +429,15 @@ final class ScoreboardRecordFileStore {
         decoder.dateDecodingStrategy = .iso8601
     }
 
+    /// 测试注入点：按阶段模拟一次索引写盘或正文删除失败，便于确定性回归。
+    enum SimulatedFailure: Equatable {
+        case indexInvalidation
+        case indexReplacement
+        case recordRemoval(String)
+    }
+
+    var testFailureHook: ((SimulatedFailure) -> Bool)?
+
     func migrateIfNeeded(legacyData: Data?) throws {
         try ensureDirectory()
         guard !fileManager.fileExists(atPath: migrationMarkerURL.path) else { return }
@@ -379,14 +446,19 @@ final class ScoreboardRecordFileStore {
             let oldRecords = try decoder.decode([ScoreboardRecord].self, from: legacyData)
             try legacyData.write(to: backupURL, options: .atomic)
             let historicalRecords = oldRecords.filter { $0.status.isHistorical }
+            if !historicalRecords.isEmpty, !ensureIndexInvalidated() {
+                throw ScoreboardRecordIndexInvalidationFailure(recordID: nil)
+            }
             for var record in historicalRecords {
                 record.schemaVersion = ScoreboardRecord.currentSchemaVersion
                 let detailed = record.detailedActions ?? ScoreboardRecordActionAdapter.actions(for: record)
                 record.detailedActions = detailed
                 record.setResults = record.setResults ?? ScoreboardRecordActionAdapter.setResults(from: detailed)
-                try writeRecord(record)
+                try writeRecord(encoder.encode(record), id: record.id)
             }
-            let recoveredIDs = Set(loadRecords().map(\.id))
+            // Verify against the files that were actually written: an index left
+            // behind by an interrupted migration must not vouch for the data.
+            let recoveredIDs = Set((rebuildIndex()?.entries ?? []).map(\.summary.id))
             guard recoveredIDs == Set(historicalRecords.map(\.id)) else {
                 throw CocoaError(.fileReadCorruptFile)
             }
@@ -395,29 +467,38 @@ final class ScoreboardRecordFileStore {
         try Data("v4".utf8).write(to: migrationMarkerURL, options: .atomic)
     }
 
-    func loadRecords() -> [ScoreboardRecord] {
+    /// The list path: one lightweight index read. No record file is opened,
+    /// decoded or stat'ed, and a cold start with a valid index is the same work.
+    func loadSummaries() -> [ScoreboardRecordSummary] {
         guard (try? ensureDirectory()) != nil else { return [] }
-        let entries = loadIndex() ?? rebuildIndex()
-        var records: [ScoreboardRecord] = []
-        var indexNeedsRepair = false
+        return currentEntries()?.entries.map(\.summary) ?? []
+    }
 
-        for entry in entries {
+    /// Full-record read for the detail page, cloud sync and group repair. The
+    /// records list never goes through here.
+    func loadRecords() -> [ScoreboardRecord] {
+        guard (try? ensureDirectory()) != nil, let snapshot = currentEntries() else { return [] }
+        var records: [ScoreboardRecord] = []
+        var missingIDs: Set<String> = []
+
+        for entry in snapshot.entries {
             let url = rootURL.appendingPathComponent(entry.fileName, isDirectory: false)
             guard let data = try? Data(contentsOf: url),
-                  let record = try? decoder.decode(ScoreboardRecord.self, from: data) else {
-                indexNeedsRepair = true
+                  let record = try? decoder.decode(ScoreboardRecord.self, from: data),
+                  record.status.isHistorical else {
+                // A body that is gone is really gone; a body that exists but
+                // cannot be read keeps its row so the read can be retried
+                // instead of persisting a library with a hole in it.
+                if !fileManager.fileExists(atPath: url.path) { missingIDs.insert(entry.summary.id) }
                 continue
             }
-            if record.status.isHistorical {
-                records.append(record)
-            } else {
-                try? fileManager.removeItem(at: url)
-                indexNeedsRepair = true
-            }
+            records.append(record)
         }
 
-        records.sort { $0.startTime > $1.startTime }
-        if indexNeedsRepair { try? writeIndex(for: records) }
+        records.sort(by: Self.newestRecordFirst)
+        if !missingIDs.isEmpty, snapshot.isComplete {
+            try? writeIndex(snapshot.entries.filter { !missingIDs.contains($0.summary.id) })
+        }
         return records
     }
 
@@ -433,35 +514,99 @@ final class ScoreboardRecordFileStore {
         guard record.status.isHistorical else {
             throw CocoaError(.fileWriteInapplicableStringEncoding)
         }
+        let recordData = try encoder.encode(record)
+        // Derive list fields from the same representation a rebuild reads.
+        // The record's ISO 8601 encoding stores its start time to whole seconds.
+        let persistedRecord = try decoder.decode(ScoreboardRecord.self, from: recordData)
         try ensureDirectory()
-        try writeRecord(record)
-        var entries = (loadIndex() ?? rebuildIndex()).filter { $0.id != record.id }
-        entries.append(indexEntry(record))
-        try writeIndex(entries: entries.sorted { $0.startTime > $1.startTime })
+        // Snapshot the index while it is still trustworthy; the invalidation
+        // below happens *before* the authoritative write so a crash after the
+        // record lands can only leave an index that rebuilds, never one that
+        // reports old scores or silently hides the new record.
+        let snapshot = currentEntries()
+        var entries = (snapshot?.entries ?? []).filter { $0.summary.id != record.id }
+        entries.append(indexEntry(persistedRecord))
+        entries.sort(by: Self.newestEntryFirst)
+
+        // The index is invalidated *before* the body is written. When that fails
+        // we may only continue if the path provably cannot serve stale rows;
+        // otherwise a restart would read the old score, so the change is refused
+        // with the previous record and its summary intact.
+        guard ensureIndexInvalidated() else {
+            throw ScoreboardRecordIndexInvalidationFailure(recordID: record.id)
+        }
+
+        try writeRecord(recordData, id: record.id)
+        guard let snapshot, snapshot.isComplete else {
+            // Some other body could not be read, so this record set is not the
+            // whole library. Leave the index invalidated instead of persisting
+            // a version with missing rows.
+            invalidateIndex()
+            throw ScoreboardRecordIndexWriteFailure(
+                recordID: record.id,
+                underlying: CocoaError(.fileReadUnknown)
+            )
+        }
+        do {
+            try writeIndex(entries)
+        } catch {
+            invalidateIndex()
+            throw ScoreboardRecordIndexWriteFailure(recordID: record.id, underlying: error)
+        }
     }
 
     @discardableResult
     func delete(id: String) -> Bool {
         guard loadRecord(id: id) != nil else { return false }
-        let entries = (loadIndex() ?? rebuildIndex()).filter { $0.id != id }
+        let snapshot = currentEntries()
         let url = recordURL(id: id)
+        // A restart would still read the row we are about to delete unless the
+        // index is gone or provably unable to serve rows.
+        guard ensureIndexInvalidated() else { return false }
         do {
             if fileManager.fileExists(atPath: url.path) { try fileManager.removeItem(at: url) }
-            try writeIndex(entries: entries)
-            return true
         } catch {
             return false
         }
+        // Removing the file is the authoritative change; the row set is derived
+        // and rebuilds on its own if this write fails.
+        if let snapshot, snapshot.isComplete {
+            try? writeIndex(snapshot.entries.filter { $0.summary.id != id })
+        }
+        return true
     }
 
-    func removeRecords(_ records: [ScoreboardRecord]) {
-        for record in records {
-            let url = recordURL(id: record.id)
-            if fileManager.fileExists(atPath: url.path) { try? fileManager.removeItem(at: url) }
+    /// Batch cleanup keeps the surviving rows from the index instead of
+    /// decoding every remaining record file. A body that could not be removed
+    /// keeps its row: the derived index must never claim that a record which is
+    /// still on disk is gone.
+    @discardableResult
+    func removeRecords(_ records: [ScoreboardRecord]) -> Bool {
+        let requestedIDs = Set(records.map(\.id))
+        guard !requestedIDs.isEmpty else { return true }
+        let snapshot = currentEntries()
+        guard ensureIndexInvalidated() else { return false }
+
+        var removedIDs: Set<String> = []
+        for id in requestedIDs {
+            let url = recordURL(id: id)
+            guard fileManager.fileExists(atPath: url.path) else {
+                removedIDs.insert(id)
+                continue
+            }
+            guard testFailureHook?(.recordRemoval(id)) != true else { continue }
+            do {
+                try fileManager.removeItem(at: url)
+                removedIDs.insert(id)
+            } catch {
+                continue
+            }
         }
-        try? writeIndex(for: loadRecords().filter { candidate in
-            !records.contains(where: { $0.id == candidate.id })
-        })
+
+        if let snapshot, snapshot.isComplete {
+            try? writeIndex(snapshot.entries.filter { !removedIDs.contains($0.summary.id) })
+        }
+        return requestedIDs.isSubset(of: removedIDs)
     }
 
     /// Removes the complete record store, including files that are corrupt or
@@ -469,6 +614,13 @@ final class ScoreboardRecordFileStore {
     /// record-by-record delete cannot guarantee a complete local-data reset
     /// because unreadable files are deliberately skipped by `loadRecords()`.
     func clearAllStoredData() throws {
+        // Same rule as a record write: a recursive removal can fail halfway and
+        // leave a valid index describing files that are already gone, so the
+        // index is invalidated first and the reset is refused when the path
+        // cannot be proven stale-free.
+        guard ensureIndexInvalidated() else {
+            throw ScoreboardRecordIndexInvalidationFailure(recordID: nil)
+        }
         if fileManager.fileExists(atPath: rootURL.path) {
             try fileManager.removeItem(at: rootURL)
         }
@@ -476,80 +628,143 @@ final class ScoreboardRecordFileStore {
         try Data("v4".utf8).write(to: migrationMarkerURL, options: .atomic)
     }
 
-    func discardDraftFiles() {
-        guard let urls = try? fileManager.contentsOfDirectory(
-            at: rootURL,
-            includingPropertiesForKeys: nil,
-            options: [.skipsHiddenFiles]
-        ) else { return }
-        var removedAny = false
-        for url in urls where url.lastPathComponent.hasSuffix(".record.json") {
-            guard let data = try? Data(contentsOf: url),
-                  let record = try? decoder.decode(ScoreboardRecord.self, from: data),
-                  record.status == .draft else {
-                continue
-            }
-            try? fileManager.removeItem(at: url)
-            removedAny = true
-        }
-        if removedAny {
-            try? writeIndex(for: loadRecords())
-        }
-    }
-
     private func ensureDirectory() throws {
         try fileManager.createDirectory(at: rootURL, withIntermediateDirectories: true)
     }
 
-    private func writeRecord(_ record: ScoreboardRecord) throws {
-        let data = try encoder.encode(record)
-        try data.write(to: recordURL(id: record.id), options: .atomic)
+    private func writeRecord(_ data: Data, id: String) throws {
+        try data.write(to: recordURL(id: id), options: .atomic)
     }
 
-    private func loadIndex() -> [ScoreboardRecordIndexEntry]? {
-        guard let data = try? Data(contentsOf: indexURL) else { return nil }
-        return try? decoder.decode([ScoreboardRecordIndexEntry].self, from: data)
+    /// Reads the derived index exactly once. A missing, legacy, corrupted or
+    /// invalidated index is rebuilt from the record files that actually exist.
+    private func currentEntries() -> ScoreboardRecordIndexSnapshot? {
+        if let entries = loadTrustedEntries() {
+            return ScoreboardRecordIndexSnapshot(entries: entries, isComplete: true)
+        }
+        return rebuildIndex()
     }
 
-    private func rebuildIndex() -> [ScoreboardRecordIndexEntry] {
+    private func loadTrustedEntries() -> [ScoreboardRecordSummaryIndexEntry]? {
+        guard let data = try? Data(contentsOf: indexURL),
+              let file = try? decoder.decode(ScoreboardRecordSummaryIndexFile.self, from: data),
+              file.version == ScoreboardRecordSummaryIndexFile.currentVersion else {
+            // Unreadable, legacy (`[ScoreboardRecordIndexEntry]`) or invalidated.
+            return nil
+        }
+        return file.entries
+    }
+
+    /// Prepares the derived index for an authoritative write: the placeholder is
+    /// written first, and a failure only lets the caller continue when the path
+    /// provably cannot serve stale rows into a restart. An unreadable index is
+    /// *not* "no index" - a transient read error would otherwise let the change
+    /// through while the old rows are still on disk.
+    private func ensureIndexInvalidated() -> Bool {
+        if invalidateIndex() { return true }
+        return !indexMayServeStaleRows()
+    }
+
+    /// True unless the path is known to hold no readable index: it is absent, or
+    /// it is not a regular file (the historical "a directory sits at index.json"
+    /// fault shape). Any attribute or read error keeps the answer conservative.
+    private func indexMayServeStaleRows() -> Bool {
+        do {
+            let attributes = try fileManager.attributesOfItem(atPath: indexURL.path)
+            return (attributes[.type] as? FileAttributeType) != .typeDirectory
+        } catch let error as NSError where error.code == NSFileReadNoSuchFileError {
+            return false
+        } catch {
+            return true
+        }
+    }
+
+    /// Marks the derived index unusable before an authoritative write. A false
+    /// result means the placeholder could not be written; the caller decides
+    /// whether the path can still serve stale rows.
+    @discardableResult
+    private func invalidateIndex() -> Bool {
+        if testFailureHook?(.indexInvalidation) == true { return false }
+        let invalid = ScoreboardRecordSummaryIndexFile(version: 0, entries: [])
+        do {
+            try encoder.encode(invalid).write(to: indexURL, options: .atomic)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Rebuilds from the record files that are really on disk - never from the
+    /// possibly stale file list. Returns nil without writing anything when the
+    /// directory cannot be listed, so an I/O failure can never be persisted as
+    /// an authoritative empty library.
+    private func rebuildIndex() -> ScoreboardRecordIndexSnapshot? {
         guard let urls = try? fileManager.contentsOfDirectory(
             at: rootURL,
             includingPropertiesForKeys: nil,
             options: [.skipsHiddenFiles]
-        ) else { return [] }
+        ) else { return nil }
 
-        let records = urls
-            .filter { $0.lastPathComponent.hasSuffix(".record.json") }
-            .compactMap { url -> ScoreboardRecord? in
-                guard let data = try? Data(contentsOf: url) else { return nil }
-                guard let record = try? decoder.decode(ScoreboardRecord.self, from: data),
-                      record.status.isHistorical else {
-                    try? fileManager.removeItem(at: url)
-                    return nil
-                }
-                return record
+        var entries: [ScoreboardRecordSummaryIndexEntry] = []
+        var isComplete = true
+        for url in urls where url.lastPathComponent.hasSuffix(Self.recordFileSuffix) {
+            guard let data = try? Data(contentsOf: url),
+                  let record = try? decoder.decode(ScoreboardRecord.self, from: data) else {
+                // The file stays and the row is retried later: neither the
+                // record nor a row-less index version may be dropped here.
+                isComplete = false
+                continue
             }
-            .sorted { $0.startTime > $1.startTime }
-        try? writeIndex(for: records)
-        return records.map(indexEntry)
+            guard record.status.isHistorical else {
+                // A draft is a leftover live session, not history. This is also
+                // where legacy draft files are swept, so startup never has to
+                // open every record file again.
+                try? fileManager.removeItem(at: url)
+                continue
+            }
+            entries.append(indexEntry(record, fileName: url.lastPathComponent))
+        }
+        entries.sort(by: Self.newestEntryFirst)
+        if isComplete {
+            try? writeIndex(entries)
+        } else {
+            // Keep the index untrusted so the next read rebuilds and retries the
+            // body that could not be read, instead of persisting a short list.
+            invalidateIndex()
+        }
+        return ScoreboardRecordIndexSnapshot(entries: entries, isComplete: isComplete)
     }
 
-    private func writeIndex(for records: [ScoreboardRecord]) throws {
-        try writeIndex(entries: records.map(indexEntry))
-    }
-
-    private func writeIndex(entries: [ScoreboardRecordIndexEntry]) throws {
-        let data = try encoder.encode(entries)
-        try data.write(to: indexURL, options: .atomic)
-    }
-
-    private func indexEntry(_ record: ScoreboardRecord) -> ScoreboardRecordIndexEntry {
-        ScoreboardRecordIndexEntry(
-            id: record.id,
-            fileName: recordURL(id: record.id).lastPathComponent,
-            startTime: record.startTime,
-            status: record.status
+    private func writeIndex(_ entries: [ScoreboardRecordSummaryIndexEntry]) throws {
+        if testFailureHook?(.indexReplacement) == true { throw CocoaError(.fileWriteUnknown) }
+        let payload = ScoreboardRecordSummaryIndexFile(
+            version: ScoreboardRecordSummaryIndexFile.currentVersion,
+            entries: entries
         )
+        try encoder.encode(payload).write(to: indexURL, options: .atomic)
+    }
+
+    private func indexEntry(
+        _ record: ScoreboardRecord,
+        fileName: String? = nil
+    ) -> ScoreboardRecordSummaryIndexEntry {
+        ScoreboardRecordSummaryIndexEntry(
+            fileName: fileName ?? recordURL(id: record.id).lastPathComponent,
+            summary: ScoreboardRecordSummary(from: record)
+        )
+    }
+
+    private static func newestEntryFirst(
+        _ lhs: ScoreboardRecordSummaryIndexEntry,
+        _ rhs: ScoreboardRecordSummaryIndexEntry
+    ) -> Bool {
+        if lhs.summary.timestamp == rhs.summary.timestamp { return lhs.summary.id < rhs.summary.id }
+        return lhs.summary.timestamp > rhs.summary.timestamp
+    }
+
+    private static func newestRecordFirst(_ lhs: ScoreboardRecord, _ rhs: ScoreboardRecord) -> Bool {
+        if lhs.startTime == rhs.startTime { return lhs.id < rhs.id }
+        return lhs.startTime > rhs.startTime
     }
 
     private func recordURL(id: String) -> URL {
@@ -577,8 +792,9 @@ final class ScoreboardRecordManager {
             .appendingPathComponent(Bundle.main.bundleIdentifier ?? "com.douhua.jifen", isDirectory: true)
             .appendingPathComponent("ScoreboardRecords-v4", isDirectory: true)
         store = ScoreboardRecordFileStore(rootURL: root)
+        // Draft leftovers are swept when the index is rebuilt, so a cold start
+        // with a valid index never opens or stats individual record files.
         migrateIfNeeded()
-        store.discardDraftFiles()
         // The unpublished draft pointer is intentionally not migrated.
         defaults.removeObject(forKey: "scoreboard_unfinished_record_id")
     }
@@ -613,20 +829,32 @@ final class ScoreboardRecordManager {
 
         let previousRecord = store.loadRecord(id: record.id)
 
+        var derivedIndexFailure: Error?
         do {
             try store.save(record)
-            do {
-                try GroupLocalPersistence.shared.enqueue(record)
-                try GroupBilliardsPersistence.shared.enqueue(record)
-                if record.billiardsSource != nil { Task { @MainActor in await GroupBilliardsSync.shared.sync() } }
-                if record.groupMatchContext != nil { Task { @MainActor in await GroupStore.shared.sync() } }
-            } catch {
-                // The saved record retains the context so foreground repair can retry.
-                print("[Groups] Outbox write will be retried: \(error)")
-            }
+        } catch let failure as ScoreboardRecordIndexWriteFailure {
+            // The record file is already durable and the derived index rebuilds
+            // from the record files on the next read. Publishing the real change
+            // beats reporting a failure for a write that succeeded.
+            derivedIndexFailure = failure.underlying
         } catch {
             AppAnalytics.scoreboardRecordSaveFailed(record)
             throw error
+        }
+        if let derivedIndexFailure {
+            ScoreboardPersistenceFailureReporter.note(
+                derivedIndexFailure,
+                context: "record index will rebuild"
+            )
+        }
+        do {
+            try GroupLocalPersistence.shared.enqueue(record)
+            try GroupBilliardsPersistence.shared.enqueue(record)
+            if record.billiardsSource != nil { Task { @MainActor in await GroupBilliardsSync.shared.sync() } }
+            if record.groupMatchContext != nil { Task { @MainActor in await GroupStore.shared.sync() } }
+        } catch {
+            // The saved record retains the context so foreground repair can retry.
+            print("[Groups] Outbox write will be retried: \(error)")
         }
         // Retention is a cache concern after private-cloud support. Never turn
         // a local list threshold into deletion of historical records or audio.
@@ -792,8 +1020,13 @@ final class ScoreboardRecordManager {
         return store.loadRecords().filter { $0.status.isHistorical }
     }
 
+    /// List rows for Records and Home: one lightweight index read, no record
+    /// file is opened or decoded.
     func getAllRecordSummaries() -> [ScoreboardRecordSummary] {
-        loadAllRecords().filter { $0.status.isHistorical }.map { ScoreboardRecordSummary(from: $0) }
+        lock.lock()
+        defer { lock.unlock() }
+        migrateIfNeeded()
+        return store.loadSummaries()
     }
 
     func loadAllRecordsInBackground() async -> [ScoreboardRecord] {
@@ -833,7 +1066,7 @@ final class ScoreboardRecordManager {
     func clearAllRecords() -> Bool {
         lock.lock()
         defer { lock.unlock() }
-        let records = store.loadRecords()
+        let hadRecords = !store.loadSummaries().isEmpty
         // Remove the legacy aggregate before rebuilding the empty v4 store so
         // a later migration cannot restore records the user just cleared.
         defaults.removeObject(forKey: recordsKey)
@@ -844,7 +1077,7 @@ final class ScoreboardRecordManager {
         }
         // 空引用集 = 全量移除音频，连带清掉从未被记录引用的 temp_ 残留。
         Self.cleanupOrphanVoiceNoteFiles(referencedPaths: [])
-        if !records.isEmpty {
+        if hadRecords {
             AppAnalytics.track(.recordAction, parameters: [
                 .recordType: .string("scoreboard"),
                 .actionName: .string("clear_all"),
@@ -852,7 +1085,7 @@ final class ScoreboardRecordManager {
             ])
         }
         notifyRecordsChanged()
-        return store.loadRecords().isEmpty
+        return store.loadSummaries().isEmpty
     }
 
     private func notifyRecordsChanged() {

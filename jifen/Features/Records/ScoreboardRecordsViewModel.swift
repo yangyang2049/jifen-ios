@@ -25,6 +25,8 @@ final class ScoreboardRecordsViewModel {
     private let refreshDebounceTime: TimeInterval = 1.0 // 1秒防抖
     private var refreshAfterCurrentLoad = false
 
+    /// The default loader reads the one lightweight summary index; it never
+    /// opens, decodes or stats individual record files.
     init(
         summaryLoader: @escaping SummaryLoader = {
             ScoreboardRecordManager.shared.getAllRecordSummaries()
@@ -131,10 +133,7 @@ final class ScoreboardRecordsViewModel {
         var groups: [String: [ScoreboardRecordSummary]] = [:]
         
         for record in records {
-            if groups[record.date] == nil {
-                groups[record.date] = []
-            }
-            groups[record.date]?.append(record)
+            groups[record.date, default: []].append(record)
         }
         
         var result: [ScoreboardRecordGroup] = []

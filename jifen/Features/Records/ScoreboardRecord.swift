@@ -339,8 +339,6 @@ struct ManualScoreboardResumeState: Codable {
 struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {
     let id: String
     let gameType: GameType
-    let date: String // YYYY-MM-DD
-    let time: String // HH:mm
     let timestamp: TimeInterval
     var duration: TimeInterval?
     let team1Name: String
@@ -362,26 +360,21 @@ struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {
     var personalRecordSeatNames: [String: String]?
     var groupGameID: String?
     
+    /// The full local date is used for grouping. Year elision is a display rule.
+    var date: String {
+        RecordDateFormatters.string(Date(timeIntervalSince1970: timestamp), format: "yyyy-MM-dd")
+    }
+
+    /// Wall-clock label rendered with the current time zone, never stored.
+    var time: String {
+        RecordDateFormatters.string(Date(timeIntervalSince1970: timestamp), format: "HH:mm")
+    }
+
     // Convert from full record
     init(from record: ScoreboardRecord) {
         self.id = record.id
         self.gameType = record.gameType
         self.timestamp = record.startTime.timeIntervalSince1970
-        
-        // Format date（同年不显示年份，与 Watch、鸿蒙一致）
-        let dateFormatter = DateFormatter()
-        let calendar = Calendar.current
-        if calendar.isDate(record.startTime, equalTo: Date(), toGranularity: .year) {
-            dateFormatter.dateFormat = "MM-dd"
-        } else {
-            dateFormatter.dateFormat = "yyyy-MM-dd"
-        }
-        self.date = dateFormatter.string(from: record.startTime)
-        
-        // Format time
-        dateFormatter.dateFormat = "HH:mm"
-        self.time = dateFormatter.string(from: record.startTime)
-        
         self.duration = record.duration
         self.team1Name = record.team1Name
         self.team2Name = record.team2Name
@@ -401,8 +394,31 @@ struct ScoreboardRecordSummary: Codable, Identifiable, Equatable {
     }
     
     // Equatable conformance
+    //
+    // Rows are compared by value, not just by identity: a corrected score, a
+    // renamed participant or a changed seat keeps the same record id, and an
+    // id-only comparison would let SwiftUI (and `onChange`) keep rendering the
+    // stale row. `note` is intentionally absent - written text notes are not
+    // part of the list summary.
     static func == (lhs: ScoreboardRecordSummary, rhs: ScoreboardRecordSummary) -> Bool {
-        return lhs.id == rhs.id
+        lhs.id == rhs.id
+            && lhs.gameType == rhs.gameType
+            && lhs.timestamp == rhs.timestamp
+            && lhs.duration == rhs.duration
+            && lhs.team1Name == rhs.team1Name
+            && lhs.team2Name == rhs.team2Name
+            && lhs.team1FinalScore == rhs.team1FinalScore
+            && lhs.team2FinalScore == rhs.team2FinalScore
+            && lhs.team1SetScore == rhs.team1SetScore
+            && lhs.team2SetScore == rhs.team2SetScore
+            && lhs.winner == rhs.winner
+            && lhs.winnerIdentity == rhs.winnerIdentity
+            && lhs.extraData == rhs.extraData
+            && lhs.projectConfiguration == rhs.projectConfiguration
+            && lhs.nineBallRuleVersion == rhs.nineBallRuleVersion
+            && lhs.scoreCoreGameTypeRawValue == rhs.scoreCoreGameTypeRawValue
+            && lhs.personalRecordSeatNames == rhs.personalRecordSeatNames
+            && lhs.groupGameID == rhs.groupGameID
     }
 }
 
@@ -1262,5 +1278,45 @@ struct AnyCodable: Codable {
     private static func isNilValue(_ value: Any) -> Bool {
         let mirror = Mirror(reflecting: value)
         return mirror.displayStyle == .optional && mirror.children.first == nil
+    }
+}
+
+extension AnyCodable: Equatable {
+    /// JSON 形状的结构比较：记录落盘再读回后只会是数字/布尔/字符串/数组/字典，
+    /// 因此摘要比较（同 ID 内容是否变化）不需要桥接成 NSObject。
+    static func == (lhs: AnyCodable, rhs: AnyCodable) -> Bool {
+        anyCodableEqual(lhs.value, rhs.value)
+    }
+}
+
+private func anyCodableEqual(_ lhs: Any, _ rhs: Any) -> Bool {
+    if lhs is NSNull || rhs is NSNull { return lhs is NSNull && rhs is NSNull }
+    switch (lhs, rhs) {
+    case let (lhs as Bool, rhs as Bool): return lhs == rhs
+    case let (lhs as String, rhs as String): return lhs == rhs
+    case let (lhs as Int, rhs as Int): return lhs == rhs
+    case let (lhs as Int, rhs as Double): return Double(lhs) == rhs
+    case let (lhs as Double, rhs as Int): return lhs == Double(rhs)
+    case let (lhs as Double, rhs as Double): return lhs == rhs
+    case let (lhs as [AnyCodable], rhs as [AnyCodable]):
+        return lhs.count == rhs.count && zip(lhs, rhs).allSatisfy { anyCodableEqual($0.0.value, $0.1.value) }
+    case let (lhs as [String: AnyCodable], rhs as [String: AnyCodable]):
+        guard lhs.count == rhs.count else { return false }
+        return lhs.allSatisfy { element in
+            guard let other = rhs[element.key] else { return false }
+            return anyCodableEqual(element.value.value, other.value)
+        }
+    case let (lhs as [Any], rhs as [Any]):
+        return lhs.count == rhs.count && zip(lhs, rhs).allSatisfy { anyCodableEqual($0.0, $0.1) }
+    case let (lhs as [String: Any], rhs as [String: Any]):
+        guard lhs.count == rhs.count else { return false }
+        return lhs.allSatisfy { element in
+            guard let other = rhs[element.key] else { return false }
+            return anyCodableEqual(element.value, other)
+        }
+    default:
+        // 非 JSON 形状（例如手写 AnyCodable 包了自定义类型）按不相等处理：
+        // 宁可多刷一次列表，也不能把真实变更判成未变。
+        return false
     }
 }

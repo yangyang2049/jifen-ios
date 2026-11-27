@@ -186,7 +186,9 @@ struct RecordsTab: View {
         .onChange(of: selectedProjectFilter) { _, _ in
             reconcileSelectionWithVisibleRecords()
         }
-        .onChange(of: scoreboardVM.records.map(\.id)) { _, _ in
+        // Compare by value, not by id: a corrected score or renamed participant
+        // keeps the same id and must still reconcile the visible rows.
+        .onChange(of: scoreboardVM.records) { _, _ in
             reconcileSelectionWithVisibleRecords()
         }
         .onChange(of: timerVM.records.map(\.id)) { _, _ in
@@ -774,29 +776,24 @@ struct RecordsTab: View {
         let yesterday = dateString == yesterdayString()
         if today { return NSLocalizedString("today", comment: "Today") }
         if yesterday { return NSLocalizedString("yesterday", comment: "Yesterday") }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        guard let date = formatter.date(from: dateString) else { return dateString }
+        guard let date = RecordDateFormatters.date(dateString, format: "yyyy-MM-dd") else {
+            return dateString
+        }
         let year = Calendar.current.component(.year, from: Date())
         let recordYear = Calendar.current.component(.year, from: date)
         if recordYear == year {
-            formatter.dateFormat = "MM-dd"
-            return formatter.string(from: date)
+            return RecordDateFormatters.string(date, format: "MM-dd")
         }
         return dateString
     }
 
     private func todayString() -> String {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd"
-        return f.string(from: Date())
+        RecordDateFormatters.string(Date(), format: "yyyy-MM-dd")
     }
 
     private func yesterdayString() -> String {
-        let f = DateFormatter()
-        f.dateFormat = "yyyy-MM-dd"
         guard let y = Calendar.current.date(byAdding: .day, value: -1, to: Date()) else { return "" }
-        return f.string(from: y)
+        return RecordDateFormatters.string(y, format: "yyyy-MM-dd")
     }
 
     /// Clears only the score and timer data surfaced by the Records tab.
@@ -1076,13 +1073,7 @@ enum RecordsTabRecordItem: Identifiable {
     }
 
     var dateString: String {
-        switch self {
-        case .scoreboard(let r): return r.date
-        case .timer(let r): return r.date
-        case .cloud(let r):
-            let formatter = DateFormatter(); formatter.dateFormat = "yyyy-MM-dd"
-            return formatter.string(from: Date(timeIntervalSince1970: Double(r.playedAt) / 1_000))
-        }
+        RecordDateFormatters.string(Date(timeIntervalSince1970: timestamp), format: "yyyy-MM-dd")
     }
 }
 
