@@ -24,8 +24,19 @@ public enum LinkTemporaryTransferFile {
         _ url: URL,
         in base: URL = FileManager.default.temporaryDirectory
     ) -> Bool {
-        let expected = directory(in: base).standardizedFileURL.path
-        return url.standardizedFileURL.deletingLastPathComponent().path == expected
+        let expected = canonicalDirectoryPath(directory(in: base))
+        let actual = canonicalDirectoryPath(url.standardizedFileURL.deletingLastPathComponent())
+        return actual == expected
+    }
+
+    private static func canonicalDirectoryPath(_ url: URL) -> String {
+        let standardized = url.standardizedFileURL
+        let resolvedParent = standardized.deletingLastPathComponent().resolvingSymlinksInPath()
+        return resolvedParent
+            .appendingPathComponent(standardized.lastPathComponent, isDirectory: true)
+            .resolvingSymlinksInPath()
+            .standardizedFileURL
+            .path
     }
 
     /// Removes a staged file, and only a staged file.

@@ -83,4 +83,30 @@ struct LinkTemporaryTransferFileTests {
         let decoy = base.appendingPathComponent("jifen-link-elsewhere", isDirectory: true)
         #expect(!LinkTemporaryTransferFile.isManaged(decoy, in: base))
     }
+
+    @Test func symlinkedBasePathStillMatchesAndRemovesStagedFile() throws {
+        let realBase = try baseDirectory()
+        let symlinkBase = FileManager.default.temporaryDirectory
+            .appendingPathComponent("LinkTemporaryTransferFileTests-symlink-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createSymbolicLink(at: symlinkBase, withDestinationURL: realBase)
+        defer {
+            try? FileManager.default.removeItem(at: symlinkBase)
+            try? FileManager.default.removeItem(at: realBase)
+        }
+
+        let staged = try LinkTemporaryTransferFile.makeURL(in: symlinkBase)
+        try Data([1, 2, 3]).write(to: staged)
+        let realPathURL = LinkTemporaryTransferFile.directory(in: realBase)
+            .appendingPathComponent(staged.lastPathComponent)
+
+        #expect(LinkTemporaryTransferFile.isManaged(realPathURL, in: symlinkBase))
+        #expect(LinkTemporaryTransferFile.isManaged(staged, in: realBase))
+
+        let traversalURL = LinkTemporaryTransferFile.directory(in: realBase)
+            .appendingPathComponent("../escape.jifenlink")
+        #expect(!LinkTemporaryTransferFile.isManaged(traversalURL, in: symlinkBase))
+
+        LinkTemporaryTransferFile.removeIfManaged(realPathURL, in: symlinkBase)
+        #expect(!FileManager.default.fileExists(atPath: staged.path))
+    }
 }
