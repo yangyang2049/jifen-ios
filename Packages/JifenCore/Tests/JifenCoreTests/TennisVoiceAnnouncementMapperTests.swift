@@ -3,7 +3,7 @@ import ScoreCore
 
 @Suite("Tennis voice event mapper")
 struct TennisVoiceAnnouncementMapperTests {
-    @Test func manualSideChangeIsAnnounced() {
+    @Test func manualSideChangeFollowsProductionSilence() throws {
         let state = TennisMatchState(leftName: "Alice", rightName: "Bob")
         var after = state
         after.sidesSwapped = true
@@ -16,10 +16,11 @@ struct TennisVoiceAnnouncementMapperTests {
             completedSetScores: []
         )
         #expect(payloads.map(\.phase) == [.sideChange])
-        #expect(VoiceAnnouncementMessageBuilder.build(payloads[0], language: .enUS) == "Change ends")
+        // 生产播报里网球换边是静音：事件仍要映射成 .sideChange，但不读文案。
+        #expect(try VoiceProductionCalls.text(payloads[0], "en").isEmpty)
     }
 
-    @Test func gameEndEnteringShortSetTieBreakUsesIsTieBreakFlag() {
+    @Test func gameEndEnteringShortSetTieBreakUsesIsTieBreakFlag() throws {
         var before = TennisMatchState(
             leftName: "Alice",
             rightName: "Bob",
@@ -55,16 +56,16 @@ struct TennisVoiceAnnouncementMapperTests {
         #expect(payloads[0].rightScore == 4)
         #expect(payloads[0].isTieBreak == true)
         #expect(
-            VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN)
-                == "Alice胜本局，局分4平，抢七"
+            try VoiceProductionCalls.text(payloads[0], "zh-Hans")
+                == "Alice胜本局，第1盘局数4平，抢七"
         )
         #expect(
-            VoiceAnnouncementMessageBuilder.build(payloads[0], language: .enUS)
+            try VoiceProductionCalls.text(payloads[0], "en")
                 == "Game Alice. 4 games all. Tie-break"
         )
     }
 
-    @Test func matchEndPrefersSetHistoryAndSkipsPointScore() {
+    @Test func matchEndPrefersSetHistoryAndSkipsPointScore() throws {
         var before = TennisMatchState(leftName: "Alice", rightName: "Bob")
         before.leftSets = 1
         before.rightSets = 1
@@ -100,12 +101,12 @@ struct TennisVoiceAnnouncementMapperTests {
         #expect(payloads.count == 1)
         #expect(payloads[0].phase == .matchEnd)
         #expect(
-            VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN)
-                == "本局、决胜盘及比赛由Alice获胜，Alice以2盘比1盘获胜，6比4、3比6、7比5"
+            try VoiceProductionCalls.text(payloads[0], "zh-Hans")
+                == "全场比赛结束，Alice获胜，盘数2比1，各盘局数6比4、3比6、7比5"
         )
     }
 
-    @Test func manualTiedFinishDoesNotInventWinner() {
+    @Test func manualTiedFinishDoesNotInventWinner() throws {
         var after = TennisMatchState(leftName: "Alice", rightName: "Bob")
         after.finished = true
         let payloads = TennisVoiceAnnouncementMapper.payloads(
@@ -118,8 +119,8 @@ struct TennisVoiceAnnouncementMapperTests {
         )
         #expect(payloads.count == 1)
         #expect(payloads[0].winnerSide == nil)
-        #expect(VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN) == "比赛结束")
-        #expect(VoiceAnnouncementMessageBuilder.build(payloads[0], language: .enUS) == "Match over")
+        #expect(try VoiceProductionCalls.text(payloads[0], "zh-Hans") == "比赛结束")
+        #expect(try VoiceProductionCalls.text(payloads[0], "en") == "Match over")
 
         after.leftSets = 1
         let winnerPayload = TennisVoiceAnnouncementMapper.payloads(
@@ -131,11 +132,11 @@ struct TennisVoiceAnnouncementMapperTests {
             completedSetScores: []
         )[0]
         #expect(winnerPayload.isManualEnd)
-        #expect(VoiceAnnouncementMessageBuilder.build(winnerPayload, language: .zhCN) == "比赛结束，Alice以1盘比0盘获胜")
-        #expect(VoiceAnnouncementMessageBuilder.build(winnerPayload, language: .enUS) == "Match Alice, 1 set to 0")
+        #expect(try VoiceProductionCalls.text(winnerPayload, "zh-Hans") == "比赛结束，Alice获胜")
+        #expect(try VoiceProductionCalls.text(winnerPayload, "en") == "Match Alice, 1 set to 0")
     }
 
-    @Test func tiebreakOnlyOpeningAndDoublesIdentity() {
+    @Test func tiebreakOnlyOpeningAndDoublesIdentity() throws {
         let rules = TennisRuleSet(tieBreakPoints: 10, setScoringMode: .tiebreakOnly)
         let state = TennisMatchState(
             leftName: "Red",
@@ -147,13 +148,14 @@ struct TennisVoiceAnnouncementMapperTests {
         let payload = TennisVoiceAnnouncementMapper.openingPayload(gameType: .tennisDoubles, state: state)
         #expect(payload?.serverName == "Alice")
         #expect(payload?.leftPlayerNames == ["Alice", "Carol"])
-        #expect(VoiceAnnouncementMessageBuilder.build(payload!, language: .zhCN) == "抢十赛开始，Alice发球")
-        #expect(VoiceAnnouncementMessageBuilder.build(payload!, language: .enUS) == "10-point match tie-break. Alice to serve")
+        // 生产播报的抢十开局只念比分（0比0）与英文 "to serve, play"。
+        #expect(try VoiceProductionCalls.text(payload!, "zh-Hans") == "0比0")
+        #expect(try VoiceProductionCalls.text(payload!, "en") == "Alice to serve, play")
 
         let regular = TennisMatchState(leftName: "Alice", rightName: "Bob")
         let regularOpening = TennisVoiceAnnouncementMapper.openingPayload(gameType: .tennis, state: regular)!
-        #expect(VoiceAnnouncementMessageBuilder.build(regularOpening, language: .zhCN) == "Alice发球，比赛开始")
-        #expect(VoiceAnnouncementMessageBuilder.build(regularOpening, language: .enUS) == "Alice to serve, play")
+        #expect(try VoiceProductionCalls.text(regularOpening, "zh-Hans") == "0比0")
+        #expect(try VoiceProductionCalls.text(regularOpening, "en") == "Alice to serve, play")
     }
 
     @Test func doublesServerNameFollowsGameRotation() {
@@ -182,7 +184,7 @@ struct TennisVoiceAnnouncementMapperTests {
         #expect(payload.rightPlayerNames == ["Bob", "David"])
     }
 
-    @Test func softTennisAndPadelCarryAndroid31VoiceProfiles() {
+    @Test func softTennisAndPadelCarryAndroid31VoiceProfiles() throws {
         let soft = TennisMatchState(
             leftName: "Red",
             rightName: "Blue",
@@ -190,7 +192,7 @@ struct TennisVoiceAnnouncementMapperTests {
         )
         let softOpening = TennisVoiceAnnouncementMapper.openingPayload(gameType: .softTennis, state: soft)
         #expect(softOpening?.maxSets == 9)
-        #expect(VoiceAnnouncementMessageBuilder.build(softOpening!, language: .zhCN) == "9局制，比赛开始")
+        #expect(try VoiceProductionCalls.text(softOpening!, "zh-Hans") == "0比0")
 
         var padel = TennisMatchState(
             leftName: "Red",
@@ -211,6 +213,7 @@ struct TennisVoiceAnnouncementMapperTests {
         )[0]
         #expect(payload.tennisDeuceMode == PadelDeuceMode.starPoint.rawValue)
         #expect(payload.starPointReturnedAdvantages == 1)
-        #expect(VoiceAnnouncementMessageBuilder.build(payload, language: .zhCN) == "第二次平分")
+        // 中文生产播报的平分只念比分。
+        #expect(try VoiceProductionCalls.text(payload, "zh-Hans") == "40比40")
     }
 }

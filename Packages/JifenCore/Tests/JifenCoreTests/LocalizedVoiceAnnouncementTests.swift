@@ -65,16 +65,9 @@ import Testing
         return result
     }
 
-    private static func templates(_ code: String) throws -> [String: String] {
-        var root = URL(fileURLWithPath: #filePath)
-        for _ in 0..<5 { root.deleteLastPathComponent() }
-        let data = try Data(contentsOf: root.appendingPathComponent("jifen/Resources/\(code).lproj/ScoreVoice.strings"))
-        return try PropertyListSerialization.propertyList(from: data, format: nil) as! [String: String]
-    }
-
     @Test func reviewedDoublesAdvantageLocalizesNameJoinWithoutReinterpretingNames() throws {
         for code in ["en", "zh-Hans", "zh-Hant", "ja", "ko"] {
-            let templates = try Self.templates(code)
+            let templates = try VoiceProductionCalls.templates(code)
             let connector = try #require(templates[" and "])
             let advantage = try #require(templates["tennis.advantage.name"])
             for side in [MatchSide.left, .right] {
@@ -97,16 +90,49 @@ import Testing
         }
     }
 
-    @Test func englishPhraseTreeMatchesLegacyCalls() throws {
-        let templates = try Self.templates("en")
-        for payload in Self.samples() {
-            let text = LocalizedVoiceAnnouncementBuilder.build(payload).render(locale: Locale(identifier: "en-US"), template: { templates[$0] })
-            #expect(text == VoiceAnnouncementMessageBuilder.build(payload, language: .enUS), "\(payload.gameType) \(payload.phase) \(payload.leftScore)-\(payload.rightScore)")
-        }
+    /// 英文播报短语树（buildReviewed → build）的实际文案。
+    /// 旧 builder 已删除；这里用真实 ScoreVoice.strings 断言生产输出。
+    @Test func englishPhraseTreeRendersDocumentedCalls() throws {
+        let cases = try Self.englishCases().map { ($0.label, try VoiceProductionCalls.text($0.payload, "en")) }
+        #expect(cases.map(\.1) == Self.englishExpected, "\(cases)")
+    }
+
+    /// 英文生产文案：记分、换发球、换边、结果与暂停都来自 buildReviewed → build。
+    /// 网球换边在英文生产里静音（空串），这里保留该行为而不是旧 builder 的 "Change ends"。
+    static let englishExpected: [String] = [
+        "5, 3",
+        "Service over, 3, 5",
+        "Change ends",
+        "Alice to serve, love all",
+        "8, 7",
+        "11, 5. Game to Alice",
+        "four, three",
+        "11, 7",
+        "Fifteen, love",
+        "",
+        "Hand out, 3, love",
+        "20 seconds",
+    ]
+
+    static func englishCases() -> [(label: String, payload: VoiceAnnouncementPayload)] {
+        [
+            ("badminton.score", .init(gameType: .badminton, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 5, rightScore: 3, serverSide: .left)),
+            ("badminton.serviceOver", .init(gameType: .badminton, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 5, rightScore: 3, serverSide: .right, serviceOver: true)),
+            ("badminton.sideChange", .init(gameType: .badminton, phase: .sideChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 11, rightScore: 8)),
+            ("pingpong.opening", .init(gameType: .pingpong, phase: .opening, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 0, rightScore: 0, serverSide: .left, serverName: "Alice")),
+            ("pingpong.score", .init(gameType: .pingpong, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 8, rightScore: 7, serverSide: .left)),
+            ("pingpong.setEnd", .init(gameType: .pingpong, phase: .setEnd, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 11, rightScore: 5, leftSets: 1, currentSet: 1, winnerSide: .left)),
+            ("pickleball.score", .init(gameType: .pickleball, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 4, rightScore: 3, serverSide: .left)),
+            ("pickleball.setEnd", .init(gameType: .pickleball, phase: .setEnd, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 11, rightScore: 7, leftSets: 1, currentSet: 1, winnerSide: .left)),
+            ("tennis.point", .init(gameType: .tennis, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 1, rightScore: 0, serverSide: .left)),
+            ("tennis.sideChange", .init(gameType: .tennis, phase: .sideChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 3, rightScore: 2)),
+            ("squash.score", .init(gameType: .squash, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 3, rightScore: 0, serverSide: .left, serviceOver: true)),
+            ("badminton.breakWarning", .init(gameType: .badminton, phase: .breakWarning, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 11, rightScore: 8, breakCue: .twentySeconds)),
+        ]
     }
     @Test func productionCallsFollowDocumentedSportsAndNumericFallbacks() throws {
         func call(_ code: String, _ payload: VoiceAnnouncementPayload) throws -> String? {
-            let templates = try Self.templates(code)
+            let templates = try VoiceProductionCalls.templates(code)
             return LocalizedVoiceAnnouncementBuilder.buildReviewed(payload, localization: code).render(
                 locale: .init(identifier: code), template: { templates[$0] }
             )
@@ -217,13 +243,13 @@ import Testing
         let p = try #require(payloads.first)
         #expect(p.leftScore == 3 && p.rightScore == 3)
         #expect(p.returnedToDeuce)
-        let templates = try Self.templates("fr")
+        let templates = try VoiceProductionCalls.templates("fr")
         #expect(LocalizedVoiceAnnouncementBuilder.buildReviewed(p, localization: "fr").render(locale: .init(identifier: "fr-FR"), template: { templates[$0] }) == "Égalité")
     }
 
     @Test func reviewedMatrixCoversAllGameTypesAndLanguages() throws {
         for language in SportsVoiceLanguage.all {
-            let templates = try Self.templates(language.localization)
+            let templates = try VoiceProductionCalls.templates(language.localization)
             for sport in GameType.allCases {
                 for phase in Self.phases {
                     let p = VoiceAnnouncementPayload(gameType: sport, phase: phase, leftTeamName: "Alice %1$@", rightTeamName: "Bob", leftScore: 3, rightScore: 2, serverSide: .right, winnerSide: .left)
@@ -247,7 +273,7 @@ import Testing
     }
     @Test func scoreCallsUseSportVocabularyAndPauseWithoutSpeakingSeparators() throws {
         func call(_ code: String, _ payload: VoiceAnnouncementPayload) throws -> String? {
-            let templates = try Self.templates(code)
+            let templates = try VoiceProductionCalls.templates(code)
             return LocalizedVoiceAnnouncementBuilder.build(payload).render(
                 locale: .init(identifier: code), template: { templates[$0] }
             )
@@ -289,19 +315,63 @@ import Testing
         #expect(try call("ja", payload) == "15, 14, 2")
         #expect(try call("ko", payload) == "15, 14, 2")
     }
-    @Test func chineseSemanticTemplatesPreserveEstablishedCalls() throws {
-        for (code, legacy) in [("zh-Hans", VoiceAnnouncementLanguage.zhCN), ("zh-Hant", .zhTW)] {
-            let templates = try Self.templates(code)
-            for payload in Self.samples() {
-                let rendered = LocalizedVoiceAnnouncementBuilder.buildChineseStandard(payload).render(locale: .init(identifier: code), template: { templates[$0] })
-                #expect(rendered == VoiceAnnouncementMessageBuilder.build(payload, language: legacy), "\(code) \(payload.gameType) \(payload.phase)")
+    /// 中文标准播报（buildChineseStandard）与 zh-Hans / zh-Hant 模板的实际文案。
+    @Test func chineseStandardRendersEstablishedChineseCalls() throws {
+        for code in ["zh-Hans", "zh-Hant"] {
+            let templates = try VoiceProductionCalls.templates(code)
+            let rendered = Self.chineseCases().map {
+                LocalizedVoiceAnnouncementBuilder.buildChineseStandard($0.payload)
+                    .render(locale: .init(identifier: code), template: { templates[$0] })
             }
+            let expected = code == "zh-Hans" ? Self.chineseExpectedHans : Self.chineseExpectedHant
+            #expect(rendered == expected, "\(code) \(rendered)")
         }
     }
+
+    static let chineseExpectedHans: [String?] = [
+        "5比3",
+        "本局结束，第一局由Alice获胜，21比18",
+        "8比7",
+        "11比5，本局由Alice获胜",
+        "30比15",
+        "4比3",
+        "换发球，3比0",
+        "Alice发球，0比0",
+        "平分",
+        "交换场地",
+    ]
+    static let chineseExpectedHant: [String?] = [
+        "5比3",
+        "本局結束，第一局由Alice獲勝，21比18",
+        "8比7",
+        "11比5，本局由Alice獲勝",
+        "30比15",
+        "4比3",
+        "換發球，3比0",
+        "Alice發球，0比0",
+        "平分",
+        "交換場地",
+    ]
+
+    static func chineseCases() -> [(label: String, payload: VoiceAnnouncementPayload)] {
+        [
+            ("badminton.score", .init(gameType: .badminton, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 5, rightScore: 3, serverSide: .left)),
+            ("badminton.setEnd", .init(gameType: .badminton, phase: .setEnd, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 21, rightScore: 18, leftSets: 1, currentSet: 1, winnerSide: .left)),
+            ("pingpong.score", .init(gameType: .pingpong, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 8, rightScore: 7, serverSide: .left)),
+            ("pingpong.setEnd", .init(gameType: .pingpong, phase: .setEnd, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 11, rightScore: 5, leftSets: 1, currentSet: 1, winnerSide: .left)),
+            ("tennis.point", .init(gameType: .tennis, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 2, rightScore: 1, serverSide: .left)),
+            ("pickleball.score", .init(gameType: .pickleball, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 4, rightScore: 3, serverSide: .left)),
+            ("squash.score", .init(gameType: .squash, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 3, rightScore: 0, serverSide: .left, serviceOver: true)),
+            ("shuttlecock.opening", .init(gameType: .shuttlecock, phase: .opening, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 0, rightScore: 0, serverSide: .left, serverName: "Alice")),
+            ("softtennis.point", .init(gameType: .softTennis, phase: .scoreChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 3, rightScore: 3, serverSide: .left)),
+            ("badminton.sideChange", .init(gameType: .badminton, phase: .sideChange, leftTeamName: "Alice", rightTeamName: "Bob", leftScore: 11, rightScore: 8)),
+        ]
+    }
+
     @Test func everySupportedLanguageRendersEverySportScenario() throws {
         let samples = Self.samples()
         for language in SportsVoiceLanguage.all {
-            let templates = try Self.templates(language.localization)
+            let templates = try VoiceProductionCalls.templates(language.localization)
             var failures: [String] = []
             for payload in samples {
                 let message = language.localization.hasPrefix("zh-")

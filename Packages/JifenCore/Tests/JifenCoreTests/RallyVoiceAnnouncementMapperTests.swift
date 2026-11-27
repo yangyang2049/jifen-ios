@@ -3,7 +3,7 @@ import Testing
 
 @Suite("Rally voice event mapper")
 struct RallyVoiceAnnouncementMapperTests {
-    @Test func badmintonCriticalPointIntervalAndOrderedSideChange() {
+    @Test func badmintonCriticalPointIntervalAndOrderedSideChange() throws {
         var before = RallyMatchEngine.initial(
             leftName: "Alice",
             rightName: "Bob",
@@ -30,8 +30,9 @@ struct RallyVoiceAnnouncementMapperTests {
         )
         #expect(interval.map(\.phase) == [.scoreChange, .sideChange])
         #expect(interval[0].isInterval)
-        #expect(VoiceAnnouncementMessageBuilder.build(interval[0], language: .enUS) == "11, 8, interval")
-        #expect(VoiceAnnouncementMessageBuilder.build(interval[1], language: .enUS) == "Change ends")
+        // 英文抢分板：分数 + 间歇与换边都是生产播报。
+        #expect(try VoiceProductionCalls.text(interval[0], "en") == "11, 8, interval")
+        #expect(try VoiceProductionCalls.text(interval[1], "en") == "Change ends")
 
         before.leftPoints = 19
         before.rightPoints = 18
@@ -45,7 +46,8 @@ struct RallyVoiceAnnouncementMapperTests {
             completedSetScores: []
         )
         #expect(matchPoint[0].criticalPoint == .matchPoint)
-        #expect(VoiceAnnouncementMessageBuilder.build(matchPoint[0], language: .zhCN) == "20，赛点，18")
+        // 中文生产播报只念比分，赛点关键词不单独播报（英文仍然念 match point）。
+        #expect(try VoiceProductionCalls.text(matchPoint[0], "zh-Hans") == "20比18")
 
         before.leftPoints = 28
         before.rightPoints = 28
@@ -59,10 +61,10 @@ struct RallyVoiceAnnouncementMapperTests {
             completedSetScores: []
         )
         #expect(capPoint[0].criticalPoint == .matchPoint)
-        #expect(VoiceAnnouncementMessageBuilder.build(capPoint[0], language: .enUS) == "29, match point, 28")
+        #expect(try VoiceProductionCalls.text(capPoint[0], "en") == "29, match point, 28")
     }
 
-    @Test func volleyballSupportsVoiceAnnouncementAndReportsServiceOver() {
+    @Test func volleyballSupportsVoiceAnnouncementAndReportsServiceOver() throws {
         // 支持集合应包含排球三类（对齐安卓 isVolleyballVoiceType，2026-08-31 补）
         #expect(VoiceAnnouncementSupport.isSupported(.volleyball))
         #expect(VoiceAnnouncementSupport.isSupported(.beachVolleyball))
@@ -93,10 +95,11 @@ struct RallyVoiceAnnouncementMapperTests {
         #expect(payloads.map(\.phase) == [.scoreChange])
         #expect(payloads[0].serviceOver == true, "排球得分应播报换发球")
         #expect(payloads[0].criticalPoint == nil, "排球不播局点/赛点，对齐安卓 rallyKeyPoints")
-        #expect(VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN).contains("换发球"))
+        // 中文生产播报不发换发球前缀，只念换发后的比分。
+        #expect(try VoiceProductionCalls.text(payloads[0], "zh-Hans") == "5比6")
     }
 
-    @Test func doublesOpeningUsesActualServerAndReceiverSlots() {
+    @Test func doublesOpeningUsesActualServerAndReceiverSlots() throws {
         let names = ["Alice", "Bob", "Carol", "David"]
         let pingpong = RallyMatchEngine.initial(
             leftName: "Red",
@@ -115,7 +118,7 @@ struct RallyVoiceAnnouncementMapperTests {
         )!
         #expect(pingpongOpening.serverName == "Carol")
         #expect(pingpongOpening.receiverName == "David")
-        #expect(VoiceAnnouncementMessageBuilder.build(pingpongOpening, language: .enUS) == "Carol to serve, love all")
+        #expect(try VoiceProductionCalls.text(pingpongOpening, "en") == "Carol to serve, love all")
 
         let badminton = RallyMatchEngine.initial(
             leftName: "Red",
@@ -131,12 +134,12 @@ struct RallyVoiceAnnouncementMapperTests {
         #expect(badmintonOpening.serverName == badminton.doubles?.serverName)
         #expect(badmintonOpening.receiverName == badminton.doubles?.receiverName)
         #expect(
-            VoiceAnnouncementMessageBuilder.build(badmintonOpening, language: .enUS)
+            try VoiceProductionCalls.text(badmintonOpening, "en")
                 .contains("to serve to")
         )
     }
 
-    @Test func manualFinishWithoutWinnerIsNeutral() {
+    @Test func manualFinishWithoutWinnerIsNeutral() throws {
         var state = RallyMatchEngine.initial(
             leftName: "Alice",
             rightName: "Bob",
@@ -152,8 +155,8 @@ struct RallyVoiceAnnouncementMapperTests {
         )
         #expect(payloads.count == 1)
         #expect(payloads[0].winnerSide == nil)
-        #expect(VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN) == "比赛结束")
-        #expect(VoiceAnnouncementMessageBuilder.build(payloads[0], language: .enUS) == "Match over")
+        #expect(try VoiceProductionCalls.text(payloads[0], "zh-Hans") == "比赛结束")
+        #expect(try VoiceProductionCalls.text(payloads[0], "en") == "Match over")
 
         state.leftSets = 2
         state.rightSets = 1
@@ -165,8 +168,8 @@ struct RallyVoiceAnnouncementMapperTests {
             completedSetScores: []
         )[0]
         #expect(winnerPayload.isManualEnd)
-        #expect(VoiceAnnouncementMessageBuilder.build(winnerPayload, language: .zhCN) == "比赛结束，Alice以2比1获胜")
-        #expect(VoiceAnnouncementMessageBuilder.build(winnerPayload, language: .enUS) == "Match to Alice. Alice wins 2 games to 1")
+        #expect(try VoiceProductionCalls.text(winnerPayload, "zh-Hans") == "比赛结果Alice胜2比1")
+        #expect(try VoiceProductionCalls.text(winnerPayload, "en") == "Match to Alice. Alice wins 2 games to 1")
     }
 
     @Test func doublesPayloadTracksRotationForAllRallySports() {
@@ -232,7 +235,7 @@ struct RallyVoiceAnnouncementMapperTests {
         #expect(pickleballPayload.serverNumber == sideOut.state.doubles?.pickleballServerNumber)
     }
 
-    @Test func pickleballDoublesFirstServerLossAnnouncesSecondServerNotSideOut() {
+    @Test func pickleballDoublesFirstServerLossAnnouncesSecondServerNotSideOut() throws {
         var rules = RallyRuleSet.pickleball()
         rules.useRallyScoring = false
         let reducer = RallyMatchReducer()
@@ -256,11 +259,12 @@ struct RallyVoiceAnnouncementMapperTests {
         )[0]
         #expect(payload.secondServer)
         #expect(!payload.serviceOver)
-        #expect(VoiceAnnouncementMessageBuilder.build(payload, language: .zhCN).hasPrefix("第二发球"))
-        #expect(VoiceAnnouncementMessageBuilder.build(payload, language: .enUS).hasPrefix("Second server"))
+        // 中文生产播报只念比分与发球序号（二号）；英文念 "Second server"。
+        #expect(try VoiceProductionCalls.text(payload, "zh-Hans") == "0比0、2")
+        #expect(try VoiceProductionCalls.text(payload, "en").hasPrefix("Second server"))
     }
 
-    @Test func squashAndShuttlecockAreNoLongerFilteredFromVoiceMapping() {
+    @Test func squashAndShuttlecockAreNoLongerFilteredFromVoiceMapping() throws {
         for (gameType, rules) in [
             (GameType.squash, RallyRuleSet.squash()),
             (.shuttlecock, .shuttlecock())
@@ -275,7 +279,7 @@ struct RallyVoiceAnnouncementMapperTests {
                 completedSetScores: []
             )
             #expect(payloads.count == 1)
-            #expect(!VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN).isEmpty)
+            #expect(try !VoiceProductionCalls.text(payloads[0], "zh-Hans").isEmpty)
         }
     }
 }

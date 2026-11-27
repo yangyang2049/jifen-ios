@@ -1,12 +1,13 @@
-import Testing
 import ScoreCore
+import Testing
 
 @Suite struct PickleballVoiceAnnouncementTests {
-    private func payload(
+    /// 生产播报：`buildReviewed` 加真实 `ScoreVoice.strings`。
+    private func call(
         _ gameType: GameType = .pickleball,
-        language: VoiceAnnouncementLanguage = .zhCN,
+        _ code: String = "zh-Hans",
         _ overrides: (inout VoiceAnnouncementPayload) -> Void = { _ in }
-    ) -> String {
+    ) throws -> String {
         var p = VoiceAnnouncementPayload(
             gameType: gameType,
             phase: .scoreChange,
@@ -17,19 +18,19 @@ import ScoreCore
             serverSide: .left
         )
         overrides(&p)
-        return VoiceAnnouncementMessageBuilder.build(p, language: language)
+        return try VoiceProductionCalls.text(p, code)
     }
 
-    @Test func singlesScoreCall() {
+    @Test func singlesScoreCall() throws {
         #expect(
-            payload {
+            try call {
                 $0.leftScore = 4
                 $0.rightScore = 3
                 $0.serverSide = .left
             } == "4比3"
         )
         #expect(
-            payload(language: .enUS) {
+            try call(.pickleball, "en") {
                 $0.leftScore = 4
                 $0.rightScore = 3
                 $0.serverSide = .left
@@ -37,30 +38,30 @@ import ScoreCore
         )
     }
 
-    @Test func doublesOpeningZeroZeroTwo() {
+    @Test func doublesOpeningZeroZeroTwo() throws {
         #expect(
-            payload(.pickleballDoubles) {
+            try call(.pickleballDoubles) {
                 $0.serverNumber = 2
-            } == "0比0，二号"
+            } == "0比0、2"
         )
         #expect(
-            payload(.pickleballDoubles, language: .enUS) {
+            try call(.pickleballDoubles, "en") {
                 $0.serverNumber = 2
             } == "zero, zero, 2"
         )
     }
 
-    @Test func doublesThreeNumberCall() {
+    @Test func doublesThreeNumberCall() throws {
         #expect(
-            payload(.pickleballDoubles) {
+            try call(.pickleballDoubles) {
                 $0.leftScore = 5
                 $0.rightScore = 3
                 $0.serverSide = .left
                 $0.serverNumber = 2
-            } == "5比3，二号"
+            } == "5比3、2"
         )
         #expect(
-            payload(.pickleballDoubles, language: .enUS) {
+            try call(.pickleballDoubles, "en") {
                 $0.leftScore = 5
                 $0.rightScore = 3
                 $0.serverSide = .left
@@ -69,18 +70,18 @@ import ScoreCore
         )
     }
 
-    @Test func sideOutPrefix() {
+    @Test func sideOutPrefix() throws {
         #expect(
-            payload(.pickleballDoubles) {
+            try call(.pickleballDoubles) {
                 $0.leftScore = 5
                 $0.rightScore = 3
                 $0.serverSide = .right
                 $0.serverNumber = 1
                 $0.serviceOver = true
-            } == "换发球，3比5，一号"
+            } == "3比5、1"
         )
         #expect(
-            payload(.pickleballDoubles, language: .enUS) {
+            try call(.pickleballDoubles, "en") {
                 $0.leftScore = 5
                 $0.rightScore = 3
                 $0.serverSide = .right
@@ -90,7 +91,7 @@ import ScoreCore
         )
     }
 
-    @Test func mapperEmitsSideOutAndOpening() {
+    @Test func mapperEmitsSideOutAndOpening() throws {
         var rules = RallyRuleSet.pickleball()
         rules.useRallyScoring = false
         let doubles = RallyDoublesState.pickleball(
@@ -106,7 +107,7 @@ import ScoreCore
         )
         let opening = RallyVoiceAnnouncementMapper.openingPayload(gameType: .pickleballDoubles, state: state)
         #expect(opening != nil)
-        #expect(VoiceAnnouncementMessageBuilder.build(opening!, language: .zhCN) == "0比0，二号")
+        #expect(try VoiceProductionCalls.text(try #require(opening), "zh-Hans") == "0比0、2")
 
         let reducer = RallyMatchReducer()
         let sideOutResult = reducer.reduce(state: state, intent: .pointWon(.right), at: 0)
@@ -121,10 +122,11 @@ import ScoreCore
         #expect(payloads.count == 1)
         #expect(payloads[0].serviceOver == true)
         #expect(payloads[0].serverNumber == 1)
-        #expect(VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN).contains("换发球"))
+        // 中文生产播报不发换发球前缀，只念换发后的比分与发球序号。
+        #expect(try VoiceProductionCalls.text(payloads[0], "zh-Hans") == "0比0、1")
     }
 
-    @Test func singlesSideOutAnnouncesNewServerScore() {
+    @Test func singlesSideOutAnnouncesNewServerScore() throws {
         var rules = RallyRuleSet.pickleball()
         rules.useRallyScoring = false
         let state = RallyMatchEngine.initial(
@@ -133,8 +135,6 @@ import ScoreCore
             rules: rules,
             openingServer: .left
         )
-        var afterPoint = state
-        afterPoint.leftPoints = 2
         // Simulate scored to 2-0 then side-out
         let mid = RallyMatchReducer().reduce(state: state, intent: .pointWon(.left), at: 0).state
         let mid2 = RallyMatchReducer().reduce(state: mid, intent: .pointWon(.left), at: 1).state
@@ -148,11 +148,10 @@ import ScoreCore
         )
         #expect(payloads.count == 1)
         #expect(payloads[0].serverSide == .right)
-        #expect(VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN) == "换发球，0比2")
-        _ = afterPoint
+        #expect(try VoiceProductionCalls.text(payloads[0], "zh-Hans") == "0比2")
     }
 
-    @Test func rallyScoringOmitsSideOutPrefix() {
+    @Test func rallyScoringOmitsSideOutPrefix() throws {
         var rules = RallyRuleSet.pickleball()
         rules.useRallyScoring = true
         let state = RallyMatchEngine.initial(
@@ -167,7 +166,7 @@ import ScoreCore
             state: state
         )
         #expect(opening?.serverNumber == nil)
-        #expect(VoiceAnnouncementMessageBuilder.build(opening!, language: .zhCN) == "0比0")
+        #expect(try VoiceProductionCalls.text(try #require(opening), "zh-Hans") == "0比0")
 
         let scored = RallyMatchReducer().reduce(state: state, intent: .pointWon(.left), at: 0)
         let payloads = RallyVoiceAnnouncementMapper.payloads(
@@ -180,14 +179,15 @@ import ScoreCore
         #expect(!payloads.isEmpty)
         #expect(payloads[0].serviceOver != true)
         #expect(payloads[0].serverNumber == nil)
-        let zh = VoiceAnnouncementMessageBuilder.build(payloads[0], language: .zhCN)
+        let zh = try VoiceProductionCalls.text(payloads[0], "zh-Hans")
         #expect(zh.contains("比"))
         #expect(!zh.contains("换发球"))
     }
 
-    @Test func gameAndMatchEndUsePickleballCalls() {
+    /// 匹克球局末/赛末在中文与英文生产播报里只念比分（结果由官方结果播报负责）。
+    @Test func gameAndMatchEndSpeakProductionScores() throws {
         #expect(
-            payload(.pickleball) {
+            try call(.pickleball) {
                 $0.phase = .setEnd
                 $0.leftScore = 11
                 $0.rightScore = 7
@@ -196,10 +196,10 @@ import ScoreCore
                 $0.currentSet = 1
                 $0.winnerSide = .left
                 $0.winnerName = "Alice"
-            } == "得分，本局结束，11比7，Alice胜"
+            } == "11比7"
         )
         #expect(
-            payload(.pickleball, language: .enUS) {
+            try call(.pickleball, "en") {
                 $0.phase = .setEnd
                 $0.leftScore = 11
                 $0.rightScore = 7
@@ -208,10 +208,10 @@ import ScoreCore
                 $0.currentSet = 1
                 $0.winnerSide = .left
                 $0.winnerName = "Alice"
-            } == "Point. Game. 11, 7. Alice wins"
+            } == "11, 7"
         )
         #expect(
-            payload(.pickleball, language: .enUS) {
+            try call(.pickleball, "en") {
                 $0.phase = .matchEnd
                 $0.leftScore = 11
                 $0.rightScore = 7
@@ -219,7 +219,7 @@ import ScoreCore
                 $0.rightSets = 0
                 $0.winnerSide = .left
                 $0.winnerName = "Alice"
-            } == "Point. Game. Match. 11, 7. Alice wins"
+            } == "11, 7"
         )
     }
 }
