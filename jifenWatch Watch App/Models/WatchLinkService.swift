@@ -359,7 +359,9 @@ enum WatchLinkedRecordIngestor {
         ) else {
             return nil
         }
-        guard WatchRecordManager.shared.saveRecord(record, transferToPhone: false) else { return nil }
+        guard WatchRecordManager.shared.saveRecord(record, source: .linked, transferToPhone: false) else {
+            return nil
+        }
         switch syncState {
         case .sent:
             WatchRecordManager.shared.markSynced(ids: [record.id])

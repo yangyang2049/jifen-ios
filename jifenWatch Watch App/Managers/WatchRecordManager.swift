@@ -8,6 +8,11 @@ enum WatchRecordSyncState: String, Codable {
     case sent
 }
 
+enum WatchRecordSource: String {
+    case standalone
+    case linked
+}
+
 /// `records/index.json` 的一行：摘要全字段 + 同步状态。
 struct WatchRecordIndexEntry: Codable, Equatable {
     var summary: WatchScoreboardRecordSummary
@@ -80,9 +85,21 @@ final class WatchRecordManager {
     }
 
     @discardableResult
-    func saveRecord(_ record: WatchScoreboardRecord, transferToPhone: Bool = true) -> Bool {
-        let persisted = queue.sync { saveRecordLocked(record) }
+    func saveRecord(
+        _ record: WatchScoreboardRecord,
+        source: WatchRecordSource = .standalone,
+        transferToPhone: Bool = true
+    ) -> Bool {
+        let (persisted, inserted) = queue.sync {
+            let wasSaved = loadIndexLocked().contains { $0.summary.id == record.id }
+            let persisted = saveRecordLocked(record)
+            let inserted = persisted && !wasSaved && cachedIndex?.contains { $0.summary.id == record.id } == true
+            return (persisted, inserted)
+        }
         guard persisted else { return false }
+        if inserted {
+            WatchTelemetry.sessionSaved(gameType: record.gameType, source: source)
+        }
 
         if transferToPhone, WatchPreferences.shared.recordAutoSyncEnabled,
            let payload = transferPayload(for: record) {

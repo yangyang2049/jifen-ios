@@ -1,5 +1,7 @@
 # iOS 3.2 提审前核对（2026-09-23）
 
+3.2 在移除 Apple Watch App 时一并移除了 TelemetryDeck。Apple Watch App 恢复后，于 2026-11-26 在手表端重新接入 TelemetryDeck，用于统计日活和运动项目使用情况。[当前统计口径](ios_analytics_schema.md#apple-watch-使用统计)
+
 ## 基线与当前判断
 
 - 中国区 App Store 查询到的公开版本为 **3.0**（2026-09-22 上架；公开更新说明为页面改版、多个项目、投屏和跨设备同步）。本仓库 `HEAD` 同为 **3.0 / build 40**；当前工作区工程配置为 **3.2 / build 46**。版本跨过 3.1，提审前确认这是预期版本序列。

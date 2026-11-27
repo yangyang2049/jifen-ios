@@ -72,3 +72,21 @@ Firebase 原生 modifier 在页面真实出现时发送 `screen_view`。不再�
 - D1/D3/D7 留存使用 Firebase 内置留存能力。
 
 Firebase/GA4 后台的自定义定义、关键事件与 DebugView 验收清单见 `docs/firebase-analytics-console.md`。
+
+## Apple Watch 使用统计
+
+Apple Watch 使用 TelemetryDeck。后台入口为 Bolo Mobile 下的 [iScoreboard](https://dashboard.telemetrydeck.com/o/bolo.mobile/apps/970CC686-8BB7-457C-B580-817A94CC3093)。
+
+| 事件 | 采集口径 | 自定义参数 |
+| --- | --- | --- |
+| `Watch.foregrounded` | 每次安装每天首次进入前台 | 无 |
+| `Watch.scoreboardOpened` | 进入计分板，包括从手机联动进入和恢复已保存的比赛 | `mode`（`standalone` / `linked`），`entry`（`new` / `resume`） |
+| `Watch.sessionSaved` | 手表首次成功保存并保留一条记分或投篮训练历史，含联动完赛。计数器记录不上报。 | `sport`（小写蛇形命名，如 `basketball_training`），`source`（独立记分为 `standalone`，联动完赛为 `linked`） |
+
+查看手表独立记分的运动项目排行时，对 `Watch.sessionSaved` 筛选 `source=standalone`，再按 `sport` 分组统计场次。
+
+自定义参数只使用上表的枚举值。SDK 默认附带散列后的设备标识、设备和版本等信息。[TelemetryDeck 默认参数](https://telemetrydeck.com/docs/ingest/default-parameters/)
+
+Debug 默认关闭。手表模拟器可用 `SIMCTL_CHILD_JIFEN_WATCH_TELEMETRY_TEST=1 xcrun simctl launch --terminate-running-process <Watch UDID> com.douhua.jifen.ios.watchkitapp` 开启测试上报。在后台的 Explore → Recent Events 打开 Test Mode 查看。
+
+首次随正式版本分发前，更新公开隐私政策中的 Apple Watch 统计说明，并核对 App Store Connect 的产品交互与设备标识披露。[TelemetryDeck 的 Apple 隐私披露说明](https://telemetrydeck.com/docs/articles/apple-app-privacy/)

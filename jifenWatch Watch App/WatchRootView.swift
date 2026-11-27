@@ -105,7 +105,7 @@ struct WatchRootView: View {
         }
         .onChange(of: linkService.acceptedSetup) { _, request in
             guard let request, request.handle == linkService.activeHandle else { return }
-            openLinkedBoard(setup: request.setup, handle: request.handle)
+            openLinkedBoard(setup: request.setup, handle: request.handle, resumedForTelemetry: false)
             linkService.clearAcceptedSetup()
         }
         .onChange(of: linkService.intentSync.update) { previous, update in
@@ -128,7 +128,11 @@ struct WatchRootView: View {
                 activeResumeSession = nil
             }
         }
-        .onChange(of: scenePhase) { _, phase in
+        .onChange(of: scenePhase, initial: true) { previous, phase in
+            if phase == .active {
+                WatchTelemetry.foregrounded()
+            }
+            guard previous != phase else { return }
             if phase == .background || phase == .inactive {
                 // 续玩写入是 750ms 防抖的；非活跃/挂起前必须落盘，否则最后一次
                 // 得分的续玩状态会随 Task 一起被冻结丢失。
@@ -154,7 +158,7 @@ struct WatchRootView: View {
                 resumeStore.clear()
                 return
             }
-            openLinkedBoard(setup: setup, handle: handle)
+            openLinkedBoard(setup: setup, handle: handle, resumedForTelemetry: true)
             return
         }
         linkedSetup = nil
@@ -171,6 +175,7 @@ struct WatchRootView: View {
         _ = resumeStore.consume()
         scoreboardLaunchID = UUID()
         scoreboardRoute = route
+        WatchTelemetry.scoreboardOpened(isLinked: false, isResumed: true)
     }
 
     private func restoreLinkedBoardIfNeeded() {
@@ -181,7 +186,9 @@ struct WatchRootView: View {
         if shouldReveal { openLinkedBoard(setup: setup, handle: update.handle) }
     }
 
-    private func openLinkedBoard(setup: LinkedScoreboardSetup, handle: LinkedMatchHandle) {
+    private func openLinkedBoard(
+        setup: LinkedScoreboardSetup, handle: LinkedMatchHandle, resumedForTelemetry: Bool? = nil
+    ) {
         guard let update = linkService.intentSync.update, update.handle == handle else { return }
         let projected = LinkedScoreboardSetup(
             gameType: setup.gameType, maxSets: setup.maxSets,
@@ -195,6 +202,9 @@ struct WatchRootView: View {
         linkedSessionId = handle.sessionId
         scoreboardLaunchID = UUID()
         scoreboardRoute = route
+        if let resumedForTelemetry {
+            WatchTelemetry.scoreboardOpened(isLinked: true, isResumed: resumedForTelemetry)
+        }
     }
 
     private func noticeExcludedOperations(previous: WatchLinkedIntentUpdate?, update: WatchLinkedIntentUpdate?) {
@@ -548,6 +558,7 @@ struct WatchRootView: View {
         linkedSessionId = nil
         scoreboardLaunchID = UUID()
         scoreboardRoute = route
+        WatchTelemetry.scoreboardOpened(isLinked: false, isResumed: false)
     }
 
     private func rallyResumeBundle(
