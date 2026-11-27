@@ -115,45 +115,19 @@ struct WatchSnookerScoreView: View {
 
     private var state: SnookerState { store.state }
 
-    private var linkedMatchUnavailable: Bool {
-        guard linkedSessionId != nil else { return false }
-        guard let linkedMatchHandle, linkedMatchHandle == linkService.activeHandle,
-              store.linkedIntentUpdate?.handle == linkedMatchHandle else { return true }
-        return !linkService.canEditLinkedMatch
+    private var linkedState: WatchLinkedMatchState {
+        WatchLinkedMatchState(
+            board: .billiards, linkedSessionId: linkedSessionId,
+            handle: linkedMatchHandle, linkService: linkService, store: store
+        )
     }
 
-    private var scoringLocked: Bool {
-        linkedMatchUnavailable || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed
-    }
-
-    private var canPlayAgain: Bool {
-        guard linkedSessionId != nil else { return true }
-        guard let handle = linkedMatchHandle, !linkedMatchUnavailable, store.isLinkedFinishConfirmed else { return false }
-        return store.savedRecordID == "w_\(handle.matchId.uuidString)"
-            && !linkService.intentSync.hasPendingOperations(for: handle)
-    }
+    private var linkedMatchUnavailable: Bool { linkedState.isUnavailable }
+    private var scoringLocked: Bool { linkedState.scoringLocked }
+    private var canPlayAgain: Bool { linkedState.canPlayAgain }
 
     private var linkedMenuActions: [WatchMenuExtraAction] {
-        guard linkedSessionId != nil, !linkedMatchUnavailable else { return [] }
-        return [
-            WatchMenuExtraAction(
-                id: "sync-linked-scores",
-                title: NSLocalizedString("linked_score_resync", value: "Sync score", comment: ""),
-                systemImage: "arrow.triangle.2.circlepath"
-            ) {
-                showMenu = false
-                linkService.syncLinkedScores()
-            },
-            WatchMenuExtraAction(
-                id: "end-score-link",
-                title: NSLocalizedString("linked_score_end", value: "End link", comment: ""),
-                systemImage: "link.badge.minus"
-            ) {
-                guard !store.isPendingLinkedFinish else { return }
-                showMenu = false
-                linkService.leaveSession()
-            }
-        ]
+        linkedState.menuActions { showMenu = false }
     }
     private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
 
@@ -855,29 +829,17 @@ struct WatchSnookerScoreView: View {
     }
 
     private func persistResumeSession() {
-        let context: WatchLinkResumeContext?
-        if linkedSessionId != nil {
-            guard let handle = linkedMatchHandle, handle == linkService.activeHandle,
-                  let linkedContext = linkService.resumeContext, linkedContext.handle == handle else { return }
-            if store.savedRecordID == "w_\(handle.matchId.uuidString)" {
-                if resumeStore.session?.linkHandle == handle { resumeStore.clear() }
-                return
-            }
-            context = linkedContext
-        } else {
-            if state.finished {
-                if store.savedRecordID != nil, resumeStore.session?.linkHandle == nil { resumeStore.clear() }
-                return
-            }
-            context = nil
-        }
-        guard hasSnookerProgress || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed else {
-            if linkedSessionId == nil, resumeStore.session?.linkHandle == nil { resumeStore.clear() }
-            return
-        }
-        store.persistResumeSession(
-            into: resumeStore, link: context, startedAt: matchStartTime,
-            payload: .snooker(bundle: store.resumeBundle(), leftName: leftName, rightName: rightName)
+        WatchBilliardsResumeDraft.persist(
+            store: store,
+            into: resumeStore,
+            linkedSessionId: linkedSessionId,
+            handle: linkedMatchHandle,
+            activeHandle: linkService.activeHandle,
+            resumeContext: linkService.resumeContext,
+            isFinished: state.finished,
+            hasProgress: hasSnookerProgress,
+            startedAt: matchStartTime,
+            payload: { .snooker(bundle: store.resumeBundle(), leftName: leftName, rightName: rightName) }
         )
     }
 

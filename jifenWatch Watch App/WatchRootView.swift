@@ -238,25 +238,9 @@ struct WatchRootView: View {
             case .configured(let config):
                 configuredDestination(config)
             case .pingpong(let maxSets):
-                WatchPingPongScoreView(
-                    maxSets: maxSets,
-                    initialState: rallyInitialState(for: route),
-                    linkedSessionId: linkedSessionId(for: route),
-                    resumeBundle: rallyResumeBundle(for: route),
-                    resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route),
-                    resumedActionLog: activeResumeSession?.actionLog
-                )
+                rallyDestination(for: route, maxSets: maxSets, gameType: .pingpong, inferredDoubles: .pingpongDoubles)
             case .badminton(let maxSets):
-                WatchBadmintonScoreView(
-                    maxSets: maxSets,
-                    initialState: rallyInitialState(for: route),
-                    linkedSessionId: linkedSessionId(for: route),
-                    resumeBundle: rallyResumeBundle(for: route),
-                    resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route),
-                    resumedActionLog: activeResumeSession?.actionLog
-                )
+                rallyDestination(for: route, maxSets: maxSets, gameType: .badminton, inferredDoubles: .badmintonDoubles)
             case .tennis(let maxSets):
                 WatchTennisScoreView(
                     maxSets: maxSets,
@@ -273,9 +257,9 @@ struct WatchRootView: View {
                     rules: .shuttlecock(maxSets: maxSets),
                     initialState: rallyInitialState(for: route),
                     linkedSessionId: linkedSessionId,
-                    resumeBundle: rallyResumeBundle(for: route),
+                    resumeBundle: rallyResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route),
+                    resumedRestState: rallyResumeRestState(),
                     resumedActionLog: activeResumeSession?.actionLog
                 )
             case .squash(let maxSets):
@@ -284,9 +268,9 @@ struct WatchRootView: View {
                     rules: .squash(maxSets: maxSets),
                     initialState: rallyInitialState(for: route),
                     linkedSessionId: linkedSessionId,
-                    resumeBundle: rallyResumeBundle(for: route),
+                    resumeBundle: rallyResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route),
+                    resumedRestState: rallyResumeRestState(),
                     resumedActionLog: activeResumeSession?.actionLog
                 )
             case .foosball(let maxSets):
@@ -295,9 +279,9 @@ struct WatchRootView: View {
                     rules: .foosball(maxSets: maxSets),
                     initialState: rallyInitialState(for: route),
                     linkedSessionId: linkedSessionId,
-                    resumeBundle: rallyResumeBundle(for: route),
+                    resumeBundle: rallyResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route),
+                    resumedRestState: rallyResumeRestState(),
                     resumedActionLog: activeResumeSession?.actionLog
                 )
             case .foosballDoubles(let maxSets):
@@ -306,21 +290,13 @@ struct WatchRootView: View {
                     rules: .foosball(maxSets: maxSets),
                     initialState: rallyInitialState(for: route),
                     linkedSessionId: linkedSessionId,
-                    resumeBundle: rallyResumeBundle(for: route),
+                    resumeBundle: rallyResumeBundle(),
                     resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route),
+                    resumedRestState: rallyResumeRestState(),
                     resumedActionLog: activeResumeSession?.actionLog
                 )
             case .pickleball(let maxSets):
-                WatchPickleballScoreView(
-                    maxSets: maxSets,
-                    initialState: rallyInitialState(for: route),
-                    linkedSessionId: linkedSessionId(for: route),
-                    resumeBundle: rallyResumeBundle(for: route),
-                    resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route),
-                    resumedActionLog: activeResumeSession?.actionLog
-                )
+                rallyDestination(for: route, maxSets: maxSets, gameType: .pickleball, inferredDoubles: .pickleballDoubles)
             case .archery:
                 WatchArcheryScoreView(
                     initialState: archeryInitialState(),
@@ -371,27 +347,9 @@ struct WatchRootView: View {
             case .football5v5(let halfLengthSeconds):
                 footballDestination(isFiveAside: true, halfLengthSeconds: halfLengthSeconds)
             case .pingpongDoubles(let maxSets):
-                WatchPingPongScoreView(
-                    maxSets: maxSets,
-                    initialState: rallyInitialState(for: .pingpong(maxSets: maxSets)),
-                    linkedSessionId: linkedSessionId,
-                    doublesGameType: .pingpongDoubles,
-                    resumeBundle: rallyResumeBundle(for: route),
-                    resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route),
-                    resumedActionLog: activeResumeSession?.actionLog
-                )
+                rallyDestination(for: .pingpong(maxSets: maxSets), maxSets: maxSets, gameType: .pingpongDoubles)
             case .badmintonDoubles(let maxSets):
-                WatchBadmintonScoreView(
-                    maxSets: maxSets,
-                    initialState: rallyInitialState(for: .badminton(maxSets: maxSets)),
-                    linkedSessionId: linkedSessionId,
-                    doublesGameType: .badmintonDoubles,
-                    resumeBundle: rallyResumeBundle(for: route),
-                    resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route),
-                    resumedActionLog: activeResumeSession?.actionLog
-                )
+                rallyDestination(for: .badminton(maxSets: maxSets), maxSets: maxSets, gameType: .badmintonDoubles)
             case .tennisDoubles(let maxSets):
                 WatchTennisScoreView(
                     maxSets: maxSets,
@@ -404,34 +362,51 @@ struct WatchRootView: View {
                     resumedActionLog: activeResumeSession?.actionLog
                 )
             case .pickleballDoubles(let maxSets):
-                WatchPickleballScoreView(
-                    maxSets: maxSets,
-                    initialState: rallyInitialState(for: .pickleball(maxSets: maxSets)),
-                    linkedSessionId: linkedSessionId,
-                    doublesGameType: .pickleballDoubles,
-                    resumeBundle: rallyResumeBundle(for: route),
-                    resumedStartTime: activeResumeSession?.startedAt,
-                    resumedRestState: rallyResumeRestState(for: route),
-                    resumedActionLog: activeResumeSession?.actionLog
-                )
+                rallyDestination(for: .pickleball(maxSets: maxSets), maxSets: maxSets, gameType: .pickleballDoubles)
         }
+    }
+
+    private func rallyDestination(
+        for snapshotRoute: WatchScoreboardRoute,
+        maxSets: Int,
+        gameType: GameType,
+        inferredDoubles: GameType? = nil
+    ) -> WatchRallyScoreView {
+        let initialState = rallyInitialState(for: snapshotRoute)
+        let resolvedGameType = initialState?.doubles == nil ? gameType : (inferredDoubles ?? gameType)
+        return WatchRallyScoreView(
+            gameType: resolvedGameType,
+            rules: Self.rallyRuleSet(for: resolvedGameType, maxSets: maxSets),
+            initialState: initialState,
+            linkedSessionId: linkedSessionId,
+            resumeBundle: rallyResumeBundle(),
+            resumedStartTime: activeResumeSession?.startedAt,
+            resumedRestState: rallyResumeRestState(),
+            resumedActionLog: activeResumeSession?.actionLog
+        )
+    }
+
+    private func configuredRallyDestination(
+        _ config: WatchScoreboardLaunchConfig,
+        singles: GameType,
+        doubles: GameType
+    ) -> WatchRallyScoreView {
+        let initialState = WatchSetupPayloadMapper.rallyState(for: config)
+        let gameType = config.sport.isDoubles || initialState?.doubles != nil ? doubles : singles
+        return WatchRallyScoreView(
+            gameType: gameType,
+            rules: Self.rallyRuleSet(for: gameType, maxSets: config.maxSets),
+            initialState: initialState
+        )
     }
 
     @ViewBuilder
     private func configuredDestination(_ config: WatchScoreboardLaunchConfig) -> some View {
         switch config.sport {
         case .pingpong, .pingpongDoubles:
-            WatchPingPongScoreView(
-                maxSets: config.maxSets,
-                initialState: WatchSetupPayloadMapper.rallyState(for: config),
-                doublesGameType: config.sport.isDoubles ? .pingpongDoubles : nil
-            )
+            configuredRallyDestination(config, singles: .pingpong, doubles: .pingpongDoubles)
         case .badminton, .badmintonDoubles:
-            WatchBadmintonScoreView(
-                maxSets: config.maxSets,
-                initialState: WatchSetupPayloadMapper.rallyState(for: config),
-                doublesGameType: config.sport.isDoubles ? .badmintonDoubles : nil
-            )
+            configuredRallyDestination(config, singles: .badminton, doubles: .badmintonDoubles)
         case .tennis, .tennisDoubles:
             WatchTennisScoreView(
                 maxSets: config.maxSets,
@@ -439,11 +414,7 @@ struct WatchRootView: View {
                 isDoubles: config.sport.isDoubles
             )
         case .pickleball, .pickleballDoubles:
-            WatchPickleballScoreView(
-                maxSets: config.maxSets,
-                initialState: WatchSetupPayloadMapper.rallyState(for: config),
-                doublesGameType: config.sport.isDoubles ? .pickleballDoubles : nil
-            )
+            configuredRallyDestination(config, singles: .pickleball, doubles: .pickleballDoubles)
         case .shuttlecock:
             WatchRallyScoreView(
                 gameType: .shuttlecock,
@@ -561,9 +532,7 @@ struct WatchRootView: View {
         WatchTelemetry.scoreboardOpened(isLinked: false, isResumed: false)
     }
 
-    private func rallyResumeBundle(
-        for route: WatchScoreboardRoute
-    ) -> ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>? {
+    private func rallyResumeBundle() -> ScoreSessionResumeBundle<RallyMatchState, RallyMatchEvent, RallyMatchIntent>? {
         guard let activeResumeSession,
               case .rally(_, let bundle, _) = activeResumeSession.payload else {
             return nil
@@ -571,7 +540,7 @@ struct WatchRootView: View {
         return bundle
     }
 
-    private func rallyResumeRestState(for route: WatchScoreboardRoute) -> WatchRestState? {
+    private func rallyResumeRestState() -> WatchRestState? {
         guard let activeResumeSession,
               case .rally(_, _, let restState) = activeResumeSession.payload else { return nil }
         return restState

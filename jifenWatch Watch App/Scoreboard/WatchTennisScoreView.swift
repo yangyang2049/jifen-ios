@@ -104,44 +104,19 @@ struct WatchTennisScoreView: View {
         )
     }
 
-    private var linkedMatchUnavailable: Bool {
-        guard linkedSessionId != nil else { return false }
-        guard let linkedMatchHandle, linkedMatchHandle == linkService.activeHandle else { return true }
-        return !linkService.canEditLinkedMatch
+    private var linkedState: WatchLinkedMatchState {
+        WatchLinkedMatchState(
+            board: .racket, linkedSessionId: linkedSessionId,
+            handle: linkedMatchHandle, linkService: linkService, store: store
+        )
     }
 
-    private var scoringLocked: Bool {
-        linkedMatchUnavailable || store.isPendingLinkedFinish || store.isLinkedFinishConfirmed
-    }
-
-    private var canPlayAgain: Bool {
-        guard linkedSessionId != nil else { return !scoringLocked }
-        guard let linkedMatchHandle else { return false }
-        return !linkedMatchUnavailable && store.isLinkedFinishConfirmed && store.savedRecordID != nil
-            && !linkService.intentSync.hasPendingOperations(for: linkedMatchHandle)
-    }
+    private var linkedMatchUnavailable: Bool { linkedState.isUnavailable }
+    private var scoringLocked: Bool { linkedState.scoringLocked }
+    private var canPlayAgain: Bool { linkedState.canPlayAgain }
 
     private var linkedMenuActions: [WatchMenuExtraAction] {
-        guard linkedMatchHandle != nil, !linkedMatchUnavailable else { return [] }
-        return [
-            WatchMenuExtraAction(
-                id: "sync-linked-scores",
-                title: NSLocalizedString("linked_score_resync", value: "Sync score", comment: ""),
-                systemImage: "arrow.triangle.2.circlepath"
-            ) {
-                showMenu = false
-                linkService.syncLinkedScores()
-            },
-            WatchMenuExtraAction(
-                id: "end-score-link",
-                title: NSLocalizedString("linked_score_end", value: "End link", comment: ""),
-                systemImage: "link.badge.minus"
-            ) {
-                guard !store.isPendingLinkedFinish else { return }
-                showMenu = false
-                linkService.leaveSession()
-            }
-        ]
+        linkedState.menuActions { showMenu = false }
     }
 
     private var isHorizontal: Bool { scoreboardLayout == "horizontal" }
@@ -1093,31 +1068,28 @@ struct WatchTennisScoreView: View {
     }
 
     private func persistResumeSession() {
-        let linkHandle: LinkedMatchHandle?
-        if linkedSessionId != nil {
-            guard let linkedMatchHandle, linkedMatchHandle == linkService.activeHandle else { return }
-            linkHandle = linkedMatchHandle
-        } else {
-            linkHandle = nil
-        }
-        let state = store.state
-        if state.finished {
-            if didFinalizeFinish, resumeStore.session?.linkHandle == linkHandle { resumeStore.clear() }
-            return
-        }
-        guard state.leftPoints != 0 || state.rightPoints != 0
-                || state.leftGames != 0 || state.rightGames != 0
-                || state.leftSets != 0 || state.rightSets != 0 else {
-            resumeStore.clear()
-            return
-        }
-        resumeStore.save(WatchResumeSession(
+        WatchRacketResumeDraft.persist(
+            into: resumeStore,
+            linkedSessionId: linkedSessionId,
+            handle: linkedMatchHandle,
+            activeHandle: linkService.activeHandle,
+            isFinished: store.state.finished,
+            didFinalizeFinish: didFinalizeFinish,
+            hasProgress: hasTennisProgress,
             startedAt: matchStartTime,
             scoreLine: store.scoreLine,
             emoji: store.binding.emoji,
-            payload: .tennis(isDoubles: isDoubles, bundle: store.resumeBundle(), restState: restState),
             actionLog: store.actionLog,
-            linkHandle: linkHandle
-        ))
+            payload: {
+                .tennis(isDoubles: isDoubles, bundle: store.resumeBundle(), restState: restState)
+            }
+        )
+    }
+
+    private var hasTennisProgress: Bool {
+        let state = store.state
+        return state.leftPoints != 0 || state.rightPoints != 0
+            || state.leftGames != 0 || state.rightGames != 0
+            || state.leftSets != 0 || state.rightSets != 0
     }
 }
