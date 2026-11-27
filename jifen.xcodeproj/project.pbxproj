@@ -30,6 +30,7 @@
 		BC20261100000000000000A2 /* GroupMatchSetupRulesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261100000000000000A1 /* GroupMatchSetupRulesTests.swift */; };
 		BC20261100000000000000B2 /* GroupMatchSetupUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261100000000000000B1 /* GroupMatchSetupUITests.swift */; };
 		BC20261200000000000000C2 /* WatchLinkIntroLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */; };
+		BC20261126000000000000D3 /* WeekendMembershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261126000000000000D2 /* WeekendMembershipTests.swift */; };
 		FF3000000000000000000002 /* OpenSourceLicensesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF3000000000000000000001 /* OpenSourceLicensesTests.swift */; };
 		C0D320261002000000000002 /* APIClientSessionIsolationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */; };
 		C10000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000001 /* ScoreCore */; };
@@ -178,6 +179,7 @@
 		BC20261100000000000000A1 /* GroupMatchSetupRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMatchSetupRulesTests.swift; sourceTree = "<group>"; };
 		BC20261100000000000000B1 /* GroupMatchSetupUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMatchSetupUITests.swift; sourceTree = "<group>"; };
 		BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLinkIntroLaunchTests.swift; sourceTree = "<group>"; };
+		BC20261126000000000000D2 /* WeekendMembershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekendMembershipTests.swift; sourceTree = "<group>"; };
 		FF3000000000000000000001 /* OpenSourceLicensesTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenSourceLicensesTests.swift; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
 		C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIClientSessionIsolationTests.swift; sourceTree = "<group>"; };
@@ -371,6 +373,7 @@
 				911E22E26F6E46118B7955CE /* GroupPortParityTests.swift */,
 				BC20261100000000000000A1 /* GroupMatchSetupRulesTests.swift */,
 				BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */,
+				BC20261126000000000000D2 /* WeekendMembershipTests.swift */,
 				FF3000000000000000000001 /* OpenSourceLicensesTests.swift */,
 				AB1000000000000000000001 /* AccountPasswordLoginTests.swift */,
 				D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */,
@@ -829,6 +832,7 @@
 				BB8112B0BEAB4E949E9E82DB /* GroupPortParityTests.swift in Sources */,
 				BC20261100000000000000A2 /* GroupMatchSetupRulesTests.swift in Sources */,
 				BC20261200000000000000C2 /* WatchLinkIntroLaunchTests.swift in Sources */,
+				BC20261126000000000000D3 /* WeekendMembershipTests.swift in Sources */,
 				FF3000000000000000000002 /* OpenSourceLicensesTests.swift in Sources */,
 				AB1000000000000000000002 /* AccountPasswordLoginTests.swift in Sources */,
 				D42000000000000000000002 /* LocalDataResetCoordinatorTests.swift in Sources */,
