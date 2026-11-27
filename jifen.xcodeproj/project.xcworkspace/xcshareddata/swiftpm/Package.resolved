@@ -1,5 +1,5 @@
 {
-  "originHash" : "5b5dc030083f15599bea18a62a46fa0da9274ea1656e658d8a3776cc7692e8a0",
+  "originHash" : "7730a5a5f7ebb5a4d62fc5c39529860019826bb2fd6cea8710657c4f189ffc98",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -116,6 +116,24 @@
       "state" : {
         "revision" : "f4a19a3c313dc2616c70bb49d29a799fb16be837",
         "version" : "2.4.1"
+      }
+    },
+    {
+      "identity" : "purchases-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RevenueCat/purchases-ios.git",
+      "state" : {
+        "revision" : "a835ead7b1b0439864e2450e17c08be193aec473",
+        "version" : "5.103.2"
+      }
+    },
+    {
+      "identity" : "swiftsdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/TelemetryDeck/SwiftSDK.git",
+      "state" : {
+        "revision" : "58f436299d3f6710bcedc18aff26480aaf1879fc",
+        "version" : "2.14.2"
       }
     },
     {

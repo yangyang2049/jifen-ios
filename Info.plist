@@ -19,6 +19,8 @@
 	<false/>
 	<key>FirebaseAutomaticScreenReportingEnabled</key>
 	<false/>
+	<key>JifenRevenueCatSDKKey</key>
+	<string>$(JIFEN_REVENUECAT_SDK_KEY)</string>
 	<key>JifenReviewPromptLaunchThreshold</key>
 	<integer>5</integer>
 	<key>LSApplicationQueriesSchemes</key>

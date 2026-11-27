@@ -1,0 +1,3 @@
+// RevenueCat public SDK key for com.douhua.jifen.ios.
+// Use an xcodebuild setting override for a Debug Test Store build.
+JIFEN_REVENUECAT_SDK_KEY = appl_XKOWDLjLWIRLEudVIahsYZBGshv

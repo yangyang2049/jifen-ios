@@ -31,7 +31,6 @@
 		BC20261100000000000000B2 /* GroupMatchSetupUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261100000000000000B1 /* GroupMatchSetupUITests.swift */; };
 		BC20261200000000000000C2 /* WatchLinkIntroLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */; };
 		BC20261126000000000000D3 /* WeekendMembershipTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC20261126000000000000D2 /* WeekendMembershipTests.swift */; };
-		FF3000000000000000000002 /* OpenSourceLicensesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF3000000000000000000001 /* OpenSourceLicensesTests.swift */; };
 		C0D320261002000000000002 /* APIClientSessionIsolationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */; };
 		C10000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000001 /* ScoreCore */; };
 		C10000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000002 /* SessionCore */; };
@@ -41,12 +40,15 @@
 		C10000000000000000000006 /* TimerCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000006 /* TimerCore */; };
 		C10000000000000000000007 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000007 /* FirebaseCore */; };
 		C10000000000000000000008 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000008 /* FirebaseAnalyticsCore */; };
+		C1000000000000000000000B /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000000B /* RevenueCat */; };
+		C1000000000000000000000A /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = A1000000000000000000000A /* RevenueCatUI */; };
 		C10000000000000000000009 /* LinkSync in Frameworks */ = {isa = PBXBuildFile; productRef = A10000000000000000000009 /* LinkSync */; };
 		C20000000000000000000001 /* ScoreCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000001 /* ScoreCore */; };
 		C20000000000000000000002 /* SessionCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000002 /* SessionCore */; };
 		C20000000000000000000003 /* RecordCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000003 /* RecordCore */; };
 		C20000000000000000000004 /* PersistenceCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000004 /* PersistenceCore */; };
 		C20000000000000000000005 /* LinkCore in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000005 /* LinkCore */; };
+		C20000000000000000000007 /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000007 /* TelemetryDeck */; };
 		C20000000000000000000006 /* LinkSync in Frameworks */ = {isa = PBXBuildFile; productRef = B10000000000000000000006 /* LinkSync */; };
 		C23000000000000000000001 /* WechatOpenSDK in Frameworks */ = {isa = PBXBuildFile; productRef = A23000000000000000000001 /* WechatOpenSDK */; };
 		C748D22B660C17B977BC6AE9 /* BookingBasketballTimingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F8EC0DD915B1306E2528D /* BookingBasketballTimingTests.swift */; };
@@ -94,6 +96,7 @@
 		FEE320261003000000000002 /* FeedbackLanguageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEE320261003000000000001 /* FeedbackLanguageTests.swift */; };
 		FF1000000000000000000002 /* ResumeSessionLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */; };
 		FF2000000000000000000002 /* ActionForegroundTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF2000000000000000000001 /* ActionForegroundTests.swift */; };
+		FF3000000000000000000002 /* OpenSourceLicensesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF3000000000000000000001 /* OpenSourceLicensesTests.swift */; };
 		PB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = PB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -178,9 +181,9 @@
 		BC2026102500000000000005 /* PersonalRecordAccessPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRecordAccessPolicyTests.swift; sourceTree = "<group>"; };
 		BC20261100000000000000A1 /* GroupMatchSetupRulesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMatchSetupRulesTests.swift; sourceTree = "<group>"; };
 		BC20261100000000000000B1 /* GroupMatchSetupUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupMatchSetupUITests.swift; sourceTree = "<group>"; };
+		BC20261126000000000000D1 /* Configuration/RevenueCat.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Configuration/RevenueCat.xcconfig; sourceTree = "<group>"; };
 		BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchLinkIntroLaunchTests.swift; sourceTree = "<group>"; };
 		BC20261126000000000000D2 /* WeekendMembershipTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeekendMembershipTests.swift; sourceTree = "<group>"; };
-		FF3000000000000000000001 /* OpenSourceLicensesTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenSourceLicensesTests.swift; sourceTree = "<group>"; };
 		BC914C3D9245625EBEA43CF8 /* jifenUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = jifenUITests.swift; sourceTree = "<group>"; };
 		C0D320261002000000000001 /* APIClientSessionIsolationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = APIClientSessionIsolationTests.swift; sourceTree = "<group>"; };
 		D20000000000000000000001 /* jifenWatch Watch AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "jifenWatch Watch AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -226,6 +229,7 @@
 		FEE320261003000000000001 /* FeedbackLanguageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedbackLanguageTests.swift; sourceTree = "<group>"; };
 		FF1000000000000000000001 /* ResumeSessionLifecycleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ResumeSessionLifecycleTests.swift; sourceTree = "<group>"; };
 		FF2000000000000000000001 /* ActionForegroundTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ActionForegroundTests.swift; sourceTree = "<group>"; };
+		FF3000000000000000000001 /* OpenSourceLicensesTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OpenSourceLicensesTests.swift; sourceTree = "<group>"; };
 		PB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneWatchLinkServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -278,6 +282,8 @@
 				C10000000000000000000006 /* TimerCore in Frameworks */,
 				C10000000000000000000007 /* FirebaseCore in Frameworks */,
 				C10000000000000000000008 /* FirebaseAnalyticsCore in Frameworks */,
+				C1000000000000000000000B /* RevenueCat in Frameworks */,
+				C1000000000000000000000A /* RevenueCatUI in Frameworks */,
 				C10000000000000000000009 /* LinkSync in Frameworks */,
 				C23000000000000000000001 /* WechatOpenSDK in Frameworks */,
 			);
@@ -292,6 +298,7 @@
 				C20000000000000000000003 /* RecordCore in Frameworks */,
 				C20000000000000000000004 /* PersistenceCore in Frameworks */,
 				C20000000000000000000005 /* LinkCore in Frameworks */,
+				C20000000000000000000007 /* TelemetryDeck in Frameworks */,
 				C20000000000000000000006 /* LinkSync in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -333,6 +340,7 @@
 			isa = PBXGroup;
 			children = (
 				0FA5BAF02F18F50000182375 /* Info.plist */,
+				BC20261126000000000000D1 /* Configuration/RevenueCat.xcconfig */,
 				0FA5BAD32F18F3EB00182375 /* jifen */,
 				0FA5BAE42F18F43E00182375 /* jifenWatch Watch App */,
 				0FA5BAD22F18F3EB00182375 /* Products */,
@@ -374,7 +382,6 @@
 				BC20261100000000000000A1 /* GroupMatchSetupRulesTests.swift */,
 				BC20261200000000000000C1 /* WatchLinkIntroLaunchTests.swift */,
 				BC20261126000000000000D2 /* WeekendMembershipTests.swift */,
-				FF3000000000000000000001 /* OpenSourceLicensesTests.swift */,
 				AB1000000000000000000001 /* AccountPasswordLoginTests.swift */,
 				D42000000000000000000001 /* LocalDataResetCoordinatorTests.swift */,
 				PB1000000000000000000002 /* PhoneWatchLinkServiceTests.swift */,
@@ -397,6 +404,7 @@
 				F70000000000000000000001 /* ScreenshotSaveCoordinatorTests.swift */,
 				F80000000000000000000001 /* AppAnalyticsTests.swift */,
 				F90000000000000000000001 /* LocalizationIntegrityTests.swift */,
+				FF3000000000000000000001 /* OpenSourceLicensesTests.swift */,
 				AA1000000000000000000001 /* Support/LocalizationTestSupport.swift */,
 				FC1000000000000000000001 /* ScoreboardUsageHintTests.swift */,
 				FC7000000000000000000001 /* CardResumeAndWinnerIdentityTests.swift */,
@@ -487,6 +495,8 @@
 				A10000000000000000000006 /* TimerCore */,
 				A10000000000000000000007 /* FirebaseCore */,
 				A10000000000000000000008 /* FirebaseAnalyticsCore */,
+				A1000000000000000000000B /* RevenueCat */,
+				A1000000000000000000000A /* RevenueCatUI */,
 				A10000000000000000000009 /* LinkSync */,
 				A23000000000000000000001 /* WechatOpenSDK */,
 			);
@@ -516,6 +526,7 @@
 				B10000000000000000000003 /* RecordCore */,
 				B10000000000000000000004 /* PersistenceCore */,
 				B10000000000000000000005 /* LinkCore */,
+				B10000000000000000000007 /* TelemetryDeck */,
 				B10000000000000000000006 /* LinkSync */,
 			);
 			productName = "jifenWatch Watch App";
@@ -692,7 +703,9 @@
 			packageReferences = (
 				D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */,
 				D50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				D60000000000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 				D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */,
+				D70000000000000000000001 /* XCRemoteSwiftPackageReference "SwiftSDK" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0FA5BAD22F18F3EB00182375 /* Products */;
@@ -833,7 +846,6 @@
 				BC20261100000000000000A2 /* GroupMatchSetupRulesTests.swift in Sources */,
 				BC20261200000000000000C2 /* WatchLinkIntroLaunchTests.swift in Sources */,
 				BC20261126000000000000D3 /* WeekendMembershipTests.swift in Sources */,
-				FF3000000000000000000002 /* OpenSourceLicensesTests.swift in Sources */,
 				AB1000000000000000000002 /* AccountPasswordLoginTests.swift in Sources */,
 				D42000000000000000000002 /* LocalDataResetCoordinatorTests.swift in Sources */,
 				PB1000000000000000000001 /* PhoneWatchLinkServiceTests.swift in Sources */,
@@ -856,6 +868,7 @@
 				F70000000000000000000002 /* ScreenshotSaveCoordinatorTests.swift in Sources */,
 				F80000000000000000000002 /* AppAnalyticsTests.swift in Sources */,
 				F90000000000000000000002 /* LocalizationIntegrityTests.swift in Sources */,
+				FF3000000000000000000002 /* OpenSourceLicensesTests.swift in Sources */,
 				AA1000000000000000000002 /* Support/LocalizationTestSupport.swift in Sources */,
 				FC1000000000000000000002 /* ScoreboardUsageHintTests.swift in Sources */,
 				FC7000000000000000000002 /* CardResumeAndWinnerIdentityTests.swift in Sources */,
@@ -1070,6 +1083,7 @@
 		};
 		0FA5BADD2F18F3EC00182375 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BC20261126000000000000D1 /* Configuration/RevenueCat.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1128,6 +1142,7 @@
 		};
 		0FA5BADE2F18F3EC00182375 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = BC20261126000000000000D1 /* Configuration/RevenueCat.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -1519,6 +1534,22 @@
 				minimumVersion = 12.19.2;
 			};
 		};
+		D60000000000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
+			requirement = {
+				kind = exactVersion;
+				version = 5.103.2;
+			};
+		};
+		D70000000000000000000001 /* XCRemoteSwiftPackageReference "SwiftSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TelemetryDeck/SwiftSDK.git";
+			requirement = {
+				kind = exactVersion;
+				version = 2.14.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1562,6 +1593,16 @@
 			package = D50000000000000000000001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalyticsCore;
 		};
+		A1000000000000000000000B /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D60000000000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
+		};
+		A1000000000000000000000A /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D60000000000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCatUI;
+		};
 		A23000000000000000000001 /* WechatOpenSDK */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = D23000000000000000000001 /* XCRemoteSwiftPackageReference "WechatOpenSDK" */;
@@ -1591,6 +1632,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D10000000000000000000001 /* XCLocalSwiftPackageReference "Packages/JifenCore" */;
 			productName = LinkCore;
+		};
+		B10000000000000000000007 /* TelemetryDeck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D70000000000000000000001 /* XCRemoteSwiftPackageReference "SwiftSDK" */;
+			productName = TelemetryDeck;
 		};
 		A10000000000000000000009 /* LinkSync */ = {
 			isa = XCSwiftPackageProductDependency;
