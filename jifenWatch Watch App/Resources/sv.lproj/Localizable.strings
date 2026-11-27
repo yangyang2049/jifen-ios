@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "Starta på telefonen och registrera poäng på båda enheterna.";
 "linked_score_simultaneous_edit" = "Ändringar gjordes på båda enheterna. Kontrollera ställningen.";
 "linked_score_pending_finish" = "Väntar på synkning";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "Synkronisera ställningen";
+"linked_score_end" = "Avsluta länkad poängräkning";
 "linked_score_excluded_operations" = "%d offline-poäng exkluderades";
 "linked_score_reconnect_to_continue" = "Anslut iPhone igen för att fortsätta registrera poäng.";
 "linked_score_reset_unavailable" = "När poängräkningen är delad ska du avsluta den pågående matchen innan du startar en ny.";

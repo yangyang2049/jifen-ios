@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "ഫോണിൽ ആരംഭിച്ച് ഏത് ഉപകരണത്തിലും സ്‌കോർ രേഖപ്പെടുത്താം.";
 "linked_score_simultaneous_edit" = "രണ്ട് ഉപകരണങ്ങളിലും മാറ്റങ്ങളുണ്ടായി. സ്‌കോർ പരിശോധിക്കുക.";
 "linked_score_pending_finish" = "സമന്വയം ബാക്കി";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "സ്കോർ സമന്വയിപ്പിക്കുക";
+"linked_score_end" = "ലിങ്ക് ചെയ്ത സ്കോറിങ് അവസാനിപ്പിക്കുക";
 "linked_score_excluded_operations" = "%d ഓഫ്‌ലൈൻ സ്‌കോർ ഒഴിവാക്കി";
 "linked_score_reconnect_to_continue" = "സ്‌കോർ തുടരാൻ iPhone-മായി വീണ്ടും ബന്ധിപ്പിക്കുക.";
 "linked_score_reset_unavailable" = "രണ്ട് ഉപകരണങ്ങളിലും സ്‌കോർ രേഖപ്പെടുത്തുമ്പോൾ പുതിയ മത്സരം തുടങ്ങുന്നതിന് മുമ്പ് ഇപ്പോഴത്തെ മത്സരം അവസാനിപ്പിക്കുക.";

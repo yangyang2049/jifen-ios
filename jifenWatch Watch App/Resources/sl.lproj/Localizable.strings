@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "Začnite na telefonu in beležite točke na kateri koli napravi.";
 "linked_score_simultaneous_edit" = "Na obeh napravah je prišlo do sprememb. Preverite rezultat.";
 "linked_score_pending_finish" = "Čaka na sinhronizacijo";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "Sinhroniziraj rezultat";
+"linked_score_end" = "Končaj povezano beleženje";
 "linked_score_excluded_operations" = "%d točk brez povezave se ne šteje";
 "linked_score_reconnect_to_continue" = "Znova povežite iPhone, da boste lahko nadaljevali z beleženjem rezultata.";
 "linked_score_reset_unavailable" = "Med skupnim beleženjem rezultata končajte trenutno tekmo, preden začnete novo.";

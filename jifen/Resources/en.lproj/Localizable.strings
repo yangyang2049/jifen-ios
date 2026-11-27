@@ -1448,6 +1448,9 @@
 "membership_valid_until" = "Valid Until";
 "membership_expires_forever" = "Never Expires";
 "membership_store_unavailable" = "Apple In-App Purchase is unavailable";
+"weekend_membership_preview_title" = "Preview Weekend Membership";
+"membership_load_empty" = "Purchases are temporarily unavailable. Try again later.";
+"weekend_membership_restore_empty" = "No lifetime membership purchase was found to restore.";
 "membership_monthly_plan_title" = "Monthly Membership";
 "membership_monthly_subtitle" = "Auto-renews. Cancel anytime.";
 "membership_yearly_plan_title" = "Annual Membership";
@@ -1721,7 +1724,7 @@
 "group_rules_missing" = "Rules were not recorded";
 "group_save" = "Save";
 "group_save_failed" = "Could not save the match. Please try again.";
-"group_scan" = "Scan QR code";
+"group_scan" = "Scan QR Code";
 "group_scoreboard" = "Scoreboard";
 "group_set_details" = "Set Details";
 "group_set_input" = "Set details (optional), one score per line: 21:19";
@@ -2898,6 +2901,8 @@
 "settings_help_support" = "Help & Support";
 "about_legal" = "Information";
 "about_qq_group_number" = "825096333";
+"about_open_source_licenses" = "Open source licenses";
+"open_source_licenses_title" = "Open source licenses";
 "legal_consent_title" = "Please Review Before Using";
 "legal_consent_subtitle" = "Please read and agree to the Terms of Service and Privacy Policy before using the app.";
 "legal_summary_title" = "How We Use Data";
@@ -2935,9 +2940,9 @@
 "stopwatch_lap_no" = "No.";
 "stopwatch_lap_segment" = "Lap";
 "stopwatch_lap_total" = "Total";
-"linked_score_watch_unavailable" = "Apple Watch is not connected. Open ScoreKeeper on your watch and try again.";
+"linked_score_watch_unavailable" = "Apple Watch is not connected. Open iScoreboard on your watch and try again.";
 "linked_score_watch_not_foreground_title" = "Open the Watch App";
-"linked_score_watch_not_foreground_message" = "Open All-in-one Scorekeeper on your Apple Watch and keep it in the foreground, then try again.";
+"linked_score_watch_not_foreground_message" = "Open iScoreboard on your Apple Watch and keep it in the foreground, then try again.";
 "linked_score_start_on_watch" = "Start on Apple Watch";
 "linked_score_start_confirm_title" = "Start on Apple Watch?";
 "linked_score_start_confirm_message" = "A start request will be sent to your watch. Confirm on the watch to begin; the phone will follow the score.";
@@ -2981,7 +2986,7 @@
 "watch_sync_hero_description" = "Score live across phone and watch, sync common names, and automatically receive finished matches and shooting drills from the watch.";
 "watch_sync_action_refresh" = "Refresh";
 "watch_sync_usage_title" = "How to use";
-"watch_sync_usage_prerequisite" = "Make sure ScoreKeeper is installed on both phone and watch, and keep them paired.";
+"watch_sync_usage_prerequisite" = "Make sure iScoreboard is installed on both phone and watch, and keep them paired.";
 "watch_sync_usage_tab_live_scoring" = "Live scoring";
 "watch_sync_usage_tab_common_names" = "Common names";
 "watch_sync_usage_tab_watch_records" = "Watch records";

@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "Start op je telefoon en houd de score bij op beide apparaten.";
 "linked_score_simultaneous_edit" = "Op beide apparaten zijn wijzigingen gedaan. Controleer de score.";
 "linked_score_pending_finish" = "Wacht op synchronisatie";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "Score synchroniseren";
+"linked_score_end" = "Gekoppelde scoretelling beëindigen";
 "linked_score_excluded_operations" = "%d offline scores uitgesloten";
 "linked_score_reconnect_to_continue" = "Maak opnieuw verbinding met je iPhone om door te gaan met scoren.";
 "linked_score_reset_unavailable" = "Als je de score gezamenlijk bijhoudt, rond dan de huidige wedstrijd af voordat je een nieuwe begint.";

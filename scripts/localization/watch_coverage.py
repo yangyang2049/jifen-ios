@@ -8,7 +8,7 @@ import json
 import re
 from pathlib import Path
 
-from localize import format_arguments, parse_strings
+from localize import format_arguments, locale_map, parse_strings
 
 ROOT = Path(__file__).resolve().parents[2]
 WATCH_APP = ROOT / "jifenWatch Watch App"
@@ -45,7 +45,16 @@ def resource_tables(locales: list[str]) -> dict[str, dict[str, dict[str, str]]]:
 
 def coverage() -> dict:
     phone_files = language_files(PHONE_RES, "Localizable.strings")
-    locales = list(phone_files)
+    watch_files = language_files(WATCH_RES, "Localizable.strings")
+    locales = sorted(locale_map())
+    expected_locales = set(locales)
+    locale_differences = {
+        target: {
+            "missing": sorted(expected_locales - files.keys()),
+            "extra": sorted(files.keys() - expected_locales),
+        }
+        for target, files in (("phone", phone_files), ("watch", watch_files))
+    }
     tables = resource_tables(locales)
     pairs = json.loads(SHARED_STRINGS.read_text(encoding="utf-8"))
     missing_source = set()
@@ -56,7 +65,7 @@ def coverage() -> dict:
     rows = []
     for locale in locales:
         missing, extra, invalid_formats, shared_mismatches = [], [], [], []
-        phone = table_entries(phone_files[locale])
+        phone = table_entries(phone_files[locale]) if locale in phone_files else {}
         for name, table in tables.items():
             english, translated = table["en"], table[locale]
             for key, value in english.items():
@@ -83,7 +92,8 @@ def coverage() -> dict:
         })
     return {
         "watchKeys": sum(len(table["en"]) for table in tables.values()),
-        "phoneLocales": len(locales),
+        "phoneLocales": len(phone_files),
+        "localeDifferences": locale_differences,
         "missingSourceKeys": sorted(missing_source),
         "locales": rows,
     }
@@ -107,6 +117,10 @@ def main() -> int:
         print(json.dumps(report, ensure_ascii=False, indent=2))
     else:
         print(f"{report['watchKeys']} watch entries across {report['phoneLocales']} language and region variants")
+        for target, differences in report["localeDifferences"].items():
+            for kind, locales in differences.items():
+                if locales:
+                    print(f"{target} {kind} locales: {', '.join(locales)}")
         for row in rows:
             if row["missing"] or row["extra"] or row["invalidFormats"] or row["sharedMismatches"]:
                 print(f"{row['locale']:7} {len(row['missing']):3} missing  "
@@ -117,6 +131,8 @@ def main() -> int:
         if report["missingSourceKeys"]:
             print("Missing from English: " + ", ".join(report["missingSourceKeys"]))
     incomplete = report["missingSourceKeys"] or any(
+        locales for differences in report["localeDifferences"].values() for locales in differences.values()
+    ) or any(
         row["missing"] or row["extra"] or row["invalidFormats"] or row["sharedMismatches"] for row in rows
     )
     return int(args.check and bool(incomplete))

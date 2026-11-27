@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "מתחילים בטלפון ואפשר לרשום ניקוד בכל אחד מהמכשירים.";
 "linked_score_simultaneous_edit" = "בוצעו שינויים בשני המכשירים. כדאי לבדוק את התוצאה.";
 "linked_score_pending_finish" = "ממתין לסנכרון";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "סנכרון התוצאה";
+"linked_score_end" = "סיום רישום התוצאה המקושר";
 "linked_score_excluded_operations" = "%d ניקוד לא מקוון לא נכלל";
 "linked_score_reconnect_to_continue" = "יש להתחבר מחדש ל-iPhone כדי להמשיך לרשום ניקוד.";
 "linked_score_reset_unavailable" = "במהלך רישום ניקוד משותף, יש לסיים את המשחק הנוכחי לפני שמתחילים משחק חדש.";

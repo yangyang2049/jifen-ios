@@ -1448,6 +1448,9 @@
 "membership_valid_until" = "有效期至";
 "membership_expires_forever" = "永久有效";
 "membership_store_unavailable" = "Apple 内购暂不可用";
+"weekend_membership_preview_title" = "周末会员弹窗测试";
+"membership_load_empty" = "暂时无法购买，请稍后再试";
+"weekend_membership_restore_empty" = "未找到可恢复的终身会员购买";
 "membership_monthly_plan_title" = "月卡会员";
 "membership_monthly_subtitle" = "自动续订，可随时取消";
 "membership_yearly_plan_title" = "年卡会员";
@@ -2900,6 +2903,8 @@
 "settings_help_support" = "帮助与支持";
 "about_legal" = "相关信息";
 "about_qq_group_number" = "825096333";
+"about_open_source_licenses" = "开源许可证";
+"open_source_licenses_title" = "开源许可证";
 "legal_consent_title" = "使用前请先阅读并同意";
 "legal_consent_subtitle" = "为保障你的相关权利，请在使用前阅读并同意《用户协议》和《隐私政策》。";
 "legal_summary_title" = "我们如何使用数据";

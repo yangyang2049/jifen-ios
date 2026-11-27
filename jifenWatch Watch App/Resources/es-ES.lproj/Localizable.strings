@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "Empieza en el móvil y anota puntos en cualquiera de los dos dispositivos.";
 "linked_score_simultaneous_edit" = "Hubo cambios en los dos dispositivos. Comprueba el marcador.";
 "linked_score_pending_finish" = "Pendiente de sincronizar";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "Sincronizar marcador";
+"linked_score_end" = "Finalizar puntuación vinculada";
 "linked_score_excluded_operations" = "%d puntos sin conexión excluidos";
 "linked_score_reconnect_to_continue" = "Vuelve a conectar tu iPhone para seguir anotando puntos.";
 "linked_score_reset_unavailable" = "Durante la puntuación compartida, termina el partido actual antes de empezar uno nuevo.";

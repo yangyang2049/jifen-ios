@@ -6899,7 +6899,8 @@
       "group_ranking_draws": "引き分け数",
       "group_error_description_length": "グループの説明は200文字以内で入力してください。",
       "group_manual_result_action": "試合結果を追加",
-      "group_read_notices": "既読"
+      "group_read_notices": "既読",
+      "group_ranking_sets": "スコア"
     },
     "ko": {
       "group_error_registration_closed": "참가 신청이 마감되었습니다.",
@@ -7563,7 +7564,8 @@
       "group_ranking_draws": "matchs nuls",
       "group_error_description_length": "La description du groupe ne doit pas dépasser 200 caractères.",
       "group_manual_result_action": "Ajouter un résultat de match",
-      "group_read_notices": "Lu"
+      "group_read_notices": "Lu",
+      "group_ranking_sets": "Score"
     },
     "es-ES": {
       "group_error_registration_closed": "Las inscripciones se han cerrado.",
@@ -8061,7 +8063,8 @@
       "group_ranking_draws": "pareggi",
       "group_error_description_length": "La descrizione del gruppo non può superare 200 caratteri.",
       "group_manual_result_action": "Aggiungi risultato della partita",
-      "group_read_notices": "Letto"
+      "group_read_notices": "Letto",
+      "group_ranking_sets": "Punteggio"
     },
     "pt-BR": {
       "group_error_registration_closed": "As inscrições foram encerradas.",
@@ -8893,7 +8896,8 @@
       "group_ranking_draws": "uafgjorte",
       "group_error_description_length": "Gruppebeskrivelser må højst indeholde 200 tegn.",
       "group_manual_result_action": "Tilføj kampresultat",
-      "group_read_notices": "Læst"
+      "group_read_notices": "Læst",
+      "group_ranking_sets": "Resultat"
     },
     "nb": {
       "group_error_registration_closed": "Påmeldingen er stengt.",
@@ -9059,7 +9063,8 @@
       "group_ranking_draws": "uavgjorte",
       "group_error_description_length": "Gruppebeskrivelser kan ikke være lengre enn 200 tegn.",
       "group_manual_result_action": "Legg til kampresultat",
-      "group_read_notices": "Lest"
+      "group_read_notices": "Lest",
+      "group_ranking_sets": "Poengsum"
     },
     "fi": {
       "group_error_registration_closed": "Ilmoittautuminen on päättynyt.",
@@ -10387,7 +10392,8 @@
       "group_ranking_draws": "neodločene tekme",
       "group_error_description_length": "Opis skupine ne sme presegati 200 znakov.",
       "group_manual_result_action": "Dodaj rezultat dvoboja",
-      "group_read_notices": "Prebrano"
+      "group_read_notices": "Prebrano",
+      "group_ranking_sets": "Rezultat"
     },
     "el": {
       "group_error_registration_closed": "Οι εγγραφές έκλεισαν.",
@@ -11051,7 +11057,8 @@
       "group_ranking_draws": "תוצאות תיקו",
       "group_error_description_length": "תיאור הקבוצה מוגבל ל־200 תווים.",
       "group_manual_result_action": "הוספת תוצאת משחק",
-      "group_read_notices": "נקרא"
+      "group_read_notices": "נקרא",
+      "group_ranking_sets": "תוצאה"
     },
     "ur": {
       "group_error_registration_closed": "رجسٹریشن بند ہو گئی ہے۔",
@@ -11219,7 +11226,8 @@
       "group_ranking_draws": "ڈرا کی تعداد",
       "group_error_description_length": "گروپ کی تفصیل 200 حروف سے زیادہ نہیں ہو سکتی۔",
       "group_manual_result_action": "میچ کا نتیجہ شامل کریں",
-      "group_read_notices": "پڑھ لیا"
+      "group_read_notices": "پڑھ لیا",
+      "group_ranking_sets": "سکور"
     },
     "hi": {
       "group_error_registration_closed": "पंजीकरण बंद हो गया है।",
@@ -11717,7 +11725,8 @@
       "group_ranking_draws": "சமநிலைகளின் எண்ணிக்கை",
       "group_error_description_length": "குழு விளக்கம் 200 எழுத்துகளுக்கு மிகாமல் இருக்க வேண்டும்.",
       "group_manual_result_action": "போட்டி முடிவைச் சேர்",
-      "group_read_notices": "படிக்கப்பட்டது"
+      "group_read_notices": "படிக்கப்பட்டது",
+      "group_ranking_sets": "மதிப்பெண்"
     },
     "te": {
       "group_error_registration_closed": "నమోదు ముగిసింది.",
@@ -11883,7 +11892,8 @@
       "group_ranking_draws": "డ్రాల సంఖ్య",
       "group_error_description_length": "గ్రూపు వివరణ 200 అక్షరాలకు మించకూడదు.",
       "group_manual_result_action": "మ్యాచ్ ఫలితం జోడించండి",
-      "group_read_notices": "చదివారు"
+      "group_read_notices": "చదివారు",
+      "group_ranking_sets": "స్కోర్"
     },
     "kn": {
       "group_error_registration_closed": "ನೋಂದಣಿ ಮುಗಿದಿದೆ.",
@@ -13380,7 +13390,8 @@
       "group_ranking_draws": "empats",
       "group_error_description_length": "La descripció del grup no pot superar els 200 caràcters.",
       "group_manual_result_action": "Afegeix un resultat",
-      "group_read_notices": "Llegit"
+      "group_read_notices": "Llegit",
+      "group_ranking_sets": "Puntuació"
     }
   },
   "shared_terms": {
@@ -15142,6 +15153,14 @@
     "group_report_remove_image": "Remove Image",
     "group_report_image_error": "Unable to prepare the image. Try another JPG or PNG image.",
     "group_report_refresh": "Refresh Status",
-    "group_manual_result_action": "Add Result"
+    "group_manual_result_action": "Add Result",
+    "group_billiards_create_notice_message": "Billiards groups require iScoreboard %@ or later.\n\nNew versions are being released gradually across platforms and app stores. Members who have not updated, or whose platform does not yet offer the new version, cannot join or use billiards groups yet.\n\nAfter creating the group, please remind invited members to update the app. Members whose platform does not yet offer the new version will need to wait until it is available.",
+    "group_billiards_create_notice_title": "Billiards group version notice",
+    "group_complete_confirm": "Check that every match has been handled before ending this activity.",
+    "group_error_applicant_inactive": "The applicant’s account is inactive. This request can’t be approved.",
+    "group_no_score_cap": "No cap",
+    "group_score_cap_format": "%d-point cap",
+    "group_side_out_scoring": "Server only",
+    "group_sport_billiards": "Billiards"
   }
 }

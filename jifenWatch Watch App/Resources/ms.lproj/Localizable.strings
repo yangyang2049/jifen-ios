@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "Mulakan pada telefon dan catat skor pada mana-mana peranti.";
 "linked_score_simultaneous_edit" = "Kedua-dua peranti membuat perubahan. Semak skor.";
 "linked_score_pending_finish" = "Menunggu penyegerakan";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "Segerakkan skor";
+"linked_score_end" = "Tamatkan catatan skor terpaut";
 "linked_score_excluded_operations" = "%d skor luar talian dikecualikan";
 "linked_score_reconnect_to_continue" = "Sambung semula iPhone untuk terus merekod skor.";
 "linked_score_reset_unavailable" = "Semasa mencatat skor bersama, tamatkan perlawanan semasa sebelum memulakan perlawanan baharu.";

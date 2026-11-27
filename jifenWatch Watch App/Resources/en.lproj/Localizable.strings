@@ -244,10 +244,10 @@
 "watch_phone_link_normal_detail" = "The phone app responded and linked scoring is ready.";
 "watch_phone_link_failed_detail" = "No response within 8 seconds. Check the tips below.";
 "watch_phone_link_failed_inactive" = "The watch connection service is not active yet. Try again shortly.";
-"watch_phone_link_failed_unreachable" = "The phone is not reachable. Open ScoreKeeper on the phone and try again.";
+"watch_phone_link_failed_unreachable" = "The phone is not reachable. Open iScoreboard on the phone and try again.";
 "watch_phone_link_failed_send" = "The test request could not be sent. Check the connection and retry.";
 "watch_phone_link_reachable_detail" = "Run the test below to verify that the phone app responds.";
-"watch_phone_link_waiting_detail" = "Open ScoreKeeper on the phone and try again.";
+"watch_phone_link_waiting_detail" = "Open iScoreboard on the phone and try again.";
 "watch_phone_link_test_waiting" = "Testing…";
 "watch_phone_link_test_retry" = "Retry";
 "watch_phone_link_test" = "Test";

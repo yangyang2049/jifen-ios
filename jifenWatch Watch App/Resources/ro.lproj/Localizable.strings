@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "Pornește pe telefon și notează scorul pe oricare dintre dispozitive.";
 "linked_score_simultaneous_edit" = "Au fost făcute modificări pe ambele dispozitive. Verifică scorul.";
 "linked_score_pending_finish" = "În așteptarea sincronizării";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "Sincronizează scorul";
+"linked_score_end" = "Încheie punctajul conectat";
 "linked_score_excluded_operations" = "%d scoruri offline excluse";
 "linked_score_reconnect_to_continue" = "Reconectează iPhone-ul pentru a continua să înregistrezi scorul.";
 "linked_score_reset_unavailable" = "Când înregistrezi scorul pe ambele dispozitive, încheie meciul în curs înainte de a începe altul.";

@@ -23,13 +23,8 @@ fi
 for locale in "${locales[@]}"; do
   if ! python3 "$repo_dir/scripts/localization/localize.py" validate \
     --locale "$locale" \
-    --require-reviewed >/dev/null; then
-    echo "Visual audit blocked: $locale still has unreviewed or invalid localization rows." >&2
-    exit 2
-  fi
-  resource_dir="$repo_dir/jifen/Resources/$locale.lproj"
-  if [[ ! -f "$resource_dir/Localizable.strings" || ! -f "$resource_dir/InfoPlist.strings" ]]; then
-    echo "Visual audit blocked: $locale passed review but has not been promoted into Resources." >&2
+    --require-reviewed --check-resources --output "$audit_dir/catalog-$locale.json" >/dev/null; then
+    echo "Visual audit blocked: check $audit_dir/catalog-$locale.json for catalog or resource errors." >&2
     exit 2
   fi
 done

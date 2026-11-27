@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "Auf dem Handy starten und auf beiden Geräten Punkte eintragen.";
 "linked_score_simultaneous_edit" = "Beide Geräte haben Änderungen vorgenommen. Prüfe den Spielstand.";
 "linked_score_pending_finish" = "Synchronisierung ausstehend";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "Spielstand synchronisieren";
+"linked_score_end" = "Verknüpfte Punktezählung beenden";
 "linked_score_excluded_operations" = "%d Offline-Punkte ausgeschlossen";
 "linked_score_reconnect_to_continue" = "Verbinde dein iPhone erneut, um weiter Punkte einzutragen.";
 "linked_score_reset_unavailable" = "Beende bei gemeinsamer Punktezählung zuerst das laufende Spiel, bevor du ein neues startest.";

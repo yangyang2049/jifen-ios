@@ -34,6 +34,7 @@ from datetime import datetime, timezone
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from xml.parsers.expat import ExpatError
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -52,14 +53,17 @@ SOURCE_LOCALIZABLE = RESOURCE_ROOT / "en.lproj" / "Localizable.strings"
 SOURCE_INFO_PLIST = RESOURCE_ROOT / "en.lproj" / "InfoPlist.strings"
 ZH_HANS_LOCALIZABLE = RESOURCE_ROOT / "zh-Hans.lproj" / "Localizable.strings"
 
-ENTRY_RE = re.compile(r'^\s*"((?:[^"\\]|\\.)*)"\s*=\s*"((?:[^"\\]|\\.)*)"\s*;\s*$')
+# Match the quoted assignments and comments used by the localization generator.
+STRINGS_TOKEN_RE = re.compile(
+    r'''(?P<key>"(?:[^"\\\r\n]|\\[nt"'\\])*")\s*=\s*(?P<value>"(?:[^"\\\r\n]|\\[nt"'\\])*")\s*;'''
+    r"|(?P<block>/\*(?s:.*?)\*/)|//[^\n]*|[ \t\n]+"
+)
 FORMAT_RE = re.compile(
     r"%(?:%|(?:(?P<position>\d+)\$)?[-+0 #']*(?:\d+|\*)?(?:\.\d+)?"
     r"(?:hh|h|ll|l|L|z|t|j)?(?P<type>[@dDuUxXoOfFeEgGcCsSpaAi]))"
 )
 URL_RE = re.compile(r"(?:https?://|mailto:)[^\s<>]+", re.IGNORECASE)
 URL_LITERAL_RE = re.compile(r"(?:https?://|mailto:)[^\s<>()\[\]{}（）「」『』《》〈〉«»\"'“”‘’、，。；：！？،؛؟]+", re.IGNORECASE)
-SECTION_RE = re.compile(r"^\s*/\*\s*(.*?)\s*\*/\s*$")
 BIDI_CONTROLS = set("\u061c\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069")
 REVIEW_STATES = {"reviewed", "fixed"}
 # These reviewed fragments are concatenated directly into a sentence or title.
@@ -160,20 +164,33 @@ def encode_apple_string(value: str) -> str:
     )
 
 
+def strings_assignments(path: Path, content: str) -> Iterable[Tuple[int, str, re.Match[str]]]:
+    offset = 0
+    line_number = 1
+    section = "Unsectioned"
+    while offset < len(content):
+        token = STRINGS_TOKEN_RE.match(content, offset)
+        if token is None:
+            raise ValueError("invalid .strings syntax in %s:%d" % (path, line_number))
+        comment = token.group("block")
+        if comment and "\n" not in comment:
+            line_start = content.rfind("\n", 0, offset) + 1
+            line_end = content.find("\n", token.end())
+            trailing = content[token.end():] if line_end == -1 else content[token.end():line_end]
+            if not content[line_start:offset].strip() and not trailing.strip():
+                section = comment[2:-2].strip() or section
+        if token.group("key") is not None:
+            yield line_number, section, token
+        line_number += content.count("\n", offset, token.end())
+        offset = token.end()
+
+
 def parse_strings(path: Path, table: str) -> List[Entry]:
-    if not path.exists():
-        raise FileNotFoundError(path)
     entries: List[Entry] = []
     seen: Dict[str, int] = {}
-    section = "Unsectioned"
-    for line_number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
-        section_match = SECTION_RE.match(raw)
-        if section_match:
-            section = section_match.group(1).strip() or section
-        match = ENTRY_RE.match(raw)
-        if not match:
-            continue
-        key = decode_apple_string(match.group(1))
+    content = path.read_text(encoding="utf-8-sig")
+    for line_number, section, match in strings_assignments(path, content):
+        key = decode_apple_string(match.group("key")[1:-1])
         if key in seen:
             raise ValueError("duplicate key %s in %s:%d (first at %d)" % (key, path, line_number, seen[key]))
         seen[key] = line_number
@@ -181,7 +198,7 @@ def parse_strings(path: Path, table: str) -> List[Entry]:
             Entry(
                 table=table,
                 key=key,
-                value=decode_apple_string(match.group(2)),
+                value=decode_apple_string(match.group("value")[1:-1]),
                 section=section,
                 order=len(entries),
             )
@@ -1138,7 +1155,7 @@ def command_apply_review(args: argparse.Namespace) -> int:
 
 
 def value_for_row(row: Dict[str, Any]) -> Optional[str]:
-    if row.get("status") in REVIEW_STATES and row.get("final") is not None:
+    if row.get("status") in REVIEW_STATES:
         return row.get("final")
     return machine_candidate(row)
 
@@ -1248,6 +1265,11 @@ def validate_locale(locale: str, require_reviewed: bool) -> Dict[str, Any]:
 def command_validate(args: argparse.Namespace) -> int:
     specs = choose_locales(args)
     reports = [validate_locale(spec["ios"], args.require_reviewed) for spec in specs]
+    if args.check_resources:
+        for report in reports:
+            if report["passed"]:
+                report["blockers"].extend(promoted_resource_differences(report["locale"]))
+                report["passed"] = not report["blockers"]
     output = args.output or (BUILD_ROOT / "reports" / "validation.json")
     atomic_write(Path(output), json.dumps(reports, ensure_ascii=False, indent=2) + "\n")
     for report in reports:
@@ -1258,20 +1280,58 @@ def command_validate(args: argparse.Namespace) -> int:
     return 0 if all(report["passed"] for report in reports) else 2
 
 
-def render_strings(template: Path, table: str, catalog: Dict[Tuple[str, str], Dict[str, Any]]) -> str:
-    output: List[str] = []
-    for raw in template.read_text(encoding="utf-8").splitlines():
-        match = ENTRY_RE.match(raw)
-        if not match:
-            output.append(raw)
+def promoted_resource_differences(locale: str) -> List[Dict[str, Any]]:
+    catalog = load_catalog(locale)
+    folder = RESOURCE_ROOT / (locale + ".lproj")
+    differences = []
+    for table in ("Localizable", "InfoPlist"):
+        path = folder / (table + ".strings")
+        try:
+            actual = {entry.key: entry.value for entry in parse_strings(path, table)}
+        except (OSError, ValueError) as error:
+            differences.append({"code": "invalid-resource", "table": table, "key": None, "detail": str(error)})
             continue
-        key = decode_apple_string(match.group(1))
+        expected = {key: value_for_row(row) for (name, key), row in catalog.items() if name == table}
+        for key in sorted(actual.keys() | expected.keys()):
+            if actual.get(key) != expected.get(key):
+                differences.append({
+                    "code": "resource-mismatch", "table": table, "key": key,
+                    "detail": "bundled value %r differs from catalog value %r" % (actual.get(key), expected.get(key)),
+                })
+    path = folder / "Localizable.stringsdict"
+    try:
+        actual_plurals = plistlib.loads(path.read_bytes())
+        if not isinstance(actual_plurals, dict):
+            raise ValueError("expected a dictionary")
+    except (OSError, ValueError, plistlib.InvalidFileException, ExpatError) as error:
+        differences.append({"code": "invalid-resource", "table": "Plural", "key": None, "detail": str(error)})
+        return differences
+    expected_plurals = plistlib.loads(render_stringsdict(locale, catalog))
+    for key in sorted(actual_plurals.keys() | expected_plurals.keys()):
+        if actual_plurals.get(key) != expected_plurals.get(key):
+            differences.append({
+                "code": "resource-mismatch", "table": "Plural", "key": key,
+                "detail": "bundled plural forms or format differ from the catalog",
+            })
+    return differences
+
+
+def render_strings(template: Path, table: str, catalog: Dict[Tuple[str, str], Dict[str, Any]]) -> str:
+    content = template.read_text(encoding="utf-8-sig")
+    output: List[str] = []
+    offset = 0
+    for _, _, match in strings_assignments(template, content):
+        start, end = match.span("value")
+        key = decode_apple_string(match.group("key")[1:-1])
         row = catalog[(table, key)]
         value = value_for_row(row)
         if value is None:
             raise ValueError("missing rendered value for %s/%s" % (table, key))
-        output.append('"%s" = "%s";' % (encode_apple_string(key), encode_apple_string(value)))
-    return "\n".join(output) + "\n"
+        output.append(content[offset:start])
+        output.append('"' + encode_apple_string(value) + '"')
+        offset = end
+    output.append(content[offset:])
+    return "".join(output)
 
 
 def render_stringsdict(locale: str, catalog: Dict[Tuple[str, str], Dict[str, Any]]) -> bytes:
@@ -1459,6 +1519,7 @@ def build_parser() -> argparse.ArgumentParser:
     validate = subparsers.add_parser("validate", help="run deterministic catalog gates")
     add_selection(validate)
     validate.add_argument("--require-reviewed", action="store_true")
+    validate.add_argument("--check-resources", action="store_true", help="check bundled strings and plurals against the catalogs")
     validate.add_argument("--output", type=Path)
     validate.set_defaults(handler=command_validate)
 

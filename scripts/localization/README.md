@@ -61,6 +61,16 @@ python3 scripts/localization/localize.py promote --locale ja --dry-run
 python3 scripts/localization/localize.py promote --locale ja
 ```
 
+Check the release checkout after promotion. The resource check catches extra,
+missing, or changed strings and plural forms in the 44 generated phone locales.
+The Watch and sports voice tables have independent checks.
+
+```sh
+python3 scripts/localization/localize.py validate --all --require-reviewed --check-resources
+python3 scripts/localization/watch_coverage.py --check
+python3 scripts/localization/localize.py voice validate
+```
+
 After the priority locales have been reviewed and promoted, run the visual
 audit on both a narrow iPhone and iPad. The runner blocks immediately if any
 requested locale still contains unreviewed rows or has no promoted `.lproj`:

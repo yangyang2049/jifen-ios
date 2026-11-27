@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "Start på telefonen, og registrer point på begge enheder.";
 "linked_score_simultaneous_edit" = "Der blev ændret på begge enheder. Tjek stillingen.";
 "linked_score_pending_finish" = "Afventer synkronisering";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "Synkroniser stillingen";
+"linked_score_end" = "Afslut sammenkoblet pointregistrering";
 "linked_score_excluded_operations" = "%d offline-point udeladt";
 "linked_score_reconnect_to_continue" = "Opret forbindelse til din iPhone igen for at fortsætte med at registrere point.";
 "linked_score_reset_unavailable" = "Når pointtællingen er delt, skal du afslutte den aktuelle kamp, før du starter en ny.";

@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "فون پر شروع کریں اور کسی بھی ڈیوائس پر اسکور درج کریں۔";
 "linked_score_simultaneous_edit" = "دونوں ڈیوائسز پر تبدیلی ہوئی۔ اسکور چیک کریں۔";
 "linked_score_pending_finish" = "سنک باقی ہے";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "اسکور ہم وقت کریں";
+"linked_score_end" = "منسلک اسکورنگ ختم کریں";
 "linked_score_excluded_operations" = "%d آف لائن اسکور شامل نہیں کیے گئے";
 "linked_score_reconnect_to_continue" = "اسکور درج کرنا جاری رکھنے کے لیے iPhone سے دوبارہ منسلک کریں۔";
 "linked_score_reset_unavailable" = "دونوں ڈیوائسز پر اسکور درج کرتے وقت نیا میچ شروع کرنے سے پہلے موجودہ میچ ختم کریں۔";

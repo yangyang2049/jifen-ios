@@ -92,15 +92,64 @@ class LocalizationPipelineTests(unittest.TestCase):
             folder = localize.RESOURCE_ROOT / (locale + ".lproj")
             if spec["existing"] or not folder.exists():
                 continue
-            catalog = localize.load_catalog(locale)
-            for table in ["Localizable", "InfoPlist"]:
-                actual = {entry.key: entry.value for entry in localize.parse_strings(folder / (table + ".strings"), table)}
-                expected = {entry.key: localize.value_for_row(catalog[entry.identity])
-                            for entry in localize.source_entries() if entry.table == table}
-                self.assertEqual(actual, expected, f"{locale}/{table} differs from the reviewed catalog")
-            actual_plurals = plistlib.loads((folder / "Localizable.stringsdict").read_bytes())
-            expected_plurals = plistlib.loads(localize.render_stringsdict(locale, catalog))
-            self.assertEqual(actual_plurals, expected_plurals, f"{locale} plurals differ from the reviewed catalog")
+            self.assertEqual(localize.promoted_resource_differences(locale), [], locale)
+
+    def test_reviewed_row_requires_a_final_value(self):
+        self.assertIsNone(localize.value_for_row({"status": "reviewed", "azure": "Draft", "final": None}))
+
+    def test_resource_check_detects_an_edit_missing_from_the_bundle(self):
+        locale = "ja"
+        catalog = localize.load_catalog(locale)
+        identity = ("Localizable", "cancel")
+        catalog[identity]["final"] += "!"
+        with patch.object(localize, "load_catalog", return_value=catalog):
+            differences = localize.promoted_resource_differences(locale)
+        self.assertTrue(any(
+            (difference["table"], difference["key"], difference["code"]) == (*identity, "resource-mismatch")
+            for difference in differences
+        ))
+
+    def test_resource_check_rejects_hidden_missing_and_extra_keys(self):
+        cases = [
+            ('/*\n"cancel" = "キャンセル";\n*/\n', "resource-mismatch", "cancel"),
+            ('"cancel" = "キャンセル"; "extra" = "追加";\n', "resource-mismatch", "extra"),
+            ('"cancel" = "キャンセル";\nstray text\n', "invalid-resource", None),
+            ('"cancel" = "キャンセル";\n/* unterminated\n', "invalid-resource", None),
+        ]
+        catalog = {("Localizable", "cancel"): {"status": "reviewed", "final": "キャンセル"}}
+        empty_plurals = plistlib.dumps({})
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            folder = root / "ja.lproj"
+            folder.mkdir()
+            (folder / "InfoPlist.strings").write_text("", encoding="utf-8")
+            (folder / "Localizable.stringsdict").write_bytes(empty_plurals)
+            with patch.object(localize, "RESOURCE_ROOT", root), \
+                 patch.object(localize, "load_catalog", return_value=catalog), \
+                 patch.object(localize, "render_stringsdict", return_value=empty_plurals):
+                for content, code, key in cases:
+                    with self.subTest(content=content):
+                        (folder / "Localizable.strings").write_text(content, encoding="utf-8")
+                        differences = localize.promoted_resource_differences("ja")
+                        self.assertEqual([(row["code"], row["key"]) for row in differences], [(code, key)])
+
+    def test_strings_renderer_preserves_comments_and_renders_same_line_keys(self):
+        source = '/* Menu */\n/*\n"hidden" = "Untouched";\n*/\n"a" = "A"; "b" = "B"; // Keep\n'
+        catalog = {
+            ("Localizable", "a"): {"status": "reviewed", "final": "One"},
+            ("Localizable", "b"): {"status": "reviewed", "final": "https://example.com/*"},
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            template = Path(directory) / "Localizable.strings"
+            template.write_text(source, encoding="utf-8")
+            self.assertEqual(
+                localize.render_strings(template, "Localizable", catalog),
+                '/* Menu */\n/*\n"hidden" = "Untouched";\n*/\n"a" = "One"; "b" = "https://example.com/*"; // Keep\n',
+            )
+            self.assertEqual(
+                [(entry.key, entry.section) for entry in localize.parse_strings(template, "Localizable")],
+                [("a", "Menu"), ("b", "Menu")],
+            )
 
     def test_plural_inventory_uses_locale_categories(self):
         plural_count = len(localize.plural_manifest()["keys"])

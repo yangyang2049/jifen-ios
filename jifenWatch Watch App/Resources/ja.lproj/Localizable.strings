@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "スマートフォンで開始し、どちらの端末でも得点を記録できます。";
 "linked_score_simultaneous_edit" = "両方の端末で操作がありました。得点を確認してください。";
 "linked_score_pending_finish" = "同期を待機中";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "スコアを同期";
+"linked_score_end" = "連携を終了";
 "linked_score_excluded_operations" = "%d件のオフライン得点を除外";
 "linked_score_reconnect_to_continue" = "得点を続けるにはiPhoneに再接続してください。";
 "linked_score_reset_unavailable" = "連携中に新しい試合を始めるには、先に現在の試合を終了してください。";

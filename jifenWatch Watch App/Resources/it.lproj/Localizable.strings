@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "Inizia sul telefono e segna i punti da entrambi i dispositivi.";
 "linked_score_simultaneous_edit" = "Ci sono state modifiche su entrambi i dispositivi. Controlla il punteggio.";
 "linked_score_pending_finish" = "In attesa di sincronizzazione";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "Sincronizza il punteggio";
+"linked_score_end" = "Termina il conteggio collegato";
 "linked_score_excluded_operations" = "%d punti offline esclusi";
 "linked_score_reconnect_to_continue" = "Riconnetti l’iPhone per continuare a segnare i punti.";
 "linked_score_reset_unavailable" = "Durante il conteggio condiviso dei punti, termina la partita in corso prima di iniziarne una nuova.";

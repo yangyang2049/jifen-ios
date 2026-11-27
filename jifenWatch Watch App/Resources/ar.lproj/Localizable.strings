@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "ابدأ من الهاتف وسجّل النقاط على أيّ من الجهازين.";
 "linked_score_simultaneous_edit" = "أُجريت تغييرات على الجهازين. تحقّق من النتيجة.";
 "linked_score_pending_finish" = "بانتظار المزامنة";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "مزامنة النتيجة";
+"linked_score_end" = "إنهاء التسجيل المرتبط";
 "linked_score_excluded_operations" = "%d نتيجة دون اتصال لم تُحتسب";
 "linked_score_reconnect_to_continue" = "أعد الاتصال بـ iPhone لمتابعة تسجيل النقاط.";
 "linked_score_reset_unavailable" = "أنهِ المباراة الحالية قبل أن تبدأ مباراة جديدة أثناء تسجيل النقاط المشترك.";

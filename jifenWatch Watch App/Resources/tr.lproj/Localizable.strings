@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "Telefonda başlatın, iki cihazdan da skor girebilirsiniz.";
 "linked_score_simultaneous_edit" = "İki cihazda da değişiklik yapıldı. Skoru kontrol edin.";
 "linked_score_pending_finish" = "Eşitleme bekleniyor";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "Skoru eşzamanla";
+"linked_score_end" = "Bağlantılı skor takibini sonlandır";
 "linked_score_excluded_operations" = "%d çevrimdışı skor hariç tutuldu";
 "linked_score_reconnect_to_continue" = "Skor girmeye devam etmek için iPhone'a yeniden bağlanın.";
 "linked_score_reset_unavailable" = "Birlikte skor tutarken yeni bir maça başlamadan önce devam eden maçı bitirin.";

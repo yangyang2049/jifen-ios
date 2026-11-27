@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "ଫୋନରେ ଆରମ୍ଭ କରନ୍ତୁ ଏବଂ ଯେକୌଣସି ଡିଭାଇସରେ ସ୍କୋର ଲେଖନ୍ତୁ।";
 "linked_score_simultaneous_edit" = "ଉଭୟ ଡିଭାଇସରେ ପରିବର୍ତ୍ତନ ହୋଇଛି। ସ୍କୋର ଯାଞ୍ଚ କରନ୍ତୁ।";
 "linked_score_pending_finish" = "ସିଙ୍କ୍ ବାକି";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "ସ୍କୋର ସିଙ୍କ୍ କରନ୍ତୁ";
+"linked_score_end" = "ସଂଯୁକ୍ତ ସ୍କୋରିଂ ଶେଷ କରନ୍ତୁ";
 "linked_score_excluded_operations" = "%d ଅଫଲାଇନ୍ ସ୍କୋର ଗଣାଯିବ ନାହିଁ";
 "linked_score_reconnect_to_continue" = "ସ୍କୋର ଲେଖିବା ଜାରି ରଖିବା ପାଇଁ iPhone ସହ ପୁଣି ସଂଯୋଗ କରନ୍ତୁ।";
 "linked_score_reset_unavailable" = "ଦୁଇଟି ଡିଭାଇସ୍‌ରେ ସ୍କୋର ଲେଖୁଥିବାବେଳେ ନୂଆ ମ୍ୟାଚ୍ ଆରମ୍ଭ କରିବା ପୂର୍ବରୁ ବର୍ତ୍ତମାନର ମ୍ୟାଚ୍ ଶେଷ କରନ୍ତୁ।";

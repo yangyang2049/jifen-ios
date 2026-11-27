@@ -421,8 +421,8 @@
 "watch_phone_shared_link_intro" = "Почніть на телефоні й записуйте рахунок на будь-якому пристрої.";
 "linked_score_simultaneous_edit" = "На обох пристроях внесено зміни. Перевірте рахунок.";
 "linked_score_pending_finish" = "Очікує синхронізації";
-"linked_score_resync" = "Sync Score";
-"linked_score_end" = "End link";
+"linked_score_resync" = "Синхронізувати рахунок";
+"linked_score_end" = "Завершити спільний підрахунок";
 "linked_score_excluded_operations" = "%d офлайн-очок не зараховано";
 "linked_score_reconnect_to_continue" = "Підключіть iPhone знову, щоб продовжити вести рахунок.";
 "linked_score_reset_unavailable" = "Під час спільного підрахунку очок спочатку завершіть поточний матч, а потім починайте новий.";
